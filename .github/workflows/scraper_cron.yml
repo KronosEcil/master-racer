@@ -2,8 +2,8 @@ name: Master Racer Scraper & Notification Cron
 
 on:
   schedule:
-    # Günde 2 kez: 06:00 UTC (09:00 TR) ve 18:00 UTC (21:00 TR)
-    - cron: '0 6,18 * * *'
+    # Günde 2 kez: Öğlen 14:00 TR (11:00 UTC), Akşam 20:00 TR (17:00 UTC)
+    - cron: '0 11,17 * * *'
   workflow_dispatch: # GitHub web arayüzünden tek tıkla manuel tetikleme desteği
 
 jobs:
