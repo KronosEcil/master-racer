@@ -1,0 +1,32 @@
+# Firebase Gizli Anahtarları (Kesinlikle repoya yüklenmemeli!)
+serviceAccountKey.json
+google-services.json
+*firebase-adminsdk*.json
+*.key
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+*.json.cache
+
+# Gradle & Android
+.gradle/
+build/
+app/build/
+android/.gradle/
+android/build/
+android/app/build/
+*.iml
+.idea/
+local.properties
+.DS_Store
+
+# Android Studio
+captures/
+.externalNativeBuild/
+.cxx/

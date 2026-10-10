@@ -1,0 +1,32 @@
+name: Master Racer Scraper & Notification Cron
+
+on:
+  schedule:
+    # Günde 2 kez: 06:00 UTC (09:00 TR) ve 18:00 UTC (21:00 TR)
+    - cron: '0 6,18 * * *'
+  workflow_dispatch: # GitHub web arayüzünden tek tıkla manuel tetikleme desteği
+
+jobs:
+  scrape-and-notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repoyu Klonla
+        uses: actions/checkout@v4
+
+      - name: Python 3.11 Kurulumu
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Bağımlılıkları Yükle
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Tarama ve Bildirim Motorunu Çalıştır
+        env:
+          FIREBASE_CREDENTIALS_JSON: ${{ secrets.FIREBASE_CREDENTIALS_JSON }}
+          FIRESTORE_COLLECTION: 'competitions'
+        run: |
+          python -m backend.scraper.main

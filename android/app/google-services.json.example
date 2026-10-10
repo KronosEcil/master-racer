@@ -1,0 +1,30 @@
+﻿{
+  "project_info": {
+    "project_number": "123456789012",
+    "project_id": "master-racer-demo",
+    "storage_bucket": "master-racer-demo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:123456789012:android:abcdef0123456789",
+        "android_client_info": {
+          "package_name": "com.ecil.masterracer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-EXAMPLE_API_KEY_STRING_HERE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
+
