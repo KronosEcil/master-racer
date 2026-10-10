@@ -16,6 +16,7 @@ from .parsers.taf_parser import TAFParser
 from .parsers.ema_parser import EMAParser
 from .parsers.wma_balkan_parser import WMABalkanParser
 from .parsers.national_parser import NationalFederationsParser
+from .parsers.autonomous_discovery import AutonomousDiscoveryParser
 
 logging.basicConfig(
     level=logging.INFO,
@@ -89,6 +90,7 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
     existing_comps = fetch_existing_competitions(db)
 
     parsers = [
+        AutonomousDiscoveryParser(),
         TAFParser(),
         EMAParser(),
         WMABalkanParser(),

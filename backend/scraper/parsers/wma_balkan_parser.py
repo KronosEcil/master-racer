@@ -115,6 +115,19 @@ class WMABalkanParser(BaseParser):
                 "federation": "WMA",
                 "regulations_url": "https://world-masters-athletics.org/regulations/wmaci-2027.pdf",
                 "website_url": "https://world-masters-athletics.org"
+            },
+            {
+                "title": "World Masters Games 2027 (Dünya Masterlar Oyunları)",
+                "country": "INT",
+                "country_name": "Uluslararası / Kansai",
+                "city": "Kansai / Taipei",
+                "start_date": "2027-05-14",
+                "end_date": "2027-05-23",
+                "venue_type": "outdoor",
+                "scope": "world",
+                "federation": "IMGA / WMA",
+                "regulations_url": "https://wmg2027.jp/en/regulations.pdf",
+                "website_url": "https://wmg2027.jp"
             }
         ]
 

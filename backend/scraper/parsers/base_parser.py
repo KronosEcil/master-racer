@@ -40,7 +40,7 @@ class BaseParser(abc.ABC):
     def detect_venue_type(self, text: str) -> str:
         """Metin içerisindeki anahtar kelimelerden salon/açık/yol ayrımını yapar."""
         text_lower = text.lower()
-        if any(w in text_lower for w in ["salon", "indoor", "kapalı"]):
+        if any(w in text_lower for w in ["salon", "indoor", "kapalı", "halle", "en salle", "hallenmeeting", "pista cubierta"]):
             return "indoor"
         if any(w in text_lower for w in ["yol", "maraton", "yarı maraton", "road", "10k", "21k", "42k"]):
             return "road"
@@ -58,7 +58,7 @@ class BaseParser(abc.ABC):
             categories.append("Engelli")
         if any(w in text_lower for w in ["atlama", "uzun atlama", "üçadım", "yüksek atlama", "sırık", "jump"]):
             categories.append("Atlamalar")
-        if any(w in text_lower for w in ["atma", "gülle", "cirit", "disk", "çekiç", "throw", "shot put"]):
+        if any(w in text_lower for w in ["atma", "gülle", "cirit", "disk", "çekiç", "throw", "shot put", "winterwurf", "wurf", "lancers"]):
             categories.append("Atmalar")
         if any(w in text_lower for w in ["uzun mesafe", "5000m", "10000m", "maraton", "yol", "distance"]):
             categories.append("Uzun Mesafe")

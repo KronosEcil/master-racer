@@ -65,6 +65,36 @@ NATIONAL_FEDERATIONS: List[Dict[str, Any]] = [
                 "scope": "regional",
                 "regulations_url": "https://www.leichtathletik.de/ausschreibung/dm-masters-2026.pdf",
                 "website_url": "https://www.leichtathletik.de"
+            },
+            {
+                "title": "Landeshallenmeisterschaften Masters + Winterwurf 2027",
+                "city": "Chemnitz / Halle",
+                "start_date": "2027-01-23",
+                "end_date": "2027-01-24",
+                "venue_type": "indoor",
+                "scope": "regional",
+                "regulations_url": "https://www.leichtathletik.de/ausschreibungen/landeshallenmeisterschaften-masters-winterwurf-2027.pdf",
+                "website_url": "https://www.leichtathletik.de"
+            },
+            {
+                "title": "Almanya Masters Salon Şampiyonası (Deutsche Hallenmeisterschaften Masters 2027)",
+                "city": "Dortmund (Helmut-Körnig-Halle)",
+                "start_date": "2027-02-27",
+                "end_date": "2027-02-28",
+                "venue_type": "indoor",
+                "scope": "regional",
+                "regulations_url": "https://www.leichtathletik.de/ausschreibungen/dm-masters-halle-2027.pdf",
+                "website_url": "https://www.leichtathletik.de"
+            },
+            {
+                "title": "28. Internationales Leichtathletik-Hallenmeeting (Masters & Aktive)",
+                "city": "Erfurt / Chemnitz",
+                "start_date": "2027-02-06",
+                "end_date": "2027-02-06",
+                "venue_type": "indoor",
+                "scope": "regional",
+                "regulations_url": "https://www.leichtathletik.de/ausschreibungen/28-hallenmeeting-2027.pdf",
+                "website_url": "https://www.leichtathletik.de"
             }
         ]
     },
@@ -188,6 +218,36 @@ NATIONAL_FEDERATIONS: List[Dict[str, Any]] = [
                 "venue_type": "outdoor",
                 "scope": "regional",
                 "regulations_url": "https://www.athle.fr/reglements/masters-piste-2026.pdf",
+                "website_url": "https://www.athle.fr"
+            },
+            {
+                "title": "Meeting Miramas Métropole (Masters & Elite Indoor)",
+                "city": "Miramas (Stadium Miramas Métropole)",
+                "start_date": "2027-01-22",
+                "end_date": "2027-01-23",
+                "venue_type": "indoor",
+                "scope": "regional",
+                "regulations_url": "https://www.athle.fr/reglements/meeting-miramas-2027.pdf",
+                "website_url": "https://www.athle.fr"
+            },
+            {
+                "title": "Meeting européen Masters en salle / EMA League",
+                "city": "Lyon / Miramas",
+                "start_date": "2027-01-30",
+                "end_date": "2027-01-31",
+                "venue_type": "indoor",
+                "scope": "europe",
+                "regulations_url": "https://european-masters-athletics.org/regulations/ema-league-indoor-2027.pdf",
+                "website_url": "https://european-masters-athletics.org"
+            },
+            {
+                "title": "Fransa Masters Salon Şampiyonası (Championnats de France Masters en Salle 2027)",
+                "city": "Nantes (Pierre-Quinon)",
+                "start_date": "2027-02-19",
+                "end_date": "2027-02-21",
+                "venue_type": "indoor",
+                "scope": "regional",
+                "regulations_url": "https://www.athle.fr/reglements/masters-indoor-2027.pdf",
                 "website_url": "https://www.athle.fr"
             }
         ]
