@@ -1,4 +1,4 @@
-﻿package com.ecil.masterracer.data.model
+package com.ecil.masterracer.data.model
 
 import com.google.firebase.firestore.PropertyName
 import java.text.SimpleDateFormat
@@ -127,10 +127,18 @@ data class Competition(
         return when (country.uppercase()) {
             "TR", "TUR" -> "🇹🇷"
             "GR", "GRE" -> "🇬🇷"
+            "DE", "GER" -> "🇩🇪"
+            "IT", "ITA" -> "🇮🇹"
+            "GB", "UK", "GBR" -> "🇬🇧"
+            "ES", "ESP" -> "🇪🇸"
+            "FR", "FRA" -> "🇫🇷"
             "PL", "POL" -> "🇵🇱"
-            "SWE" -> "🇸🇪"
-            "PT", "POR" -> "🇵🇹"
+            "BG", "BUL" -> "🇧🇬"
+            "RO", "ROU" -> "🇷🇴"
             "RS", "SRB" -> "🇷🇸"
+            "SE", "SWE" -> "🇸🇪"
+            "NL", "NED" -> "🇳🇱"
+            "PT", "POR" -> "🇵🇹"
             "KOR" -> "🇰🇷"
             "USA" -> "🇺🇸"
             "EU" -> "🇪🇺"

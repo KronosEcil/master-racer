@@ -15,6 +15,7 @@ from .notification import NotificationManager
 from .parsers.taf_parser import TAFParser
 from .parsers.ema_parser import EMAParser
 from .parsers.wma_balkan_parser import WMABalkanParser
+from .parsers.national_parser import NationalFederationsParser
 
 logging.basicConfig(
     level=logging.INFO,
@@ -90,7 +91,8 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
     parsers = [
         TAFParser(),
         EMAParser(),
-        WMABalkanParser()
+        WMABalkanParser(),
+        NationalFederationsParser()
     ]
 
     all_scraped: List[Competition] = []

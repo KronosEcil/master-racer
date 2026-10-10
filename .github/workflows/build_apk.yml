@@ -1,0 +1,54 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch: # GitHub web arayüzünden tek tıkla APK üretme
+  push:
+    branches:
+      - main
+    paths:
+      - 'android/**'
+
+jobs:
+  build-apk:
+    name: Generate APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repoyu Klonla
+        uses: actions/checkout@v4
+
+      - name: Java 17 Kurulumu
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Android SDK Kurulumu
+        uses: android-actions/setup-android@v3
+
+      - name: Gradle 8.4 Kurulumu
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: "8.4"
+
+      - name: google-services.json Hazırla
+        env:
+          GOOGLE_SERVICES_SECRET: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_SECRET" ]; then
+            echo "$GOOGLE_SERVICES_SECRET" > android/app/google-services.json
+          elif [ ! -f "android/app/google-services.json" ]; then
+            cp android/app/google-services.json.example android/app/google-services.json
+          fi
+
+      - name: Debug APK Derle
+        run: |
+          cd android
+          gradle assembleDebug --no-daemon --stacktrace
+
+      - name: APK Dosyasını İndirilebilir Olarak Yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: MasterRacer-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
