@@ -15,11 +15,20 @@ class TAFParser(BaseParser):
     """
     def __init__(self):
         super().__init__(name="TAF_Parser", base_url="https://taf.org.tr")
-        self.calendar_url = "https://taf.org.tr/yarisma-takvimi"
+        self.calendar_urls = [
+            "https://taf.org.tr/faaliyet-takvimi/",
+            "https://www.taf.org.tr/faaliyet-takvimi/",
+            "https://taf.org.tr/yarisma-programi/",
+            "https://taf.org.tr/yarisma-takvimi/"
+        ]
 
     def parse(self) -> List[Competition]:
         competitions: List[Competition] = []
-        html = self.fetch_html(self.calendar_url)
+        html = None
+        for url in self.calendar_urls:
+            html = self.fetch_html(url)
+            if html:
+                break
 
         if html:
             soup = BeautifulSoup(html, "html.parser")
