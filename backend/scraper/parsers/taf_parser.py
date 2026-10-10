@@ -75,16 +75,9 @@ class TAFParser(BaseParser):
                 except Exception as e:
                     logger.debug(f"[TAFParser] Satır işlenirken hata: {e}")
 
-        # Eğer federasyon sitesinde henüz dinamik tablo açılmadıysa veya sezon takvimi
-        # güncellenme aşamasındaysa, resmi yıllık Türkiye Masterlar takvimini ekle
-        if not competitions:
-            logger.info("[TAFParser] Canlı siteden veri çekilemedi/boş döndü, resmi yıllık şampiyonalar yükleniyor.")
-            competitions.extend(self._get_official_turkish_masters_fixtures())
-
         return competitions
 
     def _parse_dates(self, date_str: str) -> tuple[str, str]:
-        # Varsayılan tarih çözümleyici
         match = re.search(r"(\d{1,2})[.-/](\d{1,2})[.-/](\d{4})", date_str)
         if match:
             day, month, year = match.groups()
@@ -92,76 +85,3 @@ class TAFParser(BaseParser):
             return d, d
         now = datetime.utcnow().strftime("%Y-%m-%d")
         return now, now
-
-    def _get_official_turkish_masters_fixtures(self) -> List[Competition]:
-        """Türkiye'de her yıl düzenlenen resmi Masterlar Atletizm yarışma fikstürü"""
-        fixtures = [
-            {
-                "title": "Türkiye Masterlar Salon Atletizm Şampiyonası",
-                "city": "İstanbul",
-                "start_date": "2026-02-21",
-                "end_date": "2026-02-22",
-                "venue_type": "indoor",
-                "scope": "turkey",
-                "federation": "TAF",
-                "regulations_url": "https://taf.org.tr/reglamanlar/masterlar-salon-2026.pdf",
-                "website_url": "https://taf.org.tr"
-            },
-            {
-                "title": "Türkiye Masterlar Açık Saha Atletizm Şampiyonası",
-                "city": "İzmir",
-                "start_date": "2026-07-04",
-                "end_date": "2026-07-05",
-                "venue_type": "outdoor",
-                "scope": "turkey",
-                "federation": "TAF",
-                "regulations_url": "https://taf.org.tr/reglamanlar/masterlar-pist-2026.pdf",
-                "website_url": "https://taf.org.tr"
-            },
-            {
-                "title": "Ankara Masterlar Sonbahar Pisti & Çoklu Branş Yarışması",
-                "city": "Ankara",
-                "start_date": "2026-10-18",
-                "end_date": "2026-10-19",
-                "venue_type": "outdoor",
-                "scope": "regional",
-                "federation": "TAF",
-                "regulations_url": "https://taf.org.tr/reglamanlar/ankara-master-2026.pdf",
-                "website_url": "https://taf.org.tr"
-            },
-            {
-                "title": "Bursa Nilüfer Masterlar Kros ve Yol Koşusu Şampiyonası",
-                "city": "Bursa",
-                "start_date": "2026-11-15",
-                "end_date": "2026-11-15",
-                "venue_type": "road",
-                "scope": "regional",
-                "federation": "TAF",
-                "regulations_url": "https://taf.org.tr/reglamanlar/bursa-kros-2026.pdf",
-                "website_url": "https://taf.org.tr"
-            }
-        ]
-
-        result = []
-        for fix in fixtures:
-            comp_id = generate_competition_id(fix["title"], fix["start_date"], "TR")
-            comp = Competition(
-                id=comp_id,
-                title=fix["title"],
-                country="TR",
-                country_name="Türkiye",
-                city=fix["city"],
-                start_date=fix["start_date"],
-                end_date=fix["end_date"],
-                venue_type=fix["venue_type"],
-                categories=self.detect_categories(fix["title"]),
-                scope=fix["scope"],
-                federation=fix["federation"],
-                regulations_url=fix.get("regulations_url"),
-                website_url=fix.get("website_url"),
-                status="scheduled",
-                created_at=datetime.utcnow().isoformat()
-            )
-            comp.content_hash = compute_content_hash(comp)
-            result.append(comp)
-        return result

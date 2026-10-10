@@ -68,31 +68,7 @@ class NationalFederationsParser(BaseParser):
                 except Exception as e:
                     logger.debug(f"[{fed_name}] Canlı sayfa ayrıştırılırken hata: {e}")
 
-            # 2. Canlı taramada sezon geçişi/dinamik içerik nedeniyle yarışma bulunamadıysa
-            # federasyonun resmi yıllık şampiyonalarını yükle
-            if not fed_comps:
-                logger.info(f"[{fed_name}] Resmi ulusal şampiyona fikstürleri yükleniyor.")
-                for fixture in fed.get("official_fixtures", []):
-                    comp_id = generate_competition_id(fixture["title"], fixture["start_date"], country_code)
-                    comp = Competition(
-                        id=comp_id,
-                        title=fixture["title"],
-                        country=country_code,
-                        country_name=country_name,
-                        city=fixture["city"],
-                        start_date=fixture["start_date"],
-                        end_date=fixture["end_date"],
-                        venue_type=fixture["venue_type"],
-                        categories=self.detect_categories(fixture["title"]),
-                        scope=fixture.get("scope", "regional"),
-                        federation=fed_name,
-                        regulations_url=fixture.get("regulations_url"),
-                        website_url=fixture.get("website_url"),
-                        status="scheduled",
-                        created_at=datetime.utcnow().isoformat()
-                    )
-                    comp.content_hash = compute_content_hash(comp)
-                    fed_comps.append(comp)
+            # Sadece canlı sayfadan taranan gerçek yarışmalar eklenir
 
             all_competitions.extend(fed_comps)
             logger.info(f"[{fed_name} - {country_name}] Toplam {len(fed_comps)} yarışma eklendi.")
