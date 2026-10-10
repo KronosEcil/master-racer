@@ -1,4 +1,4 @@
-﻿package com.ecil.masterracer.ui.viewmodel
+package com.ecil.masterracer.ui.viewmodel
 
 import com.ecil.masterracer.data.model.Competition
 
@@ -13,6 +13,7 @@ data class CompetitionUiState(
     val selectedVenueType: String? = null,
     val selectedCategory: String? = null,
     val selectedDatePreset: String = "all", // "all", "next_30", "next_90", "season"
+    val hideCompleted: Boolean = false,
     val availableCountries: List<Pair<String, String>> = emptyList(),
     val selectedCompetitionForDetail: Competition? = null
 ) {
@@ -23,6 +24,7 @@ data class CompetitionUiState(
             if (selectedVenueType != null) count++
             if (selectedCategory != null) count++
             if (selectedDatePreset != "all") count++
+            if (hideCompleted) count++
             return count
         }
 }

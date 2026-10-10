@@ -1,4 +1,4 @@
-﻿package com.ecil.masterracer.ui.viewmodel
+package com.ecil.masterracer.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -68,6 +68,16 @@ class CompetitionViewModel(
         applyFilters()
     }
 
+    fun toggleHideCompleted() {
+        _uiState.update { it.copy(hideCompleted = !it.hideCompleted) }
+        applyFilters()
+    }
+
+    fun setHideCompleted(hide: Boolean) {
+        _uiState.update { it.copy(hideCompleted = hide) }
+        applyFilters()
+    }
+
     fun onResetFilters() {
         _uiState.update {
             it.copy(
@@ -75,6 +85,7 @@ class CompetitionViewModel(
                 selectedVenueType = null,
                 selectedCategory = null,
                 selectedDatePreset = "all",
+                hideCompleted = false,
                 searchQuery = ""
             )
         }
@@ -113,8 +124,16 @@ class CompetitionViewModel(
         val venue = currentState.selectedVenueType
         val category = currentState.selectedCategory
         val preset = currentState.selectedDatePreset
+        val hideCompleted = currentState.hideCompleted
 
         val filtered = currentState.allCompetitions.filter { comp ->
+            val days = comp.getDaysRemaining()
+
+            // Tamamlanan Yarışmaları Gizleme Filtresi
+            if (hideCompleted && days < 0) {
+                return@filter false
+            }
+
             // Metin Arama Filtresi (Başlık, Şehir, Ülke veya Federasyon)
             val matchesQuery = if (query.isEmpty()) true else {
                 comp.title.lowercase().contains(query) ||
@@ -133,7 +152,6 @@ class CompetitionViewModel(
             val matchesCategory = category == null || comp.categories.any { it.equals(category, ignoreCase = true) }
 
             // Tarih Önayarı Filtresi
-            val days = comp.getDaysRemaining()
             val matchesDatePreset = when (preset) {
                 "next_30" -> days in 0..30
                 "next_90" -> days in 0..90

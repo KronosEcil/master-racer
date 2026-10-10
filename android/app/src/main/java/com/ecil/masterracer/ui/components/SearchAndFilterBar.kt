@@ -1,4 +1,4 @@
-﻿package com.ecil.masterracer.ui.components
+package com.ecil.masterracer.ui.components
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +44,8 @@ fun SearchAndFilterBar(
     onSearchQueryChange: (String) -> Unit,
     activeDatePreset: String,
     onDatePresetSelect: (String) -> Unit,
+    hideCompleted: Boolean = false,
+    onToggleHideCompleted: () -> Unit = {},
     activeFilterCount: Int,
     onFilterClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -167,6 +169,26 @@ fun SearchAndFilterBar(
                     )
                 )
             }
+
+            // Tamamlananları Gizle Hızlı Butonu / Çipi
+            FilterChip(
+                selected = hideCompleted,
+                onClick = onToggleHideCompleted,
+                label = {
+                    Text(
+                        text = if (hideCompleted) "✓ Bitenleri Gizle" else "Bitenleri Gizle",
+                        fontSize = 12.sp,
+                        fontWeight = if (hideCompleted) FontWeight.SemiBold else FontWeight.Normal
+                    )
+                },
+                shape = RoundedCornerShape(20.dp),
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = Color(0xFFE11D48),
+                    selectedLabelColor = Color.White,
+                    containerColor = Color(0xFFF1F5F9),
+                    labelColor = Color(0xFF334155)
+                )
+            )
         }
     }
 }

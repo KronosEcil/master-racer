@@ -1,4 +1,4 @@
-﻿package com.ecil.masterracer.ui.screens
+package com.ecil.masterracer.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -128,6 +128,8 @@ fun HomeScreen(
                 onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
                 activeDatePreset = uiState.selectedDatePreset,
                 onDatePresetSelect = { viewModel.onDatePresetSelect(it) },
+                hideCompleted = uiState.hideCompleted,
+                onToggleHideCompleted = { viewModel.toggleHideCompleted() },
                 activeFilterCount = uiState.activeFilterCount,
                 onFilterClick = { showFilterSheet = true }
             )
@@ -251,6 +253,8 @@ fun HomeScreen(
             onVenueTypeSelect = { viewModel.onVenueTypeSelect(it) },
             selectedCategory = uiState.selectedCategory,
             onCategorySelect = { viewModel.onCategorySelect(it) },
+            hideCompleted = uiState.hideCompleted,
+            onToggleHideCompleted = { viewModel.toggleHideCompleted() },
             onResetFilters = { viewModel.onResetFilters() },
             onDismiss = { showFilterSheet = false }
         )

@@ -1,4 +1,4 @@
-﻿package com.ecil.masterracer.ui.components
+package com.ecil.masterracer.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -44,6 +44,8 @@ fun FilterBottomSheet(
     onVenueTypeSelect: (String?) -> Unit,
     selectedCategory: String?,
     onCategorySelect: (String?) -> Unit,
+    hideCompleted: Boolean = false,
+    onToggleHideCompleted: () -> Unit = {},
     onResetFilters: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -198,6 +200,42 @@ fun FilterBottomSheet(
                         )
                     )
                 }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // 4. DURUM VE GEÇMİŞ YARIŞMALAR
+            Text(
+                text = "Yarışma Durumu",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF334155)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FilterChip(
+                    selected = !hideCompleted,
+                    onClick = { if (hideCompleted) onToggleHideCompleted() },
+                    label = { Text("Tümünü Göster (Geçmiş Dahil)") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = BluePrimary,
+                        selectedLabelColor = Color.White
+                    )
+                )
+
+                FilterChip(
+                    selected = hideCompleted,
+                    onClick = { if (!hideCompleted) onToggleHideCompleted() },
+                    label = { Text("Tamamlananları Gizle") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFFE11D48),
+                        selectedLabelColor = Color.White
+                    )
+                )
             }
 
             Spacer(modifier = Modifier.height(28.dp))
