@@ -19,6 +19,8 @@ class Competition(BaseModel):
     federation: str = Field(default="", description="Düzenleyen federasyon/birlik (TAF, EMA, WMA, BAMACS)")
     regulations_url: Optional[str] = Field(default=None, description="Reglaman / Şartname PDF bağlantısı")
     website_url: Optional[str] = Field(default=None, description="Resmi etkinlik web sitesi")
+    min_age: int = Field(default=35, description="Minimum yarışma yaşı (Standart: 35+)")
+    age_category: str = Field(default="35+", description="Yaş kategorisi: 35+ (M35/W35+)")
     content_hash: str = Field(default="", description="Veri değişiklik takibi için SHA-256 özeti")
     status: str = Field(default="scheduled", description="Durum: scheduled, postponed, cancelled, completed")
     created_at: str = Field(default="", description="Kayıt oluşturulma zamanı (ISO 8601)")

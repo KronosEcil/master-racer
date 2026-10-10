@@ -1,4 +1,4 @@
-﻿package com.ecil.masterracer.ui.components
+package com.ecil.masterracer.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -240,31 +240,6 @@ fun DetailBottomSheet(
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-
-            // 2. Resmi Reglaman Bağlantısı
-            if (!competition.regulations_url.isNullOrBlank()) {
-                OutlinedButton(
-                    onClick = { CalendarHelper.openUrl(context, competition.regulations_url) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(14.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.PictureAsPdf,
-                        contentDescription = null,
-                        tint = Color(0xFFE11D48)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Resmi Reglaman / Şartname (PDF)",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF0F172A)
-                    )
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-            }
 
             // 3. Resmi Web Sitesi Bağlantısı
             if (!competition.website_url.isNullOrBlank()) {

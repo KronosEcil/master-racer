@@ -41,6 +41,12 @@ data class Competition(
     @get:PropertyName("federation") @set:PropertyName("federation")
     var federation: String = "",
 
+    @get:PropertyName("min_age") @set:PropertyName("min_age")
+    var min_age: Int = 35,
+
+    @get:PropertyName("age_category") @set:PropertyName("age_category")
+    var age_category: String = "35+",
+
     @get:PropertyName("regulations_url") @set:PropertyName("regulations_url")
     var regulations_url: String? = null,
 

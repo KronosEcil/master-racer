@@ -67,3 +67,21 @@ class BaseParser(abc.ABC):
             # Standart tam şampiyona ise tüm branşları içerir
             categories = ["Sprint", "Engelli", "Atlamalar", "Atmalar", "Uzun Mesafe"]
         return categories
+
+    def is_master_athletics(self, text: str) -> bool:
+        """
+        Sadece 35+ yaş kategorisini kapsayan Master/Veteran yarışmalarını doğrular.
+        Sadece Gençler (U14-U23) veya salt elit yarışmaları eler.
+        """
+        text_lower = text.lower()
+        # Eğer gençlik/yıldız kategorisiyse ve master kelimesi yoksa ele
+        if any(k in text_lower for k in ["u14", "u16", "u18", "u20", "u23", "gençler", "yıldızlar", "jugend", "cadet"]):
+            if not any(k in text_lower for k in ["master", "veteran", "senioren", "35+"]):
+                return False
+
+        # Resmi Master/Veteran belirteçleri
+        master_keywords = [
+            "master", "veteran", "senioren", "35+", "m35", "w35",
+            "bamacs", "bamaci", "emaci", "emacs", "wmaci", "wma", "world masters"
+        ]
+        return any(k in text_lower for k in master_keywords)

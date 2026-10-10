@@ -1,4 +1,4 @@
-﻿package com.ecil.masterracer.ui.components
+package com.ecil.masterracer.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -188,21 +188,6 @@ fun CompetitionCard(
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = BluePrimary
-                            )
-                        }
-                    }
-
-                    // İlk 2 Branş
-                    competition.categories.take(2).forEach { category ->
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = Color(0xFFF1F5F9)
-                        ) {
-                            Text(
-                                text = category,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                fontSize = 11.sp,
-                                color = Color(0xFF475569)
                             )
                         }
                     }
