@@ -108,7 +108,7 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
     logger.info(f"Toplam taranan yarışma sayısı: {len(all_scraped)}")
 
     # Tekilleştirme, Değişiklik Tespiti ve Veritabanı Güncelleme
-    stats = {"NEW": 0, "DATE_CHANGED": 0, "UPDATED": 0, "UNCHANGED": 0}
+    stats = {"NEW": 0, "DATE_CHANGED": 0, "LOCATION_CHANGED": 0, "UPDATED": 0, "UNCHANGED": 0}
 
     for comp in all_scraped:
         existing = existing_comps.get(comp.id)
@@ -120,10 +120,28 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
 
         comp.updated_at = datetime.utcnow().isoformat()
         if change_type == "NEW":
+            comp.is_new = True
+            comp.date_changed = False
+            comp.location_changed = False
             logger.info(f"✨ [YENİ YARIŞMA] {comp.title} ({comp.start_date}) - ID: {comp.id}")
         elif change_type == "DATE_CHANGED":
-            logger.warning(f"⚠️ [TARİH GÜNCELLENDİ] {comp.title} -> Yeni Tarih: {comp.start_date}")
+            comp.date_changed = True
+            comp.old_start_date = existing.get("start_date") if existing else None
+            # Önceki is_new veya location_changed durumunu koru
+            comp.is_new = existing.get("is_new", False) if existing else False
+            comp.location_changed = existing.get("location_changed", False) if existing else False
+            logger.warning(f"⚠️ [TARİH GÜNCELLENDİ] {comp.title} -> Yeni Tarih: {comp.start_date} (Eski: {comp.old_start_date})")
+        elif change_type == "LOCATION_CHANGED":
+            comp.location_changed = True
+            comp.old_location = f"{existing.get('city', '')}, {existing.get('country_name', '')}".strip(", ") if existing else None
+            comp.is_new = existing.get("is_new", False) if existing else False
+            comp.date_changed = existing.get("date_changed", False) if existing else False
+            logger.warning(f"📍 [KONUM GÜNCELLENDİ] {comp.title} -> Yeni: {comp.city}, {comp.country_name} (Eski: {comp.old_location})")
         else:
+            # Genel güncelleme
+            comp.is_new = existing.get("is_new", False) if existing else False
+            comp.date_changed = existing.get("date_changed", False) if existing else False
+            comp.location_changed = existing.get("location_changed", False) if existing else False
             logger.info(f"🔄 [GÜNCELLENDİ] {comp.title}")
 
         # Firestore'a Yaz

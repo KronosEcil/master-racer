@@ -26,7 +26,7 @@ class AutonomousDiscoveryParser(BaseParser):
     """
     def __init__(self):
         super().__init__(name="AutonomousDiscovery_Parser", base_url="https://worldathletics.org")
-        self.years = [2026, 2027]
+        self.years = [2026, 2027, 2028]
 
     def parse(self) -> List[Competition]:
         discovered: List[Competition] = []
@@ -38,10 +38,13 @@ class AutonomousDiscoveryParser(BaseParser):
         # 2. Fransa & Güney Avrupa (FFA Bases ve Salon Meetingleri)
         discovered.extend(self._scrape_ffa_france())
 
-        # 3. Avrupa & Uluslararası Masterlar (EMA Circuit, OpenTrack ve WMA)
+        # 3. Avrupa Masters Atletizm (EMA Resmi API, 2026/2027/2028 Şampiyonaları)
+        discovered.extend(self._scrape_ema_official_endpoints())
+
+        # 4. Avrupa & Uluslararası Masterlar (EMA Circuit, OpenTrack ve WMA)
         discovered.extend(self._scrape_international_and_opentrack())
 
-        # 4. Türkiye ve Balkan Federasyonları Dinamik Portalları
+        # 5. Türkiye ve Balkan Federasyonları Dinamik Portalları
         discovered.extend(self._scrape_balkan_and_turkey())
 
         logger.info(f"[AutonomousDiscovery_Parser] Otonom tarama tamamlandı. Toplam {len(discovered)} dinamik yarışma keşfedildi.")
@@ -176,6 +179,146 @@ class AutonomousDiscoveryParser(BaseParser):
                             results.append(comp)
                 except Exception as e:
                     logger.debug(f"[FFA-France] Hata ({url}): {e}")
+        return results
+
+    def _scrape_ema_official_endpoints(self) -> List[Competition]:
+        """
+        European Masters Athletics (EMA) resmi 2026, 2027 ve 2028 portallarını derinlemesine tarar:
+        - https://oa8of7chr9.execute-api.eu-west-1.amazonaws.com/events (2026 Master Etkinlikler Veri Akışı)
+        - https://european-masters-athletics.org/master-events-and-championships-2026/
+        - https://european-masters-athletics.org/championships-2027/
+        - https://european-masters-athletics.org/championships-2028/
+        """
+        results: List[Competition] = []
+        logger.info("[EMA-Official] EMA resmi şampiyonalar ve AWS API veri akışı taranıyor...")
+
+        # 1. AWS API Gateway Events Akışı (2026 Master Etkinlik Tablosu)
+        aws_api_url = "https://oa8of7chr9.execute-api.eu-west-1.amazonaws.com/events"
+        try:
+            resp = self.session.get(aws_api_url, timeout=15)
+            if resp.status_code == 200:
+                soup = BeautifulSoup(resp.text, "html.parser")
+                rows = soup.select("table tbody tr")
+                for tr in rows:
+                    cols = tr.find_all("td")
+                    if len(cols) >= 3:
+                        date_str = cols[0].get_text(strip=True)
+                        event_td = cols[1]
+                        place_str = cols[2].get_text(strip=True)
+
+                        link_tag = event_td.find("a")
+                        title = link_tag.get_text(strip=True) if link_tag else event_td.get_text(strip=True)
+                        web_url = link_tag["href"] if link_tag and link_tag.has_attr("href") else "https://european-masters-athletics.org"
+
+                        # Tarih ayrıştırma (Örn: 14.05.2026)
+                        start_date, end_date = self._extract_dates_from_text(date_str, 2026)
+                        if not start_date:
+                            continue
+
+                        # Yer ayrıştırma (Örn: Kreuzlingen, Switzerland veya Craiova, Romania)
+                        city = ""
+                        raw_cname = "Avrupa"
+                        if "," in place_str:
+                            parts = [p.strip() for p in place_str.split(",")]
+                            city = parts[0]
+                            raw_cname = parts[1]
+                        else:
+                            city = place_str
+                            raw_cname = place_str
+
+                        country, country_name, _ = self.detect_country(place_str + " " + title, "EU", raw_cname)
+                        venue = self.detect_venue_type(title)
+                        comp_id = generate_competition_id(title, start_date, country)
+
+                        comp = Competition(
+                            id=comp_id,
+                            title=title,
+                            country=country,
+                            country_name=country_name,
+                            city=city,
+                            start_date=start_date,
+                            end_date=end_date,
+                            venue_type=venue,
+                            categories=self.detect_categories(title, venue),
+                            scope="europe",
+                            federation="EMA",
+                            website_url=web_url,
+                            status="scheduled",
+                            created_at=datetime.utcnow().isoformat()
+                        )
+                        comp.content_hash = compute_content_hash(comp)
+                        results.append(comp)
+                logger.info(f"[EMA-Official] AWS API akışından {len(results)} yarışma çıkarıldı.")
+        except Exception as e:
+            logger.warning(f"[EMA-Official] AWS API akışı hatası: {e}")
+
+        # 2. Resmi Şampiyona Portalları (2027 & 2028)
+        championship_urls = [
+            ("https://european-masters-athletics.org/championships-2027/", 2027),
+            ("https://european-masters-athletics.org/championships-2028/", 2028)
+        ]
+
+        for url, champ_year in championship_urls:
+            try:
+                resp = self.session.get(url, timeout=12)
+                if resp.status_code != 200:
+                    continue
+
+                soup = BeautifulSoup(resp.text, "html.parser")
+                # Tablodaki yarışma hücreleri
+                cells = soup.select(".nv-content-wrap table td, .entry-content table td")
+                for cell in cells:
+                    text = cell.get_text(separator=" ", strip=True)
+                    if not text or len(text) < 10:
+                        continue
+
+                    # Tarih yakalama (Örn: 15. April - 18 April veya March 2028)
+                    start_date, end_date = self._extract_dates_from_text(text, champ_year)
+                    if not start_date:
+                        # Ay bazlı genel tarih kontrolü (Örn: March 2028)
+                        if "march" in text.lower():
+                            start_date = f"{champ_year}-03-15"
+                            end_date = f"{champ_year}-03-20"
+                        else:
+                            continue
+
+                    strong_elem = cell.find("strong")
+                    title = strong_elem.get_text(strip=True) if strong_elem else text.split()[0]
+                    # Başlık iyileştirme (EMMTR2027 -> EMMTRC 2027 vb.)
+                    if len(title) < 15:
+                        lines = [line.strip() for line in cell.stripped_strings]
+                        if lines:
+                            title = lines[0]
+
+                    city = self._extract_city(text) or self._extract_city(title)
+                    country, country_name, _ = self.detect_country(text + " " + title, "EU", "Avrupa")
+                    venue = self.detect_venue_type(title + " " + text)
+                    comp_id = generate_competition_id(title, start_date, country)
+
+                    link_tag = cell.find("a")
+                    web_url = link_tag["href"] if link_tag and link_tag.has_attr("href") else url
+
+                    comp = Competition(
+                        id=comp_id,
+                        title=title,
+                        country=country,
+                        country_name=country_name,
+                        city=city or country_name,
+                        start_date=start_date,
+                        end_date=end_date,
+                        venue_type=venue,
+                        categories=self.detect_categories(title + " " + text, venue),
+                        scope="europe",
+                        federation="EMA",
+                        website_url=web_url,
+                        status="scheduled",
+                        created_at=datetime.utcnow().isoformat()
+                    )
+                    comp.content_hash = compute_content_hash(comp)
+                    results.append(comp)
+            except Exception as e:
+                logger.warning(f"[EMA-Official] Şampiyona sayfası ({url}) hatası: {e}")
+
         return results
 
     def _scrape_international_and_opentrack(self) -> List[Competition]:

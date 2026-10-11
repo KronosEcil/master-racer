@@ -101,6 +101,25 @@ fun CompetitionCard(
                             color = MaterialTheme.colorScheme.primary
                          )
                     }
+
+                    if (competition.is_new) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    color = Color(0xFF16A34A),
+                                    shape = RoundedCornerShape(6.dp)
+                                )
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = "YENİ",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = Color.White
+                            )
+                        }
+                    }
                 }
 
                 CountdownBadge(daysRemaining = daysRemaining)
@@ -120,38 +139,86 @@ fun CompetitionCard(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Tarih ve Konum Bilgileri
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            // Tarih Satırı (Değişiklik varsa özel vurgu ve etiket ile)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = if (competition.date_changed) {
+                    Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFFFEF3C7), shape = RoundedCornerShape(6.dp))
+                        .padding(horizontal = 6.dp, vertical = 3.dp)
+                } else Modifier
+            ) {
                 Icon(
                     imageVector = Icons.Default.CalendarMonth,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = if (competition.date_changed) Color(0xFFD97706) else MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = competition.getFormattedDate(),
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    fontWeight = if (competition.date_changed) FontWeight.Bold else FontWeight.Medium,
+                    color = if (competition.date_changed) Color(0xFF92400E) else MaterialTheme.colorScheme.onSurface
                 )
+                if (competition.date_changed) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .background(Color(0xFFD97706), shape = RoundedCornerShape(4.dp))
+                            .padding(horizontal = 5.dp, vertical = 1.dp)
+                    ) {
+                        Text(
+                            text = "Tarih Değişti",
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            // Konum Satırı (Değişiklik varsa özel vurgu ve etiket ile)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = if (competition.location_changed) {
+                    Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFFFFEDD5), shape = RoundedCornerShape(6.dp))
+                        .padding(horizontal = 6.dp, vertical = 3.dp)
+                } else Modifier
+            ) {
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = null,
-                    tint = Color(0xFFE11D48),
+                    tint = if (competition.location_changed) Color(0xFFEA580C) else Color(0xFFE11D48),
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = competition.getDisplayLocation(),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                    fontWeight = if (competition.location_changed) FontWeight.Bold else FontWeight.Normal,
+                    color = if (competition.location_changed) Color(0xFF9A3412) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 )
+                if (competition.location_changed) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .background(Color(0xFFEA580C), shape = RoundedCornerShape(4.dp))
+                            .padding(horizontal = 5.dp, vertical = 1.dp)
+                    ) {
+                        Text(
+                            text = "Konum Değişti",
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))

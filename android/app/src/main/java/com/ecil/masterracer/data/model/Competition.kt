@@ -54,7 +54,22 @@ data class Competition(
     var website_url: String? = null,
 
     @get:PropertyName("status") @set:PropertyName("status")
-    var status: String = "scheduled"
+    var status: String = "scheduled",
+
+    @get:PropertyName("is_new") @set:PropertyName("is_new")
+    var is_new: Boolean = false,
+
+    @get:PropertyName("date_changed") @set:PropertyName("date_changed")
+    var date_changed: Boolean = false,
+
+    @get:PropertyName("location_changed") @set:PropertyName("location_changed")
+    var location_changed: Boolean = false,
+
+    @get:PropertyName("old_start_date") @set:PropertyName("old_start_date")
+    var old_start_date: String? = null,
+
+    @get:PropertyName("old_location") @set:PropertyName("old_location")
+    var old_location: String? = null
 ) {
     /**
      * Tesis türüne göre doğrulanmış güncel branş listesini döndürür.

@@ -23,6 +23,11 @@ class Competition(BaseModel):
     age_category: str = Field(default="35+", description="Yaş kategorisi: 35+ (M35/W35+)")
     content_hash: str = Field(default="", description="Veri değişiklik takibi için SHA-256 özeti")
     status: str = Field(default="scheduled", description="Durum: scheduled, postponed, cancelled, completed")
+    is_new: bool = Field(default=False, description="Yarışmanın sisteme yeni eklendiğini belirtir")
+    date_changed: bool = Field(default=False, description="Yarışmanın tarihinin değiştiğini belirtir")
+    location_changed: bool = Field(default=False, description="Yarışmanın yerinin/şehrinin değiştiğini belirtir")
+    old_start_date: Optional[str] = Field(default=None, description="Tarih değiştiyse eski başlangıç tarihi")
+    old_location: Optional[str] = Field(default=None, description="Konum değiştiyse eski konum/şehir bilgisi")
     created_at: str = Field(default="", description="Kayıt oluşturulma zamanı (ISO 8601)")
     updated_at: str = Field(default="", description="Son güncelleme zamanı (ISO 8601)")
 

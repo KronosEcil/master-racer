@@ -34,7 +34,7 @@ def compute_content_hash(comp: Competition) -> str:
 def evaluate_change(existing: Optional[dict], incoming: Competition) -> Tuple[str, bool]:
     """
     Deduplication ve değişiklik analizi yapar.
-    Dönüş: (Durum: 'NEW' | 'DATE_CHANGED' | 'UPDATED' | 'UNCHANGED', BildirimTetiklensinMi)
+    Dönüş: (Durum: 'NEW' | 'DATE_CHANGED' | 'LOCATION_CHANGED' | 'UPDATED' | 'UNCHANGED', BildirimTetiklensinMi)
     """
     if not existing:
         return "NEW", True
@@ -45,8 +45,17 @@ def evaluate_change(existing: Optional[dict], incoming: Competition) -> Tuple[st
     if existing_hash == new_hash:
         return "UNCHANGED", False
 
-    # Tarih değişti mi kontrolü
-    if existing.get("start_date") != incoming.start_date or existing.get("end_date") != incoming.end_date:
+    date_changed = (existing.get("start_date") != incoming.start_date or existing.get("end_date") != incoming.end_date)
+    
+    # Şehir veya ülke değişikliği kontrolü
+    existing_loc = f"{existing.get('city', '')} {existing.get('country', '')}".strip()
+    incoming_loc = f"{incoming.city} {incoming.country}".strip()
+    location_changed = (existing_loc != incoming_loc and (existing.get("city") != incoming.city))
+
+    if date_changed:
         return "DATE_CHANGED", True
+
+    if location_changed:
+        return "LOCATION_CHANGED", True
 
     return "UPDATED", True
