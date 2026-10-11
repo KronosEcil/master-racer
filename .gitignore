@@ -30,3 +30,7 @@ local.properties
 captures/
 .externalNativeBuild/
 .cxx/
+
+# Release outputs in root
+app-release.apk
+app-release.aab
