@@ -140,12 +140,32 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
         if should_notify:
             notification_mgr.send_competition_notification(comp, change_type)
 
+    # Eski / elle girilmiş sahte kayıtları Firestore'dan temizleme:
+    # Eğer veritabanındaki bir kayıt son taramalarda hiçbir resmi kaynaktan bulunamadıysa ve sahte şablon id'sine sahipse sil
+    scraped_ids = {c.id for c in all_scraped}
+    deleted_count = 0
+    if db and not dry_run:
+        for doc_id, doc_data in existing_comps.items():
+            title = doc_data.get("title", "")
+            # Bilinen eski sahte fikstürler veya taranamayan eski mock veriler
+            is_mock_artifact = any(kw in doc_id.lower() or kw in title.lower() for kw in [
+                "sonbahar", "bursa-kros", "naili moran"
+            ])
+            if is_mock_artifact and doc_id not in scraped_ids:
+                try:
+                    db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()
+                    logger.info(f"🗑️ [ESKİ SAHTE VERİ SİLİNDİ] {title} (ID: {doc_id})")
+                    deleted_count += 1
+                except Exception as e:
+                    logger.error(f"Firestore silme hatası ({doc_id}): {e}")
+
     logger.info("=== Tarama Özeti ===")
     logger.info(f"Yeni Eklenen     : {stats['NEW']}")
     logger.info(f"Tarihi Değişen   : {stats['DATE_CHANGED']}")
     logger.info(f"Detayı Değişen   : {stats['UPDATED']}")
     logger.info(f"Değişmeyen       : {stats['UNCHANGED']}")
-    logger.info(f"Toplam           : {len(all_scraped)}")
+    logger.info(f"Silinen Eski Kayıt: {deleted_count}")
+    logger.info(f"Toplam Aktif     : {len(all_scraped)}")
 
     if export_path:
         with open(export_path, "w", encoding="utf-8") as f:
