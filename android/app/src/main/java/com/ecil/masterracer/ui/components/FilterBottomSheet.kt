@@ -1,5 +1,6 @@
 package com.ecil.masterracer.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -17,12 +18,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -55,240 +55,313 @@ fun FilterBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         containerColor = Color.White
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
         ) {
-            // Başlık
+            // Başlık Çubuğu
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Gelişmiş Filtreleme",
-                    fontSize = 20.sp,
+                    text = "Filtreler",
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0F172A)
                 )
 
-                OutlinedButton(
-                    onClick = onResetFilters,
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(text = "Sıfırla", fontSize = 12.sp)
+                Text(
+                    text = "Sonuçları Daralt",
+                    fontSize = 12.sp,
+                    color = Color(0xFF64748B)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+            HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // 1. TESİS VE YARIŞMA TÜRÜ
+            SectionHeader(
+                title = "Tesis Türü",
+                badgeText = if (selectedVenueTypes.isNotEmpty()) "${selectedVenueTypes.size} seçili" else null
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                val venues = listOf(
+                    Triple("Tümü", "", null),
+                    Triple("Açık Saha", "outdoor", "🏟️"),
+                    Triple("Salon", "indoor", "🏛️"),
+                    Triple("Yol / Maraton", "road", "🏃"),
+                    Triple("Kros", "cross", "🌲")
+                )
+
+                venues.forEach { (label, key, icon) ->
+                    val isSelected = if (key.isEmpty()) selectedVenueTypes.isEmpty() else selectedVenueTypes.contains(key)
+                    CompactChip(
+                        selected = isSelected,
+                        onClick = {
+                            if (key.isEmpty()) onClearVenueTypes() else onVenueTypeToggle(key)
+                        },
+                        label = label,
+                        icon = icon
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = Color(0xFFF1F5F9))
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // 1. ÜLKE SEÇİMİ (Çoklu Seçim)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Ülke ${if (selectedCountries.isNotEmpty()) "(${selectedCountries.size} seçili)" else ""}",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF334155)
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
+            // 2. BRANŞ KATEGORİSİ
+            SectionHeader(
+                title = "Branş Grubu",
+                badgeText = if (selectedCategories.isNotEmpty()) "${selectedCategories.size} seçili" else null
+            )
+            Spacer(modifier = Modifier.height(6.dp))
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                FilterChip(
+                CompactChip(
+                    selected = selectedCategories.isEmpty(),
+                    onClick = onClearCategories,
+                    label = "Tüm Branşlar"
+                )
+
+                val categories = listOf("Sprint", "Engelli", "Atlamalar", "Atmalar", "Uzun Mesafe")
+                categories.forEach { cat ->
+                    val isSelected = selectedCategories.contains(cat)
+                    CompactChip(
+                        selected = isSelected,
+                        onClick = { onCategoryToggle(cat) },
+                        label = cat
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // 3. YARIŞMA DURUMU
+            SectionHeader(title = "Yarışma Durumu")
+            Spacer(modifier = Modifier.height(6.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                CompactChip(
+                    selected = !hideCompleted,
+                    onClick = { if (hideCompleted) onToggleHideCompleted() },
+                    label = "Tümünü Göster",
+                    modifier = Modifier.weight(1f)
+                )
+
+                CompactChip(
+                    selected = hideCompleted,
+                    onClick = { if (!hideCompleted) onToggleHideCompleted() },
+                    label = "Tamamlananları Gizle",
+                    selectedColor = Color(0xFFE11D48),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // 4. ÜLKE SEÇİMİ
+            SectionHeader(
+                title = "Ülke",
+                badgeText = if (selectedCountries.isNotEmpty()) "${selectedCountries.size} seçili" else null
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                CompactChip(
                     selected = selectedCountries.isEmpty(),
                     onClick = onClearCountries,
-                    label = { Text("Tüm Ülkeler") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = BluePrimary,
-                        selectedLabelColor = Color.White
-                    )
+                    label = "Tüm Ülkeler",
+                    icon = "🌍"
                 )
 
                 availableCountries.forEach { (code, name) ->
                     val isSelected = selectedCountries.contains(code)
-                    FilterChip(
+                    val flag = getFilterCountryFlag(code)
+                    CompactChip(
                         selected = isSelected,
                         onClick = { onCountryToggle(code) },
-                        label = { Text(if (isSelected) "✓ $name" else name) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = BluePrimary,
-                            selectedLabelColor = Color.White
-                        )
+                        label = name,
+                        icon = flag
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // 2. TESİS VE YARIŞMA TÜRÜ (Çoklu Seçim)
+            // Alt Eylem Çubuğu: Sıfırla ve Uygula Yan Yana
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Tesis Türü ${if (selectedVenueTypes.isNotEmpty()) "(${selectedVenueTypes.size} seçili)" else ""}",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF334155)
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                val venues = listOf(
-                    "Açık Saha (Pist)" to "outdoor",
-                    "Salon (Indoor)" to "indoor",
-                    "Yol Koşusu / Maraton" to "road",
-                    "Kros (Arazi)" to "cross"
-                )
-
-                FilterChip(
-                    selected = selectedVenueTypes.isEmpty(),
-                    onClick = onClearVenueTypes,
-                    label = { Text("Tümü") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = BluePrimary,
-                        selectedLabelColor = Color.White
+                OutlinedButton(
+                    onClick = onResetFilters,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(44.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    border = BorderStroke(1.dp, Color(0xFFCBD5E1))
+                ) {
+                    Text(
+                        text = "Sıfırla",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFF475569)
                     )
-                )
+                }
 
-                venues.forEach { (label, key) ->
-                    val isSelected = selectedVenueTypes.contains(key)
-                    FilterChip(
-                        selected = isSelected,
-                        onClick = { onVenueTypeToggle(key) },
-                        label = { Text(if (isSelected) "✓ $label" else label) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = BluePrimary,
-                            selectedLabelColor = Color.White
-                        )
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .weight(1.6f)
+                        .height(44.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                ) {
+                    Text(
+                        text = "Filtreleri Uygula",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // 3. BRANŞ KATEGORİSİ (Çoklu Seçim)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Branş Grubu ${if (selectedCategories.isNotEmpty()) "(${selectedCategories.size} seçili)" else ""}",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF334155)
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                val categories = listOf("Sprint", "Engelli", "Atlamalar", "Atmalar", "Uzun Mesafe")
-
-                FilterChip(
-                    selected = selectedCategories.isEmpty(),
-                    onClick = onClearCategories,
-                    label = { Text("Tüm Branşlar") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = BluePrimary,
-                        selectedLabelColor = Color.White
-                    )
-                )
-
-                categories.forEach { cat ->
-                    val isSelected = selectedCategories.contains(cat)
-                    FilterChip(
-                        selected = isSelected,
-                        onClick = { onCategoryToggle(cat) },
-                        label = { Text(if (isSelected) "✓ $cat" else cat) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = BluePrimary,
-                            selectedLabelColor = Color.White
-                        )
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // 4. DURUM VE GEÇMİŞ YARIŞMALAR
-            Text(
-                text = "Yarışma Durumu",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF334155)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                FilterChip(
-                    selected = !hideCompleted,
-                    onClick = { if (hideCompleted) onToggleHideCompleted() },
-                    label = { Text("Tümünü Göster (Geçmiş Dahil)") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = BluePrimary,
-                        selectedLabelColor = Color.White
-                    )
-                )
-
-                FilterChip(
-                    selected = hideCompleted,
-                    onClick = { if (!hideCompleted) onToggleHideCompleted() },
-                    label = { Text("Tamamlananları Gizle") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFFE11D48),
-                        selectedLabelColor = Color.White
-                    )
-                )
-            }
-
-            Spacer(modifier = Modifier.height(28.dp))
-
-            // Uygula Butonu
-            Button(
-                onClick = onDismiss,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
-            ) {
-                Text(
-                    text = "Filtreleri Uygula",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+}
+
+@Composable
+private fun SectionHeader(
+    title: String,
+    badgeText: String? = null
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color(0xFF1E293B)
+        )
+        if (badgeText != null) {
+            Surface(
+                color = BluePrimary.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(6.dp)
+            ) {
+                Text(
+                    text = badgeText,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = BluePrimary,
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CompactChip(
+    selected: Boolean,
+    onClick: () -> Unit,
+    label: String,
+    icon: String? = null,
+    selectedColor: Color = BluePrimary,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        selected = selected,
+        onClick = onClick,
+        shape = RoundedCornerShape(8.dp),
+        color = if (selected) selectedColor else Color(0xFFF8FAFC),
+        contentColor = if (selected) Color.White else Color(0xFF334155),
+        border = if (selected) null else BorderStroke(1.dp, Color(0xFFE2E8F0)),
+        modifier = modifier.height(32.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            if (icon != null) {
+                Text(text = icon, fontSize = 12.sp)
+                Spacer(modifier = Modifier.width(4.dp))
+            }
+            Text(
+                text = label,
+                fontSize = 12.sp,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+private fun getFilterCountryFlag(countryCode: String): String {
+    return when (countryCode.uppercase()) {
+        "TR", "TUR" -> "🇹🇷"
+        "GR", "GRE" -> "🇬🇷"
+        "DE", "GER" -> "🇩🇪"
+        "IT", "ITA" -> "🇮🇹"
+        "GB", "UK", "GBR" -> "🇬🇧"
+        "ES", "ESP" -> "🇪🇸"
+        "FR", "FRA" -> "🇫🇷"
+        "PL", "POL" -> "🇵🇱"
+        "BG", "BUL" -> "🇧🇬"
+        "RO", "ROU" -> "🇷🇴"
+        "RS", "SRB" -> "🇷🇸"
+        "SE", "SWE" -> "🇸🇪"
+        "NL", "NED" -> "🇳🇱"
+        "PT", "POR" -> "🇵🇹"
+        "KOR" -> "🇰🇷"
+        "JP", "JPN" -> "🇯🇵"
+        "USA" -> "🇺🇸"
+        "FIN" -> "🇫🇮"
+        "CH" -> "🇨🇭"
+        "IE" -> "🇮🇪"
+        "SI" -> "🇸🇮"
+        "AL" -> "🇦🇱"
+        "CZ" -> "🇨🇿"
+        "NO" -> "🇳🇴"
+        "DK" -> "🇩🇰"
+        "IS" -> "🇮🇸"
+        "LV" -> "🇱🇻"
+        "LT" -> "🇱🇹"
+        "HR" -> "🇭🇷"
+        "AT" -> "🇦🇹"
+        "BE" -> "🇧🇪"
+        "EE" -> "🇪🇪"
+        "EU" -> "🇪🇺"
+        else -> "🏃"
     }
 }
 
