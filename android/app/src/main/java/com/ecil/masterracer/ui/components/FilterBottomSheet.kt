@@ -38,12 +38,15 @@ import com.ecil.masterracer.ui.theme.BluePrimary
 fun FilterBottomSheet(
     sheetState: SheetState,
     availableCountries: List<Pair<String, String>>, // Pair(code, name)
-    selectedCountry: String?,
-    onCountrySelect: (String?) -> Unit,
-    selectedVenueType: String?,
-    onVenueTypeSelect: (String?) -> Unit,
-    selectedCategory: String?,
-    onCategorySelect: (String?) -> Unit,
+    selectedCountries: Set<String>,
+    onCountryToggle: (String) -> Unit,
+    onClearCountries: () -> Unit,
+    selectedVenueTypes: Set<String>,
+    onVenueTypeToggle: (String) -> Unit,
+    onClearVenueTypes: () -> Unit,
+    selectedCategories: Set<String>,
+    onCategoryToggle: (String) -> Unit,
+    onClearCategories: () -> Unit,
     hideCompleted: Boolean = false,
     onToggleHideCompleted: () -> Unit = {},
     onResetFilters: () -> Unit,
@@ -87,13 +90,19 @@ fun FilterBottomSheet(
             HorizontalDivider(color = Color(0xFFF1F5F9))
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 1. ÜLKE SEÇİMİ (Dinamik)
-            Text(
-                text = "Ülke",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF334155)
-            )
+            // 1. ÜLKE SEÇİMİ (Çoklu Seçim)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Ülke ${if (selectedCountries.isNotEmpty()) "(${selectedCountries.size} seçili)" else ""}",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF334155)
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -101,8 +110,8 @@ fun FilterBottomSheet(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 FilterChip(
-                    selected = selectedCountry == null,
-                    onClick = { onCountrySelect(null) },
+                    selected = selectedCountries.isEmpty(),
+                    onClick = onClearCountries,
                     label = { Text("Tüm Ülkeler") },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = BluePrimary,
@@ -111,11 +120,11 @@ fun FilterBottomSheet(
                 )
 
                 availableCountries.forEach { (code, name) ->
-                    val isSelected = selectedCountry == code
+                    val isSelected = selectedCountries.contains(code)
                     FilterChip(
                         selected = isSelected,
-                        onClick = { onCountrySelect(if (isSelected) null else code) },
-                        label = { Text(name) },
+                        onClick = { onCountryToggle(code) },
+                        label = { Text(if (isSelected) "✓ $name" else name) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = BluePrimary,
                             selectedLabelColor = Color.White
@@ -126,13 +135,19 @@ fun FilterBottomSheet(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 2. TESİS VE YARIŞMA TÜRÜ
-            Text(
-                text = "Tesis Türü",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF334155)
-            )
+            // 2. TESİS VE YARIŞMA TÜRÜ (Çoklu Seçim)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Tesis Türü ${if (selectedVenueTypes.isNotEmpty()) "(${selectedVenueTypes.size} seçili)" else ""}",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF334155)
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -140,19 +155,28 @@ fun FilterBottomSheet(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 val venues = listOf(
-                    "Tümü" to null,
                     "Açık Saha (Pist)" to "outdoor",
                     "Salon (Indoor)" to "indoor",
                     "Yol Koşusu / Maraton" to "road",
                     "Kros (Arazi)" to "cross"
                 )
 
+                FilterChip(
+                    selected = selectedVenueTypes.isEmpty(),
+                    onClick = onClearVenueTypes,
+                    label = { Text("Tümü") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = BluePrimary,
+                        selectedLabelColor = Color.White
+                    )
+                )
+
                 venues.forEach { (label, key) ->
-                    val isSelected = selectedVenueType == key
+                    val isSelected = selectedVenueTypes.contains(key)
                     FilterChip(
                         selected = isSelected,
-                        onClick = { onVenueTypeSelect(if (isSelected) null else key) },
-                        label = { Text(label) },
+                        onClick = { onVenueTypeToggle(key) },
+                        label = { Text(if (isSelected) "✓ $label" else label) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = BluePrimary,
                             selectedLabelColor = Color.White
@@ -163,13 +187,19 @@ fun FilterBottomSheet(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 3. BRANŞ KATEGORİSİ
-            Text(
-                text = "Branş Grubu",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF334155)
-            )
+            // 3. BRANŞ KATEGORİSİ (Çoklu Seçim)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Branş Grubu ${if (selectedCategories.isNotEmpty()) "(${selectedCategories.size} seçili)" else ""}",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF334155)
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -179,8 +209,8 @@ fun FilterBottomSheet(
                 val categories = listOf("Sprint", "Engelli", "Atlamalar", "Atmalar", "Uzun Mesafe")
 
                 FilterChip(
-                    selected = selectedCategory == null,
-                    onClick = { onCategorySelect(null) },
+                    selected = selectedCategories.isEmpty(),
+                    onClick = onClearCategories,
                     label = { Text("Tüm Branşlar") },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = BluePrimary,
@@ -189,11 +219,11 @@ fun FilterBottomSheet(
                 )
 
                 categories.forEach { cat ->
-                    val isSelected = selectedCategory == cat
+                    val isSelected = selectedCategories.contains(cat)
                     FilterChip(
                         selected = isSelected,
-                        onClick = { onCategorySelect(if (isSelected) null else cat) },
-                        label = { Text(cat) },
+                        onClick = { onCategoryToggle(cat) },
+                        label = { Text(if (isSelected) "✓ $cat" else cat) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = BluePrimary,
                             selectedLabelColor = Color.White

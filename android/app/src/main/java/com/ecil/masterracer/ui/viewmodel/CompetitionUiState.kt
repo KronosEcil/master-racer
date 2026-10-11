@@ -9,9 +9,9 @@ data class CompetitionUiState(
     val isRefreshing: Boolean = false,
     val errorMessage: String? = null,
     val searchQuery: String = "",
-    val selectedCountry: String? = null,
-    val selectedVenueType: String? = null,
-    val selectedCategory: String? = null,
+    val selectedCountries: Set<String> = emptySet(),
+    val selectedVenueTypes: Set<String> = emptySet(),
+    val selectedCategories: Set<String> = emptySet(),
     val selectedDatePreset: String = "all", // "all", "next_30", "next_90", "season"
     val hideCompleted: Boolean = false,
     val availableCountries: List<Pair<String, String>> = emptyList(),
@@ -20,9 +20,9 @@ data class CompetitionUiState(
     val activeFilterCount: Int
         get() {
             var count = 0
-            if (selectedCountry != null) count++
-            if (selectedVenueType != null) count++
-            if (selectedCategory != null) count++
+            count += selectedCountries.size
+            count += selectedVenueTypes.size
+            count += selectedCategories.size
             if (selectedDatePreset != "all") count++
             if (hideCompleted) count++
             return count

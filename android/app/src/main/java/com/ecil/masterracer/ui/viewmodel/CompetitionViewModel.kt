@@ -48,18 +48,54 @@ class CompetitionViewModel(
         applyFilters()
     }
 
-    fun onCountrySelect(countryCode: String?) {
-        _uiState.update { it.copy(selectedCountry = countryCode) }
+    fun onCountryToggle(countryCode: String) {
+        _uiState.update { state ->
+            val updated = if (state.selectedCountries.contains(countryCode)) {
+                state.selectedCountries - countryCode
+            } else {
+                state.selectedCountries + countryCode
+            }
+            state.copy(selectedCountries = updated)
+        }
         applyFilters()
     }
 
-    fun onVenueTypeSelect(venueType: String?) {
-        _uiState.update { it.copy(selectedVenueType = venueType) }
+    fun clearCountryFilters() {
+        _uiState.update { it.copy(selectedCountries = emptySet()) }
         applyFilters()
     }
 
-    fun onCategorySelect(category: String?) {
-        _uiState.update { it.copy(selectedCategory = category) }
+    fun onVenueTypeToggle(venueType: String) {
+        _uiState.update { state ->
+            val updated = if (state.selectedVenueTypes.contains(venueType)) {
+                state.selectedVenueTypes - venueType
+            } else {
+                state.selectedVenueTypes + venueType
+            }
+            state.copy(selectedVenueTypes = updated)
+        }
+        applyFilters()
+    }
+
+    fun clearVenueTypeFilters() {
+        _uiState.update { it.copy(selectedVenueTypes = emptySet()) }
+        applyFilters()
+    }
+
+    fun onCategoryToggle(category: String) {
+        _uiState.update { state ->
+            val updated = if (state.selectedCategories.contains(category)) {
+                state.selectedCategories - category
+            } else {
+                state.selectedCategories + category
+            }
+            state.copy(selectedCategories = updated)
+        }
+        applyFilters()
+    }
+
+    fun clearCategoryFilters() {
+        _uiState.update { it.copy(selectedCategories = emptySet()) }
         applyFilters()
     }
 
@@ -81,9 +117,9 @@ class CompetitionViewModel(
     fun onResetFilters() {
         _uiState.update {
             it.copy(
-                selectedCountry = null,
-                selectedVenueType = null,
-                selectedCategory = null,
+                selectedCountries = emptySet(),
+                selectedVenueTypes = emptySet(),
+                selectedCategories = emptySet(),
                 selectedDatePreset = "all",
                 hideCompleted = false,
                 searchQuery = ""
@@ -120,9 +156,9 @@ class CompetitionViewModel(
     private fun applyFilters() {
         val currentState = _uiState.value
         val query = currentState.searchQuery.trim().lowercase()
-        val country = currentState.selectedCountry
-        val venue = currentState.selectedVenueType
-        val category = currentState.selectedCategory
+        val countries = currentState.selectedCountries
+        val venues = currentState.selectedVenueTypes
+        val categories = currentState.selectedCategories
         val preset = currentState.selectedDatePreset
         val hideCompleted = currentState.hideCompleted
 
@@ -142,14 +178,16 @@ class CompetitionViewModel(
                         comp.federation.lowercase().contains(query)
             }
 
-            // Ülke Filtresi
-            val matchesCountry = country == null || comp.country.equals(country, ignoreCase = true)
+            // Ülke Filtresi (Çoklu Seçim: Seçili ülkelerden herhangi biriyle eşleşmeli)
+            val matchesCountry = countries.isEmpty() || countries.any { it.equals(comp.country, ignoreCase = true) }
 
-            // Tesis Türü Filtresi (indoor, outdoor, road, cross)
-            val matchesVenue = venue == null || comp.venue_type.equals(venue, ignoreCase = true)
+            // Tesis Türü Filtresi (Çoklu Seçim: indoor, outdoor, road, cross)
+            val matchesVenue = venues.isEmpty() || venues.any { it.equals(comp.venue_type, ignoreCase = true) }
 
-            // Branş Filtresi
-            val matchesCategory = category == null || comp.categories.any { it.equals(category, ignoreCase = true) }
+            // Branş Filtresi (Çoklu Seçim: Seçili branş gruplarından en az biriyle eşleşmeli)
+            val matchesCategory = categories.isEmpty() || comp.categories.any { cat ->
+                categories.any { it.equals(cat, ignoreCase = true) }
+            }
 
             // Tarih Önayarı Filtresi
             val matchesDatePreset = when (preset) {
