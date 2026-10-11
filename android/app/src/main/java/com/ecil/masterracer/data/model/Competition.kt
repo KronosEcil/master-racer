@@ -155,10 +155,39 @@ data class Competition(
     }
 
     /**
+     * Ekranda gösterilecek ülke ismi (World Masters Games için Japonya önceliklendirmesi).
+     */
+    fun getDisplayCountryName(): String {
+        val titleLower = title.lowercase()
+        if (titleLower.contains("kansai") || titleLower.contains("world masters games") || titleLower.contains("wmg")) {
+            return "Japonya"
+        }
+        return country_name.ifBlank { country }
+    }
+
+    /**
+     * Ekranda gösterilecek konum / şehir.
+     */
+    fun getDisplayLocation(): String {
+        val cName = getDisplayCountryName()
+        val cCity = if (city.isBlank() && (title.lowercase().contains("kansai") || title.lowercase().contains("world masters games"))) {
+            "Kansai"
+        } else {
+            city
+        }
+        return if (cCity.isNotBlank()) "$cCity, $cName" else cName
+    }
+
+    /**
      * Ülke Bayrak Emojisi.
      */
     fun getCountryFlag(): String {
-        return when (country.uppercase()) {
+        val cUpper = country.uppercase()
+        val titleLower = title.lowercase()
+        if (cUpper == "JP" || cUpper == "JPN" || titleLower.contains("kansai") || titleLower.contains("japan") || titleLower.contains("japonya")) {
+            return "🇯🇵"
+        }
+        return when (cUpper) {
             "TR", "TUR" -> "🇹🇷"
             "GR", "GRE" -> "🇬🇷"
             "DE", "GER" -> "🇩🇪"
@@ -174,6 +203,7 @@ data class Competition(
             "NL", "NED" -> "🇳🇱"
             "PT", "POR" -> "🇵🇹"
             "KOR" -> "🇰🇷"
+            "JP", "JPN" -> "🇯🇵"
             "USA" -> "🇺🇸"
             "EU" -> "🇪🇺"
             "INT" -> "🌍"

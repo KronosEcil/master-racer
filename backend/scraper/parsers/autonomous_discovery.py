@@ -203,21 +203,31 @@ class AutonomousDiscoveryParser(BaseParser):
                                 e_date = item.get("date_end", item.get("end_date", s_date))
                                 country = item.get("country_code", "INT")
                                 city = item.get("city", "")
+                                country_name = item.get("country", "Uluslararası")
+
+                                # Dünya Masterlar Oyunları (World Masters Games) Kansai - Japonya tespiti
+                                title_lower = title.lower()
+                                if "world masters games" in title_lower or "wmg" in title_lower or "kansai" in title_lower:
+                                    country = "JP"
+                                    country_name = "Japonya"
+                                    if not city:
+                                        city = "Kansai"
+
                                 comp_id = generate_competition_id(title, s_date, country)
                                 venue = self.detect_venue_type(title)
                                 comp = Competition(
                                     id=comp_id,
                                     title=title,
                                     country=country,
-                                    country_name=item.get("country", "Uluslararası"),
+                                    country_name=country_name,
                                     city=city,
                                     start_date=s_date,
                                     end_date=e_date,
                                     venue_type=venue,
                                     categories=self.detect_categories(title, venue),
                                     scope="world" if "world" in title.lower() else "europe",
-                                    federation="WMA / OpenTrack",
-                                    website_url=url,
+                                    federation="IMGA" if "games" in title_lower else "WMA / OpenTrack",
+                                    website_url="https://wmg2027.jp" if "kansai" in title_lower or "2027" in s_date else url,
                                     status="scheduled",
                                     created_at=datetime.utcnow().isoformat()
                                 )

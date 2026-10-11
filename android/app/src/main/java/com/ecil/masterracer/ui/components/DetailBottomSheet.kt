@@ -84,7 +84,7 @@ fun DetailBottomSheet(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = competition.country_name,
+                            text = competition.getDisplayCountryName(),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F172A)
@@ -153,7 +153,7 @@ fun DetailBottomSheet(
                         Column {
                             Text(text = "Yarışma Yeri", fontSize = 11.sp, color = Color(0xFF64748B))
                             Text(
-                                text = if (competition.city.isNotBlank()) "${competition.city}, ${competition.country_name}" else competition.country_name,
+                                text = competition.getDisplayLocation(),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFF0F172A)

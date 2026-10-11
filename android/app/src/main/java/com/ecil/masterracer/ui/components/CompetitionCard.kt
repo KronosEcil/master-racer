@@ -80,7 +80,7 @@ fun CompetitionCard(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = competition.country_name.ifBlank { competition.country },
+                        text = competition.getDisplayCountryName(),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                         fontWeight = FontWeight.Medium
@@ -99,7 +99,7 @@ fun CompetitionCard(
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
-                        )
+                         )
                     }
                 }
 
@@ -148,7 +148,7 @@ fun CompetitionCard(
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = if (competition.city.isNotBlank()) "${competition.city}, ${competition.country_name}" else competition.country_name,
+                    text = competition.getDisplayLocation(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 )
