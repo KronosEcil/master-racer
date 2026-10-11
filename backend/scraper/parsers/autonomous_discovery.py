@@ -181,6 +181,7 @@ class AutonomousDiscoveryParser(BaseParser):
     def _scrape_international_and_opentrack(self) -> List[Competition]:
         """
         OpenTrack API, EMA Circuit, WMA ve IMGA (World Masters Games) veri taraması.
+        European Masters Athletics resmi şampiyona ve lig sayfalarını da derinlemesine inceler.
         """
         results: List[Competition] = []
         for year in self.years:
@@ -188,12 +189,14 @@ class AutonomousDiscoveryParser(BaseParser):
                 f"https://data.opentrack.run/api/v1/fixtures/?year={year}&category=masters",
                 f"https://world-masters-athletics.org/api/competitions/{year}",
                 f"https://imga.ch/events/{year}",
+                f"https://european-masters-athletics.org/championships-{year}/",
                 f"https://european-masters-athletics.org/events/",
-                f"https://european-masters-athletics.org/competitions/"
+                f"https://european-masters-athletics.org/competitions/",
+                f"https://european-masters-athletics.org/ema-league-{year}/"
             ]
             for url in urls:
                 try:
-                    resp = self.session.get(url, timeout=10)
+                    resp = self.session.get(url, timeout=12)
                     if resp.status_code == 200:
                         content_type = resp.headers.get("content-type", "")
                         if "json" in content_type:
@@ -207,7 +210,6 @@ class AutonomousDiscoveryParser(BaseParser):
                                 raw_cname = item.get("country", "Uluslararası")
                                 city = item.get("city", "")
 
-                                # GitHub backend otonom ülke, isim ve bayrak tespiti
                                 country, country_name, _ = self.detect_country(title, raw_country, raw_cname)
                                 if country == "JP" and not city:
                                     city = "Kansai"
@@ -233,36 +235,59 @@ class AutonomousDiscoveryParser(BaseParser):
                                 comp.content_hash = compute_content_hash(comp)
                                 results.append(comp)
                         else:
-                            # HTML formatındaki etkinlik sayfaları (Örn: european-masters-athletics.org/events/)
+                            # HTML formatındaki etkinlik sayfaları (EMA Championships, Events, Competitions vb.)
                             soup = BeautifulSoup(resp.text, "html.parser")
-                            cards = soup.select(".event-card, .competition-card, article, tr, .entry")
-                            for card in cards:
-                                text = card.get_text(separator=" ", strip=True)
-                                if any(kw in text.lower() for kw in ["master", "championship", "emaci", "emacs", "circuit", "indoor", "outdoor"]):
-                                    title_elem = card.select_one("h2, h3, h4, a, strong, .title")
-                                    title = title_elem.get_text(strip=True) if title_elem else text[:60]
+                            
+                            # EMA özel blokları: Gutenberg media-text, tablo hücreleri (td), article ve event kartları
+                            items = soup.select(".wp-block-media-text, table td, .event-card, .competition-card, article, tr")
+                            for item in items:
+                                text = item.get_text(separator=" ", strip=True)
+                                text_lower = text.lower()
+                                
+                                # EMA şampiyona kısaltmaları veya master etkinlik kelimeleri
+                                has_master_kw = any(kw in text_lower for kw in [
+                                    "emaci", "emacs", "emorrc", "emacns", "emmtrc", "emamrc", "ema league",
+                                    "master", "masters", "championship", "european masters"
+                                ])
+                                
+                                if has_master_kw:
+                                    title_elem = item.select_one("h2, h3, h4, h5, strong, a, .title")
+                                    title = title_elem.get_text(strip=True) if title_elem else ""
+                                    
+                                    # Eğer başlık çok kısa veya genel ise text'in ilk satırını al
+                                    if len(title) < 5 or "championships" in title.lower() and len(title) < 20:
+                                        first_line = [line.strip() for line in text.splitlines() if line.strip()]
+                                        title = first_line[0] if first_line else text[:60]
+                                    
+                                    # Başlık temizliği
+                                    title = re.sub(r"\s+", " ", title).strip()
+                                    
                                     start_date, end_date = self._extract_dates_from_text(text, year)
                                     if not start_date:
                                         continue
                                     
-                                    city = self._extract_city(text)
-                                    raw_country, raw_cname, _ = self.detect_country(title + " " + text, "EU", "Avrupa")
+                                    city = self._extract_city(text) or self._extract_city(title)
+                                    country, country_name, _ = self.detect_country(title + " " + text, "EU", "Avrupa")
                                     venue = self.detect_venue_type(title + " " + text)
-                                    comp_id = generate_competition_id(title, start_date, raw_country)
+                                    comp_id = generate_competition_id(title, start_date, country)
+                                    
+                                    # Web sitesi linki yakalama (a href)
+                                    link_elem = item.select_one("a[href^='http']")
+                                    web_url = link_elem["href"] if link_elem else url
                                     
                                     comp = Competition(
                                         id=comp_id,
                                         title=title,
-                                        country=raw_country,
-                                        country_name=raw_cname,
-                                        city=city,
+                                        country=country,
+                                        country_name=country_name,
+                                        city=city or country_name,
                                         start_date=start_date,
                                         end_date=end_date,
                                         venue_type=venue,
                                         categories=self.detect_categories(title + " " + text, venue),
                                         scope="europe",
                                         federation="EMA",
-                                        website_url=url,
+                                        website_url=web_url,
                                         status="scheduled",
                                         created_at=datetime.utcnow().isoformat()
                                     )
@@ -320,7 +345,7 @@ class AutonomousDiscoveryParser(BaseParser):
 
     def _extract_dates_from_text(self, text: str, fallback_year: int) -> tuple[Optional[str], Optional[str]]:
         """
-        Metin içinden GG.AA.YYYY veya YYYY-AA-GG formatındaki tarihleri çıkarır.
+        Metin içinden GG.AA.YYYY veya YYYY-AA-GG veya metinsel tarih formatlarını çıkarır.
         """
         # 1. YYYY-MM-DD
         iso_match = re.search(r"(\d{4})-(\d{1,2})-(\d{1,2})", text)
@@ -336,7 +361,7 @@ class AutonomousDiscoveryParser(BaseParser):
             dt = f"{y}-{int(m):02d}-{int(d):02d}"
             return dt, dt
 
-        # 3. Yıl ve ay isimleri (Ocak, Şubat, Januar, Février, January vb.)
+        # 3. Yıl ve ay isimleri (Ocak, Şubat, Januar, Février, January, April, August vb.)
         months = {
             "jan": 1, "ocak": 1, "januar": 1, "janvier": 1, "ene": 1,
             "feb": 2, "şubat": 2, "subat": 2, "februar": 2, "février": 2, "fev": 2,
@@ -352,8 +377,10 @@ class AutonomousDiscoveryParser(BaseParser):
             "dec": 12, "aralık": 12, "aralik": 12, "dezember": 12, "décembre": 12, "diciembre": 12
         }
 
+        # İki farklı ay içeren aralık: Örn: 26. March – 2. April 2026 veya 15 April / 18 April
+        # Önce ay bazlı tarama
         for m_name, m_num in months.items():
-            pattern = rf"(\d{{1,2}})\s*(?:-|–|\.)?\s*(\d{{1,2}})?\s*{m_name}[a-z]*\s*({fallback_year})?"
+            pattern = rf"(\d{{1,2}})\s*(?:-|–|\.|/)?\s*(\d{{1,2}})?\s*{m_name}[a-z]*\s*({fallback_year})?"
             match = re.search(pattern, text.lower())
             if match:
                 d1 = int(match.group(1))
@@ -370,6 +397,8 @@ class AutonomousDiscoveryParser(BaseParser):
             "Dortmund", "Chemnitz", "Halle", "Erfurt", "München", "Frankfurt", "Berlin",
             "Miramas", "Nantes", "Lyon", "Paris", "Tours",
             "Toruń", "Torun", "Włocławek", "Warszawa",
+            "Catania", "Ojós", "Ojos", "Jyväskylä", "Jyvaskyla", "Lucerne", "Rasnov", "Râșnov",
+            "Glasgow", "Galway",
             "Belgrad", "Kruševac", "Sofya", "Bükreş", "Selanik", "Atina",
             "Kansai", "Taipei", "Daegu", "Sheffield", "Birmingham"
         ]

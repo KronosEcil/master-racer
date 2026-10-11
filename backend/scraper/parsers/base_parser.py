@@ -53,8 +53,22 @@ class BaseParser(abc.ABC):
             return "FR", "Fransa", "🇫🇷"
         if any(k in title_lower for k in ["yunanistan", "greece", "hellas", "athens"]):
             return "GR", "Yunanistan", "🇬🇷"
-        if any(k in title_lower for k in ["italya", "italy", "italia", "fidal"]):
+        if any(k in title_lower for k in ["italya", "italy", "italia", "catania", "fidal"]):
             return "IT", "İtalya", "🇮🇹"
+        if any(k in title_lower for k in ["polonya", "poland", "polska", "torun", "toruń"]):
+            return "PL", "Polonya", "🇵🇱"
+        if any(k in title_lower for k in ["ispanya", "spain", "españa", "ojós", "ojos"]):
+            return "ES", "İspanya", "🇪🇸"
+        if any(k in title_lower for k in ["finlandiya", "finland", "jyväskylä", "jyvaskyla"]):
+            return "FIN", "Finlandiya", "🇫🇮"
+        if any(k in title_lower for k in ["isviçre", "switzerland", "schweiz", "lucerne"]):
+            return "CH", "İsviçre", "🇨🇭"
+        if any(k in title_lower for k in ["romanya", "romania", "rasnov", "râșnov"]):
+            return "RO", "Romanya", "🇷🇴"
+        if any(k in title_lower for k in ["ingiltere", "uk", "gbr", "glasgow", "great britain"]):
+            return "GB", "Birleşik Krallık", "🇬🇧"
+        if any(k in title_lower for k in ["irlanda", "ireland", "galway"]):
+            return "IE", "İrlanda", "🇮🇪"
         if any(k in title_lower for k in ["balkan", "bamacs", "bamaci"]):
             return "EU", "Balkan", "🇪🇺"
         
@@ -62,6 +76,7 @@ class BaseParser(abc.ABC):
             "TR": "🇹🇷", "DE": "🇩🇪", "FR": "🇫🇷", "GR": "🇬🇷", "IT": "🇮🇹",
             "JP": "🇯🇵", "ES": "🇪🇸", "GB": "🇬🇧", "PL": "🇵🇱", "SE": "🇸🇪",
             "RO": "🇷🇴", "BG": "🇧🇬", "RS": "🇷🇸", "KOR": "🇰🇷", "USA": "🇺🇸",
+            "FIN": "🇫🇮", "CH": "🇨🇭", "IE": "🇮🇪",
             "EU": "🇪🇺", "INT": "🌍"
         }
         flag = country_flags.get(default_country.upper(), "🏃")
