@@ -6,13 +6,13 @@ class Competition(BaseModel):
     """
     Masterlar Atletizm Yarışması Veri Modeli
     """
-    id: str = Field(..., description="Deterministik benzersiz kimlik (slug)")
-    title: str = Field(..., description="Yarışmanın resmi adı")
-    country: str = Field(..., description="Ülke kodu (TR, GR, SWE vb.)")
-    country_name: str = Field(..., description="Ülke adı (Türkiye, Yunanistan vb.)")
+    id: str = Field(default="", description="Deterministik benzersiz kimlik (slug)")
+    title: str = Field(default="", description="Yarışmanın resmi adı")
+    country: str = Field(default="INT", description="Ülke kodu (TR, GR, SWE vb.)")
+    country_name: str = Field(default="Uluslararası", description="Ülke adı (Türkiye, Yunanistan vb.)")
     city: str = Field(default="", description="Yarışmanın yapılacağı şehir")
-    start_date: str = Field(..., description="Başlangıç tarihi (YYYY-MM-DD)")
-    end_date: str = Field(..., description="Bitiş tarihi (YYYY-MM-DD)")
+    start_date: str = Field(default="", description="Başlangıç tarihi (YYYY-MM-DD)")
+    end_date: str = Field(default="", description="Bitiş tarihi (YYYY-MM-DD)")
     venue_type: str = Field(default="outdoor", description="Tesis türü: outdoor, indoor, road, cross")
     categories: List[str] = Field(default_factory=list, description="Kapsanan branşlar (Sprint, Atlamalar vb.)")
     scope: str = Field(default="regional", description="Kapsam: turkey, balkan, europe, world, regional")

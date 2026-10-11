@@ -48,15 +48,26 @@ def is_valid_competition_title(title: str) -> bool:
 
     return True
 
-def get_canonical_key(comp: Competition) -> str:
+from typing import Tuple, Optional, List, Any
+
+def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "", city: str = "") -> str:
     """
     Farklı kaynaklardan (AWS API, OpenTrack, LADV, Balkan) taranan aynı yarışmaları
     eşleştirmek için standartlaştırılmış tekil anahtar üretir.
+    Parametre olarak Competition nesnesi veya doğrudan başlık/tarih/ülke stringleri alabilir.
     """
-    date_part = comp.start_date[:10] if comp.start_date else ""
-    country_part = (comp.country or "INT").upper()[:3]
-    city_norm = normalize_text(comp.city)
-    title_norm = normalize_text(comp.title)
+    if hasattr(title_or_comp, "title"):
+        title = getattr(title_or_comp, "title", "") or ""
+        start_date = getattr(title_or_comp, "start_date", "") or ""
+        country = getattr(title_or_comp, "country", "") or ""
+        city = getattr(title_or_comp, "city", "") or ""
+    else:
+        title = str(title_or_comp or "")
+
+    date_part = (start_date or "")[:10]
+    country_part = (country or "INT").upper()[:3]
+    city_norm = normalize_text(city or "")
+    title_norm = normalize_text(title or "")
 
     # 1. BAMACS Craiova
     if "craiova" in title_norm or "craiova" in city_norm:
@@ -84,13 +95,12 @@ def get_canonical_key(comp: Competition) -> str:
         return f"{country_part}-{date_part}-{city_norm}"
     return f"{country_part}-{date_part}-{title_norm[:20]}"
 
-def generate_competition_id(title: str, start_date: str, country: str) -> str:
+def generate_competition_id(title: str, start_date: str = "", country: str = "", city: str = "") -> str:
     """
     Her yarışma için deterministik, benzersiz ve kanonik bir ID oluşturur.
     Örnek: 'ro-2026-09-17-bamacs-craiova'
     """
-    dummy = Competition(id="", title=title, start_date=start_date, country=country)
-    canonical = get_canonical_key(dummy)
+    canonical = get_canonical_key(title, start_date, country, city)
     return normalize_text(canonical)
 
 def deduplicate_competitions(competitions: List[Competition]) -> List[Competition]:

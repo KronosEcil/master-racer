@@ -190,8 +190,7 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
             ])
 
             # 6. Yeni taranan kanonik yarışmalarla çakışan eski kopya ID'ler
-            dummy_old = Competition(id=doc_id, title=title, start_date=s_date, country=country, city=city)
-            old_canonical_key = get_canonical_key(dummy_old)
+            old_canonical_key = get_canonical_key(title, s_date, country, city)
             is_duplicate_of_new = (doc_id not in scraped_ids and old_canonical_key in scraped_canonical_keys)
 
             should_delete = (
@@ -228,7 +227,11 @@ def main():
     parser.add_argument("--export", type=str, default=None, help="Taranan verileri JSON dosyasına kaydet")
     args = parser.parse_args()
 
-    run_scraper(dry_run=args.dry_run, export_path=args.export)
+    try:
+        run_scraper(dry_run=args.dry_run, export_path=args.export)
+    except Exception as e:
+        logger.exception(f"Tarama motoru beklenmeyen bir hata ile karşılaştı: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
