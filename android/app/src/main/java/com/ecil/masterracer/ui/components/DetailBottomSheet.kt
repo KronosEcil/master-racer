@@ -200,7 +200,7 @@ fun DetailBottomSheet(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                competition.categories.forEach { category ->
+                competition.getEffectiveCategories().forEach { category ->
                     Surface(
                         shape = RoundedCornerShape(8.dp),
                         color = Color(0xFFEFF6FF)

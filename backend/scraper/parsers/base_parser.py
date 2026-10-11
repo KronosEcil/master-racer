@@ -48,23 +48,32 @@ class BaseParser(abc.ABC):
             return "cross"
         return "outdoor"
 
-    def detect_categories(self, text: str) -> List[str]:
-        """Metne göre branş gruplarını sınıflandırır."""
+    def detect_categories(self, text: str, venue_type: str = "") -> List[str]:
+        """Metne ve tesis türüne göre branş gruplarını sınıflandırır."""
         text_lower = text.lower()
         categories = []
-        if any(w in text_lower for w in ["sprint", "koşu", "100m", "200m", "400m", "bayrak"]):
+
+        is_road = venue_type == "road" or any(w in text_lower for w in ["yol", "maraton", "yarı maraton", "road", "10k", "21k", "42k"])
+        is_cross = venue_type == "cross" or any(w in text_lower for w in ["kros", "cross", "cross country", "arazi"])
+
+        # Yol veya kros koşularında sadece uzun mesafe branşı bulunur; sprint/atlama/atma pist branşları yer almaz!
+        if is_road or is_cross:
+            return ["Uzun Mesafe"]
+
+        # Pist / Salon / Genel şampiyonalar için branş tespiti
+        if any(w in text_lower for w in ["sprint", "koşu", "100m", "200m", "400m", "bayrak", "60m"]):
             categories.append("Sprint")
-        if any(w in text_lower for w in ["engel", "hurdle", "engelli"]):
+        if any(w in text_lower for w in ["engel", "hurdle", "engelli", "60m h"]):
             categories.append("Engelli")
         if any(w in text_lower for w in ["atlama", "uzun atlama", "üçadım", "yüksek atlama", "sırık", "jump"]):
             categories.append("Atlamalar")
         if any(w in text_lower for w in ["atma", "gülle", "cirit", "disk", "çekiç", "throw", "shot put", "winterwurf", "wurf", "lancers"]):
             categories.append("Atmalar")
-        if any(w in text_lower for w in ["uzun mesafe", "5000m", "10000m", "maraton", "yol", "distance"]):
+        if any(w in text_lower for w in ["uzun mesafe", "800m", "1500m", "3000m", "5000m", "10000m", "distance"]):
             categories.append("Uzun Mesafe")
         
         if not categories:
-            # Standart tam şampiyona ise tüm branşları içerir
+            # Standart tam pist/salon şampiyonası ise tüm branşları içerir
             categories = ["Sprint", "Engelli", "Atlamalar", "Atmalar", "Uzun Mesafe"]
         return categories
 

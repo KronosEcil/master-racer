@@ -98,7 +98,7 @@ class AutonomousDiscoveryParser(BaseParser):
                                 start_date=start_date,
                                 end_date=end_date,
                                 venue_type=venue,
-                                categories=self.detect_categories(title + " " + text),
+                                categories=self.detect_categories(title + " " + text, venue),
                                 scope="regional",
                                 federation="DLV / LADV",
                                 website_url="https://ladv.de",
@@ -149,7 +149,7 @@ class AutonomousDiscoveryParser(BaseParser):
                                 start_date=start_date,
                                 end_date=end_date,
                                 venue_type=self.detect_venue_type(title + " " + text),
-                                categories=self.detect_categories(title + " " + text),
+                                categories=self.detect_categories(title + " " + text, self.detect_venue_type(title + " " + text)),
                                 scope="regional",
                                 federation="FFA",
                                 website_url="https://bases.athle.fr",
@@ -188,6 +188,7 @@ class AutonomousDiscoveryParser(BaseParser):
                                 country = item.get("country_code", "INT")
                                 city = item.get("city", "")
                                 comp_id = generate_competition_id(title, s_date, country)
+                                venue = self.detect_venue_type(title)
                                 comp = Competition(
                                     id=comp_id,
                                     title=title,
@@ -196,8 +197,8 @@ class AutonomousDiscoveryParser(BaseParser):
                                     city=city,
                                     start_date=s_date,
                                     end_date=e_date,
-                                    venue_type=self.detect_venue_type(title),
-                                    categories=self.detect_categories(title),
+                                    venue_type=venue,
+                                    categories=self.detect_categories(title, venue),
                                     scope="world" if "world" in title.lower() else "europe",
                                     federation="WMA / OpenTrack",
                                     website_url=url,
@@ -235,6 +236,7 @@ class AutonomousDiscoveryParser(BaseParser):
                         if not start_date:
                             continue
                         comp_id = generate_competition_id(title, start_date, "TR" if "taf" in url else "BAMACS")
+                        venue = self.detect_venue_type(title)
                         comp = Competition(
                             id=comp_id,
                             title=title,
@@ -243,8 +245,8 @@ class AutonomousDiscoveryParser(BaseParser):
                             city=self._extract_city(text) or "Balkan",
                             start_date=start_date,
                             end_date=end_date,
-                            venue_type=self.detect_venue_type(title),
-                            categories=self.detect_categories(title),
+                            venue_type=venue,
+                            categories=self.detect_categories(title, venue),
                             scope="balkan" if "bamac" in title.lower() else "turkey",
                             federation="BAMACS" if "bamac" in title.lower() else "TAF",
                             website_url=url,

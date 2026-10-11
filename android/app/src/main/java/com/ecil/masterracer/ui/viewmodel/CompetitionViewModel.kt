@@ -185,7 +185,8 @@ class CompetitionViewModel(
             val matchesVenue = venues.isEmpty() || venues.any { it.equals(comp.venue_type, ignoreCase = true) }
 
             // Branş Filtresi (Çoklu Seçim: Seçili branş gruplarından en az biriyle eşleşmeli)
-            val matchesCategory = categories.isEmpty() || comp.categories.any { cat ->
+            val effectiveCategories = comp.getEffectiveCategories()
+            val matchesCategory = categories.isEmpty() || effectiveCategories.any { cat ->
                 categories.any { it.equals(cat, ignoreCase = true) }
             }
 

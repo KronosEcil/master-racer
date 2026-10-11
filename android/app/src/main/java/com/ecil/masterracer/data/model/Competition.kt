@@ -57,6 +57,18 @@ data class Competition(
     var status: String = "scheduled"
 ) {
     /**
+     * Tesis türüne göre doğrulanmış güncel branş listesini döndürür.
+     * Yol koşusu veya kros yarışmalarında sprint, engel, atlama, atma bulunamaz; yalnızca Uzun Mesafe geçerlidir.
+     */
+    fun getEffectiveCategories(): List<String> {
+        val vt = venue_type.lowercase()
+        if (vt == "road" || vt == "cross") {
+            return listOf("Uzun Mesafe")
+        }
+        return if (categories.isNotEmpty()) categories else listOf("Sprint", "Engelli", "Atlamalar", "Atmalar", "Uzun Mesafe")
+    }
+
+    /**
      * Bugün ile başlangıç tarihi arasındaki gün farkını hesaplar.
      */
     fun getDaysRemaining(): Long {
