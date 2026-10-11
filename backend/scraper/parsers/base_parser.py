@@ -37,6 +37,36 @@ class BaseParser(abc.ABC):
         """Tüm yarışmaları tarayıp Competition listesi döndürür."""
         pass
 
+    def detect_country(self, title: str, default_country: str = "INT", default_name: str = "Uluslararası") -> tuple[str, str, str]:
+        """
+        Yarışma başlığından ve metninden ev sahibi ülkeyi, ülke adını ve bayrağını belirler.
+        Tüm tespitler GitHub scraper motorunda otomatik yapılır.
+        """
+        title_lower = title.lower()
+        if any(k in title_lower for k in ["kansai", "world masters games", "wmg", "japan", "japonya"]):
+            return "JP", "Japonya", "🇯🇵"
+        if any(k in title_lower for k in ["türkiye", "turkey", "istanbul", "izmir", "bursa", "ankara", "taf"]):
+            return "TR", "Türkiye", "🇹🇷"
+        if any(k in title_lower for k in ["almanya", "germany", "deutschland", "dlv", "ladv"]):
+            return "DE", "Almanya", "🇩🇪"
+        if any(k in title_lower for k in ["fransa", "france", "ffa", "miramas"]):
+            return "FR", "Fransa", "🇫🇷"
+        if any(k in title_lower for k in ["yunanistan", "greece", "hellas", "athens"]):
+            return "GR", "Yunanistan", "🇬🇷"
+        if any(k in title_lower for k in ["italya", "italy", "italia", "fidal"]):
+            return "IT", "İtalya", "🇮🇹"
+        if any(k in title_lower for k in ["balkan", "bamacs", "bamaci"]):
+            return "EU", "Balkan", "🇪🇺"
+        
+        country_flags = {
+            "TR": "🇹🇷", "DE": "🇩🇪", "FR": "🇫🇷", "GR": "🇬🇷", "IT": "🇮🇹",
+            "JP": "🇯🇵", "ES": "🇪🇸", "GB": "🇬🇧", "PL": "🇵🇱", "SE": "🇸🇪",
+            "RO": "🇷🇴", "BG": "🇧🇬", "RS": "🇷🇸", "KOR": "🇰🇷", "USA": "🇺🇸",
+            "EU": "🇪🇺", "INT": "🌍"
+        }
+        flag = country_flags.get(default_country.upper(), "🏃")
+        return default_country, default_name, flag
+
     def detect_venue_type(self, text: str) -> str:
         """Metin içerisindeki anahtar kelimelerden salon/açık/yol ayrımını yapar."""
         text_lower = text.lower()

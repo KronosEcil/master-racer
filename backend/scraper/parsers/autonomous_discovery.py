@@ -201,17 +201,14 @@ class AutonomousDiscoveryParser(BaseParser):
                                 title = item.get("name", item.get("title", ""))
                                 s_date = item.get("date_start", item.get("start_date", f"{year}-06-01"))
                                 e_date = item.get("date_end", item.get("end_date", s_date))
-                                country = item.get("country_code", "INT")
+                                raw_country = item.get("country_code", "INT")
+                                raw_cname = item.get("country", "Uluslararası")
                                 city = item.get("city", "")
-                                country_name = item.get("country", "Uluslararası")
 
-                                # Dünya Masterlar Oyunları (World Masters Games) Kansai - Japonya tespiti
-                                title_lower = title.lower()
-                                if "world masters games" in title_lower or "wmg" in title_lower or "kansai" in title_lower:
-                                    country = "JP"
-                                    country_name = "Japonya"
-                                    if not city:
-                                        city = "Kansai"
+                                # GitHub backend otonom ülke, isim ve bayrak tespiti
+                                country, country_name, _ = self.detect_country(title, raw_country, raw_cname)
+                                if country == "JP" and not city:
+                                    city = "Kansai"
 
                                 comp_id = generate_competition_id(title, s_date, country)
                                 venue = self.detect_venue_type(title)
@@ -226,8 +223,8 @@ class AutonomousDiscoveryParser(BaseParser):
                                     venue_type=venue,
                                     categories=self.detect_categories(title, venue),
                                     scope="world" if "world" in title.lower() else "europe",
-                                    federation="IMGA" if "games" in title_lower else "WMA / OpenTrack",
-                                    website_url="https://wmg2027.jp" if "kansai" in title_lower or "2027" in s_date else url,
+                                    federation="IMGA" if "games" in title.lower() else "WMA / OpenTrack",
+                                    website_url="https://wmg2027.jp" if "kansai" in title.lower() or "world masters games" in title.lower() else url,
                                     status="scheduled",
                                     created_at=datetime.utcnow().isoformat()
                                 )

@@ -184,7 +184,13 @@ data class Competition(
     fun getCountryFlag(): String {
         val cUpper = country.uppercase()
         val titleLower = title.lowercase()
-        if (cUpper == "JP" || cUpper == "JPN" || titleLower.contains("kansai") || titleLower.contains("japan") || titleLower.contains("japonya")) {
+        if (cUpper == "JP" || cUpper == "JPN" ||
+            titleLower.contains("kansai") ||
+            titleLower.contains("japan") ||
+            titleLower.contains("japonya") ||
+            titleLower.contains("world masters games") ||
+            titleLower.contains("wmg")
+        ) {
             return "🇯🇵"
         }
         return when (cUpper) {
