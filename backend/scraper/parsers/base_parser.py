@@ -69,15 +69,51 @@ class BaseParser(abc.ABC):
             return "GB", "Birleşik Krallık", "🇬🇧"
         if any(k in title_lower for k in ["irlanda", "ireland", "galway"]):
             return "IE", "İrlanda", "🇮🇪"
-        if any(k in title_lower for k in ["balkan", "bamacs", "bamaci"]):
+        if any(k in title_lower for k in ["slovenya", "slovenia", "novo mesto", "domzale"]):
+            return "SI", "Slovenya", "🇸🇮"
+        if any(k in title_lower for k in ["arnavutluk", "albania", "shkodër", "shkoder"]):
+            return "AL", "Arnavutluk", "🇦🇱"
+        if any(k in title_lower for k in ["çekya", "czech", "rumburk", "lovosice", "janske lazne"]):
+            return "CZ", "Çekya", "🇨🇿"
+        if any(k in title_lower for k in ["portekiz", "portugal", "lisboa", "lisbon"]):
+            return "PT", "Portekiz", "🇵🇹"
+        if any(k in title_lower for k in ["norveç", "norway", "oslo"]):
+            return "NO", "Norveç", "🇳🇴"
+        if any(k in title_lower for k in ["danimarka", "denmark", "dansk", "hvidovre", "aabenraa"]):
+            return "DK", "Danimarka", "🇩🇰"
+        if any(k in title_lower for k in ["izlanda", "iceland", "selfoss"]):
+            return "IS", "İzlanda", "🇮🇸"
+        if any(k in title_lower for k in ["güney kore", "korea", "daegu"]):
+            return "KOR", "Güney Kore", "🇰🇷"
+        if any(k in title_lower for k in ["letonya", "latvia", "liepaja"]):
+            return "LV", "Letonya", "🇱🇻"
+        if any(k in title_lower for k in ["litvanya", "lithuania", "marijampole", "klaipeda"]):
+            return "LT", "Litvanya", "🇱🇹"
+        if any(k in title_lower for k in ["hırvatistan", "croatia", "zagreb", "varaždin", "varazdin"]):
+            return "HR", "Hırvatistan", "🇭🇷"
+        if any(k in title_lower for k in ["avusturya", "austria", "götzis", "gotzis"]):
+            return "AT", "Avusturya", "🇦🇹"
+        if any(k in title_lower for k in ["belçika", "belgium", "merksem"]):
+            return "BE", "Belçika", "🇧🇪"
+        if any(k in title_lower for k in ["isveç", "sweden", "östersund", "ostersund"]):
+            return "SE", "İsveç", "🇸🇪"
+        if any(k in title_lower for k in ["estonya", "estonia", "pärnu", "parnu"]):
+            return "EE", "Estonya", "🇪🇪"
+        if any(k in title_lower for k in ["sırbistan", "serbia", "belgrad", "kruševac"]):
+            return "RS", "Sırbistan", "🇷🇸"
+        if any(k in title_lower for k in ["bulgaristan", "bulgaria", "sofya", "plovdiv"]):
+            return "BG", "Bulgaristan", "🇧🇬"
+        if any(k in title_lower for k in ["balkan"]):
             return "EU", "Balkan", "🇪🇺"
         
         country_flags = {
             "TR": "🇹🇷", "DE": "🇩🇪", "FR": "🇫🇷", "GR": "🇬🇷", "IT": "🇮🇹",
             "JP": "🇯🇵", "ES": "🇪🇸", "GB": "🇬🇧", "PL": "🇵🇱", "SE": "🇸🇪",
             "RO": "🇷🇴", "BG": "🇧🇬", "RS": "🇷🇸", "KOR": "🇰🇷", "USA": "🇺🇸",
-            "FIN": "🇫🇮", "CH": "🇨🇭", "IE": "🇮🇪",
-            "EU": "🇪🇺", "INT": "🌍"
+            "FIN": "🇫🇮", "CH": "🇨🇭", "IE": "🇮🇪", "SI": "🇸🇮", "AL": "🇦🇱",
+            "CZ": "🇨🇿", "PT": "🇵🇹", "NO": "🇳🇴", "DK": "🇩🇰", "IS": "🇮🇸",
+            "LV": "🇱🇻", "LT": "🇱🇹", "HR": "🇭🇷", "AT": "🇦🇹", "BE": "🇧🇪",
+            "EE": "🇪🇪", "EU": "🇪🇺", "INT": "🌍"
         }
         flag = country_flags.get(default_country.upper(), "🏃")
         return default_country, default_name, flag

@@ -283,12 +283,20 @@ class AutonomousDiscoveryParser(BaseParser):
                             continue
 
                     strong_elem = cell.find("strong")
-                    title = strong_elem.get_text(strip=True) if strong_elem else text.split()[0]
-                    # Başlık iyileştirme (EMMTR2027 -> EMMTRC 2027 vb.)
-                    if len(title) < 15:
-                        lines = [line.strip() for line in cell.stripped_strings]
-                        if lines:
-                            title = lines[0]
+                    raw_title = strong_elem.get_text(strip=True) if strong_elem else text.split()[0]
+                    lines = [line.strip() for line in cell.stripped_strings if line.strip()]
+                    title = lines[0] if lines else raw_title
+                    # Temizleme: EMMTR2027 -> EMMTRC 2027, EMACNSS2028 -> EMACNS 2028
+                    if "emmtr" in title.lower():
+                        title = f"EMMTRC {champ_year} European Masters Mountain & Trail Running"
+                    elif "emacs" in title.lower():
+                        title = f"EMACS {champ_year} European Masters Athletics Championships Stadia"
+                    elif "emamrc" in title.lower():
+                        title = f"EMAMRC {champ_year} European Masters Marathon & 10km"
+                    elif "emaci" in title.lower():
+                        title = f"EMACI {champ_year} European Masters Athletics Championships Indoor"
+                    elif "emacns" in title.lower():
+                        title = f"EMACNS {champ_year} European Masters Athletics Championships Non-Stadia"
 
                     city = self._extract_city(text) or self._extract_city(title)
                     country, country_name, _ = self.detect_country(text + " " + title, "EU", "Avrupa")
@@ -331,11 +339,7 @@ class AutonomousDiscoveryParser(BaseParser):
             urls = [
                 f"https://data.opentrack.run/api/v1/fixtures/?year={year}&category=masters",
                 f"https://world-masters-athletics.org/api/competitions/{year}",
-                f"https://imga.ch/events/{year}",
-                f"https://european-masters-athletics.org/championships-{year}/",
-                f"https://european-masters-athletics.org/events/",
-                f"https://european-masters-athletics.org/competitions/",
-                f"https://european-masters-athletics.org/ema-league-{year}/"
+                f"https://imga.ch/events/{year}"
             ]
             for url in urls:
                 try:
@@ -469,15 +473,33 @@ class AutonomousDiscoveryParser(BaseParser):
                             content_text = content_obj.get("rendered", "") if isinstance(content_obj, dict) else ""
                             full_text = f"{title} {content_text}"
                             
+                            # 'Registrations', 'Timetable', 'Preliminary Schedule' gibi alt sayfaları yarışma olarak ekleme!
+                            invalid_balkan_titles = [
+                                "registrations", "timetable", "schedule", "manual", "records", 
+                                "members", "council", "hotels", "photos", "medals", "results", 
+                                "welcome", "events", "blog", "technical manual"
+                            ]
+                            title_clean = title.strip()
+                            if any(title_clean.lower() == inv or title_clean.lower().startswith(inv + " ") for inv in invalid_balkan_titles):
+                                continue
+
                             if any(kw in full_text.lower() for kw in ["bamacs", "bamaci", "balkan masters", "bama"]):
                                 soup = BeautifulSoup(full_text, "html.parser")
                                 clean_text = soup.get_text(separator=" ", strip=True)
                                 start_date, end_date = self._extract_dates_from_text(clean_text, year)
-                                if not start_date:
+                                
+                                # Eğer BAMACI Novo Mesto sayfası ise ve tarih metinden çekilemediyse resmi Mart 2026 tarihini kullan
+                                if "novo mesto" in full_text.lower() and "bamaci" in full_text.lower():
+                                    start_date = "2026-03-14"
+                                    end_date = "2026-03-15"
+                                    title = "BAMACI 2026 Novo Mesto"
+                                elif not start_date:
                                     continue
                                 
                                 city = self._extract_city(clean_text) or self._extract_city(title)
-                                country, country_name, _ = self.detect_country(clean_text + " " + title, "RO" if "craiova" in clean_text.lower() else "EU", "Romanya" if "craiova" in clean_text.lower() else "Balkan")
+                                default_c = "RO" if "craiova" in clean_text.lower() else ("SI" if "novo mesto" in clean_text.lower() else "EU")
+                                default_cname = "Romanya" if "craiova" in clean_text.lower() else ("Slovenya" if "novo mesto" in clean_text.lower() else "Balkan")
+                                country, country_name, _ = self.detect_country(clean_text + " " + title, default_c, default_cname)
                                 venue = self.detect_venue_type(title + " " + clean_text)
                                 comp_id = generate_competition_id(title, start_date, country)
                                 
@@ -576,9 +598,9 @@ class AutonomousDiscoveryParser(BaseParser):
         }
 
         # İki farklı ay içeren aralık: Örn: 26. March – 2. April 2026 veya 15 April / 18 April
-        # Önce ay bazlı tarama
+        # Önce ay bazlı tarama (\b kelime sınırı ile "novo" gibi kelimelerin "nov" (kasım) olarak yakalanması önlenir)
         for m_name, m_num in months.items():
-            pattern = rf"(\d{{1,2}})\s*(?:-|–|\.|/)?\s*(\d{{1,2}})?\s*{m_name}[a-z]*\s*({fallback_year})?"
+            pattern = rf"(\d{{1,2}})\s*(?:-|–|\.|/)?\s*(\d{{1,2}})?\s*\b{m_name}[a-z]*\b\s*({fallback_year})?"
             match = re.search(pattern, text.lower())
             if match:
                 d1 = int(match.group(1))
