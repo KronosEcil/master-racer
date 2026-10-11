@@ -69,6 +69,22 @@ data class Competition(
     }
 
     /**
+     * Yarışmanın 35+ Master/Veteran atletizm kriterlerine tam uygunluğunu doğrular.
+     * Almanya (DE) için sadece 'Meisterschaften' veya 'Meeting' olup 'Senioren'/'Master' içermeyen genel yarışmaları eler.
+     * Yol maratonları veya 35+ kategorisi olan şampiyonalar geçerlidir.
+     */
+    fun isStrictMasterAthletics(): Boolean {
+        if (country.equals("DE", ignoreCase = true)) {
+            val fullText = "$title $federation".lowercase()
+            val hasGermanMasterKeyword = listOf("senioren", "master", "35+", "m35", "w35").any { fullText.contains(it) }
+            val isRoadMarathon = venue_type.equals("road", ignoreCase = true) || fullText.contains("marathon") || fullText.contains("maraton")
+            // Almanya'da ya açıkça Senioren/Master yarışması olmalı ya da Master yaş kategorisi içeren maraton olmalı
+            return hasGermanMasterKeyword || isRoadMarathon
+        }
+        return true
+    }
+
+    /**
      * Bugün ile başlangıç tarihi arasındaki gün farkını hesaplar.
      */
     fun getDaysRemaining(): Long {

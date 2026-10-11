@@ -74,9 +74,23 @@ class AutonomousDiscoveryParser(BaseParser):
                     for item in items:
                         text = item.get_text(separator=" ", strip=True)
                         text_lower = text.lower()
+                        # Almanya için sıkı Master (35+) filtreleme:
+                        # Almanya'da 'Meisterschaften' veya 'Hallenmeeting' tek başına genel/elit anlamına gelebilir.
+                        # Mutlaka 'senioren', 'master', '35+', 'm35', 'w35' veya 'winterwurf' (master) kriterlerini karşılamalıdır!
+                        has_master_keyword = any(kw in text_lower for kw in [
+                            "senioren", "seniorenmeisterschaften", "masters", "master", "35+", "m35", "w35", "senioren-hallen"
+                        ])
                         
-                        # Master, Hallenmeeting, Winterwurf veya Şampiyona kelimelerini eşle
-                        if any(kw in text_lower for kw in ["master", "senioren", "winterwurf", "hallenmeeting", "meisterschaften"]):
+                        # Eğer genel 'winterwurf' veya 'hallenmeeting' geçiyorsa da içinde 'senioren' ya da 'master' olmalı
+                        is_valid_german_master = has_master_keyword or (
+                            any(kw in text_lower for kw in ["winterwurf", "hallenmeeting"]) and any(m in text_lower for m in ["senioren", "master", "35+"])
+                        )
+
+                        # Gençlik/yıldız yarışmalarını kesin olarak ele
+                        if any(k in text_lower for k in ["u12", "u14", "u16", "u18", "u20", "u23", "jugend", "kinder"]) and not has_master_keyword:
+                            continue
+
+                        if is_valid_german_master:
                             title_elem = item.select_one("a, .title, strong, h3, h4")
                             title = title_elem.get_text(strip=True) if title_elem else text[:60]
                             
@@ -133,7 +147,9 @@ class AutonomousDiscoveryParser(BaseParser):
                     for row in rows:
                         text = row.get_text(separator=" ", strip=True)
                         text_lower = text.lower()
-                        if any(kw in text_lower for kw in ["master", "vétéran", "miramas", "salle", "meeting"]):
+                        # Fransa için sıkı Master (35+) filtreleme:
+                        has_french_master = any(kw in text_lower for kw in ["master", "vétéran", "veteran", "35+", "ema league", "européen masters"])
+                        if has_french_master:
                             title_elem = row.select_one("a, .nom, strong, h3")
                             title = title_elem.get_text(strip=True) if title_elem else text[:60]
                             start_date, end_date = self._extract_dates_from_text(text, year)

@@ -163,6 +163,11 @@ class CompetitionViewModel(
         val hideCompleted = currentState.hideCompleted
 
         val filtered = currentState.allCompetitions.filter { comp ->
+            // Almanya ve Genel Sıkı 35+ Master Kriteri Filtresi
+            if (!comp.isStrictMasterAthletics()) {
+                return@filter false
+            }
+
             val days = comp.getDaysRemaining()
 
             // Tamamlanan Yarışmaları Gizleme Filtresi
