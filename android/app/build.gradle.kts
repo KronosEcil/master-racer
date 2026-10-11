@@ -6,13 +6,13 @@ plugins {
 
 android {
     namespace = "com.ecil.masterracer"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.ecil.masterracer"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 1
+        targetSdk = 36
+        versionCode = 2
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
