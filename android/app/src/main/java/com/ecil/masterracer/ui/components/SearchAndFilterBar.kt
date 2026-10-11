@@ -170,20 +170,20 @@ fun SearchAndFilterBar(
                 )
             }
 
-            // Tamamlananları Gizle Hızlı Butonu / Çipi
+            // Geçmiş Yarışmaları Göster / Gizle Hızlı Çipi
             FilterChip(
-                selected = hideCompleted,
+                selected = !hideCompleted,
                 onClick = onToggleHideCompleted,
                 label = {
                     Text(
-                        text = if (hideCompleted) "✓ Bitenleri Gizle" else "Bitenleri Gizle",
+                        text = if (!hideCompleted) "✓ Geçmişi Göster" else "Geçmiş Yarışmalar",
                         fontSize = 12.sp,
-                        fontWeight = if (hideCompleted) FontWeight.SemiBold else FontWeight.Normal
+                        fontWeight = if (!hideCompleted) FontWeight.SemiBold else FontWeight.Normal
                     )
                 },
                 shape = RoundedCornerShape(20.dp),
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Color(0xFFE11D48),
+                    selectedContainerColor = Color(0xFF64748B),
                     selectedLabelColor = Color.White,
                     containerColor = Color(0xFFF1F5F9),
                     labelColor = Color(0xFF334155)

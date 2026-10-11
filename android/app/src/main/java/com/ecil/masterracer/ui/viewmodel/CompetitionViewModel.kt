@@ -121,7 +121,7 @@ class CompetitionViewModel(
                 selectedVenueTypes = emptySet(),
                 selectedCategories = emptySet(),
                 selectedDatePreset = "all",
-                hideCompleted = false,
+                hideCompleted = true,
                 searchQuery = ""
             )
         }

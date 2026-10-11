@@ -13,7 +13,7 @@ data class CompetitionUiState(
     val selectedVenueTypes: Set<String> = emptySet(),
     val selectedCategories: Set<String> = emptySet(),
     val selectedDatePreset: String = "all", // "all", "next_30", "next_90", "season"
-    val hideCompleted: Boolean = false,
+    val hideCompleted: Boolean = true,
     val availableCountries: List<Pair<String, String>> = emptyList(),
     val selectedCompetitionForDetail: Competition? = null
 ) {
@@ -24,7 +24,7 @@ data class CompetitionUiState(
             count += selectedVenueTypes.size
             count += selectedCategories.size
             if (selectedDatePreset != "all") count++
-            if (hideCompleted) count++
+            if (!hideCompleted) count++ // Varsayılan gizli olduğu için, geçmişi de gösterirse ekstra filtre sayılır
             return count
         }
 }
