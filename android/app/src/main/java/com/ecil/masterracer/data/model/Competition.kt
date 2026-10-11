@@ -1,5 +1,6 @@
 package com.ecil.masterracer.data.model
 
+import androidx.annotation.Keep
 import com.google.firebase.firestore.PropertyName
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -7,6 +8,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
+@Keep
 data class Competition(
     @get:PropertyName("id") @set:PropertyName("id")
     var id: String = "",
