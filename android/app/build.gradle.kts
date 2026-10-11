@@ -1,4 +1,4 @@
-﻿plugins {
+plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
@@ -21,8 +21,18 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("masterracer-release.jks")
+            storePassword = "masterracer123"
+            keyAlias = "masterracer"
+            keyPassword = "masterracer123"
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
