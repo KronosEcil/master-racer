@@ -104,7 +104,7 @@ class BaseParser(abc.ABC):
         if any(k in title_lower for k in ["bulgaristan", "bulgaria", "sofya", "plovdiv"]):
             return "BG", "Bulgaristan", "🇧🇬"
         if any(k in title_lower for k in ["balkan"]):
-            return "EU", "Balkan", "🇪🇺"
+            return "EU", "Avrupa", "🇪🇺"
         
         country_flags = {
             "TR": "🇹🇷", "DE": "🇩🇪", "FR": "🇫🇷", "GR": "🇬🇷", "IT": "🇮🇹",

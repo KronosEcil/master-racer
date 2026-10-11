@@ -34,7 +34,7 @@ class CompetitionRepository(
                         if (this.id.isBlank()) this.id = doc.id
                     }
                 }
-                trySend(competitions)
+                trySend(cleanAndDeduplicate(competitions))
             } else {
                 Log.d("CompetitionRepo", "Firestore koleksiyonu boş veya henüz senkronize edilmedi.")
                 trySend(getFallbackCompetitions())
@@ -57,11 +57,12 @@ class CompetitionRepository(
                 .await()
 
             if (!snapshot.isEmpty) {
-                snapshot.documents.mapNotNull { doc ->
+                val competitions = snapshot.documents.mapNotNull { doc ->
                     doc.toObject(Competition::class.java)?.apply {
                         if (this.id.isBlank()) this.id = doc.id
                     }
                 }
+                cleanAndDeduplicate(competitions)
             } else {
                 getFallbackCompetitions()
             }
@@ -69,6 +70,60 @@ class CompetitionRepository(
             Log.e("CompetitionRepo", "Yenileme hatası: ${e.message}")
             getFallbackCompetitions()
         }
+    }
+
+    /**
+     * Gelen yarışma listesini sahte doküman başlıklarından (Technical Manual, Timetable vb.)
+     * ve hatalı tarihlerden arındırır, aynı yarışmanın birden fazla kaydını tekilleştirir.
+     */
+    private fun cleanAndDeduplicate(list: List<Competition>): List<Competition> {
+        val invalidKeywords = listOf(
+            "technical manual", "timetable", "schedule", "registration",
+            "registrations", "preliminary schedule", "hotel", "hotels",
+            "accommodation", "manual", "record", "records", "results",
+            "bulletin", "circular"
+        )
+
+        return list
+            .filter { comp ->
+                val titleLower = comp.title.lowercase().trim()
+                val isInvalidTitle = invalidKeywords.any { kw ->
+                    titleLower == kw || titleLower.startsWith("$kw ") || titleLower.contains("technical manual") || titleLower.contains("registrations")
+                }
+                // 2006 veya geçersiz/eksik tarihleri filtrele
+                val isBadDate = comp.start_date.startsWith("2006") || comp.start_date.length < 8
+                // BAMACS Craiova 2026 yılındadır; 2027 tarihli hatalı kopyayı filtrele
+                val isWrongBamacs2027 = (titleLower.contains("craiova") || titleLower.contains("bamacs")) && comp.start_date.startsWith("2027")
+                
+                !isInvalidTitle && !isBadDate && !isWrongBamacs2027
+            }
+            .distinctBy { comp ->
+                val titleLower = comp.title.lowercase()
+                val normCity = comp.city.lowercase().replace(Regex("[^a-z0-9]"), "")
+                val datePart = comp.start_date.take(10)
+                val countryPart = comp.country.lowercase()
+
+                when {
+                    titleLower.contains("craiova") || normCity.contains("craiova") -> "ro_craiova_bamacs"
+                    titleLower.contains("novo mesto") || normCity.contains("novomesto") || titleLower.contains("bamaci") -> "si_novomesto_bamaci"
+                    titleLower.contains("zagreb") || (titleLower.contains("marathon") && countryPart == "hr") -> "hr_${datePart}_marathon"
+                    normCity.contains("bernhausen") || titleLower.contains("bernhausen") -> "de_${datePart}_bernhausen"
+                    titleLower.contains("emacs") -> "ema_${comp.start_date.take(4)}_emacs"
+                    titleLower.contains("emaci") -> "ema_${comp.start_date.take(4)}_emaci"
+                    titleLower.contains("emmtr") -> "ema_${comp.start_date.take(4)}_emmtr"
+                    titleLower.contains("emamrc") -> "ema_${comp.start_date.take(4)}_emamrc"
+                    titleLower.contains("emacns") -> "ema_${comp.start_date.take(4)}_emacns"
+                    else -> {
+                        val normTitleKey = titleLower
+                            .replace("european masters", "em")
+                            .replace("championships", "")
+                            .replace("championship", "")
+                            .replace(Regex("[^a-z0-9]"), "")
+                            .take(15)
+                        "${datePart}_${countryPart}_${if (normCity.isNotEmpty()) normCity else normTitleKey}"
+                    }
+                }
+            }
     }
 
     /**

@@ -10,7 +10,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 from .config import Competition, ScraperConfig
-from .deduplication import evaluate_change
+from .deduplication import evaluate_change, deduplicate_competitions, is_valid_competition_title, get_canonical_key
 from .notification import NotificationManager
 from .parsers.taf_parser import TAFParser
 from .parsers.ema_parser import EMAParser
@@ -105,7 +105,11 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
         except Exception as e:
             logger.error(f"[{parser.name}] Çalışırken hata: {e}")
 
-    logger.info(f"Toplam taranan yarışma sayısı: {len(all_scraped)}")
+    logger.info(f"Toplam ham taranan yarışma sayısı: {len(all_scraped)}")
+
+    # Tekilleştirme motorunu çalıştır (Duplicate ve döküman başlıklarını eler)
+    all_scraped = deduplicate_competitions(all_scraped)
+    logger.info(f"Tekilleştirme sonrası aktif yarışma sayısı: {len(all_scraped)}")
 
     # Tekilleştirme, Değişiklik Tespiti ve Veritabanı Güncelleme
     stats = {"NEW": 0, "DATE_CHANGED": 0, "LOCATION_CHANGED": 0, "UPDATED": 0, "UNCHANGED": 0}
@@ -127,7 +131,6 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
         elif change_type == "DATE_CHANGED":
             comp.date_changed = True
             comp.old_start_date = existing.get("start_date") if existing else None
-            # Önceki is_new veya location_changed durumunu koru
             comp.is_new = existing.get("is_new", False) if existing else False
             comp.location_changed = existing.get("location_changed", False) if existing else False
             logger.warning(f"⚠️ [TARİH GÜNCELLENDİ] {comp.title} -> Yeni Tarih: {comp.start_date} (Eski: {comp.old_start_date})")
@@ -138,7 +141,6 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
             comp.date_changed = existing.get("date_changed", False) if existing else False
             logger.warning(f"📍 [KONUM GÜNCELLENDİ] {comp.title} -> Yeni: {comp.city}, {comp.country_name} (Eski: {comp.old_location})")
         else:
-            # Genel güncelleme
             comp.is_new = existing.get("is_new", False) if existing else False
             comp.date_changed = existing.get("date_changed", False) if existing else False
             comp.location_changed = existing.get("location_changed", False) if existing else False
@@ -156,25 +158,51 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
         if should_notify:
             notification_mgr.send_competition_notification(comp, change_type)
 
-    # Eski / elle girilmiş sahte kayıtları veya web sitelerinden artık çekilemeyen geçersiz mock verileri temizleme:
+    # Firestore Eski / Hatalı / Kopya Kayıt Temizliği (Garbage Collection)
     scraped_ids = {c.id for c in all_scraped}
+    scraped_canonical_keys = {get_canonical_key(c) for c in all_scraped}
     deleted_count = 0
+
     if db and not dry_run:
         for doc_id, doc_data in existing_comps.items():
             title = doc_data.get("title", "")
-            # Bilinen eski sahte fikstürler veya hatalı çekilmiş sayfalar (Registrations, Timetable, yanlış tarihli Novo Mesto)
+            s_date = str(doc_data.get("start_date", ""))
+            c_name = str(doc_data.get("country_name", ""))
+            country = str(doc_data.get("country", ""))
+            city = str(doc_data.get("city", ""))
+
+            # 1. Başlık geçerlilik kontrolü (Technical Manual, Timetable, Registrations, vb.)
+            is_invalid_title = not is_valid_competition_title(title)
+            
+            # 2. Geçersiz veya sahte tarihler (2006 veya 2026'dan eski)
+            is_bad_date = s_date.startswith("2006") or (len(s_date) >= 4 and s_date[:4] < "2026")
+            
+            # 3. Craiova / BAMACS 2026 yarışmasının 2027 tarihli hatalı kopyası
+            is_wrong_bamacs_year = ("craiova" in title.lower() or "bamacs" in title.lower()) and s_date.startswith("2027")
+
+            # 4. Hatalı ülke/şehir kayıtları (Balkan ülkesi, Selanik'te BAMACS vb.)
+            is_wrong_country = (country == "GR" and "bamacs" in title.lower()) or (country == "Balkan" or c_name == "Balkan" or city == "Balkan")
+
+            # 5. Sahte mock fixture artıkları
             is_mock_artifact = any(kw in doc_id.lower() or kw in title.lower() for kw in [
                 "sonbahar", "bursa-kros", "naili moran", "mock", "sample", "demo",
-                "registrations", "timetable", "schedule"
-            ]) or (doc_data.get("country") == "GR" and "bamacs" in title.lower()) or ("selanik" in doc_data.get("city", "").lower() and "bamac" in title.lower())
-            
-            # Ya da canlı taramada bulunamayan ve yapay / hatalı tarihlere sahip eski kayıtlar
-            is_artificial_fallback = (doc_data.get("start_date") in ["2026-03-01", "2026-06-01", "2026-08-01", "2026-11-20"] or "2006" in doc_data.get("start_date", "")) and doc_id not in scraped_ids
+                "registrations", "timetable", "schedule", "manual"
+            ])
 
-            if (is_mock_artifact or is_artificial_fallback) and doc_id not in scraped_ids:
+            # 6. Yeni taranan kanonik yarışmalarla çakışan eski kopya ID'ler
+            dummy_old = Competition(id=doc_id, title=title, start_date=s_date, country=country, city=city)
+            old_canonical_key = get_canonical_key(dummy_old)
+            is_duplicate_of_new = (doc_id not in scraped_ids and old_canonical_key in scraped_canonical_keys)
+
+            should_delete = (
+                is_invalid_title or is_bad_date or is_wrong_bamacs_year or
+                is_wrong_country or is_mock_artifact or is_duplicate_of_new
+            )
+
+            if should_delete and doc_id not in scraped_ids:
                 try:
                     db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()
-                    logger.info(f"🗑️ [ESKİ SAHTE/YAPAY VERİ SİLİNDİ] {title} (ID: {doc_id})")
+                    logger.info(f"🗑️ [ESKİ/HATALI/KOPYA VERİ SİLİNDİ] {title} (ID: {doc_id})")
                     deleted_count += 1
                 except Exception as e:
                     logger.error(f"Firestore silme hatası ({doc_id}): {e}")

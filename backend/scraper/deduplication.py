@@ -1,7 +1,7 @@
 import hashlib
 import re
 import unicodedata
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
 from .config import Competition
 
 def normalize_text(text: str) -> str:
@@ -14,14 +14,118 @@ def normalize_text(text: str) -> str:
     text = re.sub(r"\s+", "-", text.strip().lower())
     return text
 
+def is_valid_competition_title(title: str) -> bool:
+    """
+    Başlığın gerçek bir yarışmaya mı yoksa web sitesi alt sayfasına / dökümanına mı
+    (Technical Manual, Registrations, Timetable, Schedule, vb.) ait olduğunu doğrular.
+    """
+    if not title or len(title.strip()) < 4:
+        return False
+
+    t_lower = title.strip().lower()
+
+    # Kesinlikle yarışma olmayan teknik doküman ve menü kalıpları
+    junk_phrases = [
+        "technical manual", "timetable", "schedule", "preliminary schedule",
+        "registration", "registrations", "regulations", "entry form",
+        "hotel", "hotels", "accommodation", "members", "council",
+        "records", "medals", "photos", "bulletin", "circular",
+        "call for", "general info", "general information", "results book"
+    ]
+
+    for jp in junk_phrases:
+        if jp in t_lower:
+            # "championship" veya "trophy" veya "marathon" geçse bile "technical manual", "timetable", "registrations" bir alt dökümandır
+            if any(doc_word in t_lower for doc_word in ["technical manual", "timetable", "registrations", "preliminary schedule", "registration", "entry form"]):
+                return False
+            if t_lower == jp or t_lower.startswith(jp + " ") or t_lower.endswith(" " + jp):
+                return False
+
+    # Tek başına "Manual", "Results", "Welcome", "Rules", "Events" gibi genel kelimeleri ele
+    single_junk = {"manual", "results", "welcome", "rules", "events", "blog", "home", "contact", "news"}
+    if t_lower in single_junk:
+        return False
+
+    return True
+
+def get_canonical_key(comp: Competition) -> str:
+    """
+    Farklı kaynaklardan (AWS API, OpenTrack, LADV, Balkan) taranan aynı yarışmaları
+    eşleştirmek için standartlaştırılmış tekil anahtar üretir.
+    """
+    date_part = comp.start_date[:10] if comp.start_date else ""
+    country_part = (comp.country or "INT").upper()[:3]
+    city_norm = normalize_text(comp.city)
+    title_norm = normalize_text(comp.title)
+
+    # 1. BAMACS Craiova
+    if "craiova" in title_norm or "craiova" in city_norm:
+        return "RO-2026-09-17-BAMACS-CRAIOVA"
+
+    # 2. BAMACI Novo Mesto
+    if "novo-mesto" in title_norm or "novo-mesto" in city_norm or "bamaci" in title_norm:
+        return "SI-2026-03-14-BAMACI-NOVO-MESTO"
+
+    # 3. WMA Marathon Zagreb
+    if "zagreb" in title_norm or "zagreb" in city_norm or ("marathon" in title_norm and country_part == "HR"):
+        return f"HR-{date_part}-WMA-MARATHON-ZAGREB"
+
+    # 4. BW-Meisterschaften Bernhausen
+    if "bernhausen" in city_norm or "bernhausen" in title_norm:
+        return f"DE-{date_part}-BW-HALBMARATHON-BERNHAUSEN"
+
+    # 5. EMA Büyük Şampiyonaları
+    for em_type in ["emacs", "emaci", "emmtrc", "emmtr", "emamrc", "emacns"]:
+        if em_type in title_norm:
+            return f"EMA-{date_part[:4]}-{em_type.upper()}"
+
+    # 6. Genel Tekilleştirme Anahtarı: Tarih + Ülke + Şehir (veya ana başlık çekirdeği)
+    if city_norm:
+        return f"{country_part}-{date_part}-{city_norm}"
+    return f"{country_part}-{date_part}-{title_norm[:20]}"
+
 def generate_competition_id(title: str, start_date: str, country: str) -> str:
     """
-    Her yarışma için deterministik, benzersiz bir ID oluşturur.
-    Örnek: 'tur-2025-07-05-turkiye-masterlar-atletizm-sampiyonasi'
+    Her yarışma için deterministik, benzersiz ve kanonik bir ID oluşturur.
+    Örnek: 'ro-2026-09-17-bamacs-craiova'
     """
-    country_slug = normalize_text(country)[:3] or "gen"
-    title_slug = normalize_text(title)[:40]
-    return f"{country_slug}-{start_date}-{title_slug}".strip("-")
+    dummy = Competition(id="", title=title, start_date=start_date, country=country)
+    canonical = get_canonical_key(dummy)
+    return normalize_text(canonical)
+
+def deduplicate_competitions(competitions: List[Competition]) -> List[Competition]:
+    """
+    Taranan yarışmalar listesindeki kopyaları (aynı tarih, aynı şehir veya aynı şampiyona)
+    tekilleştirir ve en zengin veriye sahip olanı seçer.
+    """
+    unique_map: dict[str, Competition] = {}
+
+    for comp in competitions:
+        if not is_valid_competition_title(comp.title):
+            continue
+
+        key = get_canonical_key(comp)
+        if key not in unique_map:
+            # Kanonik ID ata
+            comp.id = normalize_text(key)
+            unique_map[key] = comp
+        else:
+            existing = unique_map[key]
+            # Daha zengin metaveriyi koru
+            if len(comp.website_url or "") > len(existing.website_url or ""):
+                existing.website_url = comp.website_url
+            if len(comp.categories) > len(existing.categories):
+                existing.categories = comp.categories
+            if comp.city and not existing.city:
+                existing.city = comp.city
+            if comp.regulations_url and not existing.regulations_url:
+                existing.regulations_url = comp.regulations_url
+            # Kanonik başlığı önceliklendir (Örn: BAMACS 2026 Craiova, WMA Masters Marathon Championships Zagreb)
+            if any(kw in comp.title.lower() for kw in ["bamacs 2026", "bamaci 2026", "zagreb", "stadia"]):
+                existing.title = comp.title
+            unique_map[key] = existing
+
+    return list(unique_map.values())
 
 def compute_content_hash(comp: Competition) -> str:
     """
@@ -59,3 +163,4 @@ def evaluate_change(existing: Optional[dict], incoming: Competition) -> Tuple[st
         return "LOCATION_CHANGED", True
 
     return "UPDATED", True
+
