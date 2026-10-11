@@ -144,10 +144,11 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
     if db and not dry_run:
         for doc_id, doc_data in existing_comps.items():
             title = doc_data.get("title", "")
-            # Bilinen eski sahte fikstürler veya mock kalıntıları
+            # Bilinen eski sahte fikstürler veya mock kalıntıları (Örn: eski Selanik BAMACS mock kaydı)
             is_mock_artifact = any(kw in doc_id.lower() or kw in title.lower() for kw in [
                 "sonbahar", "bursa-kros", "naili moran", "mock", "sample", "demo"
-            ])
+            ]) or (doc_data.get("country") == "GR" and "bamacs" in title.lower()) or ("selanik" in doc_data.get("city", "").lower() and "bamac" in title.lower())
+            
             # Ya da canlı taramada bulunamayan ve 2026-06-01 / 2026-08-01 gibi yapay varsayılan tarihe sahip eski kayıtlar
             is_artificial_fallback = doc_data.get("start_date") in ["2026-03-01", "2026-06-01", "2026-08-01"] and doc_id not in scraped_ids
 

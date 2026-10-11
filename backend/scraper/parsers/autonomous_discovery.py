@@ -299,48 +299,103 @@ class AutonomousDiscoveryParser(BaseParser):
 
     def _scrape_balkan_and_turkey(self) -> List[Competition]:
         """
-        Balkan ve Türkiye federasyonlarının arama portalları.
+        Balkan ve Türkiye federasyonlarının arama portalları (balkanmasters.com, taf.org.tr).
         """
         results: List[Competition] = []
         for year in self.years:
             urls = [
-                f"https://balkanmastersathletics.org/calendar-{year}/",
+                "https://balkanmasters.com/wp-json/wp/v2/pages?per_page=20",
+                "https://balkanmasters.com/wp-json/wp/v2/posts?per_page=10",
+                "https://balkanmasters.com/",
                 f"https://www.taf.org.tr/faaliyet-takvimi/?yil={year}"
             ]
             for url in urls:
-                html = self.fetch_html(url, timeout=10)
-                if not html:
-                    continue
-                soup = BeautifulSoup(html, "html.parser")
-                rows = soup.select("table tr, .event-item, article")
-                for row in rows:
-                    text = row.get_text(separator=" ", strip=True)
-                    if any(kw in text.lower() for kw in ["master", "veteran", "bamacs", "bamaci"]):
-                        title_elem = row.select_one("a, strong, h3, h4")
-                        title = title_elem.get_text(strip=True) if title_elem else text[:60]
-                        start_date, end_date = self._extract_dates_from_text(text, year)
-                        if not start_date:
-                            continue
-                        comp_id = generate_competition_id(title, start_date, "TR" if "taf" in url else "BAMACS")
-                        venue = self.detect_venue_type(title)
-                        comp = Competition(
-                            id=comp_id,
-                            title=title,
-                            country="TR" if "taf" in url else "EU",
-                            country_name="Türkiye" if "taf" in url else "Balkan",
-                            city=self._extract_city(text) or "Balkan",
-                            start_date=start_date,
-                            end_date=end_date,
-                            venue_type=venue,
-                            categories=self.detect_categories(title, venue),
-                            scope="balkan" if "bamac" in title.lower() else "turkey",
-                            federation="BAMACS" if "bamac" in title.lower() else "TAF",
-                            website_url=url,
-                            status="scheduled",
-                            created_at=datetime.utcnow().isoformat()
-                        )
-                        comp.content_hash = compute_content_hash(comp)
-                        results.append(comp)
+                try:
+                    resp = self.session.get(url, timeout=12)
+                    if resp.status_code != 200:
+                        continue
+                    
+                    content_type = resp.headers.get("content-type", "")
+                    if "json" in content_type:
+                        data = resp.json()
+                        items = data if isinstance(data, list) else []
+                        for item in items:
+                            title_obj = item.get("title", {})
+                            title = title_obj.get("rendered", "") if isinstance(title_obj, dict) else str(title_obj)
+                            content_obj = item.get("content", {})
+                            content_text = content_obj.get("rendered", "") if isinstance(content_obj, dict) else ""
+                            full_text = f"{title} {content_text}"
+                            
+                            if any(kw in full_text.lower() for kw in ["bamacs", "bamaci", "balkan masters", "bama"]):
+                                soup = BeautifulSoup(full_text, "html.parser")
+                                clean_text = soup.get_text(separator=" ", strip=True)
+                                start_date, end_date = self._extract_dates_from_text(clean_text, year)
+                                if not start_date:
+                                    continue
+                                
+                                city = self._extract_city(clean_text) or self._extract_city(title)
+                                country, country_name, _ = self.detect_country(clean_text + " " + title, "RO" if "craiova" in clean_text.lower() else "EU", "Romanya" if "craiova" in clean_text.lower() else "Balkan")
+                                venue = self.detect_venue_type(title + " " + clean_text)
+                                comp_id = generate_competition_id(title, start_date, country)
+                                
+                                comp = Competition(
+                                    id=comp_id,
+                                    title=title,
+                                    country=country,
+                                    country_name=country_name,
+                                    city=city or country_name,
+                                    start_date=start_date,
+                                    end_date=end_date,
+                                    venue_type=venue,
+                                    categories=self.detect_categories(title + " " + clean_text, venue),
+                                    scope="balkan",
+                                    federation="BAMACS",
+                                    website_url=item.get("link", "https://balkanmasters.com"),
+                                    status="scheduled",
+                                    created_at=datetime.utcnow().isoformat()
+                                )
+                                comp.content_hash = compute_content_hash(comp)
+                                results.append(comp)
+                    else:
+                        soup = BeautifulSoup(resp.text, "html.parser")
+                        rows = soup.select("table tr, .event-item, article, .elementor-widget-text-editor, .wp-block-paragraph")
+                        for row in rows:
+                            text = row.get_text(separator=" ", strip=True)
+                            if any(kw in text.lower() for kw in ["master", "veteran", "bamacs", "bamaci"]):
+                                title_elem = row.select_one("a, strong, h1, h2, h3, h4")
+                                title = title_elem.get_text(strip=True) if title_elem else text[:60]
+                                start_date, end_date = self._extract_dates_from_text(text, year)
+                                if not start_date:
+                                    continue
+                                
+                                city = self._extract_city(text) or self._extract_city(title)
+                                is_taf = "taf" in url
+                                default_c = "TR" if is_taf else ("RO" if "craiova" in text.lower() else "EU")
+                                default_cname = "Türkiye" if is_taf else ("Romanya" if "craiova" in text.lower() else "Balkan")
+                                country, country_name, _ = self.detect_country(title + " " + text, default_c, default_cname)
+                                
+                                comp_id = generate_competition_id(title, start_date, country)
+                                venue = self.detect_venue_type(title + " " + text)
+                                comp = Competition(
+                                    id=comp_id,
+                                    title=title,
+                                    country=country,
+                                    country_name=country_name,
+                                    city=city or country_name,
+                                    start_date=start_date,
+                                    end_date=end_date,
+                                    venue_type=venue,
+                                    categories=self.detect_categories(title + " " + text, venue),
+                                    scope="turkey" if is_taf else "balkan",
+                                    federation="TAF" if is_taf else "BAMACS",
+                                    website_url=url,
+                                    status="scheduled",
+                                    created_at=datetime.utcnow().isoformat()
+                                )
+                                comp.content_hash = compute_content_hash(comp)
+                                results.append(comp)
+                except Exception as e:
+                    logger.debug(f"[Balkan/TR] Hata ({url}): {e}")
         return results
 
     def _extract_dates_from_text(self, text: str, fallback_year: int) -> tuple[Optional[str], Optional[str]]:
@@ -398,7 +453,7 @@ class AutonomousDiscoveryParser(BaseParser):
             "Miramas", "Nantes", "Lyon", "Paris", "Tours",
             "Toruń", "Torun", "Włocławek", "Warszawa",
             "Catania", "Ojós", "Ojos", "Jyväskylä", "Jyvaskyla", "Lucerne", "Rasnov", "Râșnov",
-            "Glasgow", "Galway",
+            "Glasgow", "Galway", "Craiova", "Novo Mesto", "Varaždin", "Varazdin",
             "Belgrad", "Kruševac", "Sofya", "Bükreş", "Selanik", "Atina",
             "Kansai", "Taipei", "Daegu", "Sheffield", "Birmingham"
         ]

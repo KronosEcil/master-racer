@@ -63,7 +63,7 @@ class BaseParser(abc.ABC):
             return "FIN", "Finlandiya", "🇫🇮"
         if any(k in title_lower for k in ["isviçre", "switzerland", "schweiz", "lucerne"]):
             return "CH", "İsviçre", "🇨🇭"
-        if any(k in title_lower for k in ["romanya", "romania", "rasnov", "râșnov"]):
+        if any(k in title_lower for k in ["romanya", "romania", "craiova", "rasnov", "râșnov"]):
             return "RO", "Romanya", "🇷🇴"
         if any(k in title_lower for k in ["ingiltere", "uk", "gbr", "glasgow", "great britain"]):
             return "GB", "Birleşik Krallık", "🇬🇧"
