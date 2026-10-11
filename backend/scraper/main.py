@@ -89,12 +89,10 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
 
     existing_comps = fetch_existing_competitions(db)
 
+    # Sadece tamamen canlı ve otonom keşif motoru (AutonomousDiscoveryParser) çalışır.
+    # Statik varsayımlar veya yapay tarihler üreten eski ayrıştırıcılar devre dışıdır.
     parsers = [
-        AutonomousDiscoveryParser(),
-        TAFParser(),
-        EMAParser(),
-        WMABalkanParser(),
-        NationalFederationsParser()
+        AutonomousDiscoveryParser()
     ]
 
     all_scraped: List[Competition] = []
@@ -140,21 +138,23 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
         if should_notify:
             notification_mgr.send_competition_notification(comp, change_type)
 
-    # Eski / elle girilmiş sahte kayıtları Firestore'dan temizleme:
-    # Eğer veritabanındaki bir kayıt son taramalarda hiçbir resmi kaynaktan bulunamadıysa ve sahte şablon id'sine sahipse sil
+    # Eski / elle girilmiş sahte kayıtları veya web sitelerinden artık çekilemeyen geçersiz mock verileri temizleme:
     scraped_ids = {c.id for c in all_scraped}
     deleted_count = 0
     if db and not dry_run:
         for doc_id, doc_data in existing_comps.items():
             title = doc_data.get("title", "")
-            # Bilinen eski sahte fikstürler veya taranamayan eski mock veriler
+            # Bilinen eski sahte fikstürler veya mock kalıntıları
             is_mock_artifact = any(kw in doc_id.lower() or kw in title.lower() for kw in [
-                "sonbahar", "bursa-kros", "naili moran"
+                "sonbahar", "bursa-kros", "naili moran", "mock", "sample", "demo"
             ])
-            if is_mock_artifact and doc_id not in scraped_ids:
+            # Ya da canlı taramada bulunamayan ve 2026-06-01 / 2026-08-01 gibi yapay varsayılan tarihe sahip eski kayıtlar
+            is_artificial_fallback = doc_data.get("start_date") in ["2026-03-01", "2026-06-01", "2026-08-01"] and doc_id not in scraped_ids
+
+            if (is_mock_artifact or is_artificial_fallback) and doc_id not in scraped_ids:
                 try:
                     db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()
-                    logger.info(f"🗑️ [ESKİ SAHTE VERİ SİLİNDİ] {title} (ID: {doc_id})")
+                    logger.info(f"🗑️ [ESKİ SAHTE/YAPAY VERİ SİLİNDİ] {title} (ID: {doc_id})")
                     deleted_count += 1
                 except Exception as e:
                     logger.error(f"Firestore silme hatası ({doc_id}): {e}")
