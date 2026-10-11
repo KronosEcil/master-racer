@@ -222,9 +222,11 @@ class AutonomousDiscoveryParser(BaseParser):
                         if not start_date:
                             continue
 
-                        # Yer ayrıştırma (Örn: Kreuzlingen, Switzerland veya Craiova, Romania)
                         city = ""
                         raw_cname = "Avrupa"
+                        country = "EU"
+                        country_name = "Avrupa"
+
                         if "," in place_str:
                             parts = [p.strip() for p in place_str.split(",")]
                             city = parts[0]
@@ -245,8 +247,9 @@ class AutonomousDiscoveryParser(BaseParser):
                             city = "Zagreb"
                             country = "HR"
                             country_name = "Hırvatistan"
+                        else:
+                            country, country_name, _ = self.detect_country(place_str + " " + title, "EU", raw_cname)
 
-                        country, country_name, _ = self.detect_country(place_str + " " + title, country or "EU", raw_cname)
                         venue = self.detect_venue_type(title)
                         comp_id = generate_competition_id(title, start_date, country)
 

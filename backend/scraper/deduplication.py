@@ -1,11 +1,15 @@
 import hashlib
 import re
 import unicodedata
-from typing import Tuple, Optional, List
+from typing import Tuple, Optional, List, Any
 from .config import Competition
 
-def normalize_text(text: str) -> str:
+def normalize_text(text: Any) -> str:
     """Metni küçük harfe çevirir, Türkçe karakterleri ve aksanları temizler, alfanümerik slug üretir."""
+    if callable(text):
+        return ""
+    if not isinstance(text, str):
+        text = str(text or "")
     if not text:
         return ""
     text = text.replace("İ", "I").replace("ı", "i")
@@ -19,7 +23,7 @@ def is_valid_competition_title(title: str) -> bool:
     Başlığın gerçek bir yarışmaya mı yoksa web sitesi alt sayfasına / dökümanına mı
     (Technical Manual, Registrations, Timetable, Schedule, vb.) ait olduğunu doğrular.
     """
-    if not title or len(title.strip()) < 4:
+    if not title or not isinstance(title, str) or len(title.strip()) < 4:
         return False
 
     t_lower = title.strip().lower()
@@ -56,11 +60,11 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
     eşleştirmek için standartlaştırılmış tekil anahtar üretir.
     Parametre olarak Competition nesnesi veya doğrudan başlık/tarih/ülke stringleri alabilir.
     """
-    if hasattr(title_or_comp, "title"):
-        title = getattr(title_or_comp, "title", "") or ""
-        start_date = getattr(title_or_comp, "start_date", "") or ""
-        country = getattr(title_or_comp, "country", "") or ""
-        city = getattr(title_or_comp, "city", "") or ""
+    if isinstance(title_or_comp, Competition):
+        title = title_or_comp.title or ""
+        start_date = title_or_comp.start_date or ""
+        country = title_or_comp.country or ""
+        city = title_or_comp.city or ""
     else:
         title = str(title_or_comp or "")
 
