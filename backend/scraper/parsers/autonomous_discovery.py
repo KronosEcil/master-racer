@@ -187,7 +187,9 @@ class AutonomousDiscoveryParser(BaseParser):
             urls = [
                 f"https://data.opentrack.run/api/v1/fixtures/?year={year}&category=masters",
                 f"https://world-masters-athletics.org/api/competitions/{year}",
-                f"https://imga.ch/events/{year}"
+                f"https://imga.ch/events/{year}",
+                f"https://european-masters-athletics.org/events/",
+                f"https://european-masters-athletics.org/competitions/"
             ]
             for url in urls:
                 try:
@@ -230,8 +232,44 @@ class AutonomousDiscoveryParser(BaseParser):
                                 )
                                 comp.content_hash = compute_content_hash(comp)
                                 results.append(comp)
+                        else:
+                            # HTML formatındaki etkinlik sayfaları (Örn: european-masters-athletics.org/events/)
+                            soup = BeautifulSoup(resp.text, "html.parser")
+                            cards = soup.select(".event-card, .competition-card, article, tr, .entry")
+                            for card in cards:
+                                text = card.get_text(separator=" ", strip=True)
+                                if any(kw in text.lower() for kw in ["master", "championship", "emaci", "emacs", "circuit", "indoor", "outdoor"]):
+                                    title_elem = card.select_one("h2, h3, h4, a, strong, .title")
+                                    title = title_elem.get_text(strip=True) if title_elem else text[:60]
+                                    start_date, end_date = self._extract_dates_from_text(text, year)
+                                    if not start_date:
+                                        continue
+                                    
+                                    city = self._extract_city(text)
+                                    raw_country, raw_cname, _ = self.detect_country(title + " " + text, "EU", "Avrupa")
+                                    venue = self.detect_venue_type(title + " " + text)
+                                    comp_id = generate_competition_id(title, start_date, raw_country)
+                                    
+                                    comp = Competition(
+                                        id=comp_id,
+                                        title=title,
+                                        country=raw_country,
+                                        country_name=raw_cname,
+                                        city=city,
+                                        start_date=start_date,
+                                        end_date=end_date,
+                                        venue_type=venue,
+                                        categories=self.detect_categories(title + " " + text, venue),
+                                        scope="europe",
+                                        federation="EMA",
+                                        website_url=url,
+                                        status="scheduled",
+                                        created_at=datetime.utcnow().isoformat()
+                                    )
+                                    comp.content_hash = compute_content_hash(comp)
+                                    results.append(comp)
                 except Exception as e:
-                    logger.debug(f"[OpenTrack-Intl] Hata ({url}): {e}")
+                    logger.debug(f"[EMA-Intl] Hata ({url}): {e}")
         return results
 
     def _scrape_balkan_and_turkey(self) -> List[Competition]:
