@@ -1,4 +1,4 @@
-﻿package com.ecil.masterracer
+package com.ecil.masterracer
 
 import android.app.Application
 import android.app.NotificationChannel
@@ -15,6 +15,7 @@ class MasterRacerApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
 
         try {
             // Firebase Başlatma
@@ -60,6 +61,8 @@ class MasterRacerApp : Application() {
     }
 
     companion object {
+        lateinit var instance: MasterRacerApp
+            private set
         const val NOTIFICATION_CHANNEL_ID = "competitions_channel"
     }
 }

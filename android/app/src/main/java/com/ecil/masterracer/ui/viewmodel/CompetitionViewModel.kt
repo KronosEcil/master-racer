@@ -1,9 +1,10 @@
 package com.ecil.masterracer.ui.viewmodel
 
-import android.app.Application
 import android.content.Context
-import androidx.lifecycle.AndroidViewModel
+import androidx.annotation.Keep
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ecil.masterracer.MasterRacerApp
 import com.ecil.masterracer.data.model.Competition
 import com.ecil.masterracer.data.repository.CompetitionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,12 +13,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@Keep
 class CompetitionViewModel(
-    application: Application,
     private val repository: CompetitionRepository = CompetitionRepository()
-) : AndroidViewModel(application) {
+) : ViewModel() {
 
-    private val prefs = application.getSharedPreferences("master_athlete_prefs", Context.MODE_PRIVATE)
+    constructor() : this(CompetitionRepository())
+
+    private val prefs = MasterRacerApp.instance.getSharedPreferences("master_athlete_prefs", Context.MODE_PRIVATE)
 
     // Tema Modu: "system", "light", "dark"
     private val _themeMode = MutableStateFlow(prefs.getString("theme_mode", "system") ?: "system")

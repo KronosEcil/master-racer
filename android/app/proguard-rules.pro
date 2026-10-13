@@ -20,3 +20,10 @@
 # 4. Firebase Firestore ve Common kütüphaneleri
 -keep class com.google.firebase.** { *; }
 -dontwarn com.google.firebase.**
+
+# 5. ViewModel & Lifecycle reflection kuralları
+-keep class com.ecil.masterracer.ui.viewmodel.** { *; }
+-keepclassmembers class * extends androidx.lifecycle.ViewModel {
+    <init>(...);
+}
+-keep class com.ecil.masterracer.MasterRacerApp { *; }
