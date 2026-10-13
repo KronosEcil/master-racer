@@ -1,4 +1,4 @@
-﻿package com.ecil.masterracer
+package com.ecil.masterracer
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -19,6 +19,10 @@ import com.ecil.masterracer.ui.screens.HomeScreen
 import com.ecil.masterracer.ui.theme.MasterRacerTheme
 import com.ecil.masterracer.ui.viewmodel.CompetitionViewModel
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+
 class MainActivity : ComponentActivity() {
 
     private val viewModel: CompetitionViewModel by viewModels()
@@ -30,7 +34,14 @@ class MainActivity : ComponentActivity() {
         val targetCompetitionId = intent.getStringExtra("EXTRA_COMPETITION_ID")
 
         setContent {
-            MasterRacerTheme {
+            val themeMode by viewModel.themeMode.collectAsState()
+            val isDark = when (themeMode) {
+                "light" -> false
+                "dark" -> true
+                else -> isSystemInDarkTheme()
+            }
+
+            MasterRacerTheme(darkTheme = isDark) {
                 // Android 13+ (API 33+) Bildirim İzni İsteme
                 val permissionLauncher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.RequestPermission(),

@@ -50,11 +50,21 @@ import com.ecil.masterracer.data.model.Competition
 import com.ecil.masterracer.ui.theme.BluePrimary
 import com.ecil.masterracer.util.CalendarHelper
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material.icons.filled.BookmarkAdd
+import androidx.compose.material.icons.filled.BookmarkAdded
+import androidx.compose.material.icons.filled.CheckCircle
+import com.ecil.masterracer.ui.theme.CrimsonAccent
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun DetailBottomSheet(
     competition: Competition,
     sheetState: SheetState,
+    isTarget: Boolean = false,
+    onToggleTarget: () -> Unit = {},
+    isCompleted: Boolean = false,
+    onToggleCompleted: () -> Unit = {},
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -64,7 +74,7 @@ fun DetailBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-        containerColor = Color.White
+        containerColor = MaterialTheme.colorScheme.surface
     ) {
         Column(
             modifier = Modifier
@@ -221,27 +231,84 @@ fun DetailBottomSheet(
             Spacer(modifier = Modifier.height(20.dp))
 
             // Aksiyon Butonları
-            // 1. Cihaz Takvimine Ekle
+            // 1. Hedeflerime Ekle / Hedeflerimden Çıkar Butonu
             Button(
-                onClick = { CalendarHelper.addEventToCalendar(context, competition) },
+                onClick = onToggleTarget,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
+                    .height(50.dp),
                 shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isTarget) CrimsonAccent else BluePrimary
+                )
             ) {
-                Icon(imageVector = Icons.Default.EventAvailable, contentDescription = null)
+                Icon(
+                    imageVector = if (isTarget) Icons.Default.BookmarkAdded else Icons.Default.BookmarkAdd,
+                    contentDescription = null,
+                    tint = Color.White
+                )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Cihaz Takvimine Ekle",
+                    text = if (isTarget) "Hedeflerimde Kayıtlı ✓" else "Hedef Yarışım Olarak Ekle",
                     fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
             }
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // 3. Resmi Web Sitesi Bağlantısı
+            // 2. Yarış Tamamlandıysa: Katıldım Olarak İşaretle Butonu
+            if (daysRemaining < 0) {
+                OutlinedButton(
+                    onClick = onToggleCompleted,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    border = BorderStroke(1.5.dp, if (isCompleted) Color(0xFF16A34A) else MaterialTheme.colorScheme.outline)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = if (isCompleted) Color(0xFF16A34A) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = if (isCompleted) "Bu Yarışa Katıldım ✓" else "Bu Yarışa Katıldım Olarak İşaretle",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (isCompleted) Color(0xFF16A34A) else MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+
+            // 3. Cihaz Takvimine Ekle
+            OutlinedButton(
+                onClick = { CalendarHelper.addEventToCalendar(context, competition) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(14.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.EventAvailable,
+                    contentDescription = null,
+                    tint = BluePrimary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Cihaz Takvimine Ekle",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // 4. Resmi Web Sitesi Bağlantısı
             if (!competition.website_url.isNullOrBlank()) {
                 OutlinedButton(
                     onClick = { CalendarHelper.openUrl(context, competition.website_url) },
@@ -260,7 +327,7 @@ fun DetailBottomSheet(
                         text = "Resmi Web Sayfasına Git",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF0F172A)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }

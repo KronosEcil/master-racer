@@ -1,6 +1,8 @@
 package com.ecil.masterracer.ui.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import android.content.Context
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ecil.masterracer.data.model.Competition
 import com.ecil.masterracer.data.repository.CompetitionRepository
@@ -11,8 +13,52 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class CompetitionViewModel(
+    application: Application,
     private val repository: CompetitionRepository = CompetitionRepository()
-) : ViewModel() {
+) : AndroidViewModel(application) {
+
+    private val prefs = application.getSharedPreferences("master_athlete_prefs", Context.MODE_PRIVATE)
+
+    // Tema Modu: "system", "light", "dark"
+    private val _themeMode = MutableStateFlow(prefs.getString("theme_mode", "system") ?: "system")
+    val themeMode: StateFlow<String> = _themeMode.asStateFlow()
+
+    fun setThemeMode(mode: String) {
+        _themeMode.value = mode
+        prefs.edit().putString("theme_mode", mode).apply()
+    }
+
+    // Hedeflenen Yarışlar
+    private val _targetRaceIds = MutableStateFlow(prefs.getStringSet("target_race_ids", emptySet()) ?: emptySet())
+    val targetRaceIds: StateFlow<Set<String>> = _targetRaceIds.asStateFlow()
+
+    fun toggleTargetRace(competitionId: String) {
+        val current = _targetRaceIds.value.toMutableSet()
+        if (current.contains(competitionId)) {
+            current.remove(competitionId)
+        } else {
+            current.add(competitionId)
+        }
+        _targetRaceIds.value = current
+        prefs.edit().putStringSet("target_race_ids", current).apply()
+    }
+
+    fun isTargetRace(competitionId: String): Boolean = _targetRaceIds.value.contains(competitionId)
+
+    // Katılınan Yarışlar
+    private val _completedRaceIds = MutableStateFlow(prefs.getStringSet("completed_race_ids", emptySet()) ?: emptySet())
+    val completedRaceIds: StateFlow<Set<String>> = _completedRaceIds.asStateFlow()
+
+    fun toggleCompletedRace(competitionId: String) {
+        val current = _completedRaceIds.value.toMutableSet()
+        if (current.contains(competitionId)) {
+            current.remove(competitionId)
+        } else {
+            current.add(competitionId)
+        }
+        _completedRaceIds.value = current
+        prefs.edit().putStringSet("completed_race_ids", current).apply()
+    }
 
     private val _uiState = MutableStateFlow(CompetitionUiState())
     val uiState: StateFlow<CompetitionUiState> = _uiState.asStateFlow()

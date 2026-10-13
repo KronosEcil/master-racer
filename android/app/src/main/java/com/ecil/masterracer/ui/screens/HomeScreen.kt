@@ -52,6 +52,12 @@ import com.ecil.masterracer.ui.components.SearchAndFilterBar
 import com.ecil.masterracer.ui.theme.BluePrimary
 import com.ecil.masterracer.ui.viewmodel.CompetitionViewModel
 
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
+import com.ecil.masterracer.ui.components.ProfileBottomSheet
+import com.ecil.masterracer.ui.components.SettingsBottomSheet
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -59,10 +65,25 @@ fun HomeScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val themeMode by viewModel.themeMode.collectAsState()
+    val targetRaceIds by viewModel.targetRaceIds.collectAsState()
+    val completedRaceIds by viewModel.completedRaceIds.collectAsState()
+
     var showFilterSheet by remember { mutableStateOf(false) }
+    var showSettingsSheet by remember { mutableStateOf(false) }
+    var showProfileSheet by remember { mutableStateOf(false) }
 
     val filterSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val detailSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val settingsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val profileSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    val targetCompetitions = remember(uiState.allCompetitions, targetRaceIds) {
+        uiState.allCompetitions.filter { targetRaceIds.contains(it.id) }
+    }
+    val completedCompetitions = remember(uiState.allCompetitions, completedRaceIds) {
+        uiState.allCompetitions.filter { completedRaceIds.contains(it.id) }
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -70,32 +91,63 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Surface(
-                            shape = CircleShape,
-                            color = Color.White.copy(alpha = 0.15f),
-                            modifier = Modifier.size(40.dp)
+                        // Modern Sportif Marka Amblemi (MA Monogram + Gradient Rozet)
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(
+                                    brush = Brush.linearGradient(
+                                        colors = listOf(Color(0xFF38BDF8), Color(0xFF2563EB), Color(0xFF1E3A8A))
+                                    ),
+                                    shape = RoundedCornerShape(10.dp)
+                                ),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Default.DirectionsRun,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(24.dp)
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "M",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = "A",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color(0xFF38BDF8)
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Spacer(modifier = Modifier.width(10.dp))
+
                         Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "MASTER",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Black,
+                                    letterSpacing = 0.8.sp,
+                                    color = Color.White
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "ATHLETE",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Black,
+                                    letterSpacing = 0.5.sp,
+                                    color = Color(0xFF38BDF8)
+                                )
+                            }
                             Text(
-                                text = "Master Athlete",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Text(
-                                text = "Masterlar Atletizm Takvimi",
-                                fontSize = 12.sp,
-                                color = Color.White.copy(alpha = 0.8f)
+                                text = "MASTERLAR ATLETİZM TAKVİMİ",
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                letterSpacing = 0.8.sp,
+                                color = Color.White.copy(alpha = 0.75f)
                             )
                         }
                     }
@@ -109,13 +161,31 @@ fun HomeScreen(
                             tint = Color.White
                         )
                     }
+
+                    // Ayarlar butonu (Koyu/Açık Tema Seçimi)
+                    IconButton(onClick = { showSettingsSheet = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Ayarlar",
+                            tint = Color.White
+                        )
+                    }
+
+                    // Profil butonu (Kariyer, PB/SB, Hedef Yarışlar)
+                    IconButton(onClick = { showProfileSheet = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Profil",
+                            tint = Color.White
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = BluePrimary
                 )
             )
         },
-        containerColor = Color(0xFFF8FAFC)
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -268,7 +338,37 @@ fun HomeScreen(
         DetailBottomSheet(
             competition = selectedComp,
             sheetState = detailSheetState,
+            isTarget = viewModel.isTargetRace(selectedComp.id),
+            onToggleTarget = { viewModel.toggleTargetRace(selectedComp.id) },
+            isCompleted = completedRaceIds.contains(selectedComp.id),
+            onToggleCompleted = { viewModel.toggleCompletedRace(selectedComp.id) },
             onDismiss = { viewModel.selectCompetitionForDetail(null) }
+        )
+    }
+
+    // Ayarlar Modal Bottom Sheet
+    if (showSettingsSheet) {
+        SettingsBottomSheet(
+            sheetState = settingsSheetState,
+            currentThemeMode = themeMode,
+            onThemeSelect = { mode ->
+                viewModel.setThemeMode(mode)
+            },
+            onDismiss = { showSettingsSheet = false }
+        )
+    }
+
+    // Profil & Kariyer Modal Bottom Sheet
+    if (showProfileSheet) {
+        ProfileBottomSheet(
+            sheetState = profileSheetState,
+            targetCompetitions = targetCompetitions,
+            completedCompetitions = completedCompetitions,
+            onSelectCompetition = { comp ->
+                showProfileSheet = false
+                viewModel.selectCompetitionForDetail(comp)
+            },
+            onDismiss = { showProfileSheet = false }
         )
     }
 }
