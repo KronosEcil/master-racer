@@ -33,14 +33,15 @@ class WMABalkanParser(BaseParser):
                         continue
 
                     venue = self.detect_venue_type(title)
-                    comp_id = generate_competition_id(title, "2026-08-01", "WMA")
+                    c_code, c_name, _ = self.detect_country(title)
+                    comp_id = generate_competition_id(title, "2026-08-01", c_code)
 
                     comp = Competition(
                         id=comp_id,
                         title=title,
-                        country="INT",
-                        country_name="Uluslararası",
-                        city="",
+                        country=c_code,
+                        country_name=c_name,
+                        city="Kansai" if c_code == "JP" else "",
                         start_date="2026-08-01",
                         end_date="2026-08-10",
                         venue_type=venue,

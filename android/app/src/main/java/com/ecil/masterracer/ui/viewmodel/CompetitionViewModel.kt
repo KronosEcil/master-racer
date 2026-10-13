@@ -26,8 +26,8 @@ class CompetitionViewModel(
             _uiState.update { it.copy(isLoading = true) }
             repository.getCompetitionsFlow().collect { competitions ->
                 val countries = competitions
-                    .filter { it.country.isNotBlank() }
-                    .map { Pair(it.country, if (it.country_name.isNotBlank()) it.country_name else it.country) }
+                    .map { Pair(it.getDisplayCountryCode(), it.getDisplayCountryName()) }
+                    .filter { it.first.isNotBlank() && it.first != "INT" && !it.second.contains("Uluslararası", ignoreCase = true) }
                     .distinctBy { it.first }
                     .sortedBy { it.second }
 
@@ -137,8 +137,8 @@ class CompetitionViewModel(
             _uiState.update { it.copy(isRefreshing = true) }
             val refreshed = repository.refreshCompetitions()
             val countries = refreshed
-                .filter { it.country.isNotBlank() }
-                .map { Pair(it.country, if (it.country_name.isNotBlank()) it.country_name else it.country) }
+                .map { Pair(it.getDisplayCountryCode(), it.getDisplayCountryName()) }
+                .filter { it.first.isNotBlank() && it.first != "INT" && !it.second.contains("Uluslararası", ignoreCase = true) }
                 .distinctBy { it.first }
                 .sortedBy { it.second }
 
@@ -179,12 +179,16 @@ class CompetitionViewModel(
             val matchesQuery = if (query.isEmpty()) true else {
                 comp.title.lowercase().contains(query) ||
                         comp.city.lowercase().contains(query) ||
+                        comp.getDisplayLocation().lowercase().contains(query) ||
+                        comp.getDisplayCountryName().lowercase().contains(query) ||
                         comp.country_name.lowercase().contains(query) ||
                         comp.federation.lowercase().contains(query)
             }
 
             // Ülke Filtresi (Çoklu Seçim: Seçili ülkelerden herhangi biriyle eşleşmeli)
-            val matchesCountry = countries.isEmpty() || countries.any { it.equals(comp.country, ignoreCase = true) }
+            val matchesCountry = countries.isEmpty() || countries.any { 
+                it.equals(comp.country, ignoreCase = true) || it.equals(comp.getDisplayCountryCode(), ignoreCase = true)
+            }
 
             // Tesis Türü Filtresi (Çoklu Seçim: indoor, outdoor, road, cross)
             val matchesVenue = venues.isEmpty() || venues.any { it.equals(comp.venue_type, ignoreCase = true) }

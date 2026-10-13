@@ -85,6 +85,30 @@ class CompetitionRepository(
         )
 
         return list
+            .map { comp ->
+                val titleLower = comp.title.lowercase().trim()
+                val cityLower = comp.city.lowercase()
+                val cNameLower = comp.country_name.lowercase()
+                val isKansai = titleLower.contains("kansai") || 
+                               titleLower.contains("world masters games") || 
+                               titleLower.contains("wmg") || 
+                               cityLower.contains("kansai") || 
+                               cNameLower.contains("kansai")
+
+                if (isKansai) {
+                    comp.copy(
+                        country = "JP",
+                        country_name = "Japonya",
+                        city = "Kansai",
+                        start_date = if (comp.start_date.isBlank() || comp.start_date.startsWith("2026")) "2027-05-14" else comp.start_date,
+                        end_date = if (comp.end_date.isBlank() || comp.end_date.startsWith("2026")) "2027-05-23" else comp.end_date,
+                        federation = if (comp.federation.isBlank()) "IMGA" else comp.federation,
+                        website_url = "https://wmg2027.jp"
+                    )
+                } else {
+                    comp
+                }
+            }
             .filter { comp ->
                 val titleLower = comp.title.lowercase().trim()
                 val isInvalidTitle = invalidKeywords.any { kw ->
@@ -119,6 +143,9 @@ class CompetitionRepository(
                 val countryPart = comp.country.lowercase()
 
                 when {
+                    // Kansai / World Masters Games
+                    titleLower.contains("kansai") || normCity.contains("kansai") || titleLower.contains("world masters games") -> "jp_2027_wmg_kansai"
+
                     titleLower.contains("craiova") || normCity.contains("craiova") -> "ro_craiova_bamacs"
                     titleLower.contains("novo mesto") || normCity.contains("novomesto") || titleLower.contains("bamaci") -> "si_novomesto_bamaci"
                     titleLower.contains("zagreb") || (titleLower.contains("marathon") && countryPart == "hr") -> "hr_zagreb_marathon"

@@ -396,9 +396,15 @@ class AutonomousDiscoveryParser(BaseParser):
                                     raw_cname = "Hırvatistan"
                                     city = "Zagreb"
 
-                                country, country_name, _ = self.detect_country(title, raw_country, raw_cname)
-                                if country == "JP" and not city:
+                                if "kansai" in title.lower() or "world masters games" in title.lower() or "wmg" in title.lower() or "kansai" in city.lower():
+                                    title = "World Masters Games 2027 Kansai"
+                                    country = "JP"
+                                    country_name = "Japonya"
                                     city = "Kansai"
+                                    s_date = "2027-05-14"
+                                    e_date = "2027-05-23"
+                                else:
+                                    country, country_name, _ = self.detect_country(title, raw_country, raw_cname)
 
                                 comp_id = generate_competition_id(title, s_date, country)
                                 venue = self.detect_venue_type(title)
@@ -492,6 +498,27 @@ class AutonomousDiscoveryParser(BaseParser):
                                     results.append(comp)
                 except Exception as e:
                     logger.debug(f"[EMA-Intl] Hata ({url}): {e}")
+
+        # Dünya Masterlar Oyunları (WMG 2027 Kansai - Japonya) IMGA Resmi Fikstürü
+        wmg_comp = Competition(
+            id="jp-2027-05-14-wmg-kansai",
+            title="World Masters Games 2027 Kansai",
+            country="JP",
+            country_name="Japonya",
+            city="Kansai",
+            start_date="2027-05-14",
+            end_date="2027-05-23",
+            venue_type="outdoor",
+            categories=["Sprint", "Engelli", "Atlamalar", "Atmalar", "Uzun Mesafe"],
+            scope="world",
+            federation="IMGA",
+            website_url="https://wmg2027.jp",
+            status="scheduled",
+            created_at=datetime.utcnow().isoformat()
+        )
+        wmg_comp.content_hash = compute_content_hash(wmg_comp)
+        results.append(wmg_comp)
+
         return results
 
     def _scrape_balkan_and_turkey(self) -> List[Competition]:

@@ -180,8 +180,12 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
             # 3. Craiova / BAMACS 2026 yarışmasının 2027 tarihli hatalı kopyası
             is_wrong_bamacs_year = ("craiova" in title.lower() or "bamacs" in title.lower()) and s_date.startswith("2027")
 
-            # 4. Hatalı ülke/şehir kayıtları (Balkan ülkesi, Selanik'te BAMACS vb.)
-            is_wrong_country = (country == "GR" and "bamacs" in title.lower()) or (country == "Balkan" or c_name == "Balkan" or city == "Balkan")
+            # 4. Hatalı ülke/şehir kayıtları (Balkan ülkesi, Selanik'te BAMACS, Uluslararası Kansai vb.)
+            is_wrong_country = (
+                (country == "GR" and "bamacs" in title.lower()) or 
+                (country == "Balkan" or c_name == "Balkan" or city == "Balkan") or
+                (("kansai" in doc_id.lower() or "kansai" in title.lower() or "wmg" in doc_id.lower() or "world-masters-games" in doc_id.lower()) and (country != "JP" or "uluslararası" in c_name.lower()))
+            )
 
             # 5. Sahte mock fixture artıkları
             is_mock_artifact = any(kw in doc_id.lower() or kw in title.lower() for kw in [

@@ -172,11 +172,30 @@ data class Competition(
     }
 
     /**
+     * Ekranda ve filtrelemede kullanılacak ülke kodu (Kansai -> JP).
+     */
+    fun getDisplayCountryCode(): String {
+        val titleLower = title.lowercase()
+        val cityLower = city.lowercase()
+        val cNameLower = country_name.lowercase()
+        if (titleLower.contains("kansai") || titleLower.contains("world masters games") || titleLower.contains("wmg") ||
+            cityLower.contains("kansai") || cNameLower.contains("kansai")
+        ) {
+            return "JP"
+        }
+        return country.ifBlank { "TR" }
+    }
+
+    /**
      * Ekranda gösterilecek ülke ismi (World Masters Games için Japonya önceliklendirmesi).
      */
     fun getDisplayCountryName(): String {
         val titleLower = title.lowercase()
-        if (titleLower.contains("kansai") || titleLower.contains("world masters games") || titleLower.contains("wmg")) {
+        val cityLower = city.lowercase()
+        val cNameLower = country_name.lowercase()
+        if (titleLower.contains("kansai") || titleLower.contains("world masters games") || titleLower.contains("wmg") ||
+            cityLower.contains("kansai") || cNameLower.contains("kansai")
+        ) {
             return "Japonya"
         }
         return country_name.ifBlank { country }
@@ -187,7 +206,9 @@ data class Competition(
      */
     fun getDisplayLocation(): String {
         val cName = getDisplayCountryName()
-        val cCity = if (city.isBlank() && (title.lowercase().contains("kansai") || title.lowercase().contains("world masters games"))) {
+        val titleLower = title.lowercase()
+        val isKansai = titleLower.contains("kansai") || titleLower.contains("world masters games") || titleLower.contains("wmg") || city.lowercase().contains("kansai")
+        val cCity = if (isKansai) {
             "Kansai"
         } else {
             city

@@ -79,6 +79,10 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
     city_norm = normalize_text(city or "")
     title_norm = normalize_text(title or "")
 
+    # Kansai / World Masters Games (Japonya)
+    if "kansai" in title_norm or "kansai" in city_norm or "world-masters-games" in title_norm or "wmg" in title_norm:
+        return "JP-2027-05-14-WMG-KANSAI"
+
     # 1. BAMACS Craiova
     if "craiova" in title_norm or "craiova" in city_norm:
         return "RO-2026-09-17-BAMACS-CRAIOVA"
@@ -130,6 +134,20 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
     for comp in competitions:
         if not is_valid_competition_title(comp.title):
             continue
+
+        # Kansai / Japonya normalizasyonu
+        c_title_low = comp.title.lower()
+        c_city_low = comp.city.lower()
+        if "kansai" in c_title_low or "world masters games" in c_title_low or "wmg" in c_title_low or "kansai" in c_city_low:
+            comp.country = "JP"
+            comp.country_name = "Japonya"
+            comp.city = "Kansai"
+            comp.start_date = "2027-05-14"
+            comp.end_date = "2027-05-23"
+            comp.venue_type = "outdoor"
+            comp.scope = "world"
+            comp.federation = "IMGA"
+            comp.website_url = "https://wmg2027.jp"
 
         key = get_canonical_key(comp)
         if key not in unique_map:
