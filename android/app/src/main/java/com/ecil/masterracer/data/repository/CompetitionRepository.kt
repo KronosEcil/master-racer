@@ -89,13 +89,28 @@ class CompetitionRepository(
                 val titleLower = comp.title.lowercase().trim()
                 val isInvalidTitle = invalidKeywords.any { kw ->
                     titleLower == kw || titleLower.startsWith("$kw ") || titleLower.contains("technical manual") || titleLower.contains("registrations")
-                }
+                } || titleLower.contains("home »") || titleLower.contains("»")
+
                 // 2006 veya geçersiz/eksik tarihleri filtrele
                 val isBadDate = comp.start_date.startsWith("2006") || comp.start_date.length < 8
-                // BAMACS Craiova 2026 yılındadır; 2027 tarihli hatalı kopyayı filtrele
-                val isWrongBamacs2027 = (titleLower.contains("craiova") || titleLower.contains("bamacs")) && comp.start_date.startsWith("2027")
-                
-                !isInvalidTitle && !isBadDate && !isWrongBamacs2027
+                val startYear = comp.start_date.take(4)
+
+                // 1. BAMACS Craiova 2026 yılındadır; 2027 tarihli hatalı kopyayı filtrele
+                val isWrongBamacs2027 = (titleLower.contains("craiova") || titleLower.contains("bamacs")) && startYear != "2026"
+
+                // 2. Lucerne / EMAMRC 2027 yılındadır (31 Ekim 2027); 2026 veya 2028 kopyalarını filtrele
+                val isWrongLucerne = (titleLower.contains("lucerne") || titleLower.contains("emamrc")) && startYear != "2027"
+
+                // 3. Galway / EMACNS 2028 yılındadır (18-21 Mayıs 2028); 2027 kopyasını filtrele
+                val isWrongGalway = (titleLower.contains("galway") || titleLower.contains("emacns")) && startYear != "2028"
+
+                // 4. Jyväskylä / EMACS 2027 yılındadır (11-22 Ağustos 2027); 2028 kopyasını filtrele
+                val isWrongJyvaskyla = (titleLower.contains("jyväskylä") || titleLower.contains("jyvaskyla") || titleLower.contains("emacs")) && startYear != "2027"
+
+                // 5. Ojós / EMMTRC 2027 yılındadır (15-18 Nisan 2027); 2028 kopyasını filtrele
+                val isWrongOjos = (titleLower.contains("ojós") || titleLower.contains("ojos") || titleLower.contains("emmtr")) && startYear != "2027"
+
+                !isInvalidTitle && !isBadDate && !isWrongBamacs2027 && !isWrongLucerne && !isWrongGalway && !isWrongJyvaskyla && !isWrongOjos
             }
             .distinctBy { comp ->
                 val titleLower = comp.title.lowercase()
@@ -106,13 +121,16 @@ class CompetitionRepository(
                 when {
                     titleLower.contains("craiova") || normCity.contains("craiova") -> "ro_craiova_bamacs"
                     titleLower.contains("novo mesto") || normCity.contains("novomesto") || titleLower.contains("bamaci") -> "si_novomesto_bamaci"
-                    titleLower.contains("zagreb") || (titleLower.contains("marathon") && countryPart == "hr") -> "hr_${datePart}_marathon"
-                    normCity.contains("bernhausen") || titleLower.contains("bernhausen") -> "de_${datePart}_bernhausen"
-                    titleLower.contains("emacs") -> "ema_${comp.start_date.take(4)}_emacs"
-                    titleLower.contains("emaci") -> "ema_${comp.start_date.take(4)}_emaci"
-                    titleLower.contains("emmtr") -> "ema_${comp.start_date.take(4)}_emmtr"
-                    titleLower.contains("emamrc") -> "ema_${comp.start_date.take(4)}_emamrc"
-                    titleLower.contains("emacns") -> "ema_${comp.start_date.take(4)}_emacns"
+                    titleLower.contains("zagreb") || (titleLower.contains("marathon") && countryPart == "hr") -> "hr_zagreb_marathon"
+                    normCity.contains("bernhausen") || titleLower.contains("bernhausen") -> "de_bernhausen"
+
+                    // EMA Resmi Şampiyonaları tekilleştirme:
+                    titleLower.contains("emmtr") || normCity.contains("ojos") -> "ema_2027_emmtrc_ojos"
+                    titleLower.contains("emacs") || normCity.contains("jyvaskyla") -> "ema_2027_emacs_jyvaskyla"
+                    titleLower.contains("emamrc") || normCity.contains("lucerne") -> "ema_2027_emamrc_lucerne"
+                    titleLower.contains("emaci") || normCity.contains("glasgow") -> "ema_2028_emaci_glasgow"
+                    titleLower.contains("emacns") || normCity.contains("galway") -> "ema_2028_emacns_galway"
+
                     else -> {
                         val normTitleKey = titleLower
                             .replace("european masters", "em")

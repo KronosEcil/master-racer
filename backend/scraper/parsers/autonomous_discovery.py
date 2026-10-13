@@ -289,12 +289,12 @@ class AutonomousDiscoveryParser(BaseParser):
                     continue
 
                 soup = BeautifulSoup(resp.text, "html.parser")
-                # Sadece ana içerik tablosundaki satırları tara (yan menü/widget kopyalarını engelle)
+                # Sadece ana içerik tablosundaki hücreleri tara (her hücre bir şampiyonadır)
                 main_table = soup.select_one("article .entry-content table, .entry-content table")
-                rows = main_table.select("tbody tr, tr") if main_table else soup.select(".entry-content table tr")
+                cells = main_table.select("td") if main_table else soup.select(".entry-content table td")
                 
-                for row in rows:
-                    text = row.get_text(separator=" ", strip=True)
+                for cell in cells:
+                    text = cell.get_text(separator=" ", strip=True)
                     if not text or len(text) < 10:
                         continue
 
@@ -307,9 +307,9 @@ class AutonomousDiscoveryParser(BaseParser):
                         else:
                             continue
 
-                    strong_elem = row.find("strong")
+                    strong_elem = cell.find("strong")
                     raw_title = strong_elem.get_text(strip=True) if strong_elem else text.split()[0]
-                    lines = [line.strip() for line in row.stripped_strings if line.strip()]
+                    lines = [line.strip() for line in cell.stripped_strings if line.strip()]
                     title = lines[0] if lines else raw_title
 
                     # Temizleme ve standartlaştırma:
@@ -334,7 +334,7 @@ class AutonomousDiscoveryParser(BaseParser):
                     venue = self.detect_venue_type(title + " " + text)
                     comp_id = generate_competition_id(title, start_date, country)
 
-                    link_tag = row.find("a")
+                    link_tag = cell.find("a")
                     web_url = link_tag["href"] if link_tag and link_tag.has_attr("href") else url
 
                     comp = Competition(
@@ -424,9 +424,12 @@ class AutonomousDiscoveryParser(BaseParser):
                             # HTML formatındaki etkinlik sayfaları (EMA Championships, Events, Competitions vb.)
                             soup = BeautifulSoup(resp.text, "html.parser")
                             
-                            # EMA özel blokları: Gutenberg media-text, tablo hücreleri (td), article ve event kartları
-                            items = soup.select(".wp-block-media-text, table td, .event-card, .competition-card, article, tr")
+                            # Etkinlik blokları: tablo hücreleri (td), event ve competition kartları (yan menü/sidebar hariç)
+                            items = soup.select("table td, .event-card, .competition-card, tr")
                             for item in items:
+                                # Yan menü/sidebar/header/footer kopyalarını kesinlikle ele
+                                if item.find_parent(["aside", "nav", "header", "footer"]) or item.find_parent(class_=["blog-sidebar", "widget", "neve-breadcrumbs-wrapper"]):
+                                    continue
                                 text = item.get_text(separator=" ", strip=True)
                                 text_lower = text.lower()
                                 

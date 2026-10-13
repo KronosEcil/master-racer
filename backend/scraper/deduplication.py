@@ -50,6 +50,12 @@ def is_valid_competition_title(title: str) -> bool:
     if t_lower in single_junk:
         return False
 
+    # Breadcrumb veya sayfa başlığı kalıntılarını ele (Örn: Home » Championships 2027...)
+    if "»" in t_lower or "home »" in t_lower or "championships 2027 championships" in t_lower:
+        return False
+    if t_lower in ["championships 2026", "championships 2027", "championships 2028"]:
+        return False
+
     return True
 
 from typing import Tuple, Optional, List, Any
@@ -89,18 +95,17 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
     if "bernhausen" in city_norm or "bernhausen" in title_norm:
         return f"DE-{date_part}-BW-HALBMARATHON-BERNHAUSEN"
 
-    # 5. EMA Büyük Şampiyonaları
-    for em_type in ["emacs", "emaci", "emmtrc", "emmtr", "emamrc", "emacns"]:
-        if em_type in title_norm:
-            four_digit = re.search(r"202[5-9]", title_norm)
-            two_digit = re.search(r"[a-z]+(2[5-9])", title_norm)
-            if four_digit:
-                champ_year = four_digit.group(0)
-            elif two_digit:
-                champ_year = f"20{two_digit.group(1)}"
-            else:
-                champ_year = date_part[:4]
-            return f"EMA-{champ_year}-{em_type.upper()}"
+    # 5. EMA Büyük Şampiyonaları (Şehir ve Kısaltma Bazlı Kesin Eşleşme)
+    if "ojos" in city_norm or "emmtr" in title_norm:
+        return "EMA-2027-EMMTRC-OJOS"
+    if "jyvaskyla" in city_norm or "emacs" in title_norm:
+        return "EMA-2027-EMACS-JYVASKYLA"
+    if "lucerne" in city_norm or "emamrc" in title_norm:
+        return "EMA-2027-EMAMRC-LUCERNE"
+    if "glasgow" in city_norm or "emaci" in title_norm:
+        return "EMA-2028-EMACI-GLASGOW"
+    if "galway" in city_norm or "emacns" in title_norm:
+        return "EMA-2028-EMACNS-GALWAY"
 
     # 6. Genel Tekilleştirme Anahtarı: Tarih + Ülke + Şehir (veya ana başlık çekirdeği)
     if city_norm:

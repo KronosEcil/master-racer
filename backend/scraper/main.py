@@ -193,9 +193,26 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
             old_canonical_key = get_canonical_key(title, s_date, country, city)
             is_duplicate_of_new = (doc_id not in scraped_ids and old_canonical_key in scraped_canonical_keys)
 
-            # 7. Başlığında açıkça 2027 yazıp tarihi 2028 olan veya tersi tutarsız eski kayıtlar
-            title_year_m = re.search(r"202[5-9]", title)
-            is_year_mismatch = bool(title_year_m and len(s_date) >= 4 and title_year_m.group(0) != s_date[:4])
+            # 7. Başlığında açıkça yıl belirtilip tarihi farklı olan (Örn: EMACNS28 -> 2028 ama tarih 2027) tutarsız eski kayıtlar
+            explicit_year_str = ""
+            four_d = re.search(r"202[5-9]", title)
+            two_d = re.search(r"\b[A-Za-z]+(2[5-9])\b", title)
+            if four_d:
+                explicit_year_str = four_d.group(0)
+            elif two_d:
+                explicit_year_str = f"20{two_d.group(1)}"
+            is_year_mismatch = bool(explicit_year_str and len(s_date) >= 4 and explicit_year_str != s_date[:4])
+
+            # 8. Büyük EMA şampiyonalarında kesin takvim yılı kontrolleri
+            t_low = title.lower()
+            if ("lucerne" in t_low or "emamrc" in t_low) and not s_date.startswith("2027"):
+                is_year_mismatch = True
+            if ("galway" in t_low or "emacns" in t_low) and not s_date.startswith("2028"):
+                is_year_mismatch = True
+            if ("jyvaskyla" in t_low or "jyväskylä" in t_low or "emacs" in t_low) and not s_date.startswith("2027"):
+                is_year_mismatch = True
+            if ("ojos" in t_low or "ojós" in t_low or "emmtr" in t_low) and not s_date.startswith("2027"):
+                is_year_mismatch = True
 
             should_delete = (
                 is_invalid_title or is_bad_date or is_wrong_bamacs_year or
