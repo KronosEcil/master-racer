@@ -89,14 +89,21 @@ class CompetitionRepository(
                 val titleLower = comp.title.lowercase().trim()
                 val cityLower = comp.city.lowercase()
                 val cNameLower = comp.country_name.lowercase()
+                val cCountryUpper = comp.country.uppercase()
+
                 val isKansai = titleLower.contains("kansai") || 
                                titleLower.contains("world masters games") || 
                                titleLower.contains("wmg") || 
                                cityLower.contains("kansai") || 
                                cNameLower.contains("kansai")
 
-                if (isKansai) {
-                    comp.copy(
+                val isAlbania = cCountryUpper == "AL" || cCountryUpper == "ALB" ||
+                                cNameLower.contains("albania") || cNameLower.contains("arnavutluk") ||
+                                titleLower.contains("albania") || titleLower.contains("arnavutluk") ||
+                                cityLower.contains("shkod") || cityLower.contains("tiran")
+
+                when {
+                    isKansai -> comp.copy(
                         country = "JP",
                         country_name = "Japonya",
                         city = "Kansai",
@@ -105,8 +112,15 @@ class CompetitionRepository(
                         federation = if (comp.federation.isBlank()) "IMGA" else comp.federation,
                         website_url = "https://wmg2027.jp"
                     )
-                } else {
-                    comp
+                    isAlbania -> comp.copy(
+                        country = "AL",
+                        country_name = "Arnavutluk",
+                        city = if (comp.city.equals("Albania", ignoreCase = true) || comp.city.equals("Arnavutluk", ignoreCase = true)) "" else comp.city
+                    )
+                    else -> comp.copy(
+                        country = comp.getDisplayCountryCode(),
+                        country_name = comp.getDisplayCountryName()
+                    )
                 }
             }
             .filter { comp ->
@@ -145,6 +159,9 @@ class CompetitionRepository(
                 when {
                     // Kansai / World Masters Games
                     titleLower.contains("kansai") || normCity.contains("kansai") || titleLower.contains("world masters games") -> "jp_2027_wmg_kansai"
+
+                    // Arnavutluk yarışmaları
+                    comp.country == "AL" || titleLower.contains("arnavutluk") || titleLower.contains("albania") || normCity.contains("shkod") || normCity.contains("tiran") -> "al_${datePart}_${if (normCity.isNotEmpty()) normCity else "arnavutluk"}"
 
                     titleLower.contains("craiova") || normCity.contains("craiova") -> "ro_craiova_bamacs"
                     titleLower.contains("novo mesto") || normCity.contains("novomesto") || titleLower.contains("bamaci") -> "si_novomesto_bamaci"

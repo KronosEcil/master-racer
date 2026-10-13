@@ -172,32 +172,106 @@ data class Competition(
     }
 
     /**
-     * Ekranda ve filtrelemede kullanılacak ülke kodu (Kansai -> JP).
+     * Ekranda ve filtrelemede kullanılacak standart 2/3 harfli ülke kodu.
      */
     fun getDisplayCountryCode(): String {
         val titleLower = title.lowercase()
         val cityLower = city.lowercase()
         val cNameLower = country_name.lowercase()
+        val cUpper = country.uppercase()
+
         if (titleLower.contains("kansai") || titleLower.contains("world masters games") || titleLower.contains("wmg") ||
-            cityLower.contains("kansai") || cNameLower.contains("kansai")
+            cityLower.contains("kansai") || cNameLower.contains("kansai") || cUpper == "JP" || cUpper == "JPN"
         ) {
             return "JP"
         }
-        return country.ifBlank { "TR" }
+
+        if (cUpper == "AL" || cUpper == "ALB" || cNameLower.contains("albania") || cNameLower.contains("arnavutluk") ||
+            titleLower.contains("albania") || titleLower.contains("arnavutluk") || cityLower.contains("shkod") || cityLower.contains("tiran")
+        ) {
+            return "AL"
+        }
+
+        return when (cUpper) {
+            "TUR", "TR" -> "TR"
+            "GRE", "GR" -> "GR"
+            "GER", "DE" -> "DE"
+            "ITA", "IT" -> "IT"
+            "GBR", "UK", "GB" -> "GB"
+            "ESP", "ES" -> "ES"
+            "FRA", "FR" -> "FR"
+            "POL", "PL" -> "PL"
+            "BUL", "BG" -> "BG"
+            "ROU", "RO" -> "RO"
+            "SRB", "RS" -> "RS"
+            "SWE", "SE" -> "SE"
+            "NED", "NL" -> "NL"
+            "POR", "PT" -> "PT"
+            "KOR" -> "KOR"
+            "USA" -> "USA"
+            "FIN" -> "FIN"
+            "CHE", "CH" -> "CH"
+            "IRL", "IE" -> "IE"
+            "SVN", "SI" -> "SI"
+            "ALB", "AL" -> "AL"
+            "CZE", "CZ" -> "CZ"
+            "NOR", "NO" -> "NO"
+            "DNK", "DK" -> "DK"
+            "ISL", "IS" -> "IS"
+            "LVA", "LV" -> "LV"
+            "LTU", "LT" -> "LT"
+            "HRV", "HR" -> "HR"
+            "AUT", "AT" -> "AT"
+            "BEL", "BE" -> "BE"
+            "EST", "EE" -> "EE"
+            else -> country.ifBlank { "TR" }
+        }
     }
 
     /**
-     * Ekranda gösterilecek ülke ismi (World Masters Games için Japonya önceliklendirmesi).
+     * Ekranda gösterilecek standart Türkçe ülke ismi.
      */
     fun getDisplayCountryName(): String {
-        val titleLower = title.lowercase()
-        val cityLower = city.lowercase()
+        val code = getDisplayCountryCode().uppercase()
         val cNameLower = country_name.lowercase()
-        if (titleLower.contains("kansai") || titleLower.contains("world masters games") || titleLower.contains("wmg") ||
-            cityLower.contains("kansai") || cNameLower.contains("kansai")
-        ) {
+
+        if (code == "AL" || cNameLower.contains("albania") || cNameLower.contains("arnavutluk")) {
+            return "Arnavutluk"
+        }
+        if (code == "JP" || cNameLower.contains("japan") || cNameLower.contains("japonya") || cNameLower.contains("kansai")) {
             return "Japonya"
         }
+        if (code == "TR" || cNameLower.contains("turkey") || cNameLower.contains("türkiye")) return "Türkiye"
+        if (code == "DE" || cNameLower.contains("germany") || cNameLower.contains("almanya")) return "Almanya"
+        if (code == "FR" || cNameLower.contains("france") || cNameLower.contains("fransa")) return "Fransa"
+        if (code == "GR" || cNameLower.contains("greece") || cNameLower.contains("yunanistan")) return "Yunanistan"
+        if (code == "IT" || cNameLower.contains("italy") || cNameLower.contains("italya")) return "İtalya"
+        if (code == "ES" || cNameLower.contains("spain") || cNameLower.contains("ispanya")) return "İspanya"
+        if (code == "GB" || cNameLower.contains("united kingdom") || cNameLower.contains("great britain") || cNameLower.contains("birleşik krallık")) return "Birleşik Krallık"
+        if (code == "PL" || cNameLower.contains("poland") || cNameLower.contains("polonya")) return "Polonya"
+        if (code == "BG" || cNameLower.contains("bulgaria") || cNameLower.contains("bulgaristan")) return "Bulgaristan"
+        if (code == "RO" || cNameLower.contains("romania") || cNameLower.contains("romanya")) return "Romanya"
+        if (code == "RS" || cNameLower.contains("serbia") || cNameLower.contains("sırbistan")) return "Sırbistan"
+        if (code == "SE" || cNameLower.contains("sweden") || cNameLower.contains("isveç")) return "İsveç"
+        if (code == "NL" || cNameLower.contains("netherlands") || cNameLower.contains("hollanda")) return "Hollanda"
+        if (code == "PT" || cNameLower.contains("portugal") || cNameLower.contains("portekiz")) return "Portekiz"
+        if (code == "KOR" || cNameLower.contains("korea") || cNameLower.contains("güney kore")) return "Güney Kore"
+        if (code == "USA" || cNameLower.contains("united states") || cNameLower.contains("abd")) return "ABD"
+        if (code == "FIN" || cNameLower.contains("finland") || cNameLower.contains("finlandiya")) return "Finlandiya"
+        if (code == "CH" || cNameLower.contains("switzerland") || cNameLower.contains("isviçre")) return "İsviçre"
+        if (code == "IE" || cNameLower.contains("ireland") || cNameLower.contains("irlanda")) return "İrlanda"
+        if (code == "SI" || cNameLower.contains("slovenia") || cNameLower.contains("slovenya")) return "Slovenya"
+        if (code == "CZ" || cNameLower.contains("czech") || cNameLower.contains("çekya")) return "Çekya"
+        if (code == "NO" || cNameLower.contains("norway") || cNameLower.contains("norveç")) return "Norveç"
+        if (code == "DK" || cNameLower.contains("denmark") || cNameLower.contains("danimarka")) return "Danimarka"
+        if (code == "IS" || cNameLower.contains("iceland") || cNameLower.contains("izlanda")) return "İzlanda"
+        if (code == "LV" || cNameLower.contains("latvia") || cNameLower.contains("letonya")) return "Letonya"
+        if (code == "LT" || cNameLower.contains("lithuania") || cNameLower.contains("litvanya")) return "Litvanya"
+        if (code == "HR" || cNameLower.contains("croatia") || cNameLower.contains("hırvatistan")) return "Hırvatistan"
+        if (code == "AT" || cNameLower.contains("austria") || cNameLower.contains("avusturya")) return "Avusturya"
+        if (code == "BE" || cNameLower.contains("belgium") || cNameLower.contains("belçika")) return "Belçika"
+        if (code == "EE" || cNameLower.contains("estonia") || cNameLower.contains("estonya")) return "Estonya"
+
         return country_name.ifBlank { country }
     }
 
@@ -220,18 +294,8 @@ data class Competition(
      * Ülke Bayrak Emojisi.
      */
     fun getCountryFlag(): String {
-        val cUpper = country.uppercase()
-        val titleLower = title.lowercase()
-        if (cUpper == "JP" || cUpper == "JPN" ||
-            titleLower.contains("kansai") ||
-            titleLower.contains("japan") ||
-            titleLower.contains("japonya") ||
-            titleLower.contains("world masters games") ||
-            titleLower.contains("wmg")
-        ) {
-            return "🇯🇵"
-        }
-        return when (cUpper) {
+        val cCode = getDisplayCountryCode().uppercase()
+        return when (cCode) {
             "TR", "TUR" -> "🇹🇷"
             "GR", "GRE" -> "🇬🇷"
             "DE", "GER" -> "🇩🇪"
@@ -250,20 +314,20 @@ data class Competition(
             "JP", "JPN" -> "🇯🇵"
             "USA" -> "🇺🇸"
             "FIN" -> "🇫🇮"
-            "CH" -> "🇨🇭"
-            "IE" -> "🇮🇪"
-            "SI" -> "🇸🇮"
-            "AL" -> "🇦🇱"
-            "CZ" -> "🇨🇿"
-            "NO" -> "🇳🇴"
-            "DK" -> "🇩🇰"
-            "IS" -> "🇮🇸"
-            "LV" -> "🇱🇻"
-            "LT" -> "🇱🇹"
-            "HR" -> "🇭🇷"
-            "AT" -> "🇦🇹"
-            "BE" -> "🇧🇪"
-            "EE" -> "🇪🇪"
+            "CH", "CHE" -> "🇨🇭"
+            "IE", "IRL" -> "🇮🇪"
+            "SI", "SVN" -> "🇸🇮"
+            "AL", "ALB" -> "🇦🇱"
+            "CZ", "CZE" -> "🇨🇿"
+            "NO", "NOR" -> "🇳🇴"
+            "DK", "DNK" -> "🇩🇰"
+            "IS", "ISL" -> "🇮🇸"
+            "LV", "LVA" -> "🇱🇻"
+            "LT", "LTU" -> "🇱🇹"
+            "HR", "HRV" -> "🇭🇷"
+            "AT", "AUT" -> "🇦🇹"
+            "BE", "BEL" -> "🇧🇪"
+            "EE", "EST" -> "🇪🇪"
             "EU" -> "🇪🇺"
             "INT" -> "🌍"
             else -> "🏃"

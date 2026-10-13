@@ -27,8 +27,8 @@ class CompetitionViewModel(
             repository.getCompetitionsFlow().collect { competitions ->
                 val countries = competitions
                     .map { Pair(it.getDisplayCountryCode(), it.getDisplayCountryName()) }
-                    .filter { it.first.isNotBlank() && it.first != "INT" && !it.second.contains("Uluslararası", ignoreCase = true) }
-                    .distinctBy { it.first }
+                    .filter { it.first.isNotBlank() && it.first != "INT" && it.first != "EU" && !it.second.contains("Uluslararası", ignoreCase = true) && !it.second.equals("Avrupa", ignoreCase = true) }
+                    .distinctBy { it.second }
                     .sortedBy { it.second }
 
                 _uiState.update { state ->
@@ -138,8 +138,8 @@ class CompetitionViewModel(
             val refreshed = repository.refreshCompetitions()
             val countries = refreshed
                 .map { Pair(it.getDisplayCountryCode(), it.getDisplayCountryName()) }
-                .filter { it.first.isNotBlank() && it.first != "INT" && !it.second.contains("Uluslararası", ignoreCase = true) }
-                .distinctBy { it.first }
+                .filter { it.first.isNotBlank() && it.first != "INT" && it.first != "EU" && !it.second.contains("Uluslararası", ignoreCase = true) && !it.second.equals("Avrupa", ignoreCase = true) }
+                .distinctBy { it.second }
                 .sortedBy { it.second }
 
             _uiState.update { state ->

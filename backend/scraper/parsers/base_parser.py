@@ -42,7 +42,11 @@ class BaseParser(abc.ABC):
         Yarışma başlığından ve metninden ev sahibi ülkeyi, ülke adını ve bayrağını belirler.
         Tüm tespitler GitHub scraper motorunda otomatik yapılır.
         """
-        title_lower = title.lower()
+        def_upper = default_country.upper()
+        def_name_lower = default_name.lower()
+        if def_upper in ["AL", "ALB"] or def_name_lower in ["albania", "arnavutluk"]:
+            return "AL", "Arnavutluk", "🇦🇱"
+
         if any(k in title_lower for k in ["kansai", "world masters games", "wmg", "japan", "japonya"]):
             return "JP", "Japonya", "🇯🇵"
         if any(k in title_lower for k in ["türkiye", "turkey", "istanbul", "izmir", "bursa", "ankara", "taf"]):
@@ -71,7 +75,7 @@ class BaseParser(abc.ABC):
             return "IE", "İrlanda", "🇮🇪"
         if any(k in title_lower for k in ["slovenya", "slovenia", "novo mesto", "domzale"]):
             return "SI", "Slovenya", "🇸🇮"
-        if any(k in title_lower for k in ["arnavutluk", "albania", "shkodër", "shkoder"]):
+        if any(k in title_lower for k in ["arnavutluk", "albania", "shkodër", "shkoder", "tirana", "tiran"]):
             return "AL", "Arnavutluk", "🇦🇱"
         if any(k in title_lower for k in ["çekya", "czech", "rumburk", "lovosice", "janske lazne"]):
             return "CZ", "Çekya", "🇨🇿"
