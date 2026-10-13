@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Master Racer</string>
+    <string name="app_name">Master Athlete</string>
     <string name="app_subtitle">Masterlar Atletizm Yarışma Takip</string>
     <string name="channel_name">Yarışma Bildirimleri</string>
     <string name="channel_description">Yeni eklenen ve tarihi güncellenen Master atletizm yarışmaları için bildirimler</string>
