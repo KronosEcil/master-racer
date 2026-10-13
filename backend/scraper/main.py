@@ -193,9 +193,14 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
             old_canonical_key = get_canonical_key(title, s_date, country, city)
             is_duplicate_of_new = (doc_id not in scraped_ids and old_canonical_key in scraped_canonical_keys)
 
+            # 7. Başlığında açıkça 2027 yazıp tarihi 2028 olan veya tersi tutarsız eski kayıtlar
+            title_year_m = re.search(r"202[5-9]", title)
+            is_year_mismatch = bool(title_year_m and len(s_date) >= 4 and title_year_m.group(0) != s_date[:4])
+
             should_delete = (
                 is_invalid_title or is_bad_date or is_wrong_bamacs_year or
-                is_wrong_country or is_mock_artifact or is_duplicate_of_new
+                is_wrong_country or is_mock_artifact or is_duplicate_of_new or
+                is_year_mismatch
             )
 
             if should_delete and doc_id not in scraped_ids:

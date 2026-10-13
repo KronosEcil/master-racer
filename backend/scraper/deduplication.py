@@ -92,7 +92,15 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
     # 5. EMA Büyük Şampiyonaları
     for em_type in ["emacs", "emaci", "emmtrc", "emmtr", "emamrc", "emacns"]:
         if em_type in title_norm:
-            return f"EMA-{date_part[:4]}-{em_type.upper()}"
+            four_digit = re.search(r"202[5-9]", title_norm)
+            two_digit = re.search(r"[a-z]+(2[5-9])", title_norm)
+            if four_digit:
+                champ_year = four_digit.group(0)
+            elif two_digit:
+                champ_year = f"20{two_digit.group(1)}"
+            else:
+                champ_year = date_part[:4]
+            return f"EMA-{champ_year}-{em_type.upper()}"
 
     # 6. Genel Tekilleştirme Anahtarı: Tarih + Ülke + Şehir (veya ana başlık çekirdeği)
     if city_norm:

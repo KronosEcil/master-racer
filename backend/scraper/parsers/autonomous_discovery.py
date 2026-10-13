@@ -623,6 +623,17 @@ class AutonomousDiscoveryParser(BaseParser):
         """
         Metin içinden GG.AA.YYYY veya YYYY-AA-GG veya metinsel tarih formatlarını çıkarır.
         """
+        # 0. Yıl belirleme: Metinde geçen açık 4 haneli yıl (Örn: 2027, EMACS2027, EMAMRC2027)
+        # veya şampiyona kısaltmasındaki 2 haneli yıl (Örn: EMACNS28 -> 2028, EMACI28 -> 2028)
+        explicit_year = fallback_year
+        four_digit_match = re.search(r"202[5-9]", text)
+        if four_digit_match:
+            explicit_year = int(four_digit_match.group(0))
+        else:
+            two_digit_match = re.search(r"\b[A-Za-z]+(2[5-9])\b", text)
+            if two_digit_match:
+                explicit_year = 2000 + int(two_digit_match.group(1))
+
         # 1. YYYY-MM-DD
         iso_match = re.search(r"(\d{4})-(\d{1,2})-(\d{1,2})", text)
         if iso_match:
@@ -653,8 +664,23 @@ class AutonomousDiscoveryParser(BaseParser):
             "dec": 12, "aralık": 12, "aralik": 12, "dezember": 12, "décembre": 12, "diciembre": 12
         }
 
-        # İki farklı ay içeren aralık: Örn: 17 to 20 September 2026 veya 15. April - 18 April
-        # Önce ay bazlı tarama (\b kelime sınırı ile "novo" gibi kelimelerin "nov" (kasım) olarak yakalanması önlenir)
+        # İki tarih arası aralık: Örn: "11 August/22 August", "18 May/21 May", "15 April/18 Spril", "11 - 22 August"
+        range_match = re.search(r"(\d{1,2})\.?\s*([a-zA-Zçğıöşü]+)?\s*(?:/|-|–|\s+to\s+)\s*(\d{1,2})\.?\s*([a-zA-Zçğıöşü]+)", text)
+        if range_match:
+            d1 = int(range_match.group(1))
+            m1_str = (range_match.group(2) or "").lower()[:3]
+            d2 = int(range_match.group(3))
+            m2_str = (range_match.group(4) or "").lower()[:3]
+            
+            m2_num = months.get(m2_str)
+            # Eğer m1 belirtilmemişse veya typo ise (ör. 18 Spril) m2_num al
+            m1_num = months.get(m1_str) if m1_str in months else m2_num
+
+            if m1_num and m2_num:
+                y = explicit_year
+                return f"{y}-{m1_num:02d}-{d1:02d}", f"{y}-{m2_num:02d}-{d2:02d}"
+
+        # Tek tarih veya genel ay tarama: Örn: 15. April veya 31. October
         for m_name, m_num in months.items():
             pattern = rf"(\d{{1,2}})\s*(?:-|–|\.|/|\s*to\s*)?\s*(\d{{1,2}})?\s*\b{m_name}[a-z]*\b\s*(\d{{4}})?"
             match = re.search(pattern, text.lower())
@@ -662,14 +688,10 @@ class AutonomousDiscoveryParser(BaseParser):
                 d1 = int(match.group(1))
                 d2 = int(match.group(2)) if match.group(2) else d1
                 
-                # Eğer metinde açık bir 4 haneli yıl belirtilmişse (Örn: 2026), onu kullan
-                explicit_year_match = re.search(r"\b(202[5-9])\b", text)
                 if match.group(3):
                     y = int(match.group(3))
-                elif explicit_year_match:
-                    y = int(explicit_year_match.group(1))
                 else:
-                    y = fallback_year
+                    y = explicit_year
                 return f"{y}-{m_num:02d}-{d1:02d}", f"{y}-{m_num:02d}-{d2:02d}"
 
         return None, None
