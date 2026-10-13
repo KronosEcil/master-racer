@@ -55,8 +55,9 @@ import com.ecil.masterracer.ui.viewmodel.CompetitionViewModel
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import com.ecil.masterracer.ui.components.ProfileBottomSheet
+import androidx.activity.compose.BackHandler
 import com.ecil.masterracer.ui.components.SettingsBottomSheet
+import com.ecil.masterracer.ui.screens.ProfileScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,12 +72,11 @@ fun HomeScreen(
 
     var showFilterSheet by remember { mutableStateOf(false) }
     var showSettingsSheet by remember { mutableStateOf(false) }
-    var showProfileSheet by remember { mutableStateOf(false) }
+    var showProfileScreen by remember { mutableStateOf(false) }
 
     val filterSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val detailSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val settingsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val profileSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val targetCompetitions = remember(uiState.allCompetitions, targetRaceIds) {
         uiState.allCompetitions.filter { targetRaceIds.contains(it.id) }
@@ -85,9 +85,21 @@ fun HomeScreen(
         uiState.allCompetitions.filter { completedRaceIds.contains(it.id) }
     }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
+    if (showProfileScreen) {
+        BackHandler { showProfileScreen = false }
+        ProfileScreen(
+            viewModel = viewModel,
+            targetCompetitions = targetCompetitions,
+            completedCompetitions = completedCompetitions,
+            onSelectCompetition = { comp ->
+                viewModel.selectCompetitionForDetail(comp)
+            },
+            onBack = { showProfileScreen = false }
+        )
+    } else {
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            topBar = {
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -172,7 +184,7 @@ fun HomeScreen(
                     }
 
                     // Profil butonu (Kariyer, PB/SB, Hedef Yarışlar)
-                    IconButton(onClick = { showProfileSheet = true }) {
+                    IconButton(onClick = { showProfileScreen = true }) {
                         Icon(
                             imageVector = Icons.Default.Person,
                             contentDescription = "Profil",
@@ -311,6 +323,7 @@ fun HomeScreen(
             }
         }
     }
+}
 
     // Filtreleme Modal Bottom Sheet
     if (showFilterSheet) {
@@ -333,7 +346,7 @@ fun HomeScreen(
         )
     }
 
-    // Detay Modal Bottom Sheet
+    // Detay Modal Bottom Sheet (Hem Ana Sayfadan Hem Profil Sayfasından Açılabilir)
     uiState.selectedCompetitionForDetail?.let { selectedComp ->
         DetailBottomSheet(
             competition = selectedComp,
@@ -355,20 +368,6 @@ fun HomeScreen(
                 viewModel.setThemeMode(mode)
             },
             onDismiss = { showSettingsSheet = false }
-        )
-    }
-
-    // Profil & Kariyer Modal Bottom Sheet
-    if (showProfileSheet) {
-        ProfileBottomSheet(
-            sheetState = profileSheetState,
-            targetCompetitions = targetCompetitions,
-            completedCompetitions = completedCompetitions,
-            onSelectCompetition = { comp ->
-                showProfileSheet = false
-                viewModel.selectCompetitionForDetail(comp)
-            },
-            onDismiss = { showProfileSheet = false }
         )
     }
 }

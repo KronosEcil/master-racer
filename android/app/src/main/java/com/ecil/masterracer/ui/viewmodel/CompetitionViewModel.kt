@@ -31,6 +31,42 @@ class CompetitionViewModel(
         prefs.edit().putString("theme_mode", mode).apply()
     }
 
+    // Sporcu Profil Bilgileri
+    private val _athleteName = MutableStateFlow(prefs.getString("athlete_name", "") ?: "")
+    val athleteName: StateFlow<String> = _athleteName.asStateFlow()
+
+    private val _athleteGender = MutableStateFlow(prefs.getString("athlete_gender", "M") ?: "M")
+    val athleteGender: StateFlow<String> = _athleteGender.asStateFlow()
+
+    private val _athleteBirthYear = MutableStateFlow(prefs.getInt("athlete_birth_year", 1990))
+    val athleteBirthYear: StateFlow<Int> = _athleteBirthYear.asStateFlow()
+
+    fun updateAthleteProfile(name: String, gender: String, birthYear: Int) {
+        _athleteName.value = name.trim()
+        _athleteGender.value = gender
+        _athleteBirthYear.value = birthYear
+        prefs.edit()
+            .putString("athlete_name", name.trim())
+            .putString("athlete_gender", gender)
+            .putInt("athlete_birth_year", birthYear)
+            .apply()
+    }
+
+    fun calculateCategory(gender: String = _athleteGender.value, birthYear: Int = _athleteBirthYear.value): String {
+        val currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+        val prefix = if (gender.equals("F", ignoreCase = true) || gender.equals("W", ignoreCase = true) || gender.equals("K", ignoreCase = true)) "F" else "M"
+        if (birthYear <= 1900 || birthYear > currentYear) {
+            return "${prefix}35"
+        }
+        val age = currentYear - birthYear
+        return if (age >= 35) {
+            val cat = (age / 5) * 5
+            "$prefix$cat"
+        } else {
+            "$prefix${(age / 5) * 5}"
+        }
+    }
+
     // Hedeflenen Yarışlar
     private val _targetRaceIds = MutableStateFlow(prefs.getStringSet("target_race_ids", emptySet()) ?: emptySet())
     val targetRaceIds: StateFlow<Set<String>> = _targetRaceIds.asStateFlow()
