@@ -196,10 +196,13 @@ class CompetitionViewModel(
             }
 
             // Tarih Önayarı Filtresi
+            val currentYearStr = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString()
+            val nextYearStr = (java.util.Calendar.getInstance().get(java.util.Calendar.YEAR) + 1).toString()
+
             val matchesDatePreset = when (preset) {
-                "next_30" -> days in 0..30
                 "next_90" -> days in 0..90
-                "season" -> days >= 0
+                "current_year" -> comp.start_date.startsWith(currentYearStr)
+                "next_year" -> comp.start_date.startsWith(nextYearStr)
                 else -> true
             }
 

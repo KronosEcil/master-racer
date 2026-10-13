@@ -1,6 +1,7 @@
 package com.ecil.masterracer.ui.components
 
 import androidx.compose.foundation.horizontalScroll
+import java.util.Calendar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -141,18 +142,21 @@ fun SearchAndFilterBar(
                 .horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+            val nextYear = currentYear + 1
+
             val presets = listOf(
                 "Tümü" to "all",
-                "Gelecek 30 Gün" to "next_30",
                 "Gelecek 3 Ay" to "next_90",
-                "Tüm Sezon" to "season"
+                "Bu Yıl ($currentYear)" to "current_year",
+                "Gelecek Yıl ($nextYear)" to "next_year"
             )
 
             presets.forEach { (label, key) ->
                 val isSelected = activeDatePreset == key
                 FilterChip(
                     selected = isSelected,
-                    onClick = { onDatePresetSelect(key) },
+                    onClick = { onDatePresetSelect(if (isSelected && key != "all") "all" else key) },
                     label = {
                         Text(
                             text = label,
