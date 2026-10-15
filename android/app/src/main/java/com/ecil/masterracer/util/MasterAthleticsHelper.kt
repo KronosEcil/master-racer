@@ -13,7 +13,10 @@ data class AthleteRecord(
     val result: String,                  // "11.84 sn", "1:24:15", "5.84 m"
     val year: Int,                       // 2026
     val competitionTitle: String = "",   // "Craiova BAMACS 2026" veya "Bireysel Derece"
-    val notes: String = ""               // Rüzgar (+1.2), Madalya (Altın) vb.
+    val podium: String = "",             // "1", "2", "3" veya ""
+    val recordType: String = "",         // "NMR", "BMR", "EMR", "WMR" veya ""
+    val numericValue: Double = 0.0,      // Karşılaştırma için sayısal değer (koşularda saniye, sahada metre)
+    val notes: String = ""               // İsteğe bağlı
 ) {
     fun toJson(): JSONObject {
         return JSONObject().apply {
@@ -23,6 +26,9 @@ data class AthleteRecord(
             put("result", result)
             put("year", year)
             put("competitionTitle", competitionTitle)
+            put("podium", podium)
+            put("recordType", recordType)
+            put("numericValue", numericValue)
             put("notes", notes)
         }
     }
@@ -36,10 +42,21 @@ data class AthleteRecord(
                 result = json.optString("result", ""),
                 year = json.optInt("year", Calendar.getInstance().get(Calendar.YEAR)),
                 competitionTitle = json.optString("competitionTitle", ""),
+                podium = json.optString("podium", ""),
+                recordType = json.optString("recordType", ""),
+                numericValue = json.optDouble("numericValue", 0.0),
                 notes = json.optString("notes", "")
             )
         }
     }
+}
+
+enum class EventFormatType {
+    SPRINT_SHORT, // [Saniye] . [Salise] sn
+    MIDDLE_LONG,  // [Dakika] dk [Saniye] . [Salise] sn
+    MARATHON,     // [Saat] sa [Dakika] dk [Saniye] sn
+    FIELD,        // [Metre] . [Santim] m
+    CUSTOM
 }
 
 object MasterAthleticsHelper {
@@ -262,5 +279,22 @@ object MasterAthleticsHelper {
         val array = JSONArray()
         records.forEach { array.put(it.toJson()) }
         return array.toString()
+    }
+
+    fun getEventFormatType(eventName: String): EventFormatType {
+        val lower = eventName.lowercase()
+        return when {
+            lower.contains("atlama") || lower.contains("atma") -> EventFormatType.FIELD
+            lower.contains("maraton") -> EventFormatType.MARATHON
+            lower.contains("60 metre") || lower.contains("100 metre") || lower.contains("200 metre") ||
+                    lower.contains("60m engelli") || lower.contains("80m engelli") || lower.contains("100m engelli") || lower.contains("110m engelli") -> EventFormatType.SPRINT_SHORT
+            lower.contains("metre") || lower.contains("engelli") || lower.contains("5k") || lower.contains("10k") -> EventFormatType.MIDDLE_LONG
+            else -> EventFormatType.CUSTOM
+        }
+    }
+
+    fun isFieldEvent(eventName: String): Boolean {
+        val lower = eventName.lowercase()
+        return lower.contains("atlama") || lower.contains("atma")
     }
 }

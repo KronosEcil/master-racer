@@ -89,6 +89,7 @@ fun HomeScreen(
         BackHandler { showProfileScreen = false }
         ProfileScreen(
             viewModel = viewModel,
+            allCompetitions = uiState.allCompetitions,
             targetCompetitions = targetCompetitions,
             completedCompetitions = completedCompetitions,
             onSelectCompetition = { comp ->

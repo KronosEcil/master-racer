@@ -25,17 +25,15 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkRemove
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.Female
 import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Male
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -45,6 +43,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -72,6 +72,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -81,6 +82,7 @@ import com.ecil.masterracer.ui.theme.BluePrimary
 import com.ecil.masterracer.ui.theme.CrimsonAccent
 import com.ecil.masterracer.ui.viewmodel.CompetitionViewModel
 import com.ecil.masterracer.util.AthleteRecord
+import com.ecil.masterracer.util.EventFormatType
 import com.ecil.masterracer.util.MasterAthleticsHelper
 import java.util.Calendar
 
@@ -88,6 +90,7 @@ import java.util.Calendar
 @Composable
 fun ProfileScreen(
     viewModel: CompetitionViewModel,
+    allCompetitions: List<Competition> = emptyList(),
     targetCompetitions: List<Competition>,
     completedCompetitions: List<Competition>,
     onSelectCompetition: (Competition) -> Unit,
@@ -99,10 +102,10 @@ fun ProfileScreen(
     val athleteRecords by viewModel.athleteRecords.collectAsState()
 
     var showEditProfileDialog by remember { mutableStateOf(false) }
-    var recordToEdit by remember { mutableStateOf<AthleteRecord?>(null) }
     var showAddRecordDialog by remember { mutableStateOf(false) }
     var recordPresetCompTitle by remember { mutableStateOf("") }
     var recordPresetYear by remember { mutableStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
+    var isFixedCompetition by remember { mutableStateOf(false) }
 
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("Takibimdekiler", "Derecelerim", "Geçmişim")
@@ -124,7 +127,6 @@ fun ProfileScreen(
                     }
                 },
                 title = {
-                    // Kullanıcı talebi: Başlıkta doğrudan "Profilim" yazar (isim aşağıda kartta gösterilir)
                     Text(
                         text = "Profilim",
                         fontSize = 18.sp,
@@ -173,7 +175,6 @@ fun ProfileScreen(
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Avatar (Cinsiyete Göre Pembe / Mavi Degrade)
                     Box(
                         modifier = Modifier
                             .size(56.dp)
@@ -256,7 +257,7 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Sekmeler (Takibimdekiler, Derecelerim, Geçmişim)
+            // Sekmeler
             TabRow(
                 selectedTabIndex = selectedTab,
                 containerColor = Color.Transparent,
@@ -294,12 +295,13 @@ fun ProfileScreen(
                         )
                     }
                     1 -> {
-                        // 2. DERECELERİM (Canlı Kayıtlar, PB ve SB)
+                        // 2. DERECELERİM (Canlı PB / SB Listesi)
                         ProfileRecordsSection(
                             records = athleteRecords,
                             onAddNewRecord = {
                                 recordPresetCompTitle = ""
                                 recordPresetYear = Calendar.getInstance().get(Calendar.YEAR)
+                                isFixedCompetition = false
                                 showAddRecordDialog = true
                             },
                             onDeleteRecord = { viewModel.deleteAthleteRecord(it) }
@@ -316,6 +318,7 @@ fun ProfileScreen(
                                 recordPresetCompTitle = comp.title
                                 val year = comp.start_date.take(4).toIntOrNull() ?: Calendar.getInstance().get(Calendar.YEAR)
                                 recordPresetYear = year
+                                isFixedCompetition = true
                                 showAddRecordDialog = true
                             }
                         )
@@ -343,13 +346,15 @@ fun ProfileScreen(
         )
     }
 
-    // Derece Ekleme / Güncelleme Penceresi
+    // Modern Derece Kaydetme Penceresi
     if (showAddRecordDialog) {
-        RecordEntryDialog(
+        ModernRecordEntryDialog(
             athleteGender = athleteGender,
             athleteBirthYear = athleteBirthYear,
+            allCompetitions = allCompetitions,
             initialCompTitle = recordPresetCompTitle,
             initialYear = recordPresetYear,
+            isFixedCompetition = isFixedCompetition,
             onDismiss = { showAddRecordDialog = false },
             onSave = { record ->
                 viewModel.saveAthleteRecord(record)
@@ -360,7 +365,7 @@ fun ProfileScreen(
 }
 
 // -------------------------------------------------------------
-// 1. TAKİBİMDEKİ YARIŞLAR BÖLÜMÜ
+// 1. TAKİBİMDEKİ YARIŞLAR
 // -------------------------------------------------------------
 @Composable
 private fun ProfileTrackedRacesSection(
@@ -413,10 +418,10 @@ private fun ProfileTrackedRacesSection(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Ana sayfadaki yarış kartlarında bulunan yer işareti (🔖) simgesine dokunarak veya yarış detayından 'Takibime Ekle' butonuna basarak yarışları buraya ekleyebilirsin.",
+                        text = "Ana sayfadaki yarış kartlarında bulunan yer işareti (🔖) simgesine dokunarak yarışları tek tıkla takibe alabilirsin.",
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        textAlign = TextAlign.Center
                     )
                 }
             }
@@ -465,13 +470,11 @@ private fun ProfileTrackedRacesSection(
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f))
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // Aksiyon Butonları (Takipten Çıkar & Katıldım/Katılacağım)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Takipten Çıkar
                             TextButton(
                                 onClick = { onToggleTrack(comp) },
                                 colors = ButtonDefaults.textButtonColors(contentColor = CrimsonAccent)
@@ -485,7 +488,6 @@ private fun ProfileTrackedRacesSection(
                                 Text(text = "Takipten Çıkar", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                             }
 
-                            // Katılım Durumu
                             if (daysRemaining < 0) {
                                 OutlinedButton(
                                     onClick = { onToggleCompleted(comp) },
@@ -531,7 +533,7 @@ private fun ProfileTrackedRacesSection(
 }
 
 // -------------------------------------------------------------
-// 2. DERECELERİM BÖLÜMÜ (PB / SB & YAŞ KATEGORİSİ BAZLI)
+// 2. DERECELERİM BÖLÜMÜ (CANLI PB/SB & MADALYA/REKOR ROZETLERİ)
 // -------------------------------------------------------------
 @Composable
 private fun ProfileRecordsSection(
@@ -581,7 +583,7 @@ private fun ProfileRecordsSection(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Speed,
+                        imageVector = Icons.Default.DirectionsRun,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                         modifier = Modifier.size(36.dp)
@@ -595,18 +597,19 @@ private fun ProfileRecordsSection(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Yukarıdaki 'Derece Ekle' butonuyla branşlarına ait kariyer derecelerini girebilir veya geçmiş yarışlarından koştuğun sonuçları kaydedebilirsin.",
+                        text = "Yukarıdaki 'Derece Ekle' butonuyla branşlarına ait kariyer derecelerini girebilir veya geçmiş yarışlarından sonuçlarını kaydedebilirsin.",
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        textAlign = TextAlign.Center
                     )
                 }
             }
         } else {
-            // Branşa göre grupla (Örn: 100 Metre, 110m Engelli)
             val groupedByEvent = records.groupBy { it.eventName }
 
             groupedByEvent.forEach { (eventName, eventRecords) ->
+                val isField = MasterAthleticsHelper.isFieldEvent(eventName)
+
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -619,10 +622,10 @@ private fun ProfileRecordsSection(
                     Column(modifier = Modifier.padding(14.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
-                                imageVector = Icons.Default.Speed,
+                                imageVector = Icons.Default.DirectionsRun,
                                 contentDescription = null,
                                 tint = BluePrimary,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
@@ -635,76 +638,157 @@ private fun ProfileRecordsSection(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // Her kategori ve yıl için ayrı satır (Kullanıcı talebi: M35 derecesi ayrı, M40 ayrı satırda gösterilir)
-                        eventRecords.sortedWith(compareByDescending<AthleteRecord> { it.year }.thenBy { it.category }).forEach { rec ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    // Kategori Rozeti (M35, M40 vb.)
-                                    Surface(
-                                        color = if (rec.category.startsWith("F", ignoreCase = true)) Color(0xFFEC4899) else Color(0xFF2563EB),
-                                        shape = RoundedCornerShape(4.dp)
-                                    ) {
-                                        Text(
-                                            text = rec.category.ifBlank { "MASTER" },
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color.White,
-                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                        )
-                                    }
+                        // Kategori bazında grupla (Kullanıcı talebi: o kategoride tek derece varsa o PB'dir, yanına yaz)
+                        val groupedByCategory = eventRecords.groupBy { it.category }
 
-                                    Spacer(modifier = Modifier.width(8.dp))
+                        groupedByCategory.forEach { (categoryName, catRecords) ->
+                            // En iyi dereceyi (PB) bul
+                            val bestRecord = if (isField) {
+                                catRecords.maxByOrNull { it.numericValue }
+                            } else {
+                                catRecords.filter { it.numericValue > 0 }.minByOrNull { it.numericValue } ?: catRecords.firstOrNull()
+                            }
 
-                                    Column {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            // İçinde bulunulan yıla ait en iyi derece (SB)
+                            val currentYearBest = catRecords.filter { it.year == currentYear }.let { curRecords ->
+                                if (isField) curRecords.maxByOrNull { it.numericValue }
+                                else curRecords.filter { it.numericValue > 0 }.minByOrNull { it.numericValue } ?: curRecords.firstOrNull()
+                            }
+
+                            catRecords.sortedWith(compareByDescending<AthleteRecord> { it.year }).forEach { rec ->
+                                val isPersonalBest = (rec.id == bestRecord?.id)
+                                val isSeasonBest = (rec.id == currentYearBest?.id && rec.year == currentYear)
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                                        Surface(
+                                            color = if (categoryName.startsWith("F", ignoreCase = true)) Color(0xFFEC4899) else Color(0xFF2563EB),
+                                            shape = RoundedCornerShape(4.dp)
+                                        ) {
                                             Text(
-                                                text = rec.result,
-                                                fontSize = 13.sp,
+                                                text = categoryName.ifBlank { "MASTER" },
+                                                fontSize = 10.sp,
                                                 fontWeight = FontWeight.Bold,
-                                                color = MaterialTheme.colorScheme.onSurface
+                                                color = Color.White,
+                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                             )
-                                            if (rec.year == currentYear) {
-                                                Spacer(modifier = Modifier.width(6.dp))
-                                                Surface(
-                                                    color = Color(0xFF16A34A).copy(alpha = 0.15f),
-                                                    shape = RoundedCornerShape(4.dp)
-                                                ) {
-                                                    Text(
-                                                        text = "SB ($currentYear)",
-                                                        fontSize = 9.sp,
-                                                        fontWeight = FontWeight.Bold,
+                                        }
+
+                                        Spacer(modifier = Modifier.width(8.dp))
+
+                                        Column {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Text(
+                                                    text = rec.result,
+                                                    fontSize = 13.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+
+                                                // PB Rozeti (Kategori için tek derece varsa veya en iyisiyse)
+                                                if (isPersonalBest) {
+                                                    Spacer(modifier = Modifier.width(5.dp))
+                                                    Surface(
+                                                        color = CrimsonAccent,
+                                                        shape = RoundedCornerShape(4.dp)
+                                                    ) {
+                                                        Text(
+                                                            text = "PB",
+                                                            fontSize = 9.sp,
+                                                            fontWeight = FontWeight.ExtraBold,
+                                                            color = Color.White,
+                                                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
+                                                        )
+                                                    }
+                                                }
+
+                                                // SB Rozeti (Güncel yıl derecesi)
+                                                if (isSeasonBest) {
+                                                    Spacer(modifier = Modifier.width(4.dp))
+                                                    Surface(
                                                         color = Color(0xFF16A34A),
-                                                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
-                                                    )
+                                                        shape = RoundedCornerShape(4.dp)
+                                                    ) {
+                                                        Text(
+                                                            text = "SB ($currentYear)",
+                                                            fontSize = 9.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            color = Color.White,
+                                                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                                        )
+                                                    }
+                                                }
+
+                                                // Podyum Madalyası
+                                                if (rec.podium.isNotBlank()) {
+                                                    Spacer(modifier = Modifier.width(4.dp))
+                                                    val medalText = when (rec.podium) {
+                                                        "1" -> "🥇 1.lik"
+                                                        "2" -> "🥈 2.lik"
+                                                        "3" -> "🥉 3.lük"
+                                                        else -> ""
+                                                    }
+                                                    if (medalText.isNotBlank()) {
+                                                        Surface(
+                                                            color = Color(0xFFFEF3C7),
+                                                            shape = RoundedCornerShape(4.dp)
+                                                        ) {
+                                                            Text(
+                                                                text = medalText,
+                                                                fontSize = 9.sp,
+                                                                fontWeight = FontWeight.Bold,
+                                                                color = Color(0xFF92400E),
+                                                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                                            )
+                                                        }
+                                                    }
+                                                }
+
+                                                // Rekor Rozeti (NMR / BMR / EMR / WMR)
+                                                if (rec.recordType.isNotBlank()) {
+                                                    Spacer(modifier = Modifier.width(4.dp))
+                                                    Surface(
+                                                        color = Color(0xFF7C3AED),
+                                                        shape = RoundedCornerShape(4.dp)
+                                                    ) {
+                                                        Text(
+                                                            text = rec.recordType,
+                                                            fontSize = 9.sp,
+                                                            fontWeight = FontWeight.ExtraBold,
+                                                            color = Color.White,
+                                                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
+                                                        )
+                                                    }
                                                 }
                                             }
-                                        }
-                                        if (rec.competitionTitle.isNotBlank()) {
-                                            Text(
-                                                text = "${rec.year} • ${rec.competitionTitle}",
-                                                fontSize = 11.sp,
-                                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                            )
+
+                                            if (rec.competitionTitle.isNotBlank()) {
+                                                Text(
+                                                    text = "${rec.year} • ${rec.competitionTitle}",
+                                                    fontSize = 11.sp,
+                                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                                )
+                                            }
                                         }
                                     }
-                                }
 
-                                IconButton(
-                                    onClick = { onDeleteRecord(rec.id) },
-                                    modifier = Modifier.size(28.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.DeleteOutline,
-                                        contentDescription = "Sil",
-                                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                                        modifier = Modifier.size(16.dp)
-                                    )
+                                    IconButton(
+                                        onClick = { onDeleteRecord(rec.id) },
+                                        modifier = Modifier.size(28.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.DeleteOutline,
+                                            contentDescription = "Sil",
+                                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -716,7 +800,7 @@ private fun ProfileRecordsSection(
 }
 
 // -------------------------------------------------------------
-// 3. GEÇMİŞİM BÖLÜMÜ (KATILDIĞIM YARIŞLAR)
+// 3. GEÇMİŞİM BÖLÜMÜ
 // -------------------------------------------------------------
 @Composable
 private fun ProfileCompletedHistorySection(
@@ -763,16 +847,15 @@ private fun ProfileCompletedHistorySection(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Takibindeki yarışların tarihi geçtiğinde 'Katıldım' olarak işaretlediğinde otomatik olarak buraya aktarılır ve koştuğun dereceleri ekleyebilirsin.",
+                        text = "Takibindeki yarışların tarihi geçtiğinde 'Katıldım' olarak işaretlendiğinde buraya aktarılır ve koştuğun dereceleri kaydedebilirsin.",
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        textAlign = TextAlign.Center
                     )
                 }
             }
         } else {
             completedCompetitions.forEach { comp ->
-                // Bu yarışmayla eşleşen dereceler
                 val compRecords = records.filter { it.competitionTitle.equals(comp.title, ignoreCase = true) }
 
                 Card(
@@ -822,7 +905,6 @@ private fun ProfileCompletedHistorySection(
                             }
                         }
 
-                        // Varsa bu yarışmaya ait kayıtlı dereceler
                         if (compRecords.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(8.dp))
                             compRecords.forEach { rec ->
@@ -843,13 +925,16 @@ private fun ProfileCompletedHistorySection(
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
-                                    if (rec.notes.isNotBlank()) {
+                                    if (rec.podium.isNotBlank()) {
                                         Spacer(modifier = Modifier.width(4.dp))
-                                        Text(
-                                            text = "(${rec.notes})",
-                                            fontSize = 11.sp,
-                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                        )
+                                        val medal = when(rec.podium) { "1" -> "🥇 1.lik"; "2" -> "🥈 2.lik"; "3" -> "🥉 3.lük"; else -> "" }
+                                        Text(text = medal, fontSize = 11.sp)
+                                    }
+                                    if (rec.recordType.isNotBlank()) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Surface(color = Color(0xFF7C3AED), shape = RoundedCornerShape(3.dp)) {
+                                            Text(text = rec.recordType, color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp))
+                                        }
                                     }
                                 }
                             }
@@ -859,7 +944,6 @@ private fun ProfileCompletedHistorySection(
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f))
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // Alt Aksiyonlar
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -891,25 +975,39 @@ private fun ProfileCompletedHistorySection(
 }
 
 // -------------------------------------------------------------
-// DERECE EKLEME / GÜNCELLEME DİYALOĞU
+// MODERN DERECE KAYDETME PENCERESİ (YAPILANDIRILMIŞ FORMATLAR)
 // -------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RecordEntryDialog(
+private fun ModernRecordEntryDialog(
     athleteGender: String,
     athleteBirthYear: Int,
+    allCompetitions: List<Competition>,
     initialCompTitle: String,
     initialYear: Int,
+    isFixedCompetition: Boolean,
     onDismiss: () -> Unit,
     onSave: (AthleteRecord) -> Unit
 ) {
     var selectedEvent by remember { mutableStateOf("") }
     var customEventName by remember { mutableStateOf("") }
-    var resultInput by remember { mutableStateOf("") }
+    var selectedCompTitle by remember { mutableStateOf(initialCompTitle) }
+    var isManualCompInput by remember { mutableStateOf(false) }
     var yearInput by remember { mutableStateOf(initialYear.toString()) }
-    var compTitleInput by remember { mutableStateOf(initialCompTitle) }
-    var notesInput by remember { mutableStateOf("") }
-    var isExpanded by remember { mutableStateOf(false) }
+    var selectedPodium by remember { mutableStateOf("") } // "", "1", "2", "3"
+    var selectedRecordType by remember { mutableStateOf("") } // "", "NMR", "BMR", "EMR", "WMR"
+
+    // Format Değerleri (Kullanıcı sadece boşlukları doldurur)
+    var inputHour by remember { mutableStateOf("") }
+    var inputMinute by remember { mutableStateOf("") }
+    var inputSecond by remember { mutableStateOf("") }
+    var inputMillis by remember { mutableStateOf("") }
+    var inputMeter by remember { mutableStateOf("") }
+    var inputCentimeter by remember { mutableStateOf("") }
+    var inputCustomResult by remember { mutableStateOf("") }
+
+    var isEventDropdownExpanded by remember { mutableStateOf(false) }
+    var isCompDropdownExpanded by remember { mutableStateOf(false) }
 
     val yearInt = yearInput.toIntOrNull() ?: Calendar.getInstance().get(Calendar.YEAR)
     val applicableEvents = remember(athleteGender, athleteBirthYear, yearInt) {
@@ -920,11 +1018,12 @@ private fun RecordEntryDialog(
         selectedEvent = applicableEvents.first()
     }
 
-    // WMA yaş kategorisi (o yılın yaşına göre otomatik)
+    val formatType = MasterAthleticsHelper.getEventFormatType(selectedEvent)
     val calculatedCategory = MasterAthleticsHelper.calculateCategory(athleteGender, athleteBirthYear, yearInt)
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.fillMaxWidth(),
         title = {
             Text(
                 text = "Derece Kaydet",
@@ -940,32 +1039,143 @@ private fun RecordEntryDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Branş Seçici (WMA Yaşa ve Cinsiyete Göre Dinamik)
+                // 1. Yarışma Bilgisi
+                if (isFixedCompetition) {
+                    Card(
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(containerColor = BluePrimary.copy(alpha = 0.08f)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = null,
+                                tint = BluePrimary,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(text = "Yarışma (Sabit)", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                                Text(text = "$initialCompTitle ($initialYear)", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                            }
+                        }
+                    }
+                } else {
+                    // Derecelerim sekmesinden gelindiğinde: Var olan yarışmalardan seç veya elle yaz
+                    if (!isManualCompInput) {
+                        ExposedDropdownMenuBox(
+                            expanded = isCompDropdownExpanded,
+                            onExpandedChange = { isCompDropdownExpanded = it }
+                        ) {
+                            OutlinedTextField(
+                                value = selectedCompTitle.ifBlank { "Yarışma Seçiniz veya Elle Yazınız" },
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Yarışma") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isCompDropdownExpanded) },
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth()
+                            )
+
+                            ExposedDropdownMenu(
+                                expanded = isCompDropdownExpanded,
+                                onDismissRequest = { isCompDropdownExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("✍️ Elle Özel Yarışma Yaz...", fontWeight = FontWeight.Bold, color = BluePrimary) },
+                                    onClick = {
+                                        isManualCompInput = true
+                                        isCompDropdownExpanded = false
+                                    }
+                                )
+                                allCompetitions.take(30).forEach { comp ->
+                                    DropdownMenuItem(
+                                        text = { Text("${comp.getCountryFlag()} ${comp.title} (${comp.start_date.take(4)})", fontSize = 12.sp) },
+                                        onClick = {
+                                            selectedCompTitle = comp.title
+                                            comp.start_date.take(4).toIntOrNull()?.let { yearInput = it.toString() }
+                                            isCompDropdownExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        OutlinedTextField(
+                            value = selectedCompTitle,
+                            onValueChange = { selectedCompTitle = it },
+                            label = { Text("Yarışma Adı (Elle Giriş)") },
+                            trailingIcon = {
+                                TextButton(onClick = { isManualCompInput = false }) {
+                                    Text("Listeden Seç", fontSize = 11.sp)
+                                }
+                            },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    // Yıl ve Kategori Satırı
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = yearInput,
+                            onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 4) yearInput = it },
+                            label = { Text("Yıl") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        Surface(
+                            color = if (athleteGender.equals("F", ignoreCase = true)) Color(0xFFEC4899) else Color(0xFF2563EB),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.padding(top = 8.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(text = "Kategori", fontSize = 10.sp, color = Color.White.copy(alpha = 0.8f))
+                                Text(text = calculatedCategory, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            }
+                        }
+                    }
+                }
+
+                // 2. Branş Seçici
                 ExposedDropdownMenuBox(
-                    expanded = isExpanded,
-                    onExpandedChange = { isExpanded = it }
+                    expanded = isEventDropdownExpanded,
+                    onExpandedChange = { isEventDropdownExpanded = it }
                 ) {
                     OutlinedTextField(
                         value = selectedEvent,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Branş Seçiniz (WMA)") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded) },
+                        label = { Text("Branş (WMA Standartları)") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isEventDropdownExpanded) },
                         modifier = Modifier
                             .menuAnchor()
                             .fillMaxWidth()
                     )
 
                     ExposedDropdownMenu(
-                        expanded = isExpanded,
-                        onDismissRequest = { isExpanded = false }
+                        expanded = isEventDropdownExpanded,
+                        onDismissRequest = { isEventDropdownExpanded = false }
                     ) {
                         applicableEvents.forEach { event ->
                             DropdownMenuItem(
                                 text = { Text(event, fontSize = 13.sp) },
                                 onClick = {
                                     selectedEvent = event
-                                    isExpanded = false
+                                    isEventDropdownExpanded = false
                                 }
                             )
                         }
@@ -973,7 +1183,7 @@ private fun RecordEntryDialog(
                             text = { Text("Diğer / Özel Branş...", fontSize = 13.sp, fontWeight = FontWeight.Bold) },
                             onClick = {
                                 selectedEvent = "Diğer"
-                                isExpanded = false
+                                isEventDropdownExpanded = false
                             }
                         )
                     }
@@ -983,86 +1193,279 @@ private fun RecordEntryDialog(
                     OutlinedTextField(
                         value = customEventName,
                         onValueChange = { customEventName = it },
-                        label = { Text("Branş Adı") },
-                        placeholder = { Text("Örn: 300 Metre") },
+                        label = { Text("Özel Branş Adı") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
 
-                // Derece / Zaman
-                OutlinedTextField(
-                    value = resultInput,
-                    onValueChange = { resultInput = it },
-                    label = { Text("Derece") },
-                    placeholder = { Text("Örn: 11.84 sn veya 1:24:15 veya 5.84 m") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                // Yarışma Yılı ve Kategori Bilgisi
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                // 3. Yapılandırılmış Derece Girişi (Kullanıcı Sadece Boşlukları Doldurur)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+                        .padding(12.dp)
                 ) {
-                    OutlinedTextField(
-                        value = yearInput,
-                        onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 4) yearInput = it },
-                        label = { Text("Yıl") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        singleLine = true,
-                        modifier = Modifier.weight(1f)
+                    Text(
+                        text = "Derece Girişi",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = BluePrimary
                     )
+                    Spacer(modifier = Modifier.height(6.dp))
 
-                    Surface(
-                        color = if (athleteGender.equals("F", ignoreCase = true)) Color(0xFFEC4899) else Color(0xFF2563EB),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.padding(top = 8.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(text = "Kategori", fontSize = 10.sp, color = Color.White.copy(alpha = 0.8f))
-                            Text(text = calculatedCategory, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    when (formatType) {
+                        EventFormatType.SPRINT_SHORT -> {
+                            // [Saniye] . [Salise] sn
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                OutlinedTextField(
+                                    value = inputSecond,
+                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputSecond = it },
+                                    label = { Text("Saniye") },
+                                    placeholder = { Text("11") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    modifier = Modifier.width(90.dp)
+                                )
+                                Text(text = " . ", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                                OutlinedTextField(
+                                    value = inputMillis,
+                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputMillis = it },
+                                    label = { Text("Salise") },
+                                    placeholder = { Text("84") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    modifier = Modifier.width(90.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(text = "sn", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        EventFormatType.MIDDLE_LONG -> {
+                            // [Dakika] dk [Saniye] . [Salise] sn
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                OutlinedTextField(
+                                    value = inputMinute,
+                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 3) inputMinute = it },
+                                    label = { Text("Dk") },
+                                    placeholder = { Text("02") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    modifier = Modifier.width(75.dp)
+                                )
+                                Text(text = " : ", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                OutlinedTextField(
+                                    value = inputSecond,
+                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputSecond = it },
+                                    label = { Text("Sn") },
+                                    placeholder = { Text("14") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    modifier = Modifier.width(75.dp)
+                                )
+                                Text(text = " . ", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                OutlinedTextField(
+                                    value = inputMillis,
+                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputMillis = it },
+                                    label = { Text("Sal") },
+                                    placeholder = { Text("20") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    modifier = Modifier.width(70.dp)
+                                )
+                            }
+                        }
+
+                        EventFormatType.MARATHON -> {
+                            // [Saat] sa [Dakika] d [Saniye] sn
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                OutlinedTextField(
+                                    value = inputHour,
+                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputHour = it },
+                                    label = { Text("Saat") },
+                                    placeholder = { Text("1") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    modifier = Modifier.width(75.dp)
+                                )
+                                Text(text = " sa ", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                OutlinedTextField(
+                                    value = inputMinute,
+                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputMinute = it },
+                                    label = { Text("Dk") },
+                                    placeholder = { Text("24") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    modifier = Modifier.width(75.dp)
+                                )
+                                Text(text = " d ", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                OutlinedTextField(
+                                    value = inputSecond,
+                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputSecond = it },
+                                    label = { Text("Sn") },
+                                    placeholder = { Text("15") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    modifier = Modifier.width(75.dp)
+                                )
+                                Text(text = " sn", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        EventFormatType.FIELD -> {
+                            // [Metre] . [Santim] m
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                OutlinedTextField(
+                                    value = inputMeter,
+                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputMeter = it },
+                                    label = { Text("Metre") },
+                                    placeholder = { Text("5") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    modifier = Modifier.width(90.dp)
+                                )
+                                Text(text = " . ", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                                OutlinedTextField(
+                                    value = inputCentimeter,
+                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputCentimeter = it },
+                                    label = { Text("Santimetre") },
+                                    placeholder = { Text("84") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    modifier = Modifier.width(100.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(text = "m", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        EventFormatType.CUSTOM -> {
+                            OutlinedTextField(
+                                value = inputCustomResult,
+                                onValueChange = { inputCustomResult = it },
+                                label = { Text("Derece") },
+                                placeholder = { Text("Örn: 11.84 sn veya 5.84 m") },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         }
                     }
                 }
 
-                // Şampiyona / Yarışma Adı
-                OutlinedTextField(
-                    value = compTitleInput,
-                    onValueChange = { compTitleInput = it },
-                    label = { Text("Şampiyona / Yarışma") },
-                    placeholder = { Text("Örn: Craiova BAMACS 2026") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                // 4. Podyum Seçeneği (1., 2., 3.lük)
+                Column {
+                    Text(text = "Podyum Derecesi (Madalya)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        listOf("" to "Yok", "1" to "🥇 1.lik", "2" to "🥈 2.lik", "3" to "🥉 3.lük").forEach { (code, label) ->
+                            FilterChip(
+                                selected = selectedPodium == code,
+                                onClick = { selectedPodium = code },
+                                label = { Text(label, fontSize = 11.sp, fontWeight = if (selectedPodium == code) FontWeight.Bold else FontWeight.Normal) },
+                                modifier = Modifier.weight(1f),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = Color(0xFFFEF3C7),
+                                    selectedLabelColor = Color(0xFF92400E)
+                                )
+                            )
+                        }
+                    }
+                }
 
-                // Notlar (İsteğe bağlı)
-                OutlinedTextField(
-                    value = notesInput,
-                    onValueChange = { notesInput = it },
-                    label = { Text("Notlar (İsteğe Bağlı)") },
-                    placeholder = { Text("Örn: Rüzgar +1.2 m/s, Altın Madalya") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                // 5. Rekor Seçeneği (WMR, EMR, BMR, NMR)
+                Column {
+                    Text(text = "Kategori / Şampiyona Rekoru", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        listOf("" to "Yok", "NMR" to "🇹🇷 NMR", "BMR" to "🏛️ BMR", "EMR" to "🇪🇺 EMR", "WMR" to "🌍 WMR").forEach { (code, label) ->
+                            FilterChip(
+                                selected = selectedRecordType == code,
+                                onClick = { selectedRecordType = code },
+                                label = { Text(label, fontSize = 10.sp, fontWeight = if (selectedRecordType == code) FontWeight.Bold else FontWeight.Normal) },
+                                modifier = Modifier.weight(1f),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = Color(0xFF7C3AED),
+                                    selectedLabelColor = Color.White
+                                )
+                            )
+                        }
+                    }
+                }
             }
         },
         confirmButton = {
             Button(
                 onClick = {
                     val finalEvent = if (selectedEvent == "Diğer") customEventName.ifBlank { "Özel Branş" } else selectedEvent
-                    if (resultInput.isNotBlank()) {
+                    val (resultStr, numVal) = when (formatType) {
+                        EventFormatType.SPRINT_SHORT -> {
+                            val sec = inputSecond.toIntOrNull() ?: 0
+                            val ms = inputMillis.toIntOrNull() ?: 0
+                            val str = "$sec.${ms.toString().padStart(2, '0')} sn"
+                            val num = sec + (ms / 100.0)
+                            str to num
+                        }
+                        EventFormatType.MIDDLE_LONG -> {
+                            val min = inputMinute.toIntOrNull() ?: 0
+                            val sec = inputSecond.toIntOrNull() ?: 0
+                            val ms = inputMillis.toIntOrNull() ?: 0
+                            val str = "$min:${sec.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}"
+                            val num = (min * 60) + sec + (ms / 100.0)
+                            str to num
+                        }
+                        EventFormatType.MARATHON -> {
+                            val hr = inputHour.toIntOrNull() ?: 0
+                            val min = inputMinute.toIntOrNull() ?: 0
+                            val sec = inputSecond.toIntOrNull() ?: 0
+                            val str = "$hr sa $min d $sec sn"
+                            val num = (hr * 3600.0) + (min * 60.0) + sec
+                            str to num
+                        }
+                        EventFormatType.FIELD -> {
+                            val meter = inputMeter.toIntOrNull() ?: 0
+                            val cm = inputCentimeter.toIntOrNull() ?: 0
+                            val str = "$meter.${cm.toString().padStart(2, '0')} m"
+                            val num = meter + (cm / 100.0)
+                            str to num
+                        }
+                        EventFormatType.CUSTOM -> {
+                            inputCustomResult to (inputCustomResult.filter { it.isDigit() || it == '.' }.toDoubleOrNull() ?: 0.0)
+                        }
+                    }
+
+                    if (resultStr.isNotBlank() && numVal > 0) {
                         val newRecord = AthleteRecord(
                             eventName = finalEvent,
                             category = calculatedCategory,
-                            result = resultInput.trim(),
+                            result = resultStr,
                             year = yearInt,
-                            competitionTitle = compTitleInput.trim(),
-                            notes = notesInput.trim()
+                            competitionTitle = selectedCompTitle.trim(),
+                            podium = selectedPodium,
+                            recordType = selectedRecordType,
+                            numericValue = numVal
                         )
                         onSave(newRecord)
                     }
@@ -1081,7 +1484,7 @@ private fun RecordEntryDialog(
 }
 
 // -------------------------------------------------------------
-// PROFİL BİLGİLERİ DÜZENLEME DİYALOĞU
+// PROFİL DÜZENLEME DİYALOĞU
 // -------------------------------------------------------------
 @Composable
 private fun EditProfileDialog(
@@ -1118,7 +1521,6 @@ private fun EditProfileDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                // İsim Alanı
                 OutlinedTextField(
                     value = nameInput,
                     onValueChange = { nameInput = it },
@@ -1128,7 +1530,6 @@ private fun EditProfileDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Cinsiyet Seçimi
                 Column {
                     Text(
                         text = "Cinsiyet",
@@ -1141,7 +1542,6 @@ private fun EditProfileDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        // Erkek Butonu
                         Surface(
                             modifier = Modifier
                                 .weight(1f)
@@ -1171,7 +1571,6 @@ private fun EditProfileDialog(
                             }
                         }
 
-                        // Kadın Butonu
                         Surface(
                             modifier = Modifier
                                 .weight(1f)
@@ -1203,7 +1602,6 @@ private fun EditProfileDialog(
                     }
                 }
 
-                // Doğum Yılı Alanı
                 OutlinedTextField(
                     value = birthYearInput,
                     onValueChange = { input ->
@@ -1218,7 +1616,6 @@ private fun EditProfileDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Canlı Kategori Önizlemesi
                 Surface(
                     shape = RoundedCornerShape(10.dp),
                     color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
