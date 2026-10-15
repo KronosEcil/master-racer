@@ -43,6 +43,10 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -106,6 +110,7 @@ fun ProfileScreen(
     var recordPresetCompTitle by remember { mutableStateOf("") }
     var recordPresetYear by remember { mutableStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
     var isFixedCompetition by remember { mutableStateOf(false) }
+    val recordSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("Takibimdekiler", "Derecelerim", "Geçmişim")
@@ -346,9 +351,10 @@ fun ProfileScreen(
         )
     }
 
-    // Modern Derece Kaydetme Penceresi
+    // Modern Derece Kaydetme Alt Menüsü (ModalBottomSheet)
     if (showAddRecordDialog) {
-        ModernRecordEntryDialog(
+        RecordEntryBottomSheet(
+            sheetState = recordSheetState,
             athleteGender = athleteGender,
             athleteBirthYear = athleteBirthYear,
             allCompetitions = allCompetitions,
@@ -977,9 +983,13 @@ private fun ProfileCompletedHistorySection(
 // -------------------------------------------------------------
 // MODERN DERECE KAYDETME PENCERESİ (YAPILANDIRILMIŞ FORMATLAR)
 // -------------------------------------------------------------
+// -------------------------------------------------------------
+// MODERN DERECE KAYDETME ALT MENÜSÜ (MODAL BOTTOM SHEET)
+// -------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ModernRecordEntryDialog(
+private fun RecordEntryBottomSheet(
+    sheetState: SheetState,
     athleteGender: String,
     athleteBirthYear: Int,
     allCompetitions: List<Competition>,
@@ -1021,202 +1031,216 @@ private fun ModernRecordEntryDialog(
     val formatType = MasterAthleticsHelper.getEventFormatType(selectedEvent)
     val calculatedCategory = MasterAthleticsHelper.calculateCategory(athleteGender, athleteBirthYear, yearInt)
 
-    AlertDialog(
+    ModalBottomSheet(
         onDismissRequest = onDismiss,
-        modifier = Modifier.fillMaxWidth(),
-        title = {
-            Text(
-                text = "Derece Kaydet",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+        sheetState = sheetState,
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .verticalScroll(rememberScrollState())
+                .navigationBarsPadding(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Başlık & Kategori Rozeti
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // 1. Yarışma Bilgisi
-                if (isFixedCompetition) {
-                    Card(
-                        shape = RoundedCornerShape(10.dp),
-                        colors = CardDefaults.cardColors(containerColor = BluePrimary.copy(alpha = 0.08f)),
-                        modifier = Modifier.fillMaxWidth()
+                Text(
+                    text = "Derece Kaydet",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Surface(
+                    color = if (athleteGender.equals("F", ignoreCase = true)) Color(0xFFEC4899) else Color(0xFF2563EB),
+                    shape = RoundedCornerShape(6.dp)
+                ) {
+                    Text(
+                        text = calculatedCategory,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+            }
+
+            // 1. Yarışma Bilgisi
+            if (isFixedCompetition) {
+                // Kullanıcı talebi: "yarışma sabit yazmasına gerek yok yarışma ismi yazsa yeter"
+                Card(
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        Text(text = "🏆", fontSize = 22.sp)
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = if (initialYear > 0) "$initialCompTitle ($initialYear)" else initialCompTitle,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            } else {
+                // Derecelerim sekmesinden gelindiğinde: Listeden seç veya elle yaz
+                if (!isManualCompInput) {
+                    ExposedDropdownMenuBox(
+                        expanded = isCompDropdownExpanded,
+                        onExpandedChange = { isCompDropdownExpanded = it }
+                    ) {
+                        OutlinedTextField(
+                            value = selectedCompTitle.ifBlank { "Yarışma Seçiniz veya Elle Yazınız" },
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Yarışma") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isCompDropdownExpanded) },
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth()
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = isCompDropdownExpanded,
+                            onDismissRequest = { isCompDropdownExpanded = false }
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = null,
-                                tint = BluePrimary,
-                                modifier = Modifier.size(18.dp)
+                            DropdownMenuItem(
+                                text = { Text("✍️ Elle Özel Yarışma Yaz...", fontWeight = FontWeight.Bold, color = BluePrimary) },
+                                onClick = {
+                                    isManualCompInput = true
+                                    isCompDropdownExpanded = false
+                                }
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(text = "Yarışma (Sabit)", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
-                                Text(text = "$initialCompTitle ($initialYear)", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                            allCompetitions.take(40).forEach { comp ->
+                                DropdownMenuItem(
+                                    text = { Text("${comp.getCountryFlag()} ${comp.title} (${comp.start_date.take(4)})", fontSize = 13.sp) },
+                                    onClick = {
+                                        selectedCompTitle = comp.title
+                                        comp.start_date.take(4).toIntOrNull()?.let { yearInput = it.toString() }
+                                        isCompDropdownExpanded = false
+                                    }
+                                )
                             }
                         }
                     }
                 } else {
-                    // Derecelerim sekmesinden gelindiğinde: Var olan yarışmalardan seç veya elle yaz
-                    if (!isManualCompInput) {
-                        ExposedDropdownMenuBox(
-                            expanded = isCompDropdownExpanded,
-                            onExpandedChange = { isCompDropdownExpanded = it }
-                        ) {
-                            OutlinedTextField(
-                                value = selectedCompTitle.ifBlank { "Yarışma Seçiniz veya Elle Yazınız" },
-                                onValueChange = {},
-                                readOnly = true,
-                                label = { Text("Yarışma") },
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isCompDropdownExpanded) },
-                                modifier = Modifier
-                                    .menuAnchor()
-                                    .fillMaxWidth()
-                            )
-
-                            ExposedDropdownMenu(
-                                expanded = isCompDropdownExpanded,
-                                onDismissRequest = { isCompDropdownExpanded = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("✍️ Elle Özel Yarışma Yaz...", fontWeight = FontWeight.Bold, color = BluePrimary) },
-                                    onClick = {
-                                        isManualCompInput = true
-                                        isCompDropdownExpanded = false
-                                    }
-                                )
-                                allCompetitions.take(30).forEach { comp ->
-                                    DropdownMenuItem(
-                                        text = { Text("${comp.getCountryFlag()} ${comp.title} (${comp.start_date.take(4)})", fontSize = 12.sp) },
-                                        onClick = {
-                                            selectedCompTitle = comp.title
-                                            comp.start_date.take(4).toIntOrNull()?.let { yearInput = it.toString() }
-                                            isCompDropdownExpanded = false
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    } else {
-                        OutlinedTextField(
-                            value = selectedCompTitle,
-                            onValueChange = { selectedCompTitle = it },
-                            label = { Text("Yarışma Adı (Elle Giriş)") },
-                            trailingIcon = {
-                                TextButton(onClick = { isManualCompInput = false }) {
-                                    Text("Listeden Seç", fontSize = 11.sp)
-                                }
-                            },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-
-                    // Yıl ve Kategori Satırı
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedTextField(
-                            value = yearInput,
-                            onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 4) yearInput = it },
-                            label = { Text("Yıl") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            singleLine = true,
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        Surface(
-                            color = if (athleteGender.equals("F", ignoreCase = true)) Color(0xFFEC4899) else Color(0xFF2563EB),
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.padding(top = 8.dp)
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(text = "Kategori", fontSize = 10.sp, color = Color.White.copy(alpha = 0.8f))
-                                Text(text = calculatedCategory, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                            }
-                        }
-                    }
-                }
-
-                // 2. Branş Seçici
-                ExposedDropdownMenuBox(
-                    expanded = isEventDropdownExpanded,
-                    onExpandedChange = { isEventDropdownExpanded = it }
-                ) {
                     OutlinedTextField(
-                        value = selectedEvent,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Branş (WMA Standartları)") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isEventDropdownExpanded) },
-                        modifier = Modifier
-                            .menuAnchor()
-                            .fillMaxWidth()
-                    )
-
-                    ExposedDropdownMenu(
-                        expanded = isEventDropdownExpanded,
-                        onDismissRequest = { isEventDropdownExpanded = false }
-                    ) {
-                        applicableEvents.forEach { event ->
-                            DropdownMenuItem(
-                                text = { Text(event, fontSize = 13.sp) },
-                                onClick = {
-                                    selectedEvent = event
-                                    isEventDropdownExpanded = false
-                                }
-                            )
-                        }
-                        DropdownMenuItem(
-                            text = { Text("Diğer / Özel Branş...", fontSize = 13.sp, fontWeight = FontWeight.Bold) },
-                            onClick = {
-                                selectedEvent = "Diğer"
-                                isEventDropdownExpanded = false
+                        value = selectedCompTitle,
+                        onValueChange = { selectedCompTitle = it },
+                        label = { Text("Yarışma Adı (Elle Giriş)") },
+                        trailingIcon = {
+                            TextButton(onClick = { isManualCompInput = false }) {
+                                Text("Listeden Seç", fontSize = 12.sp)
                             }
-                        )
-                    }
-                }
-
-                if (selectedEvent == "Diğer") {
-                    OutlinedTextField(
-                        value = customEventName,
-                        onValueChange = { customEventName = it },
-                        label = { Text("Özel Branş Adı") },
+                        },
+                        shape = RoundedCornerShape(12.dp),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
 
-                // 3. Yapılandırılmış Derece Girişi (Kullanıcı Sadece Boşlukları Doldurur)
+                // Yıl Alanı
+                OutlinedTextField(
+                    value = yearInput,
+                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 4) yearInput = it },
+                    label = { Text("Yarışma Yılı") },
+                    placeholder = { Text("Örn: 2026") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            // 2. Branş Seçici (WMA Standartları)
+            ExposedDropdownMenuBox(
+                expanded = isEventDropdownExpanded,
+                onExpandedChange = { isEventDropdownExpanded = it }
+            ) {
+                OutlinedTextField(
+                    value = selectedEvent,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Branş (WMA Standartları)") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isEventDropdownExpanded) },
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
+                )
+
+                ExposedDropdownMenu(
+                    expanded = isEventDropdownExpanded,
+                    onDismissRequest = { isEventDropdownExpanded = false }
+                ) {
+                    applicableEvents.forEach { event ->
+                        DropdownMenuItem(
+                            text = { Text(event, fontSize = 13.sp) },
+                            onClick = {
+                                selectedEvent = event
+                                isEventDropdownExpanded = false
+                            }
+                        )
+                    }
+                    DropdownMenuItem(
+                        text = { Text("Diğer / Özel Branş...", fontSize = 13.sp, fontWeight = FontWeight.Bold) },
+                        onClick = {
+                            selectedEvent = "Diğer"
+                            isEventDropdownExpanded = false
+                        }
+                    )
+                }
+            }
+
+            if (selectedEvent == "Diğer") {
+                OutlinedTextField(
+                    value = customEventName,
+                    onValueChange = { customEventName = it },
+                    label = { Text("Özel Branş Adı") },
+                    placeholder = { Text("Örn: 300 Metre") },
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            // 3. Yapılandırılmış Derece Girişi
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
-                        .padding(12.dp)
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Derece Girişi",
+                        text = "DERECE GİRİŞİ",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp,
                         color = BluePrimary
                     )
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     when (formatType) {
                         EventFormatType.SPRINT_SHORT -> {
-                            // [Saniye] . [Salise] sn
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -1227,27 +1251,30 @@ private fun ModernRecordEntryDialog(
                                     onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputSecond = it },
                                     label = { Text("Saniye") },
                                     placeholder = { Text("11") },
+                                    textStyle = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    shape = RoundedCornerShape(12.dp),
                                     singleLine = true,
-                                    modifier = Modifier.width(90.dp)
+                                    modifier = Modifier.width(100.dp)
                                 )
-                                Text(text = " . ", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                                Text(text = " . ", fontSize = 28.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp))
                                 OutlinedTextField(
                                     value = inputMillis,
                                     onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputMillis = it },
                                     label = { Text("Salise") },
                                     placeholder = { Text("84") },
+                                    textStyle = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    shape = RoundedCornerShape(12.dp),
                                     singleLine = true,
-                                    modifier = Modifier.width(90.dp)
+                                    modifier = Modifier.width(100.dp)
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(text = "sn", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(text = "sn", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
                             }
                         }
 
                         EventFormatType.MIDDLE_LONG -> {
-                            // [Dakika] dk [Saniye] . [Salise] sn
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -1258,35 +1285,40 @@ private fun ModernRecordEntryDialog(
                                     onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 3) inputMinute = it },
                                     label = { Text("Dk") },
                                     placeholder = { Text("02") },
+                                    textStyle = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    shape = RoundedCornerShape(12.dp),
                                     singleLine = true,
-                                    modifier = Modifier.width(75.dp)
+                                    modifier = Modifier.width(80.dp)
                                 )
-                                Text(text = " : ", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                Text(text = " : ", fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp))
                                 OutlinedTextField(
                                     value = inputSecond,
                                     onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputSecond = it },
                                     label = { Text("Sn") },
                                     placeholder = { Text("14") },
+                                    textStyle = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    shape = RoundedCornerShape(12.dp),
                                     singleLine = true,
-                                    modifier = Modifier.width(75.dp)
+                                    modifier = Modifier.width(80.dp)
                                 )
-                                Text(text = " . ", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                Text(text = " . ", fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp))
                                 OutlinedTextField(
                                     value = inputMillis,
                                     onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputMillis = it },
                                     label = { Text("Sal") },
                                     placeholder = { Text("20") },
+                                    textStyle = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    shape = RoundedCornerShape(12.dp),
                                     singleLine = true,
-                                    modifier = Modifier.width(70.dp)
+                                    modifier = Modifier.width(80.dp)
                                 )
                             }
                         }
 
                         EventFormatType.MARATHON -> {
-                            // [Saat] sa [Dakika] d [Saniye] sn
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -1297,36 +1329,41 @@ private fun ModernRecordEntryDialog(
                                     onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputHour = it },
                                     label = { Text("Saat") },
                                     placeholder = { Text("1") },
+                                    textStyle = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    shape = RoundedCornerShape(12.dp),
                                     singleLine = true,
-                                    modifier = Modifier.width(75.dp)
+                                    modifier = Modifier.width(80.dp)
                                 )
-                                Text(text = " sa ", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                Text(text = " sa ", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                                 OutlinedTextField(
                                     value = inputMinute,
                                     onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputMinute = it },
                                     label = { Text("Dk") },
                                     placeholder = { Text("24") },
+                                    textStyle = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    shape = RoundedCornerShape(12.dp),
                                     singleLine = true,
-                                    modifier = Modifier.width(75.dp)
+                                    modifier = Modifier.width(80.dp)
                                 )
-                                Text(text = " d ", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                Text(text = " d ", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                                 OutlinedTextField(
                                     value = inputSecond,
                                     onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputSecond = it },
                                     label = { Text("Sn") },
                                     placeholder = { Text("15") },
+                                    textStyle = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    shape = RoundedCornerShape(12.dp),
                                     singleLine = true,
-                                    modifier = Modifier.width(75.dp)
+                                    modifier = Modifier.width(80.dp)
                                 )
-                                Text(text = " sn", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                Text(text = " sn", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                             }
                         }
 
                         EventFormatType.FIELD -> {
-                            // [Metre] . [Santim] m
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -1337,22 +1374,26 @@ private fun ModernRecordEntryDialog(
                                     onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputMeter = it },
                                     label = { Text("Metre") },
                                     placeholder = { Text("5") },
+                                    textStyle = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    shape = RoundedCornerShape(12.dp),
                                     singleLine = true,
-                                    modifier = Modifier.width(90.dp)
+                                    modifier = Modifier.width(100.dp)
                                 )
-                                Text(text = " . ", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                                Text(text = " . ", fontSize = 28.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp))
                                 OutlinedTextField(
                                     value = inputCentimeter,
                                     onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputCentimeter = it },
                                     label = { Text("Santimetre") },
                                     placeholder = { Text("84") },
+                                    textStyle = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    shape = RoundedCornerShape(12.dp),
                                     singleLine = true,
-                                    modifier = Modifier.width(100.dp)
+                                    modifier = Modifier.width(110.dp)
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(text = "m", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(text = "m", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
                             }
                         }
 
@@ -1362,61 +1403,64 @@ private fun ModernRecordEntryDialog(
                                 onValueChange = { inputCustomResult = it },
                                 label = { Text("Derece") },
                                 placeholder = { Text("Örn: 11.84 sn veya 5.84 m") },
+                                shape = RoundedCornerShape(12.dp),
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
                     }
                 }
+            }
 
-                // 4. Podyum Seçeneği (1., 2., 3.lük)
-                Column {
-                    Text(text = "Podyum Derecesi (Madalya)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        listOf("" to "Yok", "1" to "🥇 1.lik", "2" to "🥈 2.lik", "3" to "🥉 3.lük").forEach { (code, label) ->
-                            FilterChip(
-                                selected = selectedPodium == code,
-                                onClick = { selectedPodium = code },
-                                label = { Text(label, fontSize = 11.sp, fontWeight = if (selectedPodium == code) FontWeight.Bold else FontWeight.Normal) },
-                                modifier = Modifier.weight(1f),
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = Color(0xFFFEF3C7),
-                                    selectedLabelColor = Color(0xFF92400E)
-                                )
+            // 4. Podyum Derecesi (Madalyalar)
+            Column {
+                Text(text = "Podyum Derecesi (Madalya)", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                Spacer(modifier = Modifier.height(6.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf("" to "Yok", "1" to "🥇 1.lik", "2" to "🥈 2.lik", "3" to "🥉 3.lük").forEach { (code, label) ->
+                        FilterChip(
+                            selected = selectedPodium == code,
+                            onClick = { selectedPodium = code },
+                            label = { Text(label, fontSize = 12.sp, fontWeight = if (selectedPodium == code) FontWeight.Bold else FontWeight.Medium, maxLines = 1, softWrap = false) },
+                            modifier = Modifier.weight(1f),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color(0xFFFEF3C7),
+                                selectedLabelColor = Color(0xFF92400E)
                             )
-                        }
-                    }
-                }
-
-                // 5. Rekor Seçeneği (WMR, EMR, BMR, NMR)
-                Column {
-                    Text(text = "Kategori / Şampiyona Rekoru", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        listOf("" to "Yok", "NMR" to "🇹🇷 NMR", "BMR" to "🏛️ BMR", "EMR" to "🇪🇺 EMR", "WMR" to "🌍 WMR").forEach { (code, label) ->
-                            FilterChip(
-                                selected = selectedRecordType == code,
-                                onClick = { selectedRecordType = code },
-                                label = { Text(label, fontSize = 10.sp, fontWeight = if (selectedRecordType == code) FontWeight.Bold else FontWeight.Normal) },
-                                modifier = Modifier.weight(1f),
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = Color(0xFF7C3AED),
-                                    selectedLabelColor = Color.White
-                                )
-                            )
-                        }
+                        )
                     }
                 }
             }
-        },
-        confirmButton = {
+
+            // 5. Rekor Seçeneği (WMR, EMR, BMR, NMR) - Harfler asla alta kaymaz!
+            Column {
+                Text(text = "Kategori / Şampiyona Rekoru", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                Spacer(modifier = Modifier.height(6.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    listOf("" to "Yok", "NMR" to "🇹🇷 NMR", "BMR" to "🏛️ BMR", "EMR" to "🇪🇺 EMR", "WMR" to "🌍 WMR").forEach { (code, label) ->
+                        FilterChip(
+                            selected = selectedRecordType == code,
+                            onClick = { selectedRecordType = code },
+                            label = { Text(label, fontSize = 11.sp, fontWeight = if (selectedRecordType == code) FontWeight.Bold else FontWeight.Medium, maxLines = 1, softWrap = false) },
+                            modifier = Modifier.weight(1f),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color(0xFF7C3AED),
+                                selectedLabelColor = Color.White
+                            )
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Kaydet Butonu (DetailBottomSheet tarzında geniş ve modern)
             Button(
                 onClick = {
                     val finalEvent = if (selectedEvent == "Diğer") customEventName.ifBlank { "Özel Branş" } else selectedEvent
@@ -1470,17 +1514,20 @@ private fun ModernRecordEntryDialog(
                         onSave(newRecord)
                     }
                 },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
             ) {
-                Text(text = "Kaydet", fontWeight = FontWeight.Bold, color = Color.White)
+                Icon(imageVector = Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(20.dp), tint = Color.White)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Dereceyi Kaydet", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = "İptal")
-            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
-    )
+    }
 }
 
 // -------------------------------------------------------------
