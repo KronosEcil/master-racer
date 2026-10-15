@@ -2,6 +2,7 @@ package com.ecil.masterracer.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,12 +23,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkRemove
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DeleteOutline
-import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Female
@@ -55,6 +57,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
@@ -589,7 +592,7 @@ private fun ProfileRecordsSection(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
-                        imageVector = Icons.Default.DirectionsRun,
+                        imageVector = Icons.AutoMirrored.Filled.DirectionsRun,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                         modifier = Modifier.size(36.dp)
@@ -628,7 +631,7 @@ private fun ProfileRecordsSection(
                     Column(modifier = Modifier.padding(14.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
-                                imageVector = Icons.Default.DirectionsRun,
+                                imageVector = Icons.AutoMirrored.Filled.DirectionsRun,
                                 contentDescription = null,
                                 tint = BluePrimary,
                                 modifier = Modifier.size(20.dp)
@@ -981,11 +984,67 @@ private fun ProfileCompletedHistorySection(
 }
 
 // -------------------------------------------------------------
-// MODERN DERECE KAYDETME PENCERESİ (YAPILANDIRILMIŞ FORMATLAR)
-// -------------------------------------------------------------
-// -------------------------------------------------------------
 // MODERN DERECE KAYDETME ALT MENÜSÜ (MODAL BOTTOM SHEET)
 // -------------------------------------------------------------
+@Composable
+private fun PermanentLabeledInput(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    maxLength: Int = 2,
+    width: androidx.compose.ui.unit.Dp = 95.dp,
+    containerBgColor: Color
+) {
+    Box(
+        modifier = Modifier
+            .width(width)
+            .padding(top = 8.dp),
+        contentAlignment = Alignment.TopStart
+    ) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = { input ->
+                if (input.all { it.isDigit() } && input.length <= maxLength) {
+                    onValueChange(input)
+                }
+            },
+            singleLine = true,
+            textStyle = TextStyle(
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            ),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = BluePrimary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.45f),
+                focusedContainerColor = containerBgColor,
+                unfocusedContainerColor = containerBgColor
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        // Üst kenar çizgisi üzerine oturan kalıcı başlık (kullanıcı kutuya tıklasa da tıklamasa da hep üstte)
+        Surface(
+            color = containerBgColor,
+            modifier = Modifier
+                .padding(start = 10.dp)
+                .offset(y = 0.dp)
+        ) {
+            Text(
+                text = label,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = BluePrimary,
+                maxLines = 1,
+                softWrap = false,
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RecordEntryBottomSheet(
@@ -1219,10 +1278,13 @@ private fun RecordEntryBottomSheet(
             }
 
             // 3. Yapılandırılmış Derece Girişi
+            val isDark = isSystemInDarkTheme()
+            val cardBg = if (isDark) Color(0xFF1E293B) else Color(0xFFF1F5F9)
+
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
+                colors = CardDefaults.cardColors(containerColor = cardBg)
             ) {
                 Column(
                     modifier = Modifier
@@ -1237,7 +1299,7 @@ private fun RecordEntryBottomSheet(
                         letterSpacing = 1.sp,
                         color = BluePrimary
                     )
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
 
                     when (formatType) {
                         EventFormatType.SPRINT_SHORT -> {
@@ -1246,31 +1308,36 @@ private fun RecordEntryBottomSheet(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
-                                OutlinedTextField(
+                                PermanentLabeledInput(
                                     value = inputSecond,
-                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputSecond = it },
-                                    label = { Text("Saniye") },
-                                    placeholder = { Text("11") },
-                                    textStyle = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    shape = RoundedCornerShape(12.dp),
-                                    singleLine = true,
-                                    modifier = Modifier.width(100.dp)
+                                    onValueChange = { inputSecond = it },
+                                    label = "Saniye",
+                                    maxLength = 2,
+                                    width = 100.dp,
+                                    containerBgColor = cardBg
                                 )
-                                Text(text = " . ", fontSize = 28.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp))
-                                OutlinedTextField(
+                                Text(
+                                    text = " . ",
+                                    fontSize = 28.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top = 8.dp, start = 4.dp, end = 4.dp)
+                                )
+                                PermanentLabeledInput(
                                     value = inputMillis,
-                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputMillis = it },
-                                    label = { Text("Salise") },
-                                    placeholder = { Text("84") },
-                                    textStyle = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    shape = RoundedCornerShape(12.dp),
-                                    singleLine = true,
-                                    modifier = Modifier.width(100.dp)
+                                    onValueChange = { inputMillis = it },
+                                    label = "Salise",
+                                    maxLength = 2,
+                                    width = 100.dp,
+                                    containerBgColor = cardBg
                                 )
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Text(text = "sn", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "sn",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = BluePrimary,
+                                    modifier = Modifier.padding(top = 8.dp)
+                                )
                             }
                         }
 
@@ -1280,40 +1347,41 @@ private fun RecordEntryBottomSheet(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
-                                OutlinedTextField(
+                                PermanentLabeledInput(
                                     value = inputMinute,
-                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 3) inputMinute = it },
-                                    label = { Text("Dk") },
-                                    placeholder = { Text("02") },
-                                    textStyle = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    shape = RoundedCornerShape(12.dp),
-                                    singleLine = true,
-                                    modifier = Modifier.width(80.dp)
+                                    onValueChange = { inputMinute = it },
+                                    label = "Dakika",
+                                    maxLength = 3,
+                                    width = 85.dp,
+                                    containerBgColor = cardBg
                                 )
-                                Text(text = " : ", fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp))
-                                OutlinedTextField(
+                                Text(
+                                    text = " : ",
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top = 8.dp, start = 2.dp, end = 2.dp)
+                                )
+                                PermanentLabeledInput(
                                     value = inputSecond,
-                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputSecond = it },
-                                    label = { Text("Sn") },
-                                    placeholder = { Text("14") },
-                                    textStyle = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    shape = RoundedCornerShape(12.dp),
-                                    singleLine = true,
-                                    modifier = Modifier.width(80.dp)
+                                    onValueChange = { inputSecond = it },
+                                    label = "Saniye",
+                                    maxLength = 2,
+                                    width = 85.dp,
+                                    containerBgColor = cardBg
                                 )
-                                Text(text = " . ", fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp))
-                                OutlinedTextField(
+                                Text(
+                                    text = " . ",
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top = 8.dp, start = 2.dp, end = 2.dp)
+                                )
+                                PermanentLabeledInput(
                                     value = inputMillis,
-                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputMillis = it },
-                                    label = { Text("Sal") },
-                                    placeholder = { Text("20") },
-                                    textStyle = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    shape = RoundedCornerShape(12.dp),
-                                    singleLine = true,
-                                    modifier = Modifier.width(80.dp)
+                                    onValueChange = { inputMillis = it },
+                                    label = "Salise",
+                                    maxLength = 2,
+                                    width = 85.dp,
+                                    containerBgColor = cardBg
                                 )
                             }
                         }
@@ -1324,42 +1392,42 @@ private fun RecordEntryBottomSheet(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
-                                OutlinedTextField(
+                                PermanentLabeledInput(
                                     value = inputHour,
-                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputHour = it },
-                                    label = { Text("Saat") },
-                                    placeholder = { Text("1") },
-                                    textStyle = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    shape = RoundedCornerShape(12.dp),
-                                    singleLine = true,
-                                    modifier = Modifier.width(80.dp)
+                                    onValueChange = { inputHour = it },
+                                    label = "Saat",
+                                    maxLength = 2,
+                                    width = 85.dp,
+                                    containerBgColor = cardBg
                                 )
-                                Text(text = " sa ", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                OutlinedTextField(
+                                Text(
+                                    text = " : ",
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top = 8.dp, start = 2.dp, end = 2.dp)
+                                )
+                                PermanentLabeledInput(
                                     value = inputMinute,
-                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputMinute = it },
-                                    label = { Text("Dk") },
-                                    placeholder = { Text("24") },
-                                    textStyle = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    shape = RoundedCornerShape(12.dp),
-                                    singleLine = true,
-                                    modifier = Modifier.width(80.dp)
+                                    onValueChange = { inputMinute = it },
+                                    label = "Dakika",
+                                    maxLength = 2,
+                                    width = 85.dp,
+                                    containerBgColor = cardBg
                                 )
-                                Text(text = " d ", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                OutlinedTextField(
+                                Text(
+                                    text = " : ",
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top = 8.dp, start = 2.dp, end = 2.dp)
+                                )
+                                PermanentLabeledInput(
                                     value = inputSecond,
-                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputSecond = it },
-                                    label = { Text("Sn") },
-                                    placeholder = { Text("15") },
-                                    textStyle = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    shape = RoundedCornerShape(12.dp),
-                                    singleLine = true,
-                                    modifier = Modifier.width(80.dp)
+                                    onValueChange = { inputSecond = it },
+                                    label = "Saniye",
+                                    maxLength = 2,
+                                    width = 85.dp,
+                                    containerBgColor = cardBg
                                 )
-                                Text(text = " sn", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                             }
                         }
 
@@ -1369,31 +1437,36 @@ private fun RecordEntryBottomSheet(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
-                                OutlinedTextField(
+                                PermanentLabeledInput(
                                     value = inputMeter,
-                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputMeter = it },
-                                    label = { Text("Metre") },
-                                    placeholder = { Text("5") },
-                                    textStyle = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    shape = RoundedCornerShape(12.dp),
-                                    singleLine = true,
-                                    modifier = Modifier.width(100.dp)
+                                    onValueChange = { inputMeter = it },
+                                    label = "Metre",
+                                    maxLength = 3,
+                                    width = 100.dp,
+                                    containerBgColor = cardBg
                                 )
-                                Text(text = " . ", fontSize = 28.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp))
-                                OutlinedTextField(
+                                Text(
+                                    text = " . ",
+                                    fontSize = 28.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top = 8.dp, start = 4.dp, end = 4.dp)
+                                )
+                                PermanentLabeledInput(
                                     value = inputCentimeter,
-                                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) inputCentimeter = it },
-                                    label = { Text("Santimetre") },
-                                    placeholder = { Text("84") },
-                                    textStyle = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    shape = RoundedCornerShape(12.dp),
-                                    singleLine = true,
-                                    modifier = Modifier.width(110.dp)
+                                    onValueChange = { inputCentimeter = it },
+                                    label = "Santimetre",
+                                    maxLength = 2,
+                                    width = 120.dp,
+                                    containerBgColor = cardBg
                                 )
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Text(text = "m", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "m",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = BluePrimary,
+                                    modifier = Modifier.padding(top = 8.dp)
+                                )
                             }
                         }
 
@@ -1402,7 +1475,6 @@ private fun RecordEntryBottomSheet(
                                 value = inputCustomResult,
                                 onValueChange = { inputCustomResult = it },
                                 label = { Text("Derece") },
-                                placeholder = { Text("Örn: 11.84 sn veya 5.84 m") },
                                 shape = RoundedCornerShape(12.dp),
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth()
