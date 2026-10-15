@@ -113,6 +113,7 @@ fun ProfileScreen(
     var recordPresetCompTitle by remember { mutableStateOf("") }
     var recordPresetYear by remember { mutableStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
     var isFixedCompetition by remember { mutableStateOf(false) }
+    var editingRecord by remember { mutableStateOf<AthleteRecord?>(null) }
     val recordSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -141,15 +142,6 @@ fun ProfileScreen(
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
-                },
-                actions = {
-                    IconButton(onClick = { showEditProfileDialog = true }) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Profili Düzenle",
-                            tint = Color.White
-                        )
-                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = BluePrimary
@@ -307,9 +299,17 @@ fun ProfileScreen(
                         ProfileRecordsSection(
                             records = athleteRecords,
                             onAddNewRecord = {
+                                editingRecord = null
                                 recordPresetCompTitle = ""
                                 recordPresetYear = Calendar.getInstance().get(Calendar.YEAR)
                                 isFixedCompetition = false
+                                showAddRecordDialog = true
+                            },
+                            onEditRecord = { record ->
+                                editingRecord = record
+                                recordPresetCompTitle = record.competitionTitle
+                                recordPresetYear = record.year
+                                isFixedCompetition = record.competitionTitle.isNotBlank()
                                 showAddRecordDialog = true
                             },
                             onDeleteRecord = { viewModel.deleteAthleteRecord(it) }
@@ -323,6 +323,7 @@ fun ProfileScreen(
                             onSelectCompetition = onSelectCompetition,
                             onRemoveFromCompleted = { viewModel.toggleCompletedRace(it.id) },
                             onAddRecordForCompetition = { comp ->
+                                editingRecord = null
                                 recordPresetCompTitle = comp.title
                                 val year = comp.start_date.take(4).toIntOrNull() ?: Calendar.getInstance().get(Calendar.YEAR)
                                 recordPresetYear = year
@@ -364,10 +365,15 @@ fun ProfileScreen(
             initialCompTitle = recordPresetCompTitle,
             initialYear = recordPresetYear,
             isFixedCompetition = isFixedCompetition,
-            onDismiss = { showAddRecordDialog = false },
+            editingRecord = editingRecord,
+            onDismiss = {
+                showAddRecordDialog = false
+                editingRecord = null
+            },
             onSave = { record ->
                 viewModel.saveAthleteRecord(record)
                 showAddRecordDialog = false
+                editingRecord = null
             }
         )
     }
@@ -548,6 +554,7 @@ private fun ProfileTrackedRacesSection(
 private fun ProfileRecordsSection(
     records: List<AthleteRecord>,
     onAddNewRecord: () -> Unit,
+    onEditRecord: (AthleteRecord) -> Unit,
     onDeleteRecord: (String) -> Unit
 ) {
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
@@ -787,16 +794,30 @@ private fun ProfileRecordsSection(
                                         }
                                     }
 
-                                    IconButton(
-                                        onClick = { onDeleteRecord(rec.id) },
-                                        modifier = Modifier.size(28.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.DeleteOutline,
-                                            contentDescription = "Sil",
-                                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                                            modifier = Modifier.size(16.dp)
-                                        )
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        IconButton(
+                                            onClick = { onEditRecord(rec) },
+                                            modifier = Modifier.size(28.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Edit,
+                                                contentDescription = "Düzenle",
+                                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
+
+                                        IconButton(
+                                            onClick = { onDeleteRecord(rec.id) },
+                                            modifier = Modifier.size(28.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.DeleteOutline,
+                                                contentDescription = "Sil",
+                                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -996,9 +1017,7 @@ private fun PermanentLabeledInput(
     containerBgColor: Color
 ) {
     Box(
-        modifier = Modifier
-            .width(width)
-            .padding(top = 8.dp),
+        modifier = Modifier.width(width),
         contentAlignment = Alignment.TopStart
     ) {
         OutlinedTextField(
@@ -1022,14 +1041,16 @@ private fun PermanentLabeledInput(
                 focusedContainerColor = containerBgColor,
                 unfocusedContainerColor = containerBgColor
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
         )
 
-        // Üst kenar çizgisi üzerine oturan kalıcı başlık (kullanıcı kutuya tıklasa da tıklamasa da hep üstte)
+        // Üst kenar çizgisi üzerine tam oturan kalıcı başlık (tam çizgiye ortalı, derece rakamını kapatmaz)
         Surface(
             color = containerBgColor,
             modifier = Modifier
-                .padding(start = 10.dp)
+                .padding(start = 12.dp)
                 .offset(y = 0.dp)
         ) {
             Text(
@@ -1055,25 +1076,77 @@ private fun RecordEntryBottomSheet(
     initialCompTitle: String,
     initialYear: Int,
     isFixedCompetition: Boolean,
+    editingRecord: AthleteRecord? = null,
     onDismiss: () -> Unit,
     onSave: (AthleteRecord) -> Unit
 ) {
-    var selectedEvent by remember { mutableStateOf("") }
-    var customEventName by remember { mutableStateOf("") }
-    var selectedCompTitle by remember { mutableStateOf(initialCompTitle) }
-    var isManualCompInput by remember { mutableStateOf(false) }
-    var yearInput by remember { mutableStateOf(initialYear.toString()) }
-    var selectedPodium by remember { mutableStateOf("") } // "", "1", "2", "3"
-    var selectedRecordType by remember { mutableStateOf("") } // "", "NMR", "BMR", "EMR", "WMR"
+    var selectedEvent by remember(editingRecord) { mutableStateOf(editingRecord?.eventName ?: "") }
+    var customEventName by remember(editingRecord) { mutableStateOf("") }
+    var selectedCompTitle by remember(editingRecord) { mutableStateOf(editingRecord?.competitionTitle ?: initialCompTitle) }
+    var isManualCompInput by remember(editingRecord) {
+        mutableStateOf(editingRecord?.competitionTitle?.isNotBlank() == true && allCompetitions.none { it.title == editingRecord.competitionTitle })
+    }
+    var yearInput by remember(editingRecord) { mutableStateOf((editingRecord?.year ?: initialYear).toString()) }
+    var selectedPodium by remember(editingRecord) { mutableStateOf(editingRecord?.podium ?: "") } // "", "1", "2", "3"
+    var selectedRecordType by remember(editingRecord) { mutableStateOf(editingRecord?.recordType ?: "") } // "", "NMR", "BMR", "EMR", "WMR"
 
-    // Format Değerleri (Kullanıcı sadece boşlukları doldurur)
-    var inputHour by remember { mutableStateOf("") }
-    var inputMinute by remember { mutableStateOf("") }
-    var inputSecond by remember { mutableStateOf("") }
-    var inputMillis by remember { mutableStateOf("") }
-    var inputMeter by remember { mutableStateOf("") }
-    var inputCentimeter by remember { mutableStateOf("") }
-    var inputCustomResult by remember { mutableStateOf("") }
+    // Format Değerleri (Düzenleme yapılıyorsa mevcut dereceden ayrıştırılır)
+    val initialParsed = remember(editingRecord) {
+        val rec = editingRecord
+        if (rec != null) {
+            val res = rec.result
+            when (MasterAthleticsHelper.getEventFormatType(rec.eventName)) {
+                EventFormatType.SPRINT_SHORT -> {
+                    val clean = res.replace("sn", "").trim()
+                    val parts = clean.split(".")
+                    val s = parts.getOrNull(0) ?: ""
+                    val ms = parts.getOrNull(1) ?: ""
+                    mapOf("sec" to s, "ms" to ms)
+                }
+                EventFormatType.FIELD -> {
+                    val clean = res.replace("m", "").trim()
+                    val parts = clean.split(".")
+                    val m = parts.getOrNull(0) ?: ""
+                    val cm = parts.getOrNull(1) ?: ""
+                    mapOf("meter" to m, "cm" to cm)
+                }
+                EventFormatType.MIDDLE_LONG -> {
+                    val parts = res.split(":")
+                    val min = parts.getOrNull(0) ?: ""
+                    val secParts = parts.getOrNull(1)?.split(".") ?: emptyList()
+                    val s = secParts.getOrNull(0) ?: ""
+                    val ms = secParts.getOrNull(1) ?: ""
+                    mapOf("min" to min, "sec" to s, "ms" to ms)
+                }
+                EventFormatType.MARATHON -> {
+                    if (res.contains("sa")) {
+                        val hr = res.substringBefore("sa").trim()
+                        val min = res.substringAfter("sa").substringBefore("d").trim()
+                        val sec = res.substringAfter("d").replace("sn", "").trim()
+                        mapOf("hr" to hr, "min" to min, "sec" to sec)
+                    } else if (res.contains(":")) {
+                        val parts = res.split(":")
+                        mapOf("hr" to (parts.getOrNull(0) ?: ""), "min" to (parts.getOrNull(1) ?: ""), "sec" to (parts.getOrNull(2) ?: ""))
+                    } else {
+                        emptyMap()
+                    }
+                }
+                EventFormatType.CUSTOM -> {
+                    mapOf("custom" to res)
+                }
+            }
+        } else {
+            emptyMap()
+        }
+    }
+
+    var inputHour by remember(editingRecord) { mutableStateOf(initialParsed["hr"] ?: "") }
+    var inputMinute by remember(editingRecord) { mutableStateOf(initialParsed["min"] ?: "") }
+    var inputSecond by remember(editingRecord) { mutableStateOf(initialParsed["sec"] ?: "") }
+    var inputMillis by remember(editingRecord) { mutableStateOf(initialParsed["ms"] ?: "") }
+    var inputMeter by remember(editingRecord) { mutableStateOf(initialParsed["meter"] ?: "") }
+    var inputCentimeter by remember(editingRecord) { mutableStateOf(initialParsed["cm"] ?: "") }
+    var inputCustomResult by remember(editingRecord) { mutableStateOf(initialParsed["custom"] ?: "") }
 
     var isEventDropdownExpanded by remember { mutableStateOf(false) }
     var isCompDropdownExpanded by remember { mutableStateOf(false) }
@@ -1111,7 +1184,7 @@ private fun RecordEntryBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Derece Kaydet",
+                    text = if (editingRecord != null) "Dereceyi Düzenle" else "Derece Kaydet",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -1573,17 +1646,26 @@ private fun RecordEntryBottomSheet(
                     }
 
                     if (resultStr.isNotBlank() && numVal > 0) {
-                        val newRecord = AthleteRecord(
+                        val savedRecord = editingRecord?.copy(
                             eventName = finalEvent,
                             category = calculatedCategory,
                             result = resultStr,
                             year = yearInt,
-                            competitionTitle = selectedCompTitle.trim(),
+                            competitionTitle = (if (isFixedCompetition) initialCompTitle else selectedCompTitle).trim(),
+                            podium = selectedPodium,
+                            recordType = selectedRecordType,
+                            numericValue = numVal
+                        ) ?: AthleteRecord(
+                            eventName = finalEvent,
+                            category = calculatedCategory,
+                            result = resultStr,
+                            year = yearInt,
+                            competitionTitle = (if (isFixedCompetition) initialCompTitle else selectedCompTitle).trim(),
                             podium = selectedPodium,
                             recordType = selectedRecordType,
                             numericValue = numVal
                         )
-                        onSave(newRecord)
+                        onSave(savedRecord)
                     }
                 },
                 modifier = Modifier
@@ -1594,7 +1676,12 @@ private fun RecordEntryBottomSheet(
             ) {
                 Icon(imageVector = Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(20.dp), tint = Color.White)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Dereceyi Kaydet", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(
+                    text = if (editingRecord != null) "Değişiklikleri Kaydet" else "Dereceyi Kaydet",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
