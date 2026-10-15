@@ -314,7 +314,9 @@ fun HomeScreen(
                             ) { competition ->
                                 CompetitionCard(
                                     competition = competition,
-                                    onClick = { viewModel.selectCompetitionForDetail(it) }
+                                    onClick = { viewModel.selectCompetitionForDetail(it) },
+                                    isTracked = targetRaceIds.contains(competition.id),
+                                    onToggleTrack = { viewModel.toggleTargetRace(competition.id) }
                                 )
                             }
                         }

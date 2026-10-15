@@ -27,3 +27,7 @@
     <init>(...);
 }
 -keep class com.ecil.masterracer.MasterRacerApp { *; }
+
+# 6. Util & Athlete Record modelleri
+-keep class com.ecil.masterracer.util.** { *; }
+

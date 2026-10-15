@@ -249,7 +249,7 @@ fun DetailBottomSheet(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = if (isTarget) "Hedeflerimde Kayıtlı ✓" else "Hedef Yarışım Olarak Ekle",
+                    text = if (isTarget) "Takibimde Kayıtlı ✓ (Takipten Çıkar)" else "Takibime Ekle",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White

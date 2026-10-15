@@ -52,19 +52,36 @@ class CompetitionViewModel(
             .apply()
     }
 
-    fun calculateCategory(gender: String = _athleteGender.value, birthYear: Int = _athleteBirthYear.value): String {
-        val currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
-        val prefix = if (gender.equals("F", ignoreCase = true) || gender.equals("W", ignoreCase = true) || gender.equals("K", ignoreCase = true)) "F" else "M"
-        if (birthYear <= 1900 || birthYear > currentYear) {
-            return "${prefix}35"
-        }
-        val age = currentYear - birthYear
-        return if (age >= 35) {
-            val cat = (age / 5) * 5
-            "$prefix$cat"
+    fun calculateCategory(
+        gender: String = _athleteGender.value,
+        birthYear: Int = _athleteBirthYear.value,
+        targetYear: Int = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+    ): String {
+        return com.ecil.masterracer.util.MasterAthleticsHelper.calculateCategory(gender, birthYear, targetYear)
+    }
+
+    // Sporcu Dereceleri (Kişisel & Sezon Dereceleri)
+    private val _athleteRecords = MutableStateFlow<List<com.ecil.masterracer.util.AthleteRecord>>(
+        com.ecil.masterracer.util.MasterAthleticsHelper.parseRecordsJson(prefs.getString("athlete_records_json", "") ?: "")
+    )
+    val athleteRecords: StateFlow<List<com.ecil.masterracer.util.AthleteRecord>> = _athleteRecords.asStateFlow()
+
+    fun saveAthleteRecord(record: com.ecil.masterracer.util.AthleteRecord) {
+        val current = _athleteRecords.value.toMutableList()
+        val index = current.indexOfFirst { it.id == record.id }
+        if (index >= 0) {
+            current[index] = record
         } else {
-            "$prefix${(age / 5) * 5}"
+            current.add(0, record)
         }
+        _athleteRecords.value = current
+        prefs.edit().putString("athlete_records_json", com.ecil.masterracer.util.MasterAthleticsHelper.serializeRecordsJson(current)).apply()
+    }
+
+    fun deleteAthleteRecord(recordId: String) {
+        val current = _athleteRecords.value.filter { it.id != recordId }
+        _athleteRecords.value = current
+        prefs.edit().putString("athlete_records_json", com.ecil.masterracer.util.MasterAthleticsHelper.serializeRecordsJson(current)).apply()
     }
 
     // Hedeflenen Yarışlar

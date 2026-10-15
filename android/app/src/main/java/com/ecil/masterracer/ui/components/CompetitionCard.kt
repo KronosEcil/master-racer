@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.LocationOn
@@ -24,6 +26,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -46,7 +49,9 @@ import com.ecil.masterracer.util.CalendarHelper
 fun CompetitionCard(
     competition: Competition,
     onClick: (Competition) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isTracked: Boolean = false,
+    onToggleTrack: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val daysRemaining = competition.getDaysRemaining()
@@ -122,7 +127,23 @@ fun CompetitionCard(
                     }
                 }
 
-                CountdownBadge(daysRemaining = daysRemaining)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CountdownBadge(daysRemaining = daysRemaining)
+                    if (onToggleTrack != null) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        IconButton(
+                            onClick = onToggleTrack,
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (isTracked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                                contentDescription = if (isTracked) "Takipte (Takipten Çıkar)" else "Takibime Ekle",
+                                tint = if (isTracked) BluePrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
