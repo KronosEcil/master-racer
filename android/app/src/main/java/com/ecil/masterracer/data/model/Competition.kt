@@ -193,6 +193,7 @@ data class Competition(
         }
 
         val resolvedFromText = when {
+            cNameLower.contains("portekiz") || cNameLower.contains("portugal") || cityLower.contains("lisboa") || cityLower.contains("lizbon") || cityLower.contains("porto") || titleLower.contains("portug") -> "PT"
             cNameLower.contains("çek") || cNameLower.contains("czech") || cityLower.contains("janske") || cityLower.contains("prag") -> "CZ"
             cNameLower.contains("sloven") || cityLower.contains("domzale") || cityLower.contains("novo mesto") || cityLower.contains("ljubljana") -> "SI"
             cNameLower.contains("norve") || cNameLower.contains("norway") || cityLower.contains("oslo") -> "NO"
@@ -210,6 +211,14 @@ data class Competition(
             cNameLower.contains("isveç") || cNameLower.contains("sweden") || cityLower.contains("gothenburg") -> "SE"
             cNameLower.contains("hollanda") || cNameLower.contains("netherland") || cityLower.contains("amsterdam") -> "NL"
             cNameLower.contains("yunan") || cNameLower.contains("greece") || cityLower.contains("atina") -> "GR"
+            cNameLower.contains("avusturya") || cNameLower.contains("austria") || cityLower.contains("wien") || cityLower.contains("viyana") -> "AT"
+            cNameLower.contains("belçika") || cNameLower.contains("belcika") || cNameLower.contains("belgium") || cityLower.contains("brussel") || cityLower.contains("brüksel") -> "BE"
+            cNameLower.contains("danimarka") || cNameLower.contains("denmark") || cityLower.contains("kopenhag") -> "DK"
+            cNameLower.contains("macar") || cNameLower.contains("hungar") || cityLower.contains("budapest") -> "HU"
+            cNameLower.contains("slovak") || cityLower.contains("bratislava") -> "SK"
+            cNameLower.contains("eston") || cityLower.contains("tallinn") -> "EE"
+            cNameLower.contains("leton") || cNameLower.contains("latvi") || cityLower.contains("riga") -> "LV"
+            cNameLower.contains("litvan") || cNameLower.contains("lithuan") || cityLower.contains("vilnius") -> "LT"
             else -> ""
         }
         if (resolvedFromText.isNotEmpty() && (cUpper == "EU" || cUpper == "INT" || cUpper.isBlank())) {

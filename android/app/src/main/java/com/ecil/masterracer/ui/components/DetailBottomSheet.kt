@@ -171,62 +171,33 @@ fun DetailBottomSheet(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    if (competition.federation.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(12.dp))
 
-                    // Federasyon ve Tesis
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Stadium,
-                            contentDescription = null,
-                            tint = Color(0xFF0284C7),
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column {
-                            Text(text = "Tesis / Federasyon", fontSize = 11.sp, color = Color(0xFF64748B))
-                            Text(
-                                text = "${competition.getVenueTitle()} • ${competition.federation}",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF0F172A)
+                        // Federasyon
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Language,
+                                contentDescription = null,
+                                tint = Color(0xFF0284C7),
+                                modifier = Modifier.size(20.dp)
                             )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(text = "Federasyon", fontSize = 11.sp, color = Color(0xFF64748B))
+                                Text(
+                                    text = competition.federation,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color(0xFF0F172A)
+                                )
+                            }
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Branşlar
-            Text(
-                text = "Kapsanan Branşlar",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF334155)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                competition.getEffectiveCategories().forEach { category ->
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = Color(0xFFEFF6FF)
-                    ) {
-                        Text(
-                            text = category,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = BluePrimary
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             HorizontalDivider(color = Color(0xFFF1F5F9))
             Spacer(modifier = Modifier.height(20.dp))
 

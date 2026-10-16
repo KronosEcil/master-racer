@@ -244,44 +244,12 @@ fun CompetitionCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Tesis & Branş Etiketleri (FlowRow)
+            // Alt Alan: Hızlı Takvime Ekle Butonu
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                FlowRow(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    // Tesis Türü Rozeti
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = Color(0xFFEEF2FF)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Stadium,
-                                contentDescription = null,
-                                tint = BluePrimary,
-                                modifier = Modifier.size(12.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = competition.getVenueTitle(),
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = BluePrimary
-                            )
-                        }
-                    }
-                }
-
-                // Hızlı Takvime Ekle Butonu
                 FilledTonalIconButton(
                     onClick = { CalendarHelper.addEventToCalendar(context, competition) },
                     modifier = Modifier.size(36.dp)

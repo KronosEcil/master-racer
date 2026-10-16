@@ -167,40 +167,6 @@ class CompetitionViewModel(
         applyFilters()
     }
 
-    fun onVenueTypeToggle(venueType: String) {
-        _uiState.update { state ->
-            val updated = if (state.selectedVenueTypes.contains(venueType)) {
-                state.selectedVenueTypes - venueType
-            } else {
-                state.selectedVenueTypes + venueType
-            }
-            state.copy(selectedVenueTypes = updated)
-        }
-        applyFilters()
-    }
-
-    fun clearVenueTypeFilters() {
-        _uiState.update { it.copy(selectedVenueTypes = emptySet()) }
-        applyFilters()
-    }
-
-    fun onCategoryToggle(category: String) {
-        _uiState.update { state ->
-            val updated = if (state.selectedCategories.contains(category)) {
-                state.selectedCategories - category
-            } else {
-                state.selectedCategories + category
-            }
-            state.copy(selectedCategories = updated)
-        }
-        applyFilters()
-    }
-
-    fun clearCategoryFilters() {
-        _uiState.update { it.copy(selectedCategories = emptySet()) }
-        applyFilters()
-    }
-
     fun onDatePresetSelect(preset: String) {
         _uiState.update { it.copy(selectedDatePreset = preset) }
         applyFilters()
@@ -220,8 +186,6 @@ class CompetitionViewModel(
         _uiState.update {
             it.copy(
                 selectedCountries = emptySet(),
-                selectedVenueTypes = emptySet(),
-                selectedCategories = emptySet(),
                 selectedDatePreset = "all",
                 hideCompleted = true,
                 searchQuery = ""
@@ -259,8 +223,6 @@ class CompetitionViewModel(
         val currentState = _uiState.value
         val query = currentState.searchQuery.trim().lowercase()
         val countries = currentState.selectedCountries
-        val venues = currentState.selectedVenueTypes
-        val categories = currentState.selectedCategories
         val preset = currentState.selectedDatePreset
         val hideCompleted = currentState.hideCompleted
 
@@ -292,15 +254,6 @@ class CompetitionViewModel(
                 it.equals(comp.country, ignoreCase = true) || it.equals(comp.getDisplayCountryCode(), ignoreCase = true)
             }
 
-            // Tesis Türü Filtresi (Çoklu Seçim: indoor, outdoor, road, cross)
-            val matchesVenue = venues.isEmpty() || venues.any { it.equals(comp.venue_type, ignoreCase = true) }
-
-            // Branş Filtresi (Çoklu Seçim: Seçili branş gruplarından en az biriyle eşleşmeli)
-            val effectiveCategories = comp.getEffectiveCategories()
-            val matchesCategory = categories.isEmpty() || effectiveCategories.any { cat ->
-                categories.any { it.equals(cat, ignoreCase = true) }
-            }
-
             // Tarih Önayarı Filtresi
             val currentYearStr = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString()
             val nextYearStr = (java.util.Calendar.getInstance().get(java.util.Calendar.YEAR) + 1).toString()
@@ -312,7 +265,7 @@ class CompetitionViewModel(
                 else -> true
             }
 
-            matchesQuery && matchesCountry && matchesVenue && matchesCategory && matchesDatePreset
+            matchesQuery && matchesCountry && matchesDatePreset
         }.sortedWith(compareBy({ it.getDaysRemaining() < 0 }, { it.start_date }))
 
         _uiState.update { it.copy(filteredCompetitions = filtered) }

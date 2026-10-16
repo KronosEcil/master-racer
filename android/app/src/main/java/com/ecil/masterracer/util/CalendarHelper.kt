@@ -1,4 +1,4 @@
-﻿package com.ecil.masterracer.util
+package com.ecil.masterracer.util
 
 import android.content.Context
 import android.content.Intent
@@ -27,7 +27,6 @@ object CalendarHelper {
 
             val description = buildString {
                 append("Kapsam: ${competition.getScopeTitle()}\n")
-                append("Tesis: ${competition.getVenueTitle()}\n")
                 append("Düzenleyen: ${competition.federation}\n")
                 if (!competition.website_url.isNullOrBlank()) {
                     append("Web: ${competition.website_url}\n")

@@ -41,12 +41,6 @@ fun FilterBottomSheet(
     selectedCountries: Set<String>,
     onCountryToggle: (String) -> Unit,
     onClearCountries: () -> Unit,
-    selectedVenueTypes: Set<String>,
-    onVenueTypeToggle: (String) -> Unit,
-    onClearVenueTypes: () -> Unit,
-    selectedCategories: Set<String>,
-    onCategoryToggle: (String) -> Unit,
-    onClearCategories: () -> Unit,
     hideCompleted: Boolean = false,
     onToggleHideCompleted: () -> Unit = {},
     onResetFilters: () -> Unit,
@@ -88,70 +82,6 @@ fun FilterBottomSheet(
             Spacer(modifier = Modifier.height(10.dp))
             HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
             Spacer(modifier = Modifier.height(10.dp))
-
-            // 1. TESİS VE YARIŞMA TÜRÜ
-            SectionHeader(
-                title = "Tesis Türü",
-                badgeText = if (selectedVenueTypes.isNotEmpty()) "${selectedVenueTypes.size} seçili" else null
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                val venues = listOf(
-                    Triple("Tümü", "", null),
-                    Triple("Açık Saha", "outdoor", "🏟️"),
-                    Triple("Salon", "indoor", "🏛️"),
-                    Triple("Yol / Maraton", "road", "🏃"),
-                    Triple("Kros", "cross", "🌲")
-                )
-
-                venues.forEach { (label, key, icon) ->
-                    val isSelected = if (key.isEmpty()) selectedVenueTypes.isEmpty() else selectedVenueTypes.contains(key)
-                    CompactChip(
-                        selected = isSelected,
-                        onClick = {
-                            if (key.isEmpty()) onClearVenueTypes() else onVenueTypeToggle(key)
-                        },
-                        label = label,
-                        icon = icon
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // 2. BRANŞ KATEGORİSİ
-            SectionHeader(
-                title = "Branş Grubu",
-                badgeText = if (selectedCategories.isNotEmpty()) "${selectedCategories.size} seçili" else null
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                CompactChip(
-                    selected = selectedCategories.isEmpty(),
-                    onClick = onClearCategories,
-                    label = "Tüm Branşlar"
-                )
-
-                val categories = listOf("Sprint", "Engelli", "Atlamalar", "Atmalar", "Uzun Mesafe")
-                categories.forEach { cat ->
-                    val isSelected = selectedCategories.contains(cat)
-                    CompactChip(
-                        selected = isSelected,
-                        onClick = { onCategoryToggle(cat) },
-                        label = cat
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
 
             // 3. YARIŞMA DURUMU
             SectionHeader(title = "Yarışma Durumu")
