@@ -72,6 +72,18 @@ class CompetitionRepository(
         }
     }
 
+    private fun normalizeText(text: String): String {
+        return text.lowercase()
+            .replace("ı", "i")
+            .replace("i̇", "i")
+            .replace("ş", "s")
+            .replace("ç", "c")
+            .replace("ğ", "g")
+            .replace("ü", "u")
+            .replace("ö", "o")
+            .replace(Regex("[^a-z0-9]"), "")
+    }
+
     /**
      * Gelen yarışma listesini sahte doküman başlıklarından (Technical Manual, Timetable vb.)
      * ve hatalı tarihlerden arındırır, aynı yarışmanın birden fazla kaydını tekilleştirir.
@@ -86,35 +98,35 @@ class CompetitionRepository(
 
         return list
             .map { comp ->
-                val titleLower = comp.title.lowercase().trim()
-                val cityLower = comp.city.lowercase()
-                val cNameLower = comp.country_name.lowercase()
+                val normTitle = normalizeText(comp.title)
+                val normCity = normalizeText(comp.city)
+                val normCountry = normalizeText(comp.country_name)
                 val cCountryUpper = comp.country.uppercase()
 
-                val isKansai = titleLower.contains("kansai") || 
-                               titleLower.contains("world masters games") || 
-                               titleLower.contains("wmg") || 
-                               cityLower.contains("kansai") || 
-                               cNameLower.contains("kansai")
+                val isKansai = normTitle.contains("kansai") || 
+                               normTitle.contains("worldmastersgames") || 
+                               normTitle.contains("wmg") || 
+                               normCity.contains("kansai") || 
+                               normCountry.contains("kansai")
 
                 val isAlbania = cCountryUpper == "AL" || cCountryUpper == "ALB" ||
-                                cNameLower.contains("albania") || cNameLower.contains("arnavutluk") ||
-                                titleLower.contains("albania") || titleLower.contains("arnavutluk") ||
-                                cityLower.contains("shkod") || cityLower.contains("tiran")
+                                normCountry.contains("albania") || normCountry.contains("arnavutluk") ||
+                                normTitle.contains("albania") || normTitle.contains("arnavutluk") ||
+                                normCity.contains("shkod") || normCity.contains("tiran")
 
                 // Türkiye Masterlar Açık Saha Atletizm Şampiyonası (TAF ve EMA Uluslararası Eşleşmesi)
                 val isTrOutdoor = (
-                    (titleLower.contains("türkiye") || titleLower.contains("turkiye") || titleLower.contains("turkish") || titleLower.contains("turk")) &&
-                    (titleLower.contains("açık") || titleLower.contains("acik") || titleLower.contains("outdoor")) &&
-                    (titleLower.contains("master") || titleLower.contains("champs") || titleLower.contains("şampiyona") || titleLower.contains("sampiyona"))
-                ) || (cityLower.contains("izmir") && (titleLower.contains("outdoor") || titleLower.contains("açık") || titleLower.contains("master") || titleLower.contains("turkish")))
+                    (normTitle.contains("turk") || normTitle.contains("turkiye")) &&
+                    (normTitle.contains("acik") || normTitle.contains("outdoor")) &&
+                    (normTitle.contains("master") || normTitle.contains("champs") || normTitle.contains("sampiyona"))
+                ) || (normCity.contains("izmir") && (normTitle.contains("outdoor") || normTitle.contains("acik") || normTitle.contains("master") || normTitle.contains("turk")))
 
                 // Türkiye Masterlar Salon Atletizm Şampiyonası (TAF ve EMA Uluslararası Eşleşmesi)
                 val isTrIndoor = (
-                    (titleLower.contains("türkiye") || titleLower.contains("turkiye") || titleLower.contains("turkish") || titleLower.contains("turk")) &&
-                    (titleLower.contains("salon") || titleLower.contains("indoor")) &&
-                    (titleLower.contains("master") || titleLower.contains("champs") || titleLower.contains("şampiyona") || titleLower.contains("sampiyona"))
-                ) || (cityLower.contains("istanbul") && (titleLower.contains("salon") || titleLower.contains("indoor")) && titleLower.contains("master"))
+                    (normTitle.contains("turk") || normTitle.contains("turkiye")) &&
+                    (normTitle.contains("salon") || normTitle.contains("indoor")) &&
+                    (normTitle.contains("master") || normTitle.contains("champs") || normTitle.contains("sampiyona"))
+                ) || (normCity.contains("istanbul") && (normTitle.contains("salon") || normTitle.contains("indoor")) && normTitle.contains("master"))
 
                 when {
                     isTrOutdoor -> comp.copy(
@@ -189,42 +201,40 @@ class CompetitionRepository(
                 !isInvalidTitle && !isBadDate && !isWrongBamacs2027 && !isWrongLucerne && !isWrongGalway && !isWrongJyvaskyla && !isWrongOjos
             }
             .distinctBy { comp ->
-                val titleLower = comp.title.lowercase()
-                val normCity = comp.city.lowercase().replace(Regex("[^a-z0-9]"), "")
+                val normTitleKey = normalizeText(comp.title)
+                val normCityKey = normalizeText(comp.city)
                 val datePart = comp.start_date.take(10)
-                val countryPart = comp.country.lowercase()
 
                 when {
                     // Kansai / World Masters Games
-                    titleLower.contains("kansai") || normCity.contains("kansai") || titleLower.contains("world masters games") -> "jp_2027_wmg_kansai"
+                    normTitleKey.contains("kansai") || normCityKey.contains("kansai") || normTitleKey.contains("worldmastersgames") -> "jp_2027_wmg_kansai"
+
+                    // Türkiye Masterlar Açık Saha Atletizm Şampiyonası (TAF ve EMA)
+                    normTitleKey.contains("turk") && (normTitleKey.contains("acik") || normTitleKey.contains("outdoor")) -> "tr_${datePart.take(4)}_masterlar_acik_saha"
+                    normTitleKey.contains("turk") && (normTitleKey.contains("salon") || normTitleKey.contains("indoor")) -> "tr_${datePart.take(4)}_masterlar_salon"
 
                     // Arnavutluk yarışmaları
-                    comp.country == "AL" || titleLower.contains("arnavutluk") || titleLower.contains("albania") || normCity.contains("shkod") || normCity.contains("tiran") -> "al_${datePart}_${if (normCity.isNotEmpty()) normCity else "arnavutluk"}"
+                    comp.country.uppercase() == "AL" || normTitleKey.contains("arnavutluk") || normTitleKey.contains("albania") || normCityKey.contains("shkod") || normCityKey.contains("tiran") -> "al_${datePart}_${if (normCityKey.isNotEmpty()) normCityKey else "arnavutluk"}"
 
-                    // Türkiye Masterlar Şampiyonaları tekilleştirme (TAF ve EMA)
-                    titleLower.contains("masterlar açık") || titleLower.contains("masterlar acik") || titleLower.contains("turkish outdoor") -> "tr_${datePart.take(4)}_masterlar_acik_saha"
-                    titleLower.contains("masterlar salon") || titleLower.contains("turkish indoor") -> "tr_${datePart.take(4)}_masterlar_salon"
-
-                    titleLower.contains("craiova") || normCity.contains("craiova") -> "ro_craiova_bamacs"
-                    titleLower.contains("novo mesto") || normCity.contains("novomesto") || titleLower.contains("bamaci") -> "si_novomesto_bamaci"
-                    titleLower.contains("zagreb") || (titleLower.contains("marathon") && countryPart == "hr") -> "hr_zagreb_marathon"
-                    normCity.contains("bernhausen") || titleLower.contains("bernhausen") -> "de_bernhausen"
+                    normTitleKey.contains("craiova") || normCityKey.contains("craiova") -> "ro_craiova_bamacs"
+                    normTitleKey.contains("novomesto") || normCityKey.contains("novomesto") || normTitleKey.contains("bamaci") -> "si_novomesto_bamaci"
+                    normTitleKey.contains("zagreb") || (normTitleKey.contains("marathon") && comp.country.equals("HR", ignoreCase = true)) -> "hr_zagreb_marathon"
+                    normCityKey.contains("bernhausen") || normTitleKey.contains("bernhausen") -> "de_bernhausen"
 
                     // EMA Resmi Şampiyonaları tekilleştirme:
-                    titleLower.contains("emmtr") || normCity.contains("ojos") -> "ema_2027_emmtrc_ojos"
-                    titleLower.contains("emacs") || normCity.contains("jyvaskyla") -> "ema_2027_emacs_jyvaskyla"
-                    titleLower.contains("emamrc") || normCity.contains("lucerne") -> "ema_2027_emamrc_lucerne"
-                    titleLower.contains("emaci") || normCity.contains("glasgow") -> "ema_2028_emaci_glasgow"
-                    titleLower.contains("emacns") || normCity.contains("galway") -> "ema_2028_emacns_galway"
+                    normTitleKey.contains("emmtr") || normCityKey.contains("ojos") -> "ema_2027_emmtrc_ojos"
+                    normTitleKey.contains("emacs") || normCityKey.contains("jyvaskyla") -> "ema_2027_emacs_jyvaskyla"
+                    normTitleKey.contains("emamrc") || normCityKey.contains("lucerne") -> "ema_2027_emamrc_lucerne"
+                    normTitleKey.contains("emaci") || normCityKey.contains("glasgow") -> "ema_2028_emaci_glasgow"
+                    normTitleKey.contains("emacns") || normCityKey.contains("galway") -> "ema_2028_emacns_galway"
 
                     else -> {
-                        val normTitleKey = titleLower
-                            .replace("european masters", "em")
+                        val titleSummary = normTitleKey
+                            .replace("europeanmasters", "em")
                             .replace("championships", "")
                             .replace("championship", "")
-                            .replace(Regex("[^a-z0-9]"), "")
                             .take(15)
-                        "${datePart}_${countryPart}_${if (normCity.isNotEmpty()) normCity else normTitleKey}"
+                        "${datePart}_${if (normCityKey.isNotEmpty()) normCityKey else titleSummary}"
                     }
                 }
             }

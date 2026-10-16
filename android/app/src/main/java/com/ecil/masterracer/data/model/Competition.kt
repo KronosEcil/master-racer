@@ -192,6 +192,30 @@ data class Competition(
             return "AL"
         }
 
+        val resolvedFromText = when {
+            cNameLower.contains("çek") || cNameLower.contains("czech") || cityLower.contains("janske") || cityLower.contains("prag") -> "CZ"
+            cNameLower.contains("sloven") || cityLower.contains("domzale") || cityLower.contains("novo mesto") || cityLower.contains("ljubljana") -> "SI"
+            cNameLower.contains("norve") || cNameLower.contains("norway") || cityLower.contains("oslo") -> "NO"
+            cNameLower.contains("ispan") || cNameLower.contains("spain") || cityLower.contains("madrid") || cityLower.contains("barcelona") -> "ES"
+            cNameLower.contains("ital") || cityLower.contains("catania") || cityLower.contains("roma") -> "IT"
+            cNameLower.contains("alman") || cNameLower.contains("german") || cityLower.contains("berlin") || cityLower.contains("münchen") -> "DE"
+            cNameLower.contains("türk") || cNameLower.contains("turk") || cityLower.contains("izmir") || cityLower.contains("istanbul") -> "TR"
+            cNameLower.contains("hırvat") || cNameLower.contains("croat") || cityLower.contains("zagreb") -> "HR"
+            cNameLower.contains("finland") || cityLower.contains("jyvaskyla") || cityLower.contains("tampere") -> "FIN"
+            cNameLower.contains("isviçre") || cNameLower.contains("switz") || cityLower.contains("lucerne") -> "CHE"
+            cNameLower.contains("irlanda") || cNameLower.contains("ireland") || cityLower.contains("galway") -> "IRL"
+            cNameLower.contains("fransa") || cNameLower.contains("france") || cityLower.contains("paris") -> "FR"
+            cNameLower.contains("romanya") || cNameLower.contains("romania") || cityLower.contains("craiova") -> "RO"
+            cNameLower.contains("polonya") || cNameLower.contains("poland") || cityLower.contains("torun") -> "PL"
+            cNameLower.contains("isveç") || cNameLower.contains("sweden") || cityLower.contains("gothenburg") -> "SE"
+            cNameLower.contains("hollanda") || cNameLower.contains("netherland") || cityLower.contains("amsterdam") -> "NL"
+            cNameLower.contains("yunan") || cNameLower.contains("greece") || cityLower.contains("atina") -> "GR"
+            else -> ""
+        }
+        if (resolvedFromText.isNotEmpty() && (cUpper == "EU" || cUpper == "INT" || cUpper.isBlank())) {
+            return resolvedFromText
+        }
+
         return when (cUpper) {
             "TUR", "TR" -> "TR"
             "GRE", "GR" -> "GR"
@@ -224,7 +248,7 @@ data class Competition(
             "AUT", "AT" -> "AT"
             "BEL", "BE" -> "BE"
             "EST", "EE" -> "EE"
-            else -> country.ifBlank { "TR" }
+            else -> if (resolvedFromText.isNotEmpty()) resolvedFromText else country.ifBlank { "TR" }
         }
     }
 
