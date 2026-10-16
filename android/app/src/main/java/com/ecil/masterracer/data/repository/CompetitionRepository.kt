@@ -102,7 +102,45 @@ class CompetitionRepository(
                                 titleLower.contains("albania") || titleLower.contains("arnavutluk") ||
                                 cityLower.contains("shkod") || cityLower.contains("tiran")
 
+                // Türkiye Masterlar Açık Saha Atletizm Şampiyonası (TAF ve EMA Uluslararası Eşleşmesi)
+                val isTrOutdoor = (
+                    (titleLower.contains("türkiye") || titleLower.contains("turkiye") || titleLower.contains("turkish") || titleLower.contains("turk")) &&
+                    (titleLower.contains("açık") || titleLower.contains("acik") || titleLower.contains("outdoor")) &&
+                    (titleLower.contains("master") || titleLower.contains("champs") || titleLower.contains("şampiyona") || titleLower.contains("sampiyona"))
+                ) || (cityLower.contains("izmir") && (titleLower.contains("outdoor") || titleLower.contains("açık") || titleLower.contains("master") || titleLower.contains("turkish")))
+
+                // Türkiye Masterlar Salon Atletizm Şampiyonası (TAF ve EMA Uluslararası Eşleşmesi)
+                val isTrIndoor = (
+                    (titleLower.contains("türkiye") || titleLower.contains("turkiye") || titleLower.contains("turkish") || titleLower.contains("turk")) &&
+                    (titleLower.contains("salon") || titleLower.contains("indoor")) &&
+                    (titleLower.contains("master") || titleLower.contains("champs") || titleLower.contains("şampiyona") || titleLower.contains("sampiyona"))
+                ) || (cityLower.contains("istanbul") && (titleLower.contains("salon") || titleLower.contains("indoor")) && titleLower.contains("master"))
+
                 when {
+                    isTrOutdoor -> comp.copy(
+                        title = "Türkiye Masterlar Açık Saha Atletizm Şampiyonası",
+                        country = "TR",
+                        country_name = "Türkiye",
+                        city = "İzmir",
+                        start_date = "2026-07-11",
+                        end_date = "2026-07-12",
+                        federation = "TAF",
+                        venue_type = "outdoor",
+                        scope = "turkey",
+                        website_url = "https://taf.org.tr"
+                    )
+                    isTrIndoor -> comp.copy(
+                        title = "Türkiye Masterlar Salon Atletizm Şampiyonası",
+                        country = "TR",
+                        country_name = "Türkiye",
+                        city = "İstanbul",
+                        start_date = "2026-02-21",
+                        end_date = "2026-02-22",
+                        federation = "TAF",
+                        venue_type = "indoor",
+                        scope = "turkey",
+                        website_url = "https://taf.org.tr"
+                    )
                     isKansai -> comp.copy(
                         country = "JP",
                         country_name = "Japonya",
@@ -162,6 +200,10 @@ class CompetitionRepository(
 
                     // Arnavutluk yarışmaları
                     comp.country == "AL" || titleLower.contains("arnavutluk") || titleLower.contains("albania") || normCity.contains("shkod") || normCity.contains("tiran") -> "al_${datePart}_${if (normCity.isNotEmpty()) normCity else "arnavutluk"}"
+
+                    // Türkiye Masterlar Şampiyonaları tekilleştirme (TAF ve EMA)
+                    titleLower.contains("masterlar açık") || titleLower.contains("masterlar acik") || titleLower.contains("turkish outdoor") -> "tr_${datePart.take(4)}_masterlar_acik_saha"
+                    titleLower.contains("masterlar salon") || titleLower.contains("turkish indoor") -> "tr_${datePart.take(4)}_masterlar_salon"
 
                     titleLower.contains("craiova") || normCity.contains("craiova") -> "ro_craiova_bamacs"
                     titleLower.contains("novo mesto") || normCity.contains("novomesto") || titleLower.contains("bamaci") -> "si_novomesto_bamaci"

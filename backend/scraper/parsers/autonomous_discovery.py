@@ -247,6 +247,14 @@ class AutonomousDiscoveryParser(BaseParser):
                             city = "Zagreb"
                             country = "HR"
                             country_name = "Hırvatistan"
+                        elif "turkish" in title.lower() or "türkiye" in title.lower() or "turkey" in place_str.lower() or "izmir" in place_str.lower():
+                            title = "Türkiye Masterlar Açık Saha Atletizm Şampiyonası"
+                            city = "İzmir"
+                            country = "TR"
+                            country_name = "Türkiye"
+                            start_date = "2026-07-11"
+                            end_date = "2026-07-12"
+                            web_url = "https://taf.org.tr"
                         else:
                             country, country_name, _ = self.detect_country(place_str + " " + title, "EU", raw_cname)
 
@@ -671,7 +679,19 @@ class AutonomousDiscoveryParser(BaseParser):
             dt = f"{y}-{int(m):02d}-{int(d):02d}"
             return dt, dt
 
-        # 2. DD.MM.YYYY veya DD/MM/YYYY
+        # 2. İki tam tarih aralığı (Örn: 11.07.2026 - 12.07.2026)
+        dot_range_full = re.search(r"(\d{1,2})[./](\d{1,2})[./](\d{4})\s*(?:-|–|/|\s+to\s+)\s*(\d{1,2})[./](\d{1,2})[./](\d{4})", text)
+        if dot_range_full:
+            d1, m1, y1, d2, m2, y2 = dot_range_full.groups()
+            return f"{y1}-{int(m1):02d}-{int(d1):02d}", f"{y2}-{int(m2):02d}-{int(d2):02d}"
+
+        # 3. Kısa gün aralığı (Örn: 11-12.07.2026 veya 11 - 12.07.2026)
+        dot_range_short = re.search(r"(\d{1,2})\s*(?:-|–)\s*(\d{1,2})[./](\d{1,2})[./](\d{4})", text)
+        if dot_range_short:
+            d1, d2, m, y = dot_range_short.groups()
+            return f"{y}-{int(m):02d}-{int(d1):02d}", f"{y}-{int(m):02d}-{int(d2):02d}"
+
+        # 4. Tek tarih DD.MM.YYYY veya DD/MM/YYYY
         dot_match = re.search(r"(\d{1,2})[./](\d{1,2})[./](\d{4})", text)
         if dot_match:
             d, m, y = dot_match.groups()

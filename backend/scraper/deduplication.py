@@ -99,7 +99,27 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
     if "bernhausen" in city_norm or "bernhausen" in title_norm:
         return f"DE-{date_part}-BW-HALBMARATHON-BERNHAUSEN"
 
-    # 5. EMA Büyük Şampiyonaları (Şehir ve Kısaltma Bazlı Kesin Eşleşme)
+    # Türkiye Masterlar Şampiyonaları (TAF ve EMA Uluslararası Eşleşmesi)
+    year = date_part[:4] if len(date_part) >= 4 else "2026"
+    is_tr_outdoor = (
+        ("turkiye" in title_norm or "turkish" in title_norm or "turk" in title_norm) and
+        ("acik" in title_norm or "outdoor" in title_norm) and
+        ("master" in title_norm or "champs" in title_norm or "sampiyona" in title_norm)
+    ) or ("izmir" in city_norm and ("outdoor" in title_norm or "turkish" in title_norm or "master" in title_norm or "acik" in title_norm))
+
+    if is_tr_outdoor:
+        return f"TR-{year}-MASTERLAR-ACIK-SAHA"
+
+    is_tr_indoor = (
+        ("turkiye" in title_norm or "turkish" in title_norm or "turk" in title_norm) and
+        ("salon" in title_norm or "indoor" in title_norm) and
+        ("master" in title_norm or "champs" in title_norm or "sampiyona" in title_norm)
+    ) or ("istanbul" in city_norm and ("indoor" in title_norm or "salon" in title_norm) and "master" in title_norm)
+
+    if is_tr_indoor:
+        return f"TR-{year}-MASTERLAR-SALON"
+
+    # EMA Büyük Şampiyonaları (Şehir ve Kısaltma Bazlı Kesin Eşleşme)
     if "ojos" in city_norm or "emmtr" in title_norm:
         return "EMA-2027-EMMTRC-OJOS"
     if "jyvaskyla" in city_norm or "emacs" in title_norm:
@@ -149,7 +169,32 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
             comp.federation = "IMGA"
             comp.website_url = "https://wmg2027.jp"
 
+        # Türkiye Masterlar Şampiyonaları normalizasyonu
         key = get_canonical_key(comp)
+        if key.startswith("TR-") and "-MASTERLAR-ACIK-SAHA" in key:
+            comp.title = "Türkiye Masterlar Açık Saha Atletizm Şampiyonası"
+            comp.country = "TR"
+            comp.country_name = "Türkiye"
+            comp.city = "İzmir"
+            if "2026" in key:
+                comp.start_date = "2026-07-11"
+                comp.end_date = "2026-07-12"
+            comp.federation = "TAF"
+            comp.venue_type = "outdoor"
+            comp.scope = "turkey"
+            comp.website_url = "https://taf.org.tr"
+        elif key.startswith("TR-") and "-MASTERLAR-SALON" in key:
+            comp.title = "Türkiye Masterlar Salon Atletizm Şampiyonası"
+            comp.country = "TR"
+            comp.country_name = "Türkiye"
+            comp.city = "İstanbul"
+            if "2026" in key:
+                comp.start_date = "2026-02-21"
+                comp.end_date = "2026-02-22"
+            comp.federation = "TAF"
+            comp.venue_type = "indoor"
+            comp.scope = "turkey"
+            comp.website_url = "https://taf.org.tr"
         if key not in unique_map:
             # Kanonik ID ata
             comp.id = normalize_text(key)
