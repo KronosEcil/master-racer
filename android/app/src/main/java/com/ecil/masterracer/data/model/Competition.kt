@@ -162,11 +162,19 @@ data class Competition(
      * Kapsam Türkçe etiketi.
      */
     fun getScopeTitle(): String {
+        val titleLower = title.lowercase()
+        if (titleLower.contains("ema league") || scope.equals("ema_league", ignoreCase = true)) {
+            return "EMA League"
+        }
+        if (titleLower.contains("meeting") && !titleLower.contains("champion") && !titleLower.contains("şampiyona")) {
+            return "Uluslararası Salon / Pist Yarışması"
+        }
         return when (scope.lowercase()) {
             "turkey" -> "Türkiye Şampiyonası"
             "balkan" -> "Balkan Şampiyonası"
             "europe" -> "Avrupa Şampiyonası"
             "world" -> "Dünya Şampiyonası"
+            "national" -> "${getDisplayCountryName()} Ulusal Şampiyonası"
             else -> "Bölgesel / Özel Yarışma"
         }
     }

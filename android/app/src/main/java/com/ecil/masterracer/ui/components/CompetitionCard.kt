@@ -5,8 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,14 +19,11 @@ import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Stadium
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -44,7 +39,6 @@ import com.ecil.masterracer.data.model.Competition
 import com.ecil.masterracer.ui.theme.BluePrimary
 import com.ecil.masterracer.util.CalendarHelper
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CompetitionCard(
     competition: Competition,
@@ -70,15 +64,18 @@ fun CompetitionCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            // Üst Satır: Bayrak, Ülke & Sayaç Rozeti
+            // Üst Satır: Bayrak, Ülke, Federasyon & Sayaç + Takvim + Takip Simgeleri
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f, fill = false)
+                ) {
                     Text(
                         text = competition.getCountryFlag(),
                         fontSize = 20.sp
@@ -88,7 +85,9 @@ fun CompetitionCard(
                         text = competition.getDisplayCountryName(),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Box(
@@ -103,7 +102,8 @@ fun CompetitionCard(
                             text = competition.federation.ifBlank { "FEDERASYON" },
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1
                          )
                     }
 
@@ -129,11 +129,22 @@ fun CompetitionCard(
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CountdownBadge(daysRemaining = daysRemaining)
+                    Spacer(modifier = Modifier.width(2.dp))
+                    IconButton(
+                        onClick = { CalendarHelper.addEventToCalendar(context, competition) },
+                        modifier = Modifier.size(30.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.EventAvailable,
+                            contentDescription = "Cihaz Takvimine Ekle",
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f),
+                            modifier = Modifier.size(19.dp)
+                        )
+                    }
                     if (onToggleTrack != null) {
-                        Spacer(modifier = Modifier.width(4.dp))
                         IconButton(
                             onClick = onToggleTrack,
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(30.dp)
                         ) {
                             Icon(
                                 imageVector = if (isTracked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
@@ -146,7 +157,7 @@ fun CompetitionCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Yarışma Başlığı
             Text(
@@ -158,7 +169,7 @@ fun CompetitionCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Tarih Satırı (Değişiklik varsa özel vurgu ve etiket ile)
             Row(
@@ -200,7 +211,7 @@ fun CompetitionCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             // Konum Satırı (Değişiklik varsa özel vurgu ve etiket ile)
             Row(
@@ -239,26 +250,6 @@ fun CompetitionCard(
                             color = Color.White
                         )
                     }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Alt Alan: Hızlı Takvime Ekle Butonu
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                FilledTonalIconButton(
-                    onClick = { CalendarHelper.addEventToCalendar(context, competition) },
-                    modifier = Modifier.size(36.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.EventAvailable,
-                        contentDescription = "Cihaz Takvimine Ekle",
-                        modifier = Modifier.size(18.dp)
-                    )
                 }
             }
         }

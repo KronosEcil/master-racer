@@ -128,22 +128,31 @@ class CompetitionRepository(
                     (normTitle.contains("master") || normTitle.contains("champs") || normTitle.contains("sampiyona"))
                 ) || (normCity.contains("istanbul") && (normTitle.contains("salon") || normTitle.contains("indoor")) && normTitle.contains("master"))
 
-                // Fransa Masterlar Şampiyonaları (FFA)
+                // Fransa Masterlar Şampiyonaları (FFA Resmi Takvimi)
                 val isFrEvent = cCountryUpper == "FR" || cCountryUpper == "FRA" ||
                                 normCountry.contains("frans") || normCountry.contains("france") ||
                                 normTitle.contains("france") || normTitle.contains("fransa")
 
-                val isFrIndoor = isFrEvent &&
+                val isFrIndoor2026 = isFrEvent &&
                     (normTitle.contains("salon") || normTitle.contains("salle") || normCity.contains("nantes") || normCity.contains("saintbrieuc") || normCity.contains("brieuc")) &&
-                    (normTitle.contains("master") || normTitle.contains("championnat") || normTitle.contains("sampiyona")) &&
-                    !normTitle.contains("meeting") &&
+                    (normTitle.contains("master") || normTitle.contains("championnat") || normTitle.contains("sampiyona") || normTitle.contains("ampiyona")) &&
+                    !normTitle.contains("meeting") && !normTitle.contains("combin") &&
                     (comp.start_date.isBlank() || comp.start_date.startsWith("2026"))
 
-                val isFrOutdoor = isFrEvent &&
+                val isFrOutdoor2026 = isFrEvent &&
                     (normTitle.contains("acik") || normTitle.contains("ak saha") || normTitle.contains("piste") || normTitle.contains("outdoor") || normCity.contains("tours") || normCity.contains("epinal")) &&
-                    (normTitle.contains("master") || normTitle.contains("championnat") || normTitle.contains("sampiyona")) &&
-                    !normTitle.contains("meeting") &&
+                    (normTitle.contains("master") || normTitle.contains("championnat") || normTitle.contains("sampiyona") || normTitle.contains("ampiyona")) &&
+                    !normTitle.contains("meeting") && !normTitle.contains("combin") &&
                     (comp.start_date.isBlank() || comp.start_date.startsWith("2026"))
+
+                val isFrIndoor2027 = isFrEvent &&
+                    (normTitle.contains("salon") || normTitle.contains("salle") || normCity.contains("nantes") || normCity.contains("miramas")) &&
+                    (normTitle.contains("master") || normTitle.contains("championnat") || normTitle.contains("sampiyona") || normTitle.contains("ampiyona")) &&
+                    !normTitle.contains("meeting") && !normTitle.contains("combin") &&
+                    comp.start_date.startsWith("2027")
+
+                val isFrEmaLeague = isFrEvent && (normTitle.contains("ema league") || normTitle.contains("emaleague") || normTitle.contains("meeting europeen"))
+                val isFrMiramasMeeting = isFrEvent && normTitle.contains("meeting") && normTitle.contains("miramas") && !normTitle.contains("ema")
 
                 when {
                     isTrOutdoor -> comp.copy(
@@ -170,29 +179,57 @@ class CompetitionRepository(
                         scope = "turkey",
                         website_url = "https://taf.org.tr"
                     )
-                    isFrIndoor -> comp.copy(
-                        title = "Fransa Masterlar Salon Atletizm Şampiyonası",
+                    isFrIndoor2026 -> comp.copy(
+                        title = "Fransa Masterlar Salon Atletizm Şampiyonası (Championnats de France Masters en Salle)",
                         country = "FR",
                         country_name = "Fransa",
-                        city = "Saint-Brieuc",
+                        city = "Saint-Brieuc - Salle Maryvonne Dupureur",
                         start_date = "2026-02-13",
                         end_date = "2026-02-15",
                         federation = "FFA",
                         venue_type = "indoor",
                         scope = "national",
-                        website_url = "https://athle.fr"
+                        website_url = "https://www.athle.fr/contenu/calendrier-championnats-de-france/32"
                     )
-                    isFrOutdoor -> comp.copy(
-                        title = "Fransa Masterlar Açık Saha Atletizm Şampiyonası",
+                    isFrOutdoor2026 -> comp.copy(
+                        title = "Fransa Masterlar Açık Saha Atletizm Şampiyonası (Championnats de France Masters)",
                         country = "FR",
                         country_name = "Fransa",
-                        city = "Épinal",
+                        city = "Épinal - Parc de la Colombière",
                         start_date = "2026-06-12",
                         end_date = "2026-06-14",
                         federation = "FFA",
                         venue_type = "outdoor",
                         scope = "national",
-                        website_url = "https://athle.fr"
+                        website_url = "https://www.athle.fr/contenu/calendrier-championnats-de-france/32"
+                    )
+                    isFrIndoor2027 -> comp.copy(
+                        title = "Fransa Masterlar Salon Atletizm Şampiyonası (Championnats de France Masters en Salle)",
+                        country = "FR",
+                        country_name = "Fransa",
+                        city = "Miramas - Stadium Miramas Métropole",
+                        start_date = "2027-03-13",
+                        end_date = "2027-03-14",
+                        federation = "FFA",
+                        venue_type = "indoor",
+                        scope = "national",
+                        website_url = "https://www.athle.fr/contenu/calendrier-championnats-de-france/32"
+                    )
+                    isFrEmaLeague -> comp.copy(
+                        title = "Meeting Européen Masters en Salle / EMA League",
+                        country = "FR",
+                        country_name = "Fransa",
+                        city = "Lyon / Miramas",
+                        scope = "ema_league",
+                        federation = "FFA / EMA"
+                    )
+                    isFrMiramasMeeting -> comp.copy(
+                        title = "Meeting Miramas Métropole (Masters & Elite Indoor)",
+                        country = "FR",
+                        country_name = "Fransa",
+                        city = "Miramas - Stadium Miramas Métropole",
+                        scope = "regional",
+                        federation = "FFA"
                     )
                     isKansai -> comp.copy(
                         country = "JP",

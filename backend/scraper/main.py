@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import json
 import logging
@@ -219,10 +220,14 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
             if ("ojos" in t_low or "ojós" in t_low or "emmtr" in t_low) and not s_date.startswith("2027"):
                 is_year_mismatch = True
 
+            # 9. Bozuk karakterli (\ufffd) veya artık canlı FFA takviminde yer almayan eski statik Fransa kayıtları
+            has_corrupt_encoding = ("\ufffd" in title or "\ufffd" in city)
+            is_stale_france = (country == "FR" and doc_id not in scraped_ids and "ema-le" not in doc_id)
+
             should_delete = (
                 is_invalid_title or is_bad_date or is_wrong_bamacs_year or
                 is_wrong_country or is_mock_artifact or is_duplicate_of_new or
-                is_year_mismatch
+                is_year_mismatch or has_corrupt_encoding or is_stale_france
             )
 
             if should_delete and doc_id not in scraped_ids:

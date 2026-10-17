@@ -138,54 +138,89 @@ class AutonomousDiscoveryParser(BaseParser):
 
     def _scrape_ffa_france(self) -> List[Competition]:
         """
-        Fransa Atletizm Federasyonu (FFA) ve Salon Meetingleri dinamik arama motoru.
+        Fransa Atletizm Federasyonu (FFA) Resmi Şampiyonalar Takvimi (athle.fr) tarama motoru.
+        https://www.athle.fr/contenu/calendrier-championnats-de-france/32 sayfasındaki
+        tüm sezon tablolarını (2026, 2027, 2028) canlı olarak ayrıştırır.
         """
         results: List[Competition] = []
-        for year in self.years:
-            urls = [
-                f"https://bases.athle.fr/asp.net/listeepreuves.aspx?annee={year}&famille=salle",
-                f"https://bases.athle.fr/asp.net/listeepreuves.aspx?annee={year}&categorie=MA",
-                f"https://www.athle.fr/calendrier?year={year}"
-            ]
-            for url in urls:
-                try:
-                    html = self.fetch_html(url, timeout=10)
-                    if not html:
-                        continue
-                    soup = BeautifulSoup(html, "html.parser")
-                    rows = soup.select("table tr, .epreuve-item, article")
+        ffa_calendar_url = "https://www.athle.fr/contenu/calendrier-championnats-de-france/32"
+        try:
+            html = self.fetch_html(ffa_calendar_url, timeout=15)
+            if html:
+                soup = BeautifulSoup(html, "html.parser")
+                tables = soup.select("table.event-table")
+                for table in tables:
+                    table_id = table.get("id", "2026")
+                    fallback_yr = int(table_id) if str(table_id).isdigit() else 2026
+                    rows = table.select("tbody tr")
                     for row in rows:
-                        text = row.get_text(separator=" ", strip=True)
-                        text_lower = text.lower()
-                        # Fransa için sıkı Master (35+) filtreleme:
-                        has_french_master = any(kw in text_lower for kw in ["master", "vétéran", "veteran", "35+", "ema league", "européen masters"])
-                        if has_french_master:
-                            title_elem = row.select_one("a, .nom, strong, h3")
-                            title = title_elem.get_text(strip=True) if title_elem else text[:60]
-                            start_date, end_date = self._extract_dates_from_text(text, year)
-                            if not start_date:
-                                continue
-                            comp_id = generate_competition_id(title, start_date, "FR")
-                            comp = Competition(
-                                id=comp_id,
-                                title=title,
-                                country="FR",
-                                country_name="Fransa",
-                                city=self._extract_city(text) or "Fransa",
-                                start_date=start_date,
-                                end_date=end_date,
-                                venue_type=self.detect_venue_type(title + " " + text),
-                                categories=self.detect_categories(title + " " + text, self.detect_venue_type(title + " " + text)),
-                                scope="regional",
-                                federation="FFA",
-                                website_url="https://bases.athle.fr",
-                                status="scheduled",
-                                created_at=datetime.utcnow().isoformat()
-                            )
-                            comp.content_hash = compute_content_hash(comp)
-                            results.append(comp)
-                except Exception as e:
-                    logger.debug(f"[FFA-France] Hata ({url}): {e}")
+                        tds = row.find_all("td")
+                        if len(tds) < 5:
+                            continue
+                        discipline = tds[1].get_text(strip=True)
+                        raw_title = tds[2].get_text(separator=" ", strip=True)
+                        date_str = tds[3].get_text(separator=" ", strip=True)
+                        lieu_str = tds[4].get_text(separator=" ", strip=True)
+
+                        # Sadece Master (35+) şampiyonalarını filtrele
+                        if not any(kw in raw_title.lower() for kw in ["master", "vétéran", "veteran"]):
+                            continue
+
+                        start_date, end_date = self._extract_dates_from_text(date_str, fallback_yr)
+                        if not start_date or start_date < "2026-01-01":
+                            continue
+
+                        # Şehir ve tesis bilgisini Lieu sütunundan çıkar (Örn: "Saint-Brieuc (BRE) - Salle Maryvonne Dupureur")
+                        if "déterminer" in lieu_str.lower():
+                            city = "Belirlenecek"
+                        else:
+                            city = re.sub(r"\s*\([A-Z\-]+\)\s*", " ", lieu_str)
+                            city = re.sub(r"\s+", " ", city).strip(" -")
+
+                        disc_lower = discipline.lower()
+                        raw_lower = raw_title.lower()
+                        if "combin" in raw_lower:
+                            title = f"Fransa Masterlar Çoklu Branşlar ve Yürüyüş Şampiyonası ({raw_title})"
+                            venue_type = "indoor" if disc_lower == "salle" else "outdoor"
+                        elif "marche" in raw_lower or disc_lower == "marche":
+                            title = f"Fransa Masterlar Yürüyüş Şampiyonası ({raw_title})"
+                            venue_type = "road"
+                        elif disc_lower == "salle" or "salle" in raw_lower:
+                            title = "Fransa Masterlar Salon Atletizm Şampiyonası (Championnats de France Masters en Salle)"
+                            venue_type = "indoor"
+                        else:
+                            title = "Fransa Masterlar Açık Saha Atletizm Şampiyonası (Championnats de France Masters)"
+                            venue_type = "outdoor"
+
+                        link_tag = tds[5].find("a") if len(tds) >= 6 else None
+                        if link_tag and link_tag.has_attr("href"):
+                            href = link_tag["href"]
+                            web_url = f"https://www.athle.fr{href}" if href.startswith("/") else href
+                        else:
+                            web_url = ffa_calendar_url
+
+                        comp_id = generate_competition_id(title, start_date, "FR", city)
+                        comp = Competition(
+                            id=comp_id,
+                            title=title,
+                            country="FR",
+                            country_name="Fransa",
+                            city=city or "Fransa",
+                            start_date=start_date,
+                            end_date=end_date,
+                            venue_type=venue_type,
+                            categories=self.detect_categories(title + " " + discipline, venue_type),
+                            scope="national",
+                            federation="FFA",
+                            website_url=web_url,
+                            status="scheduled",
+                            created_at=datetime.utcnow().isoformat()
+                        )
+                        comp.content_hash = compute_content_hash(comp)
+                        results.append(comp)
+        except Exception as e:
+            logger.warning(f"[FFA-France] Resmi şampiyona takvimi tarama hatası: {e}")
+
         return results
 
     def _scrape_ema_official_endpoints(self) -> List[Competition]:
@@ -271,7 +306,7 @@ class AutonomousDiscoveryParser(BaseParser):
                             end_date=end_date,
                             venue_type=venue,
                             categories=self.detect_categories(title, venue),
-                            scope="europe",
+                            scope=self.detect_scope(title, country),
                             federation="EMA",
                             website_url=web_url,
                             status="scheduled",
@@ -426,7 +461,7 @@ class AutonomousDiscoveryParser(BaseParser):
                                     end_date=e_date,
                                     venue_type=venue,
                                     categories=self.detect_categories(title, venue),
-                                    scope="world" if "world" in title.lower() else "europe",
+                                    scope=self.detect_scope(title, country),
                                     federation="IMGA" if "games" in title.lower() else "WMA / OpenTrack",
                                     website_url="https://wmg2027.jp" if "kansai" in title.lower() or "world masters games" in title.lower() else url,
                                     status="scheduled",
@@ -496,7 +531,7 @@ class AutonomousDiscoveryParser(BaseParser):
                                         end_date=end_date,
                                         venue_type=venue,
                                         categories=self.detect_categories(title + " " + text, venue),
-                                        scope="europe",
+                                        scope=self.detect_scope(title, country),
                                         federation="EMA",
                                         website_url=web_url,
                                         status="scheduled",
@@ -700,48 +735,62 @@ class AutonomousDiscoveryParser(BaseParser):
 
         # 3. Yıl ve ay isimleri (Ocak, Şubat, Januar, Février, January, April, August vb.)
         months = {
-            "jan": 1, "ocak": 1, "januar": 1, "janvier": 1, "ene": 1,
-            "feb": 2, "şubat": 2, "subat": 2, "februar": 2, "février": 2, "fev": 2,
-            "mar": 3, "mart": 3, "märz": 3, "mars": 3, "marzo": 3,
-            "apr": 4, "nisan": 4, "april": 4, "avril": 4, "abr": 4,
-            "may": 5, "mayıs": 5, "mai": 5, "mayo": 5,
-            "jun": 6, "haziran": 6, "juni": 6, "juin": 6, "junio": 6,
-            "jul": 7, "temmuz": 7, "juli": 7, "juillet": 7, "julio": 7,
-            "aug": 8, "ağustos": 8, "agustos": 8, "août": 8, "agosto": 8,
-            "sep": 9, "eylül": 9, "eylul": 9, "sept": 9, "septiembre": 9,
-            "oct": 10, "ekim": 10, "oktober": 10, "octobre": 10, "octubre": 10,
-            "nov": 11, "kasım": 11, "kasim": 11, "novembre": 11, "noviembre": 11,
-            "dec": 12, "aralık": 12, "aralik": 12, "dezember": 12, "décembre": 12, "diciembre": 12
+            "jan": 1, "janvier": 1, "januar": 1, "january": 1, "ocak": 1, "ene": 1, "enero": 1,
+            "feb": 2, "février": 2, "fevrier": 2, "fév": 2, "fev": 2, "februar": 2, "february": 2, "şubat": 2, "subat": 2,
+            "mar": 3, "mars": 3, "märz": 3, "maerz": 3, "march": 3, "mart": 3, "marzo": 3,
+            "apr": 4, "avril": 4, "april": 4, "nisan": 4, "abr": 4, "abril": 4,
+            "may": 5, "mai": 5, "mayıs": 5, "mayis": 5, "mayo": 5,
+            "jun": 6, "juin": 6, "juni": 6, "june": 6, "haziran": 6, "junio": 6,
+            "jul": 7, "juillet": 7, "juli": 7, "july": 7, "temmuz": 7, "julio": 7,
+            "aug": 8, "août": 8, "aout": 8, "august": 8, "ağustos": 8, "agustos": 8, "agosto": 8,
+            "sep": 9, "sept": 9, "septembre": 9, "september": 9, "eylül": 9, "eylul": 9, "septiembre": 9,
+            "oct": 10, "octobre": 10, "oktober": 10, "october": 10, "ekim": 10, "octubre": 10,
+            "nov": 11, "novembre": 11, "november": 11, "kasım": 11, "kasim": 11, "noviembre": 11,
+            "dec": 12, "décembre": 12, "decembre": 12, "déc": 12, "dezember": 12, "december": 12, "aralık": 12, "aralik": 12, "diciembre": 12
         }
 
-        # İki tarih arası aralık: Örn: "11 August/22 August", "18 May/21 May", "15 April/18 Spril", "11 - 22 August"
-        range_match = re.search(r"(\d{1,2})\.?\s*([a-zA-Zçğıöşü]+)?\s*(?:/|-|–|\s+to\s+)\s*(\d{1,2})\.?\s*([a-zA-Zçğıöşü]+)", text)
+        def resolve_month(m_raw: Optional[str]) -> Optional[int]:
+            if not m_raw:
+                return None
+            m_clean = m_raw.lower().strip(".")
+            if m_clean in months:
+                return months[m_clean]
+            if m_clean[:3] in months:
+                return months[m_clean[:3]]
+            return None
+
+        text_clean = text.replace("\xa0", " ").replace("&nbsp;", " ")
+        text_clean = re.sub(r"\b1er\b", "1", text_clean, flags=re.IGNORECASE)
+
+        # İki tarih arası aralık: Örn: "13-15 février 2026", "12-14 juin 2026", "16 au 19 juillet 2026", "11 August/22 August"
+        range_match = re.search(
+            r"(\d{1,2})\.?\s*([a-zA-ZçğıöşüéèêëàâäôöùûüÇĞİÖŞÜ]+)?\s*(?:/|-|–|\s+to\s+|\s+au\s+)\s*(\d{1,2})\.?\s*([a-zA-ZçğıöşüéèêëàâäôöùûüÇĞİÖŞÜ]+)",
+            text_clean
+        )
         if range_match:
             d1 = int(range_match.group(1))
-            m1_str = (range_match.group(2) or "").lower()[:3]
+            m1_raw = range_match.group(2)
             d2 = int(range_match.group(3))
-            m2_str = (range_match.group(4) or "").lower()[:3]
-            
-            m2_num = months.get(m2_str)
-            # Eğer m1 belirtilmemişse veya typo ise (ör. 18 Spril) m2_num al
-            m1_num = months.get(m1_str) if m1_str in months else m2_num
+            m2_raw = range_match.group(4)
+
+            m2_num = resolve_month(m2_raw)
+            m1_num = resolve_month(m1_raw) or m2_num
 
             if m1_num and m2_num:
                 y = explicit_year
                 return f"{y}-{m1_num:02d}-{d1:02d}", f"{y}-{m2_num:02d}-{d2:02d}"
 
-        # Tek tarih veya genel ay tarama: Örn: 15. April veya 31. October
-        for m_name, m_num in months.items():
-            pattern = rf"(\d{{1,2}})\s*(?:-|–|\.|/|\s*to\s*)?\s*(\d{{1,2}})?\s*\b{m_name}[a-z]*\b\s*(\d{{4}})?"
-            match = re.search(pattern, text.lower())
-            if match:
-                d1 = int(match.group(1))
-                d2 = int(match.group(2)) if match.group(2) else d1
-                
-                if match.group(3):
-                    y = int(match.group(3))
-                else:
-                    y = explicit_year
+        # Tek tarih veya genel ay tarama: Örn: "27 septembre 2026", "15. April", "31. October"
+        single_match = re.search(
+            r"(\d{1,2})\.?\s*(?:-|–|/|\s+to\s+|\s+au\s+)?\s*(\d{1,2})?\.?\s+([a-zA-ZçğıöşüéèêëàâäôöùûüÇĞİÖŞÜ]+)\s*(\d{4})?",
+            text_clean
+        )
+        if single_match:
+            m_num = resolve_month(single_match.group(3))
+            if m_num:
+                d1 = int(single_match.group(1))
+                d2 = int(single_match.group(2)) if single_match.group(2) else d1
+                y = int(single_match.group(4)) if single_match.group(4) else explicit_year
                 return f"{y}-{m_num:02d}-{d1:02d}", f"{y}-{m_num:02d}-{d2:02d}"
 
         return None, None
@@ -751,7 +800,7 @@ class AutonomousDiscoveryParser(BaseParser):
         common_cities = [
             "İstanbul", "İzmir", "Ankara", "Bursa",
             "Dortmund", "Chemnitz", "Halle", "Erfurt", "München", "Frankfurt", "Berlin",
-            "Miramas", "Nantes", "Lyon", "Paris", "Tours", "Saint-Brieuc", "Saint Brieuc", "Épinal", "Epinal", "Châteauroux", "Chateauroux", "Juvaincourt",
+            "Miramas", "Nantes", "Lyon", "Paris", "Tours", "Saint-Brieuc", "Saint Brieuc", "Épinal", "Epinal", "Châteauroux", "Chateauroux", "Juvaincourt", "Belfort",
             "Toruń", "Torun", "Włocławek", "Warszawa",
             "Catania", "Ojós", "Ojos", "Jyväskylä", "Jyvaskyla", "Lucerne", "Rasnov", "Râșnov",
             "Glasgow", "Galway", "Craiova", "Novo Mesto", "Varaždin", "Varazdin",
@@ -762,3 +811,31 @@ class AutonomousDiscoveryParser(BaseParser):
             if c.lower() in text.lower():
                 return c
         return ""
+
+    def detect_scope(self, title: str, country: str = "") -> str:
+        """
+        Yarışma başlığına ve ülkesine göre doğru kapsamı (scope) belirler:
+        - EMA League yarışmaları -> 'ema_league'
+        - Dünya Şampiyonaları (WMA / WMG) -> 'world'
+        - Balkan Şampiyonaları (BAMACS / BAMACI) -> 'balkan'
+        - Türkiye Şampiyonaları -> 'turkey'
+        - Resmi EMA Avrupa Şampiyonaları (EMACS, EMACI, EMAMRC, EMACNS, EMMTRC, EMORRC) -> 'europe'
+        - Özel Miting / Meeting / Open -> 'regional'
+        - Ulusal Şampiyonalar -> 'national'
+        """
+        t_low = title.lower()
+        c_up = (country or "").upper()
+        if "ema league" in t_low:
+            return "ema_league"
+        if any(kw in t_low for kw in ["world", "wma", "wmg", "kansai"]):
+            return "world"
+        if any(kw in t_low for kw in ["balkan", "bamacs", "bamaci"]):
+            return "balkan"
+        if c_up == "TR" or any(kw in t_low for kw in ["turk", "türkiye"]):
+            return "turkey"
+        if any(kw in t_low for kw in ["emacs", "emaci", "emamrc", "emacns", "emmtrc", "emorrc", "european masters championship", "european masters athletics championship", "european masters mountain", "european masters marathon", "european masters non-stadia", "european masters indoor"]):
+            return "europe"
+        if "meeting" in t_low or "open" in t_low or "grand prix" in t_low:
+            return "regional"
+        return "national"
+
