@@ -687,10 +687,13 @@ class AutonomousDiscoveryParser(BaseParser):
                     clean_title = title_soup.get_text(separator=" ", strip=True)
                     t_low = clean_title.lower()
 
-                    # Sadece gerçek yarışma/şampiyona/kupa duyurularını al; madalya tebrik haberlerini ve ara gün programlarını ele
+                    # Sadece gerçek Masterlar yarışma/şampiyona/kupa duyurularını al; madalya haberlerini, olimpik denemeleri ve U14-U23 yarışmalarını ele
                     if any(skip in t_low for skip in [
-                        "madalya", "üçüncüsü", "3’üncüsü", "3'üncüsü", "şampiyonu", "1.gün", "2. gün", "rekortmen", "vefat", "başsağlığı"
+                        "madalya", "üçüncüsü", "3’üncüsü", "3'üncüsü", "şampiyonu", "1.gün", "2. gün",
+                        "rekortmen", "vefat", "başsağlığı", "olimpik deneme", "tohm", "u14", "u16", "u18", "u20", "u23"
                     ]):
+                        continue
+                    if not any(kw in t_low for kw in ["master", "veteran"]):
                         continue
                     if not any(kw in t_low for kw in ["şampiyona", "kupası", "koşusu", "cup", "yarışma"]):
                         continue
@@ -770,7 +773,9 @@ class AutonomousDiscoveryParser(BaseParser):
                     pdf_b64 = base64.b64encode(resp.content).decode("utf-8")
                     prompt = (
                         "Bu Türkiye Atletizm Federasyonu (TAF) resmi faaliyet takvimi belgesindeki "
-                        "TÜM Masterlar (Master / Masterler / Veteran) yarışmalarını ve Bursa'da düzenlenen salon/pist yarışmalarını çıkar. "
+                        "SADECE 35+ yaş Masterlar (Master / Masterler / Masters / Veteran) kategorisindeki yarışmaları çıkar. "
+                        "KESİNLİKLE 'Salon Olimpik Deneme', 'Olimpik Deneme', 'TOHM', 'SEM', 'U14', 'U16', 'U18', 'U20', 'U23', "
+                        "'Okullar' veya sadece Büyükler/Elit yarışmalarını DAHİL ETME! "
                         "Sadece JSON dizisi (array) döndür, başka hiçbir açıklama yazma. "
                         "Her öğe şu alanları içermeli: "
                         '{"title": "Yarışma Adı", "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", '
@@ -794,10 +799,11 @@ class AutonomousDiscoveryParser(BaseParser):
         regional_queries = [
             (
                 "Türkiye & Balkanlar (TR, GR, BG, RO, RS, HR, SI)",
-                "2026 ve 2027 yıllarında Türkiye (TAF, Bursa Osmangazi, İzmir, İstanbul, Antalya dahil) ve Balkan ülkelerinde "
+                "2026 ve 2027 yıllarında Türkiye (TAF) ve Balkan ülkelerinde "
                 "(Yunanistan, Bulgaristan, Romanya, Sırbistan, Hırvatistan, Slovenya) düzenlenecek olan "
-                "Ulusal Masterlar Salon Şampiyonaları, Ulusal Masterlar Açık Saha Şampiyonaları, Balkan Masterlar Şampiyonaları "
-                "ve bölgesel Masterlar atletizm yarışmalarını resmi federasyon takvimlerinden bul."
+                "SADECE 35+ yaş Masterlar (Masters / Veteran) Ulusal Salon Şampiyonaları, Ulusal Açık Saha Şampiyonaları, "
+                "Balkan Masterlar Şampiyonaları ve bölgesel Masterlar atletizm yarışmalarını resmi federasyon takvimlerinden bul. "
+                "Kesinlikle Olimpik Deneme, TOHM, SEM veya U14-U23 yarışmalarını dahil etme."
             ),
             (
                 "Batı Avrupa (FR, DE, GB, IE, BE, NL, CH, AT)",

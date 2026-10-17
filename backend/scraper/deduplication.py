@@ -56,6 +56,16 @@ def is_valid_competition_title(title: str) -> bool:
     if t_lower in ["championships 2026", "championships 2027", "championships 2028"]:
         return False
 
+    # Masterlar (35+) dışı olimpik deneme, altyapı, okul ve gençlik yarışmalarını kesin olarak ele
+    has_master_word = any(m in t_lower for m in ["master", "veteran", "senioren", "35+", "m35", "w35", "emacs", "emaci", "bamacs", "bamaci", "wma", "wmg"])
+    non_master_phrases = [
+        "olimpik deneme", "salon olimpik", "tohm", "sem-thom", "sem deneme", "sem atletizm",
+        "u12", "u14", "u16", "u18", "u20", "u23", "küçükler", "yıldızlar", "gençler",
+        "meb okullar", "okul-sgm", "anadolu yıldızlar", "gençlik kupası", "para-atlet", "paralimpik"
+    ]
+    if any(nmp in t_lower for nmp in non_master_phrases) and not has_master_word:
+        return False
+
     return True
 
 from typing import Tuple, Optional, List, Any
