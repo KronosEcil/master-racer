@@ -64,10 +64,7 @@ class AutonomousDiscoveryParser(BaseParser):
         
         for year in self.years:
             urls = [
-                f"https://ladv.de/kalender?jahr={year}&art=masters",
-                f"https://ladv.de/ausschreibungen?jahr={year}&disziplin=halle",
-                f"https://www.leichtathletik.de/api/competitions?year={year}&category=masters",
-                f"https://www.leichtathletik.de/wettkaempfe/wettkampf-kalender?year={year}"
+                f"https://ladv.de/ausschreibungen?jahr={year}&disziplin=halle"
             ]
             
             for url in urls:
@@ -764,9 +761,9 @@ class AutonomousDiscoveryParser(BaseParser):
         results: List[Competition] = []
         logger.info("[Gemini-AI] Yapay zeka destekli genişletilmiş keşif motoru başlatılıyor...")
 
-        # 1. TAF Faaliyet Takvimi PDF'lerini doğrudan Gemini Multimodal ile oku (PDF kütüphanesine ihtiyaç duymadan)
+        # 1. TAF Faaliyet Takvimi PDF'lerini doğrudan Gemini Multimodal ile oku (Sadece 2026 ana takvim PDF'i - 6 sayfa)
         taf_pdf_urls = self._find_taf_calendar_pdf_urls()
-        for pdf_url in taf_pdf_urls:
+        for pdf_url in taf_pdf_urls[:1]:
             try:
                 resp = self.session.get(pdf_url, timeout=20)
                 if resp.status_code == 200 and len(resp.content) > 1000:
@@ -786,30 +783,37 @@ class AutonomousDiscoveryParser(BaseParser):
                         {"text": prompt}
                     ]
                     items = self._call_gemini_json(api_key, parts, use_search=False)
-                    results.extend(self._convert_gemini_items(items, default_url=pdf_url))
+                    converted = self._convert_gemini_items(items, default_url=pdf_url)
+                    logger.info(f"[Gemini-AI] TAF Resmi PDF takviminden {len(converted)} yarışma çıkarıldı.")
+                    results.extend(converted)
             except Exception as e:
                 logger.warning(f"[Gemini-AI] TAF PDF analizi hatası ({pdf_url}): {e}")
 
         # 2. Avrupa Ülkeleri Ulusal Salon & Açık Saha Masterlar Şampiyonaları + Türkiye/Balkan (Google Search Grounding)
+        # Zaman aşımını önlemek için ülkeler odaklanmış hızlı gruplara ayrılmıştır
         regional_queries = [
             (
-                "Türkiye & Balkanlar (TR, GR, BG, RO, RS, HR, SI, BA, AL, ME, MK)",
+                "Türkiye & Balkanlar (TR, GR, BG, RO, RS, HR, SI)",
                 "2026 ve 2027 yıllarında Türkiye (TAF, Bursa Osmangazi, İzmir, İstanbul, Antalya dahil) ve Balkan ülkelerinde "
                 "(Yunanistan, Bulgaristan, Romanya, Sırbistan, Hırvatistan, Slovenya) düzenlenecek olan "
                 "Ulusal Masterlar Salon Şampiyonaları, Ulusal Masterlar Açık Saha Şampiyonaları, Balkan Masterlar Şampiyonaları "
                 "ve bölgesel Masterlar atletizm yarışmalarını resmi federasyon takvimlerinden bul."
             ),
             (
-                "Batı ve Güney Avrupa (FR, DE, IT, ES, PT, GB, IE, BE, NL, CH, AT)",
-                "Find the official 2026 and 2027 National Masters Indoor Athletics Championships and National Masters Outdoor (Stadia) "
-                "Athletics Championships, plus EMA League meetings, for France (FFA), Germany (DLV), Italy (FIDAL), Spain (RFEA), "
-                "Portugal (FPAtletismo), United Kingdom (BMAF), Ireland (IMAA), Belgium, Netherlands, Switzerland, and Austria."
+                "Batı Avrupa (FR, DE, GB, IE, BE, NL, CH, AT)",
+                "Find the official 2026 and 2027 National Masters Indoor Athletics Championships, National Masters Outdoor (Stadia) "
+                "Athletics Championships, and EMA League meetings for France (FFA), Germany (DLV), United Kingdom (BMAF), "
+                "Ireland (IMAA), Belgium, Netherlands, Switzerland, and Austria."
             ),
             (
-                "Kuzey, Orta ve Doğu Avrupa (PL, CZ, SK, HU, SE, NO, FI, DK, EE, LV, LT)",
+                "Güney Avrupa (IT, ES, PT)",
                 "Find the official 2026 and 2027 National Masters Indoor Athletics Championships and National Masters Outdoor (Stadia) "
-                "Athletics Championships for Poland (PZLA/PMA), Czechia, Slovakia, Hungary, Sweden, Norway, Finland, Denmark, "
-                "Estonia, Latvia, and Lithuania."
+                "Athletics Championships for Italy (FIDAL), Spain (RFEA), and Portugal (FPAtletismo / ANAV)."
+            ),
+            (
+                "Kuzey ve Orta Avrupa (PL, CZ, SK, HU, SE, NO, FI, DK)",
+                "Find the official 2026 and 2027 National Masters Indoor Athletics Championships and National Masters Outdoor (Stadia) "
+                "Athletics Championships for Poland (PZLA/PMA), Czechia, Slovakia, Hungary, Sweden, Norway, Finland, and Denmark."
             )
         ]
 
@@ -837,7 +841,7 @@ class AutonomousDiscoveryParser(BaseParser):
         return results
 
     def _find_taf_calendar_pdf_urls(self) -> List[str]:
-        """TAF faaliyet takvimi sayfasındaki ve son duyurulardaki güncel 2026/2027/2028 PDF bağlantılarını bulur."""
+        """TAF faaliyet takvimi sayfasındaki güncel PDF bağlantısını bulur."""
         pdf_urls: List[str] = []
         try:
             html = self.fetch_html("https://taf.org.tr/ova_doc/faaliyet-takvimi/", timeout=12)
@@ -845,49 +849,38 @@ class AutonomousDiscoveryParser(BaseParser):
                 soup = BeautifulSoup(html, "html.parser")
                 for a_tag in soup.find_all("a", href=True):
                     href = a_tag["href"]
-                    if href.lower().endswith(".pdf") and any(y in href for y in ["2026", "2027", "2028"]):
+                    if href.lower().endswith(".pdf") and any(y in href for y in ["2026", "2027"]):
                         if href not in pdf_urls:
                             pdf_urls.append(href)
                             break  # En güncel revizyon ilk sıradadır
         except Exception as e:
             logger.debug(f"[TAF-PDF] ova_doc tarama hatası: {e}")
 
-        try:
-            resp = self.session.get("https://taf.org.tr/wp-json/wp/v2/posts?search=faaliyet+takvimi&per_page=5", timeout=12)
-            if resp.status_code == 200 and isinstance(resp.json(), list):
-                for post in resp.json():
-                    content_html = post.get("content", {}).get("rendered", "")
-                    soup = BeautifulSoup(content_html, "html.parser")
-                    for a_tag in soup.find_all("a", href=True):
-                        href = a_tag["href"]
-                        if href.lower().endswith(".pdf") and any(y in href for y in ["2026", "2027", "2028"]) and "takvim" in href.lower():
-                            if href not in pdf_urls:
-                                pdf_urls.append(href)
-        except Exception as e:
-            logger.debug(f"[TAF-PDF] WP-JSON tarama hatası: {e}")
-
-        return pdf_urls[:3]
+        return pdf_urls[:1]
 
     def _call_gemini_json(self, api_key: str, parts: List[Dict[str, Any]], use_search: bool = True) -> List[Dict[str, Any]]:
-        """Gemini REST API'sini (gemini-2.5-flash / gemini-2.0-flash) çağırır ve JSON dizisini ayrıştırır."""
-        models = ["gemini-2.5-flash", "gemini-2.0-flash"]
+        """Gemini REST API'sini (gemini-3.8-flash / gemini-2.5-flash) hızlı yanıt modunda çağırır ve JSON dizisini ayrıştırır."""
+        models = ["gemini-3.8-flash", "gemini-2.5-flash"]
         headers = {
             "x-goog-api-key": api_key,
             "Content-Type": "application/json"
         }
         for model in models:
             endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+            gen_config: Dict[str, Any] = {"temperature": 0.1}
+            if "2.5" in model:
+                gen_config["thinkingConfig"] = {"thinkingBudget": 0}
             payload: Dict[str, Any] = {
                 "contents": [{"parts": parts}],
-                "generationConfig": {"temperature": 0.1}
+                "generationConfig": gen_config
             }
             if use_search:
                 payload["tools"] = [{"google_search": {}}]
 
             try:
-                resp = requests.post(endpoint, headers=headers, json=payload, timeout=45)
+                resp = requests.post(endpoint, headers=headers, json=payload, timeout=90)
                 if resp.status_code != 200:
-                    logger.warning(f"[Gemini-AI] Model ({model}) HTTP {resp.status_code}: {resp.text[:200]}")
+                    logger.warning(f"[Gemini-AI] Model ({model}) HTTP {resp.status_code}: {resp.text[:160]}")
                     continue
                 data = resp.json()
                 candidates = data.get("candidates", [])
@@ -903,7 +896,7 @@ class AutonomousDiscoveryParser(BaseParser):
                     if isinstance(parsed, list):
                         return parsed
             except Exception as e:
-                logger.debug(f"[Gemini-AI] Model ({model}) çağrı hatası: {e}")
+                logger.warning(f"[Gemini-AI] Model ({model}) çağrı uyarısı: {e}")
         return []
 
     def _convert_gemini_items(self, items: List[Dict[str, Any]], default_url: str) -> List[Competition]:

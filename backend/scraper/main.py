@@ -132,9 +132,10 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
         elif change_type == "DATE_CHANGED":
             comp.date_changed = True
             comp.old_start_date = existing.get("start_date") if existing else None
+            old_end = existing.get("end_date") if existing else None
             comp.is_new = existing.get("is_new", False) if existing else False
             comp.location_changed = existing.get("location_changed", False) if existing else False
-            logger.warning(f"⚠️ [TARİH GÜNCELLENDİ] {comp.title} -> Yeni Tarih: {comp.start_date} (Eski: {comp.old_start_date})")
+            logger.warning(f"⚠️ [TARİH GÜNCELLENDİ] {comp.title} -> Yeni: {comp.start_date}..{comp.end_date} (Eski: {comp.old_start_date}..{old_end})")
         elif change_type == "LOCATION_CHANGED":
             comp.location_changed = True
             comp.old_location = f"{existing.get('city', '')}, {existing.get('country_name', '')}".strip(", ") if existing else None
