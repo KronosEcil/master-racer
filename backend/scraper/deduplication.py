@@ -119,6 +119,14 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
     if is_tr_indoor:
         return f"TR-{year}-MASTERLAR-SALON"
 
+    # Fransa Masterlar Şampiyonaları (FFA)
+    is_fr = country_part == "FR" or "frans" in title_norm or "france" in title_norm
+    if is_fr and "meeting" not in title_norm:
+        if "salon" in title_norm or "salle" in title_norm or "saint-brieuc" in city_norm or "saint brieuc" in city_norm or "nantes" in city_norm:
+            return f"FR-{year}-MASTERLAR-SALON"
+        if "acik" in title_norm or "outdoor" in title_norm or "piste" in title_norm or "epinal" in city_norm or "tours" in city_norm:
+            return f"FR-{year}-MASTERLAR-ACIK-SAHA"
+
     # EMA Büyük Şampiyonaları (Şehir ve Kısaltma Bazlı Kesin Eşleşme)
     if "ojos" in city_norm or "emmtr" in title_norm:
         return "EMA-2027-EMMTRC-OJOS"
@@ -195,6 +203,30 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
             comp.venue_type = "indoor"
             comp.scope = "turkey"
             comp.website_url = "https://taf.org.tr"
+        elif key.startswith("FR-") and "-MASTERLAR-SALON" in key:
+            comp.title = "Fransa Masterlar Salon Atletizm Şampiyonası"
+            comp.country = "FR"
+            comp.country_name = "Fransa"
+            comp.city = "Saint-Brieuc"
+            if "2026" in key:
+                comp.start_date = "2026-02-13"
+                comp.end_date = "2026-02-15"
+            comp.federation = "FFA"
+            comp.venue_type = "indoor"
+            comp.scope = "national"
+            comp.website_url = "https://athle.fr"
+        elif key.startswith("FR-") and "-MASTERLAR-ACIK-SAHA" in key:
+            comp.title = "Fransa Masterlar Açık Saha Atletizm Şampiyonası"
+            comp.country = "FR"
+            comp.country_name = "Fransa"
+            comp.city = "Épinal"
+            if "2026" in key:
+                comp.start_date = "2026-06-12"
+                comp.end_date = "2026-06-14"
+            comp.federation = "FFA"
+            comp.venue_type = "outdoor"
+            comp.scope = "national"
+            comp.website_url = "https://athle.fr"
         if key not in unique_map:
             # Kanonik ID ata
             comp.id = normalize_text(key)

@@ -751,7 +751,7 @@ class AutonomousDiscoveryParser(BaseParser):
         common_cities = [
             "İstanbul", "İzmir", "Ankara", "Bursa",
             "Dortmund", "Chemnitz", "Halle", "Erfurt", "München", "Frankfurt", "Berlin",
-            "Miramas", "Nantes", "Lyon", "Paris", "Tours",
+            "Miramas", "Nantes", "Lyon", "Paris", "Tours", "Saint-Brieuc", "Saint Brieuc", "Épinal", "Epinal", "Châteauroux", "Chateauroux", "Juvaincourt",
             "Toruń", "Torun", "Włocławek", "Warszawa",
             "Catania", "Ojós", "Ojos", "Jyväskylä", "Jyvaskyla", "Lucerne", "Rasnov", "Râșnov",
             "Glasgow", "Galway", "Craiova", "Novo Mesto", "Varaždin", "Varazdin",

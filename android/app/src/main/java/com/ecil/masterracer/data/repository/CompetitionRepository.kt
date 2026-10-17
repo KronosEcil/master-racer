@@ -128,6 +128,23 @@ class CompetitionRepository(
                     (normTitle.contains("master") || normTitle.contains("champs") || normTitle.contains("sampiyona"))
                 ) || (normCity.contains("istanbul") && (normTitle.contains("salon") || normTitle.contains("indoor")) && normTitle.contains("master"))
 
+                // Fransa Masterlar Şampiyonaları (FFA)
+                val isFrEvent = cCountryUpper == "FR" || cCountryUpper == "FRA" ||
+                                normCountry.contains("frans") || normCountry.contains("france") ||
+                                normTitle.contains("france") || normTitle.contains("fransa")
+
+                val isFrIndoor = isFrEvent &&
+                    (normTitle.contains("salon") || normTitle.contains("salle") || normCity.contains("nantes") || normCity.contains("saintbrieuc") || normCity.contains("brieuc")) &&
+                    (normTitle.contains("master") || normTitle.contains("championnat") || normTitle.contains("sampiyona")) &&
+                    !normTitle.contains("meeting") &&
+                    (comp.start_date.isBlank() || comp.start_date.startsWith("2026"))
+
+                val isFrOutdoor = isFrEvent &&
+                    (normTitle.contains("acik") || normTitle.contains("ak saha") || normTitle.contains("piste") || normTitle.contains("outdoor") || normCity.contains("tours") || normCity.contains("epinal")) &&
+                    (normTitle.contains("master") || normTitle.contains("championnat") || normTitle.contains("sampiyona")) &&
+                    !normTitle.contains("meeting") &&
+                    (comp.start_date.isBlank() || comp.start_date.startsWith("2026"))
+
                 when {
                     isTrOutdoor -> comp.copy(
                         title = "Türkiye Masterlar Açık Saha Atletizm Şampiyonası",
@@ -152,6 +169,30 @@ class CompetitionRepository(
                         venue_type = "indoor",
                         scope = "turkey",
                         website_url = "https://taf.org.tr"
+                    )
+                    isFrIndoor -> comp.copy(
+                        title = "Fransa Masterlar Salon Atletizm Şampiyonası",
+                        country = "FR",
+                        country_name = "Fransa",
+                        city = "Saint-Brieuc",
+                        start_date = "2026-02-13",
+                        end_date = "2026-02-15",
+                        federation = "FFA",
+                        venue_type = "indoor",
+                        scope = "national",
+                        website_url = "https://athle.fr"
+                    )
+                    isFrOutdoor -> comp.copy(
+                        title = "Fransa Masterlar Açık Saha Atletizm Şampiyonası",
+                        country = "FR",
+                        country_name = "Fransa",
+                        city = "Épinal",
+                        start_date = "2026-06-12",
+                        end_date = "2026-06-14",
+                        federation = "FFA",
+                        venue_type = "outdoor",
+                        scope = "national",
+                        website_url = "https://athle.fr"
                     )
                     isKansai -> comp.copy(
                         country = "JP",
@@ -212,6 +253,15 @@ class CompetitionRepository(
                     // Türkiye Masterlar Açık Saha Atletizm Şampiyonası (TAF ve EMA)
                     normTitleKey.contains("turk") && (normTitleKey.contains("acik") || normTitleKey.contains("outdoor")) -> "tr_${datePart.take(4)}_masterlar_acik_saha"
                     normTitleKey.contains("turk") && (normTitleKey.contains("salon") || normTitleKey.contains("indoor")) -> "tr_${datePart.take(4)}_masterlar_salon"
+
+                    // Fransa Masterlar Şampiyonaları
+                    (normTitleKey.contains("frans") || normTitleKey.contains("france") || comp.country.equals("FR", ignoreCase = true)) &&
+                    (normTitleKey.contains("salon") || normTitleKey.contains("salle") || normCityKey.contains("saintbrieuc") || normCityKey.contains("nantes")) &&
+                    !normTitleKey.contains("meeting") -> "fr_${datePart.take(4)}_masterlar_salon"
+
+                    (normTitleKey.contains("frans") || normTitleKey.contains("france") || comp.country.equals("FR", ignoreCase = true)) &&
+                    (normTitleKey.contains("acik") || normTitleKey.contains("ak saha") || normTitleKey.contains("outdoor") || normTitleKey.contains("piste") || normCityKey.contains("epinal") || normCityKey.contains("tours")) &&
+                    !normTitleKey.contains("meeting") -> "fr_${datePart.take(4)}_masterlar_acik_saha"
 
                     // Arnavutluk yarışmaları
                     comp.country.uppercase() == "AL" || normTitleKey.contains("arnavutluk") || normTitleKey.contains("albania") || normCityKey.contains("shkod") || normCityKey.contains("tiran") -> "al_${datePart}_${if (normCityKey.isNotEmpty()) normCityKey else "arnavutluk"}"
