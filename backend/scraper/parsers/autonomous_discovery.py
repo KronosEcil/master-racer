@@ -871,6 +871,10 @@ class AutonomousDiscoveryParser(BaseParser):
     def _call_gemini_json(self, api_key: str, parts: List[Dict[str, Any]], use_search: bool = True) -> List[Dict[str, Any]]:
         """Gemini REST API'sini (gemini-2.5-flash / gemini-2.0-flash) çağırır ve JSON dizisini ayrıştırır."""
         models = ["gemini-2.5-flash", "gemini-2.0-flash"]
+        headers = {
+            "x-goog-api-key": api_key,
+            "Content-Type": "application/json"
+        }
         for model in models:
             endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
             payload: Dict[str, Any] = {
@@ -881,8 +885,9 @@ class AutonomousDiscoveryParser(BaseParser):
                 payload["tools"] = [{"google_search": {}}]
 
             try:
-                resp = requests.post(endpoint, json=payload, timeout=45)
+                resp = requests.post(endpoint, headers=headers, json=payload, timeout=45)
                 if resp.status_code != 200:
+                    logger.warning(f"[Gemini-AI] Model ({model}) HTTP {resp.status_code}: {resp.text[:200]}")
                     continue
                 data = resp.json()
                 candidates = data.get("candidates", [])
