@@ -119,8 +119,10 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
     if is_tr_indoor:
         return f"TR-{year}-MASTERLAR-SALON"
 
-    # Fransa Masterlar Şampiyonaları (FFA)
+    # Fransa Masterlar Şampiyonaları ve EMA Ligi (FFA)
     is_fr = country_part == "FR" or "frans" in title_norm or "france" in title_norm
+    if is_fr and ("ema-league" in title_norm or "meeting-europeen" in title_norm):
+        return f"FR-{year}-EMA-LEAGUE-NANTES"
     if is_fr and "meeting" not in title_norm:
         if "combin" in title_norm or "coklu" in title_norm:
             return f"FR-{year}-MASTERLAR-COMBINEES"
@@ -193,7 +195,7 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
                 comp.end_date = "2026-07-12"
             comp.federation = "TAF"
             comp.venue_type = "outdoor"
-            comp.scope = "turkey"
+            comp.scope = "national"
             comp.website_url = "https://taf.org.tr"
         elif key.startswith("TR-") and "-MASTERLAR-SALON" in key:
             comp.title = "Türkiye Masterlar Salon Atletizm Şampiyonası"
@@ -205,8 +207,18 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
                 comp.end_date = "2026-02-22"
             comp.federation = "TAF"
             comp.venue_type = "indoor"
-            comp.scope = "turkey"
+            comp.scope = "national"
             comp.website_url = "https://taf.org.tr"
+        elif key.startswith("FR-") and "-EMA-LEAGUE-NANTES" in key:
+            comp.title = "Meeting Européen Masters en Salle / EMA League"
+            comp.country = "FR"
+            comp.country_name = "Fransa"
+            comp.city = "Nantes (Stadium Pierre-Quinon)"
+            comp.start_date = "2027-02-20"
+            comp.end_date = "2027-02-20"
+            comp.venue_type = "indoor"
+            comp.scope = "ema_league"
+            comp.federation = "FFA / EMA"
         elif key.startswith("FR-") and "-MASTERLAR-" in key:
             comp.country = "FR"
             comp.country_name = "Fransa"

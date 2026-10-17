@@ -99,7 +99,7 @@ fun CompetitionCard(
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = competition.federation.ifBlank { "FEDERASYON" },
+                            text = competition.getScopeTitle(),
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,

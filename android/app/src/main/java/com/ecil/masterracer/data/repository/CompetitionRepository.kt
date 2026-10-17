@@ -164,7 +164,7 @@ class CompetitionRepository(
                         end_date = "2026-07-12",
                         federation = "TAF",
                         venue_type = "outdoor",
-                        scope = "turkey",
+                        scope = "national",
                         website_url = "https://taf.org.tr"
                     )
                     isTrIndoor -> comp.copy(
@@ -176,7 +176,7 @@ class CompetitionRepository(
                         end_date = "2026-02-22",
                         federation = "TAF",
                         venue_type = "indoor",
-                        scope = "turkey",
+                        scope = "national",
                         website_url = "https://taf.org.tr"
                     )
                     isFrIndoor2026 -> comp.copy(
@@ -219,7 +219,9 @@ class CompetitionRepository(
                         title = "Meeting Européen Masters en Salle / EMA League",
                         country = "FR",
                         country_name = "Fransa",
-                        city = "Lyon / Miramas",
+                        city = "Nantes (Stadium Pierre-Quinon)",
+                        start_date = if (comp.start_date.startsWith("2026")) "2026-02-28" else "2027-02-20",
+                        end_date = if (comp.start_date.startsWith("2026")) "2026-02-28" else "2027-02-20",
                         scope = "ema_league",
                         federation = "FFA / EMA"
                     )
@@ -291,7 +293,8 @@ class CompetitionRepository(
                     normTitleKey.contains("turk") && (normTitleKey.contains("acik") || normTitleKey.contains("outdoor")) -> "tr_${datePart.take(4)}_masterlar_acik_saha"
                     normTitleKey.contains("turk") && (normTitleKey.contains("salon") || normTitleKey.contains("indoor")) -> "tr_${datePart.take(4)}_masterlar_salon"
 
-                    // Fransa Masterlar Şampiyonaları
+                    // Fransa Masterlar Şampiyonaları ve EMA Ligi
+                    (normTitleKey.contains("emaleague") || normTitleKey.contains("meetingeuropeen")) && comp.country.equals("FR", ignoreCase = true) -> "fr_${datePart.take(4)}_ema_league_nantes"
                     (normTitleKey.contains("frans") || normTitleKey.contains("france") || comp.country.equals("FR", ignoreCase = true)) &&
                     (normTitleKey.contains("salon") || normTitleKey.contains("salle") || normCityKey.contains("saintbrieuc") || normCityKey.contains("nantes")) &&
                     !normTitleKey.contains("meeting") -> "fr_${datePart.take(4)}_masterlar_salon"

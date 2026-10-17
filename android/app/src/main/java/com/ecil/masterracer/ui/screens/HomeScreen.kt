@@ -332,6 +332,9 @@ fun HomeScreen(
     if (showFilterSheet) {
         FilterBottomSheet(
             sheetState = filterSheetState,
+            selectedScopes = uiState.selectedScopes,
+            onScopeToggle = { viewModel.onScopeToggle(it) },
+            onClearScopes = { viewModel.clearScopeFilters() },
             availableCountries = uiState.availableCountries,
             selectedCountries = uiState.selectedCountries,
             onCountryToggle = { viewModel.onCountryToggle(it) },

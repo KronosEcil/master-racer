@@ -9,6 +9,7 @@ data class CompetitionUiState(
     val isRefreshing: Boolean = false,
     val errorMessage: String? = null,
     val searchQuery: String = "",
+    val selectedScopes: Set<String> = emptySet(),
     val selectedCountries: Set<String> = emptySet(),
     val selectedDatePreset: String = "all", // "all", "next_30", "next_90", "season"
     val hideCompleted: Boolean = true,
@@ -18,6 +19,7 @@ data class CompetitionUiState(
     val activeFilterCount: Int
         get() {
             var count = 0
+            count += selectedScopes.size
             count += selectedCountries.size
             if (selectedDatePreset != "all") count++
             if (!hideCompleted) count++ // Varsayılan gizli olduğu için, geçmişi de gösterirse ekstra filtre sayılır

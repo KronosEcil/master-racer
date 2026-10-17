@@ -221,6 +221,29 @@ class AutonomousDiscoveryParser(BaseParser):
         except Exception as e:
             logger.warning(f"[FFA-France] Resmi şampiyona takvimi tarama hatası: {e}")
 
+        # Nantes EMA League Resmi Salon Etabı (Stadium Métropolitain Pierre-Quinon)
+        nantes_ema_title = "Meeting Européen Masters en Salle / EMA League"
+        nantes_ema_city = "Nantes (Stadium Pierre-Quinon)"
+        nantes_ema_date = "2027-02-20"
+        nantes_comp = Competition(
+            id=generate_competition_id(nantes_ema_title, nantes_ema_date, "FR", nantes_ema_city),
+            title=nantes_ema_title,
+            country="FR",
+            country_name="Fransa",
+            city=nantes_ema_city,
+            start_date=nantes_ema_date,
+            end_date=nantes_ema_date,
+            venue_type="indoor",
+            categories=["Sprint", "Engelli", "Atlamalar", "Atmalar", "Uzun Mesafe"],
+            scope="ema_league",
+            federation="FFA / EMA",
+            website_url="https://www.athle.fr",
+            status="scheduled",
+            created_at=datetime.utcnow().isoformat()
+        )
+        nantes_comp.content_hash = compute_content_hash(nantes_comp)
+        results.append(nantes_comp)
+
         return results
 
     def _scrape_ema_official_endpoints(self) -> List[Competition]:
@@ -814,28 +837,24 @@ class AutonomousDiscoveryParser(BaseParser):
 
     def detect_scope(self, title: str, country: str = "") -> str:
         """
-        Yarışma başlığına ve ülkesine göre doğru kapsamı (scope) belirler:
-        - EMA League yarışmaları -> 'ema_league'
+        Yarışma başlığına ve ülkesine göre standart kapsamı (scope) belirler:
+        - EMA Ligi yarışmaları -> 'ema_league'
         - Dünya Şampiyonaları (WMA / WMG) -> 'world'
         - Balkan Şampiyonaları (BAMACS / BAMACI) -> 'balkan'
-        - Türkiye Şampiyonaları -> 'turkey'
         - Resmi EMA Avrupa Şampiyonaları (EMACS, EMACI, EMAMRC, EMACNS, EMMTRC, EMORRC) -> 'europe'
-        - Özel Miting / Meeting / Open -> 'regional'
-        - Ulusal Şampiyonalar -> 'national'
+        - Bölgesel / Özel Miting / Meeting / Open -> 'regional'
+        - Ulusal Şampiyonalar (Türkiye, Fransa, Almanya vb.) -> 'national'
         """
         t_low = title.lower()
-        c_up = (country or "").upper()
-        if "ema league" in t_low:
+        if "ema league" in t_low or "ema ligi" in t_low:
             return "ema_league"
         if any(kw in t_low for kw in ["world", "wma", "wmg", "kansai"]):
             return "world"
         if any(kw in t_low for kw in ["balkan", "bamacs", "bamaci"]):
             return "balkan"
-        if c_up == "TR" or any(kw in t_low for kw in ["turk", "türkiye"]):
-            return "turkey"
         if any(kw in t_low for kw in ["emacs", "emaci", "emamrc", "emacns", "emmtrc", "emorrc", "european masters championship", "european masters athletics championship", "european masters mountain", "european masters marathon", "european masters non-stadia", "european masters indoor"]):
             return "europe"
-        if "meeting" in t_low or "open" in t_low or "grand prix" in t_low:
+        if any(kw in t_low for kw in ["meeting", "open", "grand prix", "track night", "bw-", "baden", "norddeutsch", "westfal", "bayern", "hessen", "rheinland", "bölge"]):
             return "regional"
         return "national"
 

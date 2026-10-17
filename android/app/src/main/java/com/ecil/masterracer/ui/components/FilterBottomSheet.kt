@@ -37,6 +37,9 @@ import com.ecil.masterracer.ui.theme.BluePrimary
 @Composable
 fun FilterBottomSheet(
     sheetState: SheetState,
+    selectedScopes: Set<String> = emptySet(),
+    onScopeToggle: (String) -> Unit = {},
+    onClearScopes: () -> Unit = {},
     availableCountries: List<Pair<String, String>>, // Pair(code, name)
     selectedCountries: Set<String>,
     onCountryToggle: (String) -> Unit,
@@ -46,6 +49,15 @@ fun FilterBottomSheet(
     onResetFilters: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val scopeOptions = listOf(
+        "national" to "Ulusal",
+        "world" to "Dünya",
+        "balkan" to "Balkan",
+        "europe" to "Avrupa",
+        "ema_league" to "EMA Ligi",
+        "regional" to "Bölgesel"
+    )
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
@@ -83,7 +95,35 @@ fun FilterBottomSheet(
             HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
             Spacer(modifier = Modifier.height(10.dp))
 
-            // 3. YARIŞMA DURUMU
+            // 1. KATEGORİ SEÇİMİ
+            SectionHeader(
+                title = "Kategori",
+                badgeText = if (selectedScopes.isNotEmpty()) "${selectedScopes.size} seçili" else null
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                CompactChip(
+                    selected = selectedScopes.isEmpty(),
+                    onClick = onClearScopes,
+                    label = "Tüm Kategoriler"
+                )
+
+                scopeOptions.forEach { (scopeCode, scopeLabel) ->
+                    CompactChip(
+                        selected = selectedScopes.contains(scopeCode),
+                        onClick = { onScopeToggle(scopeCode) },
+                        label = scopeLabel
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // 2. YARIŞMA DURUMU
             SectionHeader(title = "Yarışma Durumu")
             Spacer(modifier = Modifier.height(6.dp))
             Row(
@@ -108,7 +148,7 @@ fun FilterBottomSheet(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // 4. ÜLKE SEÇİMİ
+            // 3. ÜLKE SEÇİMİ
             SectionHeader(
                 title = "Ülke",
                 badgeText = if (selectedCountries.isNotEmpty()) "${selectedCountries.size} seçili" else null

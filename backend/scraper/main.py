@@ -222,7 +222,7 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
 
             # 9. Bozuk karakterli (\ufffd) veya artık canlı FFA takviminde yer almayan eski statik Fransa kayıtları
             has_corrupt_encoding = ("\ufffd" in title or "\ufffd" in city)
-            is_stale_france = (country == "FR" and doc_id not in scraped_ids and "ema-le" not in doc_id)
+            is_stale_france = (country == "FR" and doc_id not in scraped_ids)
 
             should_delete = (
                 is_invalid_title or is_bad_date or is_wrong_bamacs_year or

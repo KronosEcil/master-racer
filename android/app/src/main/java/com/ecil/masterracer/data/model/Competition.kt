@@ -159,23 +159,64 @@ data class Competition(
     }
 
     /**
-     * Kapsam Türkçe etiketi.
+     * Yarışmanın standart kategori (kapsam) kodunu döndürür:
+     * "national", "world", "balkan", "europe", "ema_league", "regional"
+     */
+    fun getNormalizedScope(): String {
+        val tLow = title.lowercase()
+        val sLow = scope.lowercase()
+        if (sLow == "ema_league" || tLow.contains("ema league") || tLow.contains("ema ligi") || tLow.contains("meeting europeen") || tLow.contains("meeting européen")) {
+            return "ema_league"
+        }
+        if (sLow == "world" || tLow.contains("world") || tLow.contains("wma") || tLow.contains("wmg") || tLow.contains("kansai")) {
+            return "world"
+        }
+        if (sLow == "balkan" || tLow.contains("balkan") || tLow.contains("bamacs") || tLow.contains("bamaci")) {
+            return "balkan"
+        }
+        if (tLow.contains("emacs") || tLow.contains("emaci") || tLow.contains("emamrc") || tLow.contains("emacns") ||
+            tLow.contains("emmtrc") || tLow.contains("emorrc") || tLow.contains("european masters championship") ||
+            tLow.contains("european masters athletics championship") || tLow.contains("european masters mountain") ||
+            tLow.contains("european masters marathon") || tLow.contains("european masters non-stadia") ||
+            tLow.contains("european masters indoor")
+        ) {
+            return "europe"
+        }
+        if (tLow.contains("meeting") || tLow.contains("track night") || tLow.contains("grand prix") ||
+            tLow.contains("bw-") || tLow.contains("baden") || tLow.contains("norddeutsch") ||
+            tLow.contains("westfal") || tLow.contains("bayern") || tLow.contains("hessen") ||
+            tLow.contains("rheinland") || tLow.contains("bölge")
+        ) {
+            return "regional"
+        }
+        if (tLow.contains("şampiyona") || tLow.contains("championship") || tLow.contains("championnat") ||
+            tLow.contains("meisterschaft") || tLow.contains("campeonato") || tLow.contains("campionat") ||
+            tLow.contains("mistrzostwa")
+        ) {
+            return if (sLow == "europe") "europe" else "national"
+        }
+        return when (sLow) {
+            "turkey", "national" -> "national"
+            "world" -> "world"
+            "balkan" -> "balkan"
+            "europe" -> "europe"
+            "ema_league" -> "ema_league"
+            else -> "regional"
+        }
+    }
+
+    /**
+     * Standart kategori Türkçe başlığı:
+     * Ulusal, Dünya, Balkan, Avrupa, EMA Ligi, Bölgesel
      */
     fun getScopeTitle(): String {
-        val titleLower = title.lowercase()
-        if (titleLower.contains("ema league") || scope.equals("ema_league", ignoreCase = true)) {
-            return "EMA League"
-        }
-        if (titleLower.contains("meeting") && !titleLower.contains("champion") && !titleLower.contains("şampiyona")) {
-            return "Uluslararası Salon / Pist Yarışması"
-        }
-        return when (scope.lowercase()) {
-            "turkey" -> "Türkiye Şampiyonası"
-            "balkan" -> "Balkan Şampiyonası"
-            "europe" -> "Avrupa Şampiyonası"
-            "world" -> "Dünya Şampiyonası"
-            "national" -> "${getDisplayCountryName()} Ulusal Şampiyonası"
-            else -> "Bölgesel / Özel Yarışma"
+        return when (getNormalizedScope()) {
+            "national" -> "Ulusal"
+            "world" -> "Dünya"
+            "balkan" -> "Balkan"
+            "europe" -> "Avrupa"
+            "ema_league" -> "EMA Ligi"
+            else -> "Bölgesel"
         }
     }
 

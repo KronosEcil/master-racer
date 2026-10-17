@@ -150,6 +150,23 @@ class CompetitionViewModel(
         applyFilters()
     }
 
+    fun onScopeToggle(scopeCode: String) {
+        _uiState.update { state ->
+            val updated = if (state.selectedScopes.contains(scopeCode)) {
+                state.selectedScopes - scopeCode
+            } else {
+                state.selectedScopes + scopeCode
+            }
+            state.copy(selectedScopes = updated)
+        }
+        applyFilters()
+    }
+
+    fun clearScopeFilters() {
+        _uiState.update { it.copy(selectedScopes = emptySet()) }
+        applyFilters()
+    }
+
     fun onCountryToggle(countryCode: String) {
         _uiState.update { state ->
             val updated = if (state.selectedCountries.contains(countryCode)) {
@@ -185,6 +202,7 @@ class CompetitionViewModel(
     fun onResetFilters() {
         _uiState.update {
             it.copy(
+                selectedScopes = emptySet(),
                 selectedCountries = emptySet(),
                 selectedDatePreset = "all",
                 hideCompleted = true,
@@ -222,6 +240,7 @@ class CompetitionViewModel(
     private fun applyFilters() {
         val currentState = _uiState.value
         val query = currentState.searchQuery.trim().lowercase()
+        val scopes = currentState.selectedScopes
         val countries = currentState.selectedCountries
         val preset = currentState.selectedDatePreset
         val hideCompleted = currentState.hideCompleted
@@ -239,15 +258,19 @@ class CompetitionViewModel(
                 return@filter false
             }
 
-            // Metin Arama Filtresi (Başlık, Şehir, Ülke veya Federasyon)
+            // Metin Arama Filtresi (Başlık, Şehir, Ülke, Kategori veya Federasyon)
             val matchesQuery = if (query.isEmpty()) true else {
                 comp.title.lowercase().contains(query) ||
                         comp.city.lowercase().contains(query) ||
                         comp.getDisplayLocation().lowercase().contains(query) ||
                         comp.getDisplayCountryName().lowercase().contains(query) ||
                         comp.country_name.lowercase().contains(query) ||
+                        comp.getScopeTitle().lowercase().contains(query) ||
                         comp.federation.lowercase().contains(query)
             }
+
+            // Kategori (Kapsam) Filtresi (Ulusal, Dünya, Balkan, Avrupa, EMA Ligi, Bölgesel)
+            val matchesScope = scopes.isEmpty() || scopes.contains(comp.getNormalizedScope())
 
             // Ülke Filtresi (Çoklu Seçim: Seçili ülkelerden herhangi biriyle eşleşmeli)
             val matchesCountry = countries.isEmpty() || countries.any { 
@@ -265,7 +288,7 @@ class CompetitionViewModel(
                 else -> true
             }
 
-            matchesQuery && matchesCountry && matchesDatePreset
+            matchesQuery && matchesScope && matchesCountry && matchesDatePreset
         }.sortedWith(compareBy({ it.getDaysRemaining() < 0 }, { it.start_date }))
 
         _uiState.update { it.copy(filteredCompetitions = filtered) }
