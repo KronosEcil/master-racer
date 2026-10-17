@@ -7,6 +7,7 @@ otonom olarak tarayan ve yeni yarışmaları keşfeden dinamik tarayıcı.
 
 import re
 import json
+import base64
 import logging
 from datetime import datetime
 from typing import List, Dict, Any, Optional
@@ -22,7 +23,8 @@ logger = logging.getLogger(__name__)
 class AutonomousDiscoveryParser(BaseParser):
     """
     Dinamik yıl döngüsü (2026, 2027) ile federasyon arama motorlarını,
-    bölgesel salon meetinglerini ve uluslararası master takvimlerini otonom tarayan motor.
+    bölgesel salon meetinglerini, uluslararası master takvimlerini ve
+    Google Gemini API (Search Grounding + Multimodal PDF/Web Analizi) katmanını otonom tarayan motor.
     """
     def __init__(self):
         super().__init__(name="AutonomousDiscovery_Parser", base_url="https://worldathletics.org")
@@ -44,8 +46,11 @@ class AutonomousDiscoveryParser(BaseParser):
         # 4. Avrupa & Uluslararası Masterlar (EMA Circuit, OpenTrack ve WMA)
         discovered.extend(self._scrape_international_and_opentrack())
 
-        # 5. Türkiye ve Balkan Federasyonları Dinamik Portalları
+        # 5. Türkiye ve Balkan Federasyonları Resmi WordPress API Portalları
         discovered.extend(self._scrape_balkan_and_turkey())
+
+        # 6. Gemini AI Destekli Genişletilmiş Keşif Motoru (Google Search Grounding + TAF PDF Analizi)
+        discovered.extend(self._discover_with_gemini_ai())
 
         logger.info(f"[AutonomousDiscovery_Parser] Otonom tarama tamamlandı. Toplam {len(discovered)} dinamik yarışma keşfedildi.")
         return discovered
@@ -670,50 +675,287 @@ class AutonomousDiscoveryParser(BaseParser):
             except Exception as e:
                 logger.debug(f"[Balkan] Hata ({url}): {e}")
 
-        # 2. Türkiye Atletizm Federasyonu (TAF) Dinamik Faaliyet Takvimi
-        for year in self.years:
-            taf_url = f"https://www.taf.org.tr/faaliyet-takvimi/?yil={year}"
-            try:
-                resp = self.session.get(taf_url, timeout=12)
-                if resp.status_code == 200:
-                    soup = BeautifulSoup(resp.text, "html.parser")
-                    rows = soup.select("table tr, .event-item, article")
-                    for row in rows:
-                        text = row.get_text(separator=" ", strip=True)
-                        if any(kw in text.lower() for kw in ["master", "veteran", "kulüpler ligi"]):
-                            title_elem = row.select_one("a, strong, h3, h4")
-                            title = title_elem.get_text(strip=True) if title_elem else text[:60]
-                            if not is_valid_competition_title(title):
-                                continue
-                            start_date, end_date = self._extract_dates_from_text(text, year)
-                            if not start_date:
-                                continue
-                            city = self._extract_city(text) or self._extract_city(title)
-                            country, country_name, _ = self.detect_country(title + " " + text, "TR", "Türkiye")
-                            venue = self.detect_venue_type(title + " " + text)
-                            comp_id = generate_competition_id(title, start_date, country)
-                            comp = Competition(
-                                id=comp_id,
-                                title=title,
-                                country=country,
-                                country_name=country_name,
-                                city=city or country_name,
-                                start_date=start_date,
-                                end_date=end_date,
-                                venue_type=venue,
-                                categories=self.detect_categories(title + " " + text, venue),
-                                scope=self.detect_scope(title, country),
-                                federation="TAF",
-                                website_url=taf_url,
-                                status="scheduled",
-                                created_at=datetime.utcnow().isoformat()
-                            )
-                            comp.content_hash = compute_content_hash(comp)
-                            results.append(comp)
-            except Exception as e:
-                logger.debug(f"[TAF] Hata ({taf_url}): {e}")
+        # 2. Türkiye Atletizm Federasyonu (TAF) Resmi WordPress REST API Duyuruları
+        taf_wp_url = "https://taf.org.tr/wp-json/wp/v2/posts?search=master&per_page=30"
+        try:
+            resp = self.session.get(taf_wp_url, timeout=15)
+            if resp.status_code == 200 and isinstance(resp.json(), list):
+                for item in resp.json():
+                    title_obj = item.get("title", {})
+                    raw_title = title_obj.get("rendered", "") if isinstance(title_obj, dict) else str(title_obj)
+                    content_obj = item.get("content", {})
+                    content_html = content_obj.get("rendered", "") if isinstance(content_obj, dict) else ""
+
+                    title_soup = BeautifulSoup(raw_title, "html.parser")
+                    clean_title = title_soup.get_text(separator=" ", strip=True)
+                    t_low = clean_title.lower()
+
+                    # Sadece gerçek yarışma/şampiyona/kupa duyurularını al; madalya tebrik haberlerini ve ara gün programlarını ele
+                    if any(skip in t_low for skip in [
+                        "madalya", "üçüncüsü", "3’üncüsü", "3'üncüsü", "şampiyonu", "1.gün", "2. gün", "rekortmen", "vefat", "başsağlığı"
+                    ]):
+                        continue
+                    if not any(kw in t_low for kw in ["şampiyona", "kupası", "koşusu", "cup", "yarışma"]):
+                        continue
+
+                    body_soup = BeautifulSoup(content_html, "html.parser")
+                    body_text = body_soup.get_text(separator=" ", strip=True)
+                    full_text = f"{clean_title} {body_text}"
+
+                    post_date = item.get("date", "2026-01-01")
+                    fallback_yr = int(post_date[:4]) if len(post_date) >= 4 and post_date[:4].isdigit() else 2026
+                    start_date, end_date = self._extract_dates_from_text(full_text, fallback_yr)
+                    if not start_date or start_date < "2026-01-01":
+                        continue
+
+                    # Statü PDF linki varsa yakala
+                    reg_url = None
+                    for a_tag in body_soup.find_all("a", href=True):
+                        href = a_tag["href"]
+                        if href.lower().endswith(".pdf") and any(k in href.lower() for k in ["statu", "sampiyona", "kupasi", "kosusu"]):
+                            reg_url = href
+                            break
+
+                    city = self._extract_city(full_text) or "Türkiye"
+                    if "osmangazi" in full_text.lower() or "bursa" in full_text.lower():
+                        city = "Bursa (Osmangazi Atletizm Salonu)" if "salon" in full_text.lower() else "Bursa"
+
+                    # Başlığı temizle ("Sonuçları", "Yarışma Statüsü" gibi ekleri kaldır)
+                    norm_title = re.sub(r"\s*(Yarışma Statüsü|Sonuçları|Statüsü.*)\s*$", "", clean_title, flags=re.IGNORECASE).strip()
+                    venue = self.detect_venue_type(norm_title + " " + body_text)
+                    comp_id = generate_competition_id(norm_title, start_date, "TR", city)
+
+                    comp = Competition(
+                        id=comp_id,
+                        title=norm_title,
+                        country="TR",
+                        country_name="Türkiye",
+                        city=city,
+                        start_date=start_date,
+                        end_date=end_date,
+                        venue_type=venue,
+                        categories=self.detect_categories(norm_title + " " + body_text, venue),
+                        scope=self.detect_scope(norm_title, "TR"),
+                        federation="TAF",
+                        regulations_url=reg_url,
+                        website_url=item.get("link", "https://taf.org.tr"),
+                        status="scheduled",
+                        created_at=datetime.utcnow().isoformat()
+                    )
+                    comp.content_hash = compute_content_hash(comp)
+                    results.append(comp)
+        except Exception as e:
+            logger.debug(f"[TAF-WP-API] Hata: {e}")
 
         return results
+
+    def _discover_with_gemini_ai(self) -> List[Competition]:
+        """
+        Ücretsiz Google Gemini API (Search Grounding + Multimodal PDF okuma) kullanarak:
+        1. TAF'ın faaliyet takvimi sayfasındaki resmi PDF dosyalarını doğrudan Gemini'ye okutur (ayrı bir PDF kütüphanesine gerek kalmaz).
+        2. Avrupa'daki tüm ülkelerin Ulusal Salon ve Açık Saha Masterlar Şampiyonalarını, EMA League ve Bölgesel/Balkan yarışmalarını
+           Google Arama destekli (Search Grounding) olarak keşfeder ve çakışmasız JSON formatında döndürür.
+        """
+        api_key = (ScraperConfig.GEMINI_API_KEY or "").strip()
+        if not api_key:
+            logger.info("[Gemini-AI] GEMINI_API_KEY tanımlı değil; yapay zeka keşif katmanı atlanıyor.")
+            return []
+
+        results: List[Competition] = []
+        logger.info("[Gemini-AI] Yapay zeka destekli genişletilmiş keşif motoru başlatılıyor...")
+
+        # 1. TAF Faaliyet Takvimi PDF'lerini doğrudan Gemini Multimodal ile oku (PDF kütüphanesine ihtiyaç duymadan)
+        taf_pdf_urls = self._find_taf_calendar_pdf_urls()
+        for pdf_url in taf_pdf_urls:
+            try:
+                resp = self.session.get(pdf_url, timeout=20)
+                if resp.status_code == 200 and len(resp.content) > 1000:
+                    pdf_b64 = base64.b64encode(resp.content).decode("utf-8")
+                    prompt = (
+                        "Bu Türkiye Atletizm Federasyonu (TAF) resmi faaliyet takvimi belgesindeki "
+                        "TÜM Masterlar (Master / Masterler / Veteran) yarışmalarını ve Bursa'da düzenlenen salon/pist yarışmalarını çıkar. "
+                        "Sadece JSON dizisi (array) döndür, başka hiçbir açıklama yazma. "
+                        "Her öğe şu alanları içermeli: "
+                        '{"title": "Yarışma Adı", "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", '
+                        '"city": "Şehir", "country": "TR", "country_name": "Türkiye", '
+                        '"venue_type": "indoor|outdoor|road|cross", "scope": "national|balkan|europe|world|regional", '
+                        '"federation": "TAF", "website_url": "https://taf.org.tr"}'
+                    )
+                    parts = [
+                        {"inline_data": {"mime_type": "application/pdf", "data": pdf_b64}},
+                        {"text": prompt}
+                    ]
+                    items = self._call_gemini_json(api_key, parts, use_search=False)
+                    results.extend(self._convert_gemini_items(items, default_url=pdf_url))
+            except Exception as e:
+                logger.warning(f"[Gemini-AI] TAF PDF analizi hatası ({pdf_url}): {e}")
+
+        # 2. Avrupa Ülkeleri Ulusal Salon & Açık Saha Masterlar Şampiyonaları + Türkiye/Balkan (Google Search Grounding)
+        regional_queries = [
+            (
+                "Türkiye & Balkanlar (TR, GR, BG, RO, RS, HR, SI, BA, AL, ME, MK)",
+                "2026 ve 2027 yıllarında Türkiye (TAF, Bursa Osmangazi, İzmir, İstanbul, Antalya dahil) ve Balkan ülkelerinde "
+                "(Yunanistan, Bulgaristan, Romanya, Sırbistan, Hırvatistan, Slovenya) düzenlenecek olan "
+                "Ulusal Masterlar Salon Şampiyonaları, Ulusal Masterlar Açık Saha Şampiyonaları, Balkan Masterlar Şampiyonaları "
+                "ve bölgesel Masterlar atletizm yarışmalarını resmi federasyon takvimlerinden bul."
+            ),
+            (
+                "Batı ve Güney Avrupa (FR, DE, IT, ES, PT, GB, IE, BE, NL, CH, AT)",
+                "Find the official 2026 and 2027 National Masters Indoor Athletics Championships and National Masters Outdoor (Stadia) "
+                "Athletics Championships, plus EMA League meetings, for France (FFA), Germany (DLV), Italy (FIDAL), Spain (RFEA), "
+                "Portugal (FPAtletismo), United Kingdom (BMAF), Ireland (IMAA), Belgium, Netherlands, Switzerland, and Austria."
+            ),
+            (
+                "Kuzey, Orta ve Doğu Avrupa (PL, CZ, SK, HU, SE, NO, FI, DK, EE, LV, LT)",
+                "Find the official 2026 and 2027 National Masters Indoor Athletics Championships and National Masters Outdoor (Stadia) "
+                "Athletics Championships for Poland (PZLA/PMA), Czechia, Slovakia, Hungary, Sweden, Norway, Finland, Denmark, "
+                "Estonia, Latvia, and Lithuania."
+            )
+        ]
+
+        schema_instruction = (
+            "\nSadece geçerli bir JSON dizisi (array) döndür, markdown veya açıklama ekleme. "
+            "Kesin tarihi (YYYY-MM-DD) belli olmayan yarışmaları dahil etme. "
+            "Her öğe şu şemada olmalı:\n"
+            '[{"title": "Resmi Yarışma Adı", "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", '
+            '"city": "Şehir (Tesis)", "country": "ISO-2 Ülke Kodu (TR, DE, FR, IT, ES, PL, GB vb.)", '
+            '"country_name": "Türkçe Ülke Adı", "venue_type": "indoor|outdoor|road|cross", '
+            '"scope": "national|world|balkan|europe|ema_league|regional", '
+            '"federation": "Federasyon Kısaltması", "website_url": "Resmi URL"}]'
+        )
+
+        for region_label, query_text in regional_queries:
+            try:
+                parts = [{"text": query_text + schema_instruction}]
+                items = self._call_gemini_json(api_key, parts, use_search=True)
+                converted = self._convert_gemini_items(items, default_url="https://european-masters-athletics.org")
+                logger.info(f"[Gemini-AI] {region_label} taramasından {len(converted)} yarışma keşfedildi.")
+                results.extend(converted)
+            except Exception as e:
+                logger.warning(f"[Gemini-AI] Bölgesel arama hatası ({region_label}): {e}")
+
+        return results
+
+    def _find_taf_calendar_pdf_urls(self) -> List[str]:
+        """TAF faaliyet takvimi sayfasındaki ve son duyurulardaki güncel 2026/2027/2028 PDF bağlantılarını bulur."""
+        pdf_urls: List[str] = []
+        try:
+            html = self.fetch_html("https://taf.org.tr/ova_doc/faaliyet-takvimi/", timeout=12)
+            if html:
+                soup = BeautifulSoup(html, "html.parser")
+                for a_tag in soup.find_all("a", href=True):
+                    href = a_tag["href"]
+                    if href.lower().endswith(".pdf") and any(y in href for y in ["2026", "2027", "2028"]):
+                        if href not in pdf_urls:
+                            pdf_urls.append(href)
+                            break  # En güncel revizyon ilk sıradadır
+        except Exception as e:
+            logger.debug(f"[TAF-PDF] ova_doc tarama hatası: {e}")
+
+        try:
+            resp = self.session.get("https://taf.org.tr/wp-json/wp/v2/posts?search=faaliyet+takvimi&per_page=5", timeout=12)
+            if resp.status_code == 200 and isinstance(resp.json(), list):
+                for post in resp.json():
+                    content_html = post.get("content", {}).get("rendered", "")
+                    soup = BeautifulSoup(content_html, "html.parser")
+                    for a_tag in soup.find_all("a", href=True):
+                        href = a_tag["href"]
+                        if href.lower().endswith(".pdf") and any(y in href for y in ["2026", "2027", "2028"]) and "takvim" in href.lower():
+                            if href not in pdf_urls:
+                                pdf_urls.append(href)
+        except Exception as e:
+            logger.debug(f"[TAF-PDF] WP-JSON tarama hatası: {e}")
+
+        return pdf_urls[:3]
+
+    def _call_gemini_json(self, api_key: str, parts: List[Dict[str, Any]], use_search: bool = True) -> List[Dict[str, Any]]:
+        """Gemini REST API'sini (gemini-2.5-flash / gemini-2.0-flash) çağırır ve JSON dizisini ayrıştırır."""
+        models = ["gemini-2.5-flash", "gemini-2.0-flash"]
+        for model in models:
+            endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+            payload: Dict[str, Any] = {
+                "contents": [{"parts": parts}],
+                "generationConfig": {"temperature": 0.1}
+            }
+            if use_search:
+                payload["tools"] = [{"google_search": {}}]
+
+            try:
+                resp = requests.post(endpoint, json=payload, timeout=45)
+                if resp.status_code != 200:
+                    continue
+                data = resp.json()
+                candidates = data.get("candidates", [])
+                if not candidates:
+                    continue
+                text_parts = candidates[0].get("content", {}).get("parts", [])
+                raw_text = "".join(p.get("text", "") for p in text_parts)
+                # JSON bloğunu ayıkla
+                cleaned = re.sub(r"```(?:json)?", "", raw_text).strip("` \n\r\t")
+                bracket_match = re.search(r"\[.*\]", cleaned, flags=re.DOTALL)
+                if bracket_match:
+                    parsed = json.loads(bracket_match.group(0))
+                    if isinstance(parsed, list):
+                        return parsed
+            except Exception as e:
+                logger.debug(f"[Gemini-AI] Model ({model}) çağrı hatası: {e}")
+        return []
+
+    def _convert_gemini_items(self, items: List[Dict[str, Any]], default_url: str) -> List[Competition]:
+        """Gemini JSON çıktılarını doğrular ve standart Competition nesnelerine dönüştürür."""
+        converted: List[Competition] = []
+        valid_scopes = {"national", "world", "balkan", "europe", "ema_league", "regional"}
+        valid_venues = {"indoor", "outdoor", "road", "cross"}
+
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            title = str(item.get("title", "")).strip()
+            start_date = str(item.get("start_date", "")).strip()[:10]
+            end_date = str(item.get("end_date", start_date)).strip()[:10] or start_date
+            if not title or not is_valid_competition_title(title):
+                continue
+            if not re.match(r"^202[6-9]-\d{2}-\d{2}$", start_date):
+                continue
+            if not re.match(r"^202[6-9]-\d{2}-\d{2}$", end_date) or end_date < start_date:
+                end_date = start_date
+
+            raw_country = str(item.get("country", "EU")).strip().upper()
+            raw_cname = str(item.get("country_name", "Avrupa")).strip()
+            city = str(item.get("city", "")).strip()
+            country, country_name, _ = self.detect_country(f"{title} {city} {raw_cname}", raw_country, raw_cname)
+
+            venue = str(item.get("venue_type", "")).strip().lower()
+            if venue not in valid_venues:
+                venue = self.detect_venue_type(title)
+
+            scope = str(item.get("scope", "")).strip().lower()
+            if scope not in valid_scopes:
+                scope = self.detect_scope(title, country)
+
+            federation = str(item.get("federation", "")).strip() or "EMA / Ulusal"
+            web_url = str(item.get("website_url", "")).strip() or default_url
+            comp_id = generate_competition_id(title, start_date, country, city)
+
+            comp = Competition(
+                id=comp_id,
+                title=title,
+                country=country,
+                country_name=country_name,
+                city=city or country_name,
+                start_date=start_date,
+                end_date=end_date,
+                venue_type=venue,
+                categories=self.detect_categories(title, venue),
+                scope=scope,
+                federation=federation,
+                website_url=web_url,
+                status="scheduled",
+                created_at=datetime.utcnow().isoformat()
+            )
+            comp.content_hash = compute_content_hash(comp)
+            converted.append(comp)
+        return converted
 
     def _extract_dates_from_text(self, text: str, fallback_year: int) -> tuple[Optional[str], Optional[str]]:
         """
@@ -830,7 +1072,8 @@ class AutonomousDiscoveryParser(BaseParser):
     def _extract_city(self, text: str) -> str:
         """Metin içinden bilinen atletizm şehirlerini filtreler."""
         common_cities = [
-            "İstanbul", "İzmir", "Ankara", "Bursa",
+            "İstanbul", "İzmir", "Ankara", "Bursa", "Antalya", "Balıkesir", "Mersin",
+            "Eskişehir", "Konya", "Kütahya", "Adana", "Trabzon", "Samsun", "Denizli", "Aydın", "Kuşadası", "Kocaeli",
             "Dortmund", "Chemnitz", "Halle", "Erfurt", "München", "Frankfurt", "Berlin",
             "Miramas", "Nantes", "Lyon", "Paris", "Tours", "Saint-Brieuc", "Saint Brieuc", "Épinal", "Epinal", "Châteauroux", "Chateauroux", "Juvaincourt", "Belfort",
             "Toruń", "Torun", "Włocławek", "Warszawa",

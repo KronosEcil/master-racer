@@ -99,27 +99,24 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
     if "bernhausen" in city_norm or "bernhausen" in title_norm:
         return f"DE-{date_part}-BW-HALBMARATHON-BERNHAUSEN"
 
-    # Türkiye Masterlar Şampiyonaları (TAF ve EMA Uluslararası Eşleşmesi)
+    # Türkiye Masterlar Şampiyonaları (TAF, Gemini AI ve EMA Uluslararası Eşleşmesi)
     year = date_part[:4] if len(date_part) >= 4 else "2026"
-    is_tr_outdoor = (
-        ("turkiye" in title_norm or "turkish" in title_norm or "turk" in title_norm) and
-        ("acik" in title_norm or "outdoor" in title_norm) and
-        ("master" in title_norm or "champs" in title_norm or "sampiyona" in title_norm)
-    ) or ("izmir" in city_norm and ("outdoor" in title_norm or "turkish" in title_norm or "master" in title_norm or "acik" in title_norm))
+    is_tr = country_part == "TR" or any(w in title_norm for w in ["turkiye", "turkish", "turk", "alkan-oral", "murat-akman", "ismail-akcay", "fahir-ozguden"])
+    if is_tr and "master" in title_norm:
+        if any(w in title_norm for w in ["kros", "cross"]):
+            return f"TR-{year}-MASTERLAR-CROSS"
+        if any(w in title_norm for w in ["atma", "mesafeler-ve-atmalar", "throws"]):
+            return f"TR-{year}-MASTERLAR-THROWS"
+        if any(w in title_norm for w in ["ismail-akcay", "yol-kosusu"]):
+            return f"TR-{year}-ISMAIL-AKCAY-YOL"
+        if any(w in title_norm for w in ["fahir-ozguden", "hurdles-cup", "rekor-deneme"]) and "salon" not in title_norm:
+            return f"TR-{year}-FAHIR-OZGUDEN-CUP"
+        if any(w in title_norm for w in ["salon", "indoor", "alkan-oral"]):
+            return f"TR-{year}-MASTERLAR-SALON"
+        if any(w in title_norm for w in ["acik", "outdoor", "murat-akman", "izmir"]) or ("sampiyona" in title_norm or "champs" in title_norm):
+            return f"TR-{year}-MASTERLAR-ACIK-SAHA"
 
-    if is_tr_outdoor:
-        return f"TR-{year}-MASTERLAR-ACIK-SAHA"
-
-    is_tr_indoor = (
-        ("turkiye" in title_norm or "turkish" in title_norm or "turk" in title_norm) and
-        ("salon" in title_norm or "indoor" in title_norm) and
-        ("master" in title_norm or "champs" in title_norm or "sampiyona" in title_norm)
-    ) or ("istanbul" in city_norm and ("indoor" in title_norm or "salon" in title_norm) and "master" in title_norm)
-
-    if is_tr_indoor:
-        return f"TR-{year}-MASTERLAR-SALON"
-
-    # Fransa Masterlar Şampiyonaları ve EMA Ligi (FFA)
+    # Fransa Masterlar Şampiyonaları ve EMA Ligi (FFA & Gemini AI)
     is_fr = country_part == "FR" or "frans" in title_norm or "france" in title_norm
     if is_fr and ("ema-league" in title_norm or "meeting-europeen" in title_norm):
         return f"FR-{year}-EMA-LEAGUE-NANTES"
@@ -128,9 +125,9 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
             return f"FR-{year}-MASTERLAR-COMBINEES"
         if "marche" in title_norm or "yuruyus" in title_norm:
             return f"FR-{year}-MASTERLAR-MARCHE"
-        if "salon" in title_norm or "salle" in title_norm or "saint-brieuc" in city_norm or "saint brieuc" in city_norm or "nantes" in city_norm:
+        if "salon" in title_norm or "salle" in title_norm or "indoor" in title_norm or "saint-brieuc" in city_norm or "saint brieuc" in city_norm or "nantes" in city_norm:
             return f"FR-{year}-MASTERLAR-SALON"
-        if "acik" in title_norm or "outdoor" in title_norm or "piste" in title_norm or "epinal" in city_norm or "tours" in city_norm or "belfort" in city_norm or "championnats-de-france-masters" in title_norm:
+        if "acik" in title_norm or "outdoor" in title_norm or "piste" in title_norm or "stadia" in title_norm or "epinal" in city_norm or "tours" in city_norm or "belfort" in city_norm or "championnats-de-france-masters" in title_norm:
             return f"FR-{year}-MASTERLAR-ACIK-SAHA"
 
     # EMA Büyük Şampiyonaları (Şehir ve Kısaltma Bazlı Kesin Eşleşme)
@@ -140,23 +137,25 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
         return "EMA-2027-EMACS-JYVASKYLA"
     if "lucerne" in city_norm or "emamrc" in title_norm:
         return "EMA-2027-EMAMRC-LUCERNE"
-    if "glasgow" in city_norm or "emaci" in title_norm:
+    if "glasgow" in city_norm or "emaci" in title_norm and year == "2028":
         return "EMA-2028-EMACI-GLASGOW"
     if "galway" in city_norm or "emacns" in title_norm:
         return "EMA-2028-EMACNS-GALWAY"
+    if ("torun" in city_norm or "emaci" in title_norm) and year == "2026":
+        return "EMA-2026-EMACI-TORUN"
 
-    # 5. Evrensel Avrupa Ulusal Şampiyona Anahtarı (Tüm Ülkeler İçin Otomatik Eşleştirme)
+    # 5. Evrensel Avrupa Ulusal Şampiyona Anahtarı (Tüm Ülkeler & Gemini AI İçin Çakışmasız Eşleştirme)
     is_nat_champ = (
         country_part not in ["INT", "EU"] and
         any(w in title_norm for w in [
             "championship", "champs", "sampiyona", "championnat", "meisterschaft",
             "campeonato", "campionat", "mistrzostwa", "kampioenschap", "mesterskap",
-            "masterskap", "mestaruuskilpailut", "prvenstvo", "bajnoksag"
+            "masterskap", "mestaruuskilpailut", "prvenstvo", "bajnoksag", "ulusal", "national"
         ]) and
         not any(w in title_norm for w in [
-            "europe", "world", "wma", "wmg", "balkan", "bamacs", "bamaci",
-            "ema-league", "meeting", "open", "part-1", "part-2",
-            "bw-", "baden", "norddeutsch", "westfal", "bayern", "hessen", "rheinland", "landes"
+            "europe", "avrupa", "world", "dunya", "wma", "wmg", "balkan", "bamacs", "bamaci",
+            "ema-league", "ema-ligi", "meeting", "open", "part-1", "part-2",
+            "bw-", "baden", "norddeutsch", "westfal", "bayern", "hessen", "rheinland", "landes", "bolgesel", "regional"
         ])
     )
     if is_nat_champ:
@@ -164,7 +163,7 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
             subtype = "COMBINEES"
         elif any(w in title_norm for w in ["marche", "walk", "yuruyus", "gehen"]):
             subtype = "MARCHE"
-        elif any(w in title_norm for w in ["marathon", "maraton", "half-marathon", "halbmarathon", "10k", "road"]):
+        elif any(w in title_norm for w in ["marathon", "maraton", "half-marathon", "halbmarathon", "10k", "road", "yol"]):
             subtype = "MARATHON"
         elif any(w in title_norm for w in ["cross", "kros"]):
             subtype = "CROSS"
@@ -172,7 +171,7 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
             subtype = "MOUNTAIN"
         elif any(w in title_norm for w in ["throw", "atma", "winterwurf", "wurf", "lancer"]):
             subtype = "THROWS"
-        elif any(w in title_norm for w in ["indoor", "salon", "salle", "halle", "cubierta"]):
+        elif any(w in title_norm for w in ["indoor", "salon", "salle", "halle", "cubierta", "short-track"]):
             subtype = "SALON"
         else:
             subtype = "ACIK-SAHA"
@@ -195,7 +194,7 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
     """
     Taranan yarışmalar listesindeki kopyaları (aynı tarih, aynı şehir veya aynı şampiyona)
     tekilleştirir ve çoklu kaynaklardan gelen verileri (tam tarih aralığı, tesis/şehir detayı,
-    yetkili ulusal federasyon bilgisi) akıllıca birleştirir.
+    yetkili ulusal federasyon bilgisi ve Gemini AI keşif verisi) çakışmasız birleştirir.
     """
     unique_map: dict[str, Competition] = {}
 
@@ -219,29 +218,31 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
 
         key = get_canonical_key(comp)
         if key.startswith("TR-") and "-MASTERLAR-ACIK-SAHA" in key:
-            comp.title = "Türkiye Masterlar Açık Saha Atletizm Şampiyonası"
+            comp.title = "Murat Akman Türkiye Masterlar Açık Saha Atletizm Şampiyonası" if "2026" in key else "Türkiye Masterlar Açık Saha Atletizm Şampiyonası"
             comp.country = "TR"
             comp.country_name = "Türkiye"
-            comp.city = "İzmir"
             if "2026" in key:
+                comp.city = "İzmir"
                 comp.start_date = "2026-07-11"
                 comp.end_date = "2026-07-12"
             comp.federation = "TAF"
             comp.venue_type = "outdoor"
             comp.scope = "national"
-            comp.website_url = "https://taf.org.tr"
+            if not comp.website_url or "taf.org.tr" not in comp.website_url:
+                comp.website_url = "https://taf.org.tr"
         elif key.startswith("TR-") and "-MASTERLAR-SALON" in key:
-            comp.title = "Türkiye Masterlar Salon Atletizm Şampiyonası"
+            comp.title = "Alkan Öral Türkiye Masterlar Salon Atletizm Şampiyonası" if "2026" in key else "Türkiye Masterlar Salon Atletizm Şampiyonası"
             comp.country = "TR"
             comp.country_name = "Türkiye"
-            comp.city = "İstanbul"
             if "2026" in key:
-                comp.start_date = "2026-02-21"
-                comp.end_date = "2026-02-22"
+                comp.city = "Bursa (Osmangazi Atletizm Salonu)"
+                comp.start_date = "2026-01-31"
+                comp.end_date = "2026-02-01"
             comp.federation = "TAF"
             comp.venue_type = "indoor"
             comp.scope = "national"
-            comp.website_url = "https://taf.org.tr"
+            if not comp.website_url or "taf.org.tr" not in comp.website_url:
+                comp.website_url = "https://taf.org.tr"
         elif key.startswith("FR-") and "-EMA-LEAGUE-NANTES" in key:
             comp.title = "Meeting Européen Masters en Salle / EMA League"
             comp.country = "FR"
@@ -266,25 +267,29 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
             unique_map[key] = comp
         else:
             existing = unique_map[key]
-            # 1. Tam tarih aralığı önceliği: Çok günlü tarih aralığı (end_date > start_date) tek günlü özete göre her zaman önceliklidir
+            # 1. Tam tarih aralığı ve doğrudan federasyon önceliği:
+            # Çok günlü tarih aralığı (end_date > start_date) tek günlü özete göre önceliklidir.
+            # Doğrudan federasyon tarayıcıları (TAF, FFA, DLV / LADV) genel kaynaklara göre önceliklidir.
             existing_is_range = bool(existing.end_date and existing.end_date > existing.start_date)
             incoming_is_range = bool(comp.end_date and comp.end_date > comp.start_date)
+            direct_feds = {"TAF", "FFA", "DLV / LADV", "BAMACS", "IMGA"}
+            incoming_is_direct = comp.federation in direct_feds and existing.federation not in direct_feds
             incoming_is_nat_fed = comp.federation not in ["", "EMA"] and existing.federation == "EMA"
 
-            if (incoming_is_range and not existing_is_range) or incoming_is_nat_fed:
+            if incoming_is_direct or (incoming_is_range and not existing_is_range) or incoming_is_nat_fed:
                 existing.start_date = comp.start_date
                 existing.end_date = comp.end_date
 
             # 2. Yetkili ulusal federasyon ve başlık önceliği
-            if incoming_is_nat_fed:
+            if incoming_is_direct or incoming_is_nat_fed:
                 existing.federation = comp.federation
                 existing.title = comp.title
                 if comp.website_url:
                     existing.website_url = comp.website_url
 
             # 3. Daha detaylı şehir ve stadyum/tesis bilgisini koru (ülke adı olmayan gerçek şehir/tesis tercih edilir)
-            comp_city_valid = bool(comp.city and comp.city.lower() not in [comp.country_name.lower(), "avrupa", "uluslararası", "belirlenecek"])
-            exist_city_valid = bool(existing.city and existing.city.lower() not in [existing.country_name.lower(), "avrupa", "uluslararası", "belirlenecek"])
+            comp_city_valid = bool(comp.city and comp.city.lower() not in [comp.country_name.lower(), "avrupa", "uluslararası", "belirlenecek", "ybd"])
+            exist_city_valid = bool(existing.city and existing.city.lower() not in [existing.country_name.lower(), "avrupa", "uluslararası", "belirlenecek", "ybd"])
             if comp_city_valid and (not exist_city_valid or len(comp.city) > len(existing.city)):
                 existing.city = comp.city
 
