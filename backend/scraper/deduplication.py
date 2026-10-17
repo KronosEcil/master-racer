@@ -129,7 +129,7 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
     # Fransa Masterlar Şampiyonaları ve EMA Ligi (FFA & Gemini AI)
     is_fr = country_part == "FR" or "frans" in title_norm or "france" in title_norm
     if is_fr and ("ema-league" in title_norm or "meeting-europeen" in title_norm):
-        return f"FR-{year}-EMA-LEAGUE-NANTES"
+        return "FR-2027-EMA-LEAGUE-NANTES"
     if is_fr and "meeting" not in title_norm:
         if "combin" in title_norm or "coklu" in title_norm:
             return f"FR-{year}-MASTERLAR-COMBINEES"
@@ -316,7 +316,33 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
             existing.content_hash = compute_content_hash(existing)
             unique_map[key] = existing
 
-    return list(unique_map.values())
+    # İkinci aşama güvenlik filtresi: Farklı kanonik anahtar üretmiş olsa bile
+    # aynı ülke + aynı başlangıç tarihi + aynı başlık (veya aynı şehir + aynı kapsam) olan ikiz kayıtları kesin olarak tekilleştir.
+    final_list: List[Competition] = []
+    seen_signatures: dict[str, int] = {}
+
+    for comp in unique_map.values():
+        title_sig = f"{comp.country}|{comp.start_date}|{normalize_text(comp.title)[:30]}"
+        city_sig = f"{comp.country}|{comp.start_date}|{normalize_text(comp.city)[:15]}|{comp.scope}" if comp.city else title_sig
+
+        dup_idx = seen_signatures.get(title_sig)
+        if dup_idx is None:
+            dup_idx = seen_signatures.get(city_sig)
+
+        if dup_idx is None:
+            idx = len(final_list)
+            final_list.append(comp)
+            seen_signatures[title_sig] = idx
+            seen_signatures[city_sig] = idx
+        else:
+            existing = final_list[dup_idx]
+            if len(comp.city or "") > len(existing.city or ""):
+                existing.city = comp.city
+            if comp.end_date > existing.end_date:
+                existing.end_date = comp.end_date
+            existing.content_hash = compute_content_hash(existing)
+
+    return final_list
 
 def compute_content_hash(comp: Competition) -> str:
     """
