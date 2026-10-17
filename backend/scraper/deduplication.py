@@ -145,6 +145,39 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
     if "galway" in city_norm or "emacns" in title_norm:
         return "EMA-2028-EMACNS-GALWAY"
 
+    # 5. Evrensel Avrupa Ulusal Şampiyona Anahtarı (Tüm Ülkeler İçin Otomatik Eşleştirme)
+    is_nat_champ = (
+        country_part not in ["INT", "EU"] and
+        any(w in title_norm for w in [
+            "championship", "champs", "sampiyona", "championnat", "meisterschaft",
+            "campeonato", "campionat", "mistrzostwa", "kampioenschap", "mesterskap",
+            "masterskap", "mestaruuskilpailut", "prvenstvo", "bajnoksag"
+        ]) and
+        not any(w in title_norm for w in [
+            "europe", "world", "wma", "wmg", "balkan", "bamacs", "bamaci",
+            "ema-league", "meeting", "open", "part-1", "part-2",
+            "bw-", "baden", "norddeutsch", "westfal", "bayern", "hessen", "rheinland", "landes"
+        ])
+    )
+    if is_nat_champ:
+        if any(w in title_norm for w in ["combin", "coklu", "mehrkampf", "pentathlon", "decathlon", "heptathlon"]):
+            subtype = "COMBINEES"
+        elif any(w in title_norm for w in ["marche", "walk", "yuruyus", "gehen"]):
+            subtype = "MARCHE"
+        elif any(w in title_norm for w in ["marathon", "maraton", "half-marathon", "halbmarathon", "10k", "road"]):
+            subtype = "MARATHON"
+        elif any(w in title_norm for w in ["cross", "kros"]):
+            subtype = "CROSS"
+        elif any(w in title_norm for w in ["mountain", "trail", "dag"]):
+            subtype = "MOUNTAIN"
+        elif any(w in title_norm for w in ["throw", "atma", "winterwurf", "wurf", "lancer"]):
+            subtype = "THROWS"
+        elif any(w in title_norm for w in ["indoor", "salon", "salle", "halle", "cubierta"]):
+            subtype = "SALON"
+        else:
+            subtype = "ACIK-SAHA"
+        return f"{country_part}-{year}-MASTERLAR-{subtype}"
+
     # 6. Genel Tekilleştirme Anahtarı: Tarih + Ülke + Şehir (veya ana başlık çekirdeği)
     if city_norm:
         return f"{country_part}-{date_part}-{city_norm}"
@@ -161,7 +194,8 @@ def generate_competition_id(title: str, start_date: str = "", country: str = "",
 def deduplicate_competitions(competitions: List[Competition]) -> List[Competition]:
     """
     Taranan yarışmalar listesindeki kopyaları (aynı tarih, aynı şehir veya aynı şampiyona)
-    tekilleştirir ve en zengin veriye sahip olanı seçer.
+    tekilleştirir ve çoklu kaynaklardan gelen verileri (tam tarih aralığı, tesis/şehir detayı,
+    yetkili ulusal federasyon bilgisi) akıllıca birleştirir.
     """
     unique_map: dict[str, Competition] = {}
 
@@ -183,7 +217,6 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
             comp.federation = "IMGA"
             comp.website_url = "https://wmg2027.jp"
 
-        # Türkiye Masterlar Şampiyonaları normalizasyonu
         key = get_canonical_key(comp)
         if key.startswith("TR-") and "-MASTERLAR-ACIK-SAHA" in key:
             comp.title = "Türkiye Masterlar Açık Saha Atletizm Şampiyonası"
@@ -226,24 +259,46 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
             comp.scope = "national"
             if not comp.website_url:
                 comp.website_url = "https://www.athle.fr/contenu/calendrier-championnats-de-france/32"
+
         if key not in unique_map:
-            # Kanonik ID ata
             comp.id = normalize_text(key)
+            comp.content_hash = compute_content_hash(comp)
             unique_map[key] = comp
         else:
             existing = unique_map[key]
-            # Daha zengin metaveriyi koru
-            if len(comp.website_url or "") > len(existing.website_url or ""):
+            # 1. Tam tarih aralığı önceliği: Çok günlü tarih aralığı (end_date > start_date) tek günlü özete göre her zaman önceliklidir
+            existing_is_range = bool(existing.end_date and existing.end_date > existing.start_date)
+            incoming_is_range = bool(comp.end_date and comp.end_date > comp.start_date)
+            incoming_is_nat_fed = comp.federation not in ["", "EMA"] and existing.federation == "EMA"
+
+            if (incoming_is_range and not existing_is_range) or incoming_is_nat_fed:
+                existing.start_date = comp.start_date
+                existing.end_date = comp.end_date
+
+            # 2. Yetkili ulusal federasyon ve başlık önceliği
+            if incoming_is_nat_fed:
+                existing.federation = comp.federation
+                existing.title = comp.title
+                if comp.website_url:
+                    existing.website_url = comp.website_url
+
+            # 3. Daha detaylı şehir ve stadyum/tesis bilgisini koru (ülke adı olmayan gerçek şehir/tesis tercih edilir)
+            comp_city_valid = bool(comp.city and comp.city.lower() not in [comp.country_name.lower(), "avrupa", "uluslararası", "belirlenecek"])
+            exist_city_valid = bool(existing.city and existing.city.lower() not in [existing.country_name.lower(), "avrupa", "uluslararası", "belirlenecek"])
+            if comp_city_valid and (not exist_city_valid or len(comp.city) > len(existing.city)):
+                existing.city = comp.city
+
+            # 4. Daha zengin metaveriyi koru
+            if len(comp.website_url or "") > len(existing.website_url or "") and not incoming_is_nat_fed:
                 existing.website_url = comp.website_url
             if len(comp.categories) > len(existing.categories):
                 existing.categories = comp.categories
-            if comp.city and not existing.city:
-                existing.city = comp.city
             if comp.regulations_url and not existing.regulations_url:
                 existing.regulations_url = comp.regulations_url
-            # Kanonik başlığı önceliklendir (Örn: BAMACS 2026 Craiova, WMA Masters Marathon Championships Zagreb)
             if any(kw in comp.title.lower() for kw in ["bamacs 2026", "bamaci 2026", "zagreb", "stadia"]):
                 existing.title = comp.title
+
+            existing.content_hash = compute_content_hash(existing)
             unique_map[key] = existing
 
     return list(unique_map.values())

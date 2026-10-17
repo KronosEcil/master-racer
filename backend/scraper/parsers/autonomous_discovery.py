@@ -123,7 +123,7 @@ class AutonomousDiscoveryParser(BaseParser):
                                 end_date=end_date,
                                 venue_type=venue,
                                 categories=self.detect_categories(title + " " + text, venue),
-                                scope="regional",
+                                scope=self.detect_scope(title, "DE"),
                                 federation="DLV / LADV",
                                 website_url="https://ladv.de",
                                 status="scheduled",
@@ -702,7 +702,7 @@ class AutonomousDiscoveryParser(BaseParser):
                                 end_date=end_date,
                                 venue_type=venue,
                                 categories=self.detect_categories(title + " " + text, venue),
-                                scope="turkey",
+                                scope=self.detect_scope(title, country),
                                 federation="TAF",
                                 website_url=taf_url,
                                 status="scheduled",
@@ -717,10 +717,9 @@ class AutonomousDiscoveryParser(BaseParser):
 
     def _extract_dates_from_text(self, text: str, fallback_year: int) -> tuple[Optional[str], Optional[str]]:
         """
-        Metin içinden GG.AA.YYYY veya YYYY-AA-GG veya metinsel tarih formatlarını çıkarır.
+        Tüm Avrupa dillerinde (EN, FR, DE, TR, ES, IT, PT, PL, NL vb.)
+        GG.AA.YYYY, YYYY-AA-GG ve çoklu gün aralıklarını (11.-12.07.2026, 11.07.-12.07.2026, du 13 au 15 février 2026 vb.) çıkarır.
         """
-        # 0. Yıl belirleme: Metinde geçen açık 4 haneli yıl (Örn: 2027, EMACS2027, EMAMRC2027)
-        # veya şampiyona kısaltmasındaki 2 haneli yıl (Örn: EMACNS28 -> 2028, EMACI28 -> 2028)
         explicit_year = fallback_year
         four_digit_match = re.search(r"202[5-9]", text)
         if four_digit_match:
@@ -730,7 +729,13 @@ class AutonomousDiscoveryParser(BaseParser):
             if two_digit_match:
                 explicit_year = 2000 + int(two_digit_match.group(1))
 
-        # 1. YYYY-MM-DD
+        # 1a. İki ISO tarih aralığı (Örn: 2026-07-11 - 2026-07-12)
+        iso_range = re.search(r"(\d{4})-(\d{1,2})-(\d{1,2})\s*(?:-|–|/|\s+to\s+|\s+au\s+)\s*(\d{4})-(\d{1,2})-(\d{1,2})", text)
+        if iso_range:
+            y1, m1, d1, y2, m2, d2 = iso_range.groups()
+            return f"{y1}-{int(m1):02d}-{int(d1):02d}", f"{y2}-{int(m2):02d}-{int(d2):02d}"
+
+        # 1b. Tek YYYY-MM-DD
         iso_match = re.search(r"(\d{4})-(\d{1,2})-(\d{1,2})", text)
         if iso_match:
             y, m, d = iso_match.groups()
@@ -743,8 +748,14 @@ class AutonomousDiscoveryParser(BaseParser):
             d1, m1, y1, d2, m2, y2 = dot_range_full.groups()
             return f"{y1}-{int(m1):02d}-{int(d1):02d}", f"{y2}-{int(m2):02d}-{int(d2):02d}"
 
-        # 3. Kısa gün aralığı (Örn: 11-12.07.2026 veya 11 - 12.07.2026)
-        dot_range_short = re.search(r"(\d{1,2})\s*(?:-|–)\s*(\d{1,2})[./](\d{1,2})[./](\d{4})", text)
+        # 3a. İki gün+ay aralığı (Örn: 11.07. - 12.07.2026 veya 11/07 - 12/07/2026)
+        dot_range_dm = re.search(r"(\d{1,2})[./](\d{1,2})\.?\s*(?:-|–|/|\s+to\s+)\s*(\d{1,2})[./](\d{1,2})[./](\d{4})", text)
+        if dot_range_dm:
+            d1, m1, d2, m2, y = dot_range_dm.groups()
+            return f"{y}-{int(m1):02d}-{int(d1):02d}", f"{y}-{int(m2):02d}-{int(d2):02d}"
+
+        # 3b. Kısa gün aralığı (Örn: 11-12.07.2026 veya 11.-12.07.2026 veya 11./12.07.2026)
+        dot_range_short = re.search(r"(\d{1,2})\.?\s*(?:-|–|/)\s*(\d{1,2})[./](\d{1,2})[./](\d{4})", text)
         if dot_range_short:
             d1, d2, m, y = dot_range_short.groups()
             return f"{y}-{int(m):02d}-{int(d1):02d}", f"{y}-{int(m):02d}-{int(d2):02d}"
@@ -756,20 +767,20 @@ class AutonomousDiscoveryParser(BaseParser):
             dt = f"{y}-{int(m):02d}-{int(d):02d}"
             return dt, dt
 
-        # 3. Yıl ve ay isimleri (Ocak, Şubat, Januar, Février, January, April, August vb.)
+        # 5. Çok dilli ay isimleri (EN, FR, DE, TR, ES, IT, PT, NL, PL)
         months = {
-            "jan": 1, "janvier": 1, "januar": 1, "january": 1, "ocak": 1, "ene": 1, "enero": 1,
-            "feb": 2, "février": 2, "fevrier": 2, "fév": 2, "fev": 2, "februar": 2, "february": 2, "şubat": 2, "subat": 2,
-            "mar": 3, "mars": 3, "märz": 3, "maerz": 3, "march": 3, "mart": 3, "marzo": 3,
-            "apr": 4, "avril": 4, "april": 4, "nisan": 4, "abr": 4, "abril": 4,
-            "may": 5, "mai": 5, "mayıs": 5, "mayis": 5, "mayo": 5,
-            "jun": 6, "juin": 6, "juni": 6, "june": 6, "haziran": 6, "junio": 6,
-            "jul": 7, "juillet": 7, "juli": 7, "july": 7, "temmuz": 7, "julio": 7,
-            "aug": 8, "août": 8, "aout": 8, "august": 8, "ağustos": 8, "agustos": 8, "agosto": 8,
-            "sep": 9, "sept": 9, "septembre": 9, "september": 9, "eylül": 9, "eylul": 9, "septiembre": 9,
-            "oct": 10, "octobre": 10, "oktober": 10, "october": 10, "ekim": 10, "octubre": 10,
-            "nov": 11, "novembre": 11, "november": 11, "kasım": 11, "kasim": 11, "noviembre": 11,
-            "dec": 12, "décembre": 12, "decembre": 12, "déc": 12, "dezember": 12, "december": 12, "aralık": 12, "aralik": 12, "diciembre": 12
+            "jan": 1, "janvier": 1, "januar": 1, "january": 1, "ocak": 1, "ene": 1, "enero": 1, "gen": 1, "gennaio": 1, "janeiro": 1, "styczeń": 1, "stycznia": 1,
+            "feb": 2, "février": 2, "fevrier": 2, "fév": 2, "fev": 2, "februar": 2, "february": 2, "şubat": 2, "subat": 2, "febrero": 2, "febbraio": 2, "fevereiro": 2, "luty": 2, "lutego": 2,
+            "mar": 3, "mars": 3, "märz": 3, "maerz": 3, "march": 3, "mart": 3, "marzo": 3, "março": 3, "marco": 3, "maart": 3, "marzec": 3, "marca": 3,
+            "apr": 4, "avril": 4, "april": 4, "nisan": 4, "abr": 4, "abril": 4, "aprile": 4, "kwiecień": 4, "kwietnia": 4,
+            "may": 5, "mai": 5, "mayıs": 5, "mayis": 5, "mayo": 5, "mag": 5, "maggio": 5, "maio": 5, "mei": 5, "maj": 5, "maja": 5,
+            "jun": 6, "juin": 6, "juni": 6, "june": 6, "haziran": 6, "junio": 6, "giu": 6, "giugno": 6, "junho": 6, "czerwiec": 6, "czerwca": 6,
+            "jul": 7, "juillet": 7, "juli": 7, "july": 7, "temmuz": 7, "julio": 7, "lug": 7, "luglio": 7, "julho": 7, "lipiec": 7, "lipca": 7,
+            "aug": 8, "août": 8, "aout": 8, "august": 8, "ağustos": 8, "agustos": 8, "ago": 8, "agosto": 8, "augustus": 8, "sierpień": 8, "sierpnia": 8,
+            "sep": 9, "sept": 9, "septembre": 9, "september": 9, "eylül": 9, "eylul": 9, "set": 9, "septiembre": 9, "settembre": 9, "setembro": 9, "wrzesień": 9, "września": 9,
+            "oct": 10, "octobre": 10, "oktober": 10, "october": 10, "ekim": 10, "octubre": 10, "ott": 10, "ottobre": 10, "out": 10, "outubro": 10, "październik": 10, "października": 10,
+            "nov": 11, "novembre": 11, "november": 11, "kasım": 11, "kasim": 11, "noviembre": 11, "novembro": 11, "listopad": 11, "listopada": 11,
+            "dec": 12, "décembre": 12, "decembre": 12, "déc": 12, "dez": 12, "dezember": 12, "december": 12, "aralık": 12, "aralik": 12, "dic": 12, "diciembre": 12, "dicembre": 12, "dezembro": 12, "grudzień": 12, "grudnia": 12
         }
 
         def resolve_month(m_raw: Optional[str]) -> Optional[int]:
@@ -785,9 +796,8 @@ class AutonomousDiscoveryParser(BaseParser):
         text_clean = text.replace("\xa0", " ").replace("&nbsp;", " ")
         text_clean = re.sub(r"\b1er\b", "1", text_clean, flags=re.IGNORECASE)
 
-        # İki tarih arası aralık: Örn: "13-15 février 2026", "12-14 juin 2026", "16 au 19 juillet 2026", "11 August/22 August"
         range_match = re.search(
-            r"(\d{1,2})\.?\s*([a-zA-ZçğıöşüéèêëàâäôöùûüÇĞİÖŞÜ]+)?\s*(?:/|-|–|\s+to\s+|\s+au\s+)\s*(\d{1,2})\.?\s*([a-zA-ZçğıöşüéèêëàâäôöùûüÇĞİÖŞÜ]+)",
+            r"(\d{1,2})\.?\s*([a-zA-ZçğıöşüéèêëàâäôöùûüńłśźżąćęÇĞİÖŞÜ]+)?\s*(?:/|-|–|\s+to\s+|\s+au\s+)\s*(\d{1,2})\.?\s*([a-zA-ZçğıöşüéèêëàâäôöùûüńłśźżąćęÇĞİÖŞÜ]+)",
             text_clean
         )
         if range_match:
@@ -803,9 +813,8 @@ class AutonomousDiscoveryParser(BaseParser):
                 y = explicit_year
                 return f"{y}-{m1_num:02d}-{d1:02d}", f"{y}-{m2_num:02d}-{d2:02d}"
 
-        # Tek tarih veya genel ay tarama: Örn: "27 septembre 2026", "15. April", "31. October"
         single_match = re.search(
-            r"(\d{1,2})\.?\s*(?:-|–|/|\s+to\s+|\s+au\s+)?\s*(\d{1,2})?\.?\s+([a-zA-ZçğıöşüéèêëàâäôöùûüÇĞİÖŞÜ]+)\s*(\d{4})?",
+            r"(\d{1,2})\.?\s*(?:-|–|/|\s+to\s+|\s+au\s+)?\s*(\d{1,2})?\.?\s+([a-zA-ZçğıöşüéèêëàâäôöùûüńłśźżąćęÇĞİÖŞÜ]+)\s*(\d{4})?",
             text_clean
         )
         if single_match:
@@ -837,24 +846,34 @@ class AutonomousDiscoveryParser(BaseParser):
 
     def detect_scope(self, title: str, country: str = "") -> str:
         """
-        Yarışma başlığına ve ülkesine göre standart kapsamı (scope) belirler:
-        - EMA Ligi yarışmaları -> 'ema_league'
-        - Dünya Şampiyonaları (WMA / WMG) -> 'world'
-        - Balkan Şampiyonaları (BAMACS / BAMACI) -> 'balkan'
-        - Resmi EMA Avrupa Şampiyonaları (EMACS, EMACI, EMAMRC, EMACNS, EMMTRC, EMORRC) -> 'europe'
-        - Bölgesel / Özel Miting / Meeting / Open -> 'regional'
-        - Ulusal Şampiyonalar (Türkiye, Fransa, Almanya vb.) -> 'national'
+        Yarışma başlığına ve ülkesine göre 6 standart kapsamdan (scope) birini belirler:
+        - 'ema_league' -> EMA Ligi
+        - 'world'      -> Dünya
+        - 'balkan'     -> Balkan
+        - 'europe'     -> Avrupa
+        - 'regional'   -> Bölgesel
+        - 'national'   -> Ulusal
         """
         t_low = title.lower()
         if "ema league" in t_low or "ema ligi" in t_low:
             return "ema_league"
-        if any(kw in t_low for kw in ["world", "wma", "wmg", "kansai"]):
+        if any(kw in t_low for kw in ["world", "wma", "wmg", "kansai", "weltmeisterschaft", "mondiaux", "mundial"]):
             return "world"
         if any(kw in t_low for kw in ["balkan", "bamacs", "bamaci"]):
             return "balkan"
-        if any(kw in t_low for kw in ["emacs", "emaci", "emamrc", "emacns", "emmtrc", "emorrc", "european masters championship", "european masters athletics championship", "european masters mountain", "european masters marathon", "european masters non-stadia", "european masters indoor"]):
+        if any(kw in t_low for kw in [
+            "emacs", "emaci", "emamrc", "emacns", "emmtrc", "emorrc",
+            "european masters championship", "european masters athletics championship",
+            "european masters mountain", "european masters marathon",
+            "european masters non-stadia", "european masters indoor",
+            "europameisterschaft", "championnats d'europe"
+        ]):
             return "europe"
-        if any(kw in t_low for kw in ["meeting", "open", "grand prix", "track night", "bw-", "baden", "norddeutsch", "westfal", "bayern", "hessen", "rheinland", "bölge"]):
+        if any(kw in t_low for kw in [
+            "meeting", "open", "grand prix", "track night", "challenge", "trophy",
+            "bw-", "baden", "norddeutsch", "westfal", "bayern", "hessen", "rheinland",
+            "landes", "bezirks", "kreis", "régional", "regional", "bölge"
+        ]):
             return "regional"
         return "national"
 

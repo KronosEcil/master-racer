@@ -159,81 +159,19 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
         if should_notify:
             notification_mgr.send_competition_notification(comp, change_type)
 
-    # Firestore Eski / Hatalı / Kopya Kayıt Temizliği (Garbage Collection)
+    # Firestore Otomatik Senkronizasyon ve Eski/Kopya Kayıt Temizliği (Garbage Collection)
     scraped_ids = {c.id for c in all_scraped}
-    scraped_canonical_keys = {get_canonical_key(c) for c in all_scraped}
     deleted_count = 0
 
-    if db and not dry_run:
+    # Güvenlik eşiği: Tarayıcı en az 5 geçerli yarışma bulduysa, güncel tarama listesinde yer almayan
+    # tüm eski/kopya/hatalı kayıtları Firestore'dan otomatik olarak temizle (Tam Senkronizasyon).
+    if db and not dry_run and len(scraped_ids) >= 5:
         for doc_id, doc_data in existing_comps.items():
-            title = doc_data.get("title", "")
-            s_date = str(doc_data.get("start_date", ""))
-            c_name = str(doc_data.get("country_name", ""))
-            country = str(doc_data.get("country", ""))
-            city = str(doc_data.get("city", ""))
-
-            # 1. Başlık geçerlilik kontrolü (Technical Manual, Timetable, Registrations, vb.)
-            is_invalid_title = not is_valid_competition_title(title)
-            
-            # 2. Geçersiz veya sahte tarihler (2006 veya 2026'dan eski)
-            is_bad_date = s_date.startswith("2006") or (len(s_date) >= 4 and s_date[:4] < "2026")
-            
-            # 3. Craiova / BAMACS 2026 yarışmasının 2027 tarihli hatalı kopyası
-            is_wrong_bamacs_year = ("craiova" in title.lower() or "bamacs" in title.lower()) and s_date.startswith("2027")
-
-            # 4. Hatalı ülke/şehir kayıtları (Balkan ülkesi, Selanik'te BAMACS, Uluslararası Kansai, Albania vb.)
-            is_wrong_country = (
-                (country == "GR" and "bamacs" in title.lower()) or 
-                (country == "Balkan" or c_name == "Balkan" or city == "Balkan") or
-                (("kansai" in doc_id.lower() or "kansai" in title.lower() or "wmg" in doc_id.lower() or "world-masters-games" in doc_id.lower()) and (country != "JP" or "uluslararası" in c_name.lower())) or
-                (c_name.lower() == "albania" or (country.upper() == "ALB" and c_name != "Arnavutluk"))
-            )
-
-            # 5. Sahte mock fixture artıkları
-            is_mock_artifact = any(kw in doc_id.lower() or kw in title.lower() for kw in [
-                "sonbahar", "bursa-kros", "naili moran", "mock", "sample", "demo",
-                "registrations", "timetable", "schedule", "manual"
-            ])
-
-            # 6. Yeni taranan kanonik yarışmalarla çakışan eski kopya ID'ler
-            old_canonical_key = get_canonical_key(title, s_date, country, city)
-            is_duplicate_of_new = (doc_id not in scraped_ids and old_canonical_key in scraped_canonical_keys)
-
-            # 7. Başlığında açıkça yıl belirtilip tarihi farklı olan (Örn: EMACNS28 -> 2028 ama tarih 2027) tutarsız eski kayıtlar
-            explicit_year_str = ""
-            four_d = re.search(r"202[5-9]", title)
-            two_d = re.search(r"\b[A-Za-z]+(2[5-9])\b", title)
-            if four_d:
-                explicit_year_str = four_d.group(0)
-            elif two_d:
-                explicit_year_str = f"20{two_d.group(1)}"
-            is_year_mismatch = bool(explicit_year_str and len(s_date) >= 4 and explicit_year_str != s_date[:4])
-
-            # 8. Büyük EMA şampiyonalarında kesin takvim yılı kontrolleri
-            t_low = title.lower()
-            if ("lucerne" in t_low or "emamrc" in t_low) and not s_date.startswith("2027"):
-                is_year_mismatch = True
-            if ("galway" in t_low or "emacns" in t_low) and not s_date.startswith("2028"):
-                is_year_mismatch = True
-            if ("jyvaskyla" in t_low or "jyväskylä" in t_low or "emacs" in t_low) and not s_date.startswith("2027"):
-                is_year_mismatch = True
-            if ("ojos" in t_low or "ojós" in t_low or "emmtr" in t_low) and not s_date.startswith("2027"):
-                is_year_mismatch = True
-
-            # 9. Bozuk karakterli (\ufffd) veya artık canlı FFA takviminde yer almayan eski statik Fransa kayıtları
-            has_corrupt_encoding = ("\ufffd" in title or "\ufffd" in city)
-            is_stale_france = (country == "FR" and doc_id not in scraped_ids)
-
-            should_delete = (
-                is_invalid_title or is_bad_date or is_wrong_bamacs_year or
-                is_wrong_country or is_mock_artifact or is_duplicate_of_new or
-                is_year_mismatch or has_corrupt_encoding or is_stale_france
-            )
-
-            if should_delete and doc_id not in scraped_ids:
+            if doc_id not in scraped_ids:
+                title = doc_data.get("title", "")
                 try:
                     db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()
-                    logger.info(f"🗑️ [ESKİ/HATALI/KOPYA VERİ SİLİNDİ] {title} (ID: {doc_id})")
+                    logger.info(f"🗑️ [ESKİ/KOPYA VERİ SİLİNDİ] {title} (ID: {doc_id})")
                     deleted_count += 1
                 except Exception as e:
                     logger.error(f"Firestore silme hatası ({doc_id}): {e}")

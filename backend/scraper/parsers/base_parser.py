@@ -42,85 +42,129 @@ class BaseParser(abc.ABC):
         Yarışma başlığından ve metninden ev sahibi ülkeyi, ülke adını ve bayrağını belirler.
         Tüm tespitler GitHub scraper motorunda otomatik yapılır.
         """
-        def_upper = default_country.upper()
-        def_name_lower = default_name.lower()
-        if def_upper in ["AL", "ALB"] or def_name_lower in ["albania", "arnavutluk"]:
-            return "AL", "Arnavutluk", "🇦🇱"
+        def_upper = (default_country or "INT").strip().upper()
+        def_name_lower = (default_name or "").strip().lower()
+        title_lower = f"{title or ''} {default_name or ''} {default_country or ''}".lower()
+
+        # 1. Doğrudan ISO ülke kodları veya ülke isimleri eşleşmesi (Avrupa ve Dünya)
+        iso_map = {
+            "TR": ("TR", "Türkiye", "🇹🇷"), "TUR": ("TR", "Türkiye", "🇹🇷"),
+            "DE": ("DE", "Almanya", "🇩🇪"), "GER": ("DE", "Almanya", "🇩🇪"), "DEU": ("DE", "Almanya", "🇩🇪"),
+            "FR": ("FR", "Fransa", "🇫🇷"), "FRA": ("FR", "Fransa", "🇫🇷"),
+            "GR": ("GR", "Yunanistan", "🇬🇷"), "GRE": ("GR", "Yunanistan", "🇬🇷"), "GRC": ("GR", "Yunanistan", "🇬🇷"),
+            "IT": ("IT", "İtalya", "🇮🇹"), "ITA": ("IT", "İtalya", "🇮🇹"),
+            "ES": ("ES", "İspanya", "🇪🇸"), "ESP": ("ES", "İspanya", "🇪🇸"),
+            "PT": ("PT", "Portekiz", "🇵🇹"), "POR": ("PT", "Portekiz", "🇵🇹"), "PRT": ("PT", "Portekiz", "🇵🇹"),
+            "GB": ("GB", "Birleşik Krallık", "🇬🇧"), "GBR": ("GB", "Birleşik Krallık", "🇬🇧"), "UK": ("GB", "Birleşik Krallık", "🇬🇧"),
+            "IE": ("IE", "İrlanda", "🇮🇪"), "IRL": ("IE", "İrlanda", "🇮🇪"),
+            "NL": ("NL", "Hollanda", "🇳🇱"), "NED": ("NL", "Hollanda", "🇳🇱"), "NLD": ("NL", "Hollanda", "🇳🇱"),
+            "BE": ("BE", "Belçika", "🇧🇪"), "BEL": ("BE", "Belçika", "🇧🇪"),
+            "LU": ("LU", "Lüksemburg", "🇱🇺"), "LUX": ("LU", "Lüksemburg", "🇱🇺"),
+            "CH": ("CH", "İsviçre", "🇨🇭"), "SUI": ("CH", "İsviçre", "🇨🇭"), "CHE": ("CH", "İsviçre", "🇨🇭"),
+            "AT": ("AT", "Avusturya", "🇦🇹"), "AUT": ("AT", "Avusturya", "🇦🇹"),
+            "PL": ("PL", "Polonya", "🇵🇱"), "POL": ("PL", "Polonya", "🇵🇱"),
+            "CZ": ("CZ", "Çekya", "🇨🇿"), "CZE": ("CZ", "Çekya", "🇨🇿"),
+            "SK": ("SK", "Slovakya", "🇸🇰"), "SVK": ("SK", "Slovakya", "🇸🇰"),
+            "HU": ("HU", "Macaristan", "🇭🇺"), "HUN": ("HU", "Macaristan", "🇭🇺"),
+            "RO": ("RO", "Romanya", "🇷🇴"), "ROU": ("RO", "Romanya", "🇷🇴"), "ROM": ("RO", "Romanya", "🇷🇴"),
+            "BG": ("BG", "Bulgaristan", "🇧🇬"), "BUL": ("BG", "Bulgaristan", "🇧🇬"), "BGR": ("BG", "Bulgaristan", "🇧🇬"),
+            "RS": ("RS", "Sırbistan", "🇷🇸"), "SRB": ("RS", "Sırbistan", "🇷🇸"),
+            "HR": ("HR", "Hırvatistan", "🇭🇷"), "CRO": ("HR", "Hırvatistan", "🇭🇷"), "HRV": ("HR", "Hırvatistan", "🇭🇷"),
+            "SI": ("SI", "Slovenya", "🇸🇮"), "SLO": ("SI", "Slovenya", "🇸🇮"), "SVN": ("SI", "Slovenya", "🇸🇮"),
+            "BA": ("BA", "Bosna-Hersek", "🇧🇦"), "BIH": ("BA", "Bosna-Hersek", "🇧🇦"),
+            "ME": ("ME", "Karadağ", "🇲🇪"), "MNE": ("ME", "Karadağ", "🇲🇪"),
+            "MK": ("MK", "Kuzey Makedonya", "🇲🇰"), "MKD": ("MK", "Kuzey Makedonya", "🇲🇰"),
+            "AL": ("AL", "Arnavutluk", "🇦🇱"), "ALB": ("AL", "Arnavutluk", "🇦🇱"),
+            "SE": ("SE", "İsveç", "🇸🇪"), "SWE": ("SE", "İsveç", "🇸🇪"),
+            "NO": ("NO", "Norveç", "🇳🇴"), "NOR": ("NO", "Norveç", "🇳🇴"),
+            "FI": ("FIN", "Finlandiya", "🇫🇮"), "FIN": ("FIN", "Finlandiya", "🇫🇮"),
+            "DK": ("DK", "Danimarka", "🇩🇰"), "DEN": ("DK", "Danimarka", "🇩🇰"), "DNK": ("DK", "Danimarka", "🇩🇰"),
+            "IS": ("IS", "İzlanda", "🇮🇸"), "ISL": ("IS", "İzlanda", "🇮🇸"),
+            "EE": ("EE", "Estonya", "🇪🇪"), "EST": ("EE", "Estonya", "🇪🇪"),
+            "LV": ("LV", "Letonya", "🇱🇻"), "LAT": ("LV", "Letonya", "🇱🇻"), "LVA": ("LV", "Letonya", "🇱🇻"),
+            "LT": ("LT", "Litvanya", "🇱🇹"), "LTU": ("LT", "Litvanya", "🇱🇹"),
+            "UA": ("UA", "Ukrayna", "🇺🇦"), "UKR": ("UA", "Ukrayna", "🇺🇦"),
+            "CY": ("CY", "Kıbrıs", "🇨🇾"), "CYP": ("CY", "Kıbrıs", "🇨🇾"),
+            "MT": ("MT", "Malta", "🇲🇹"), "MLT": ("MT", "Malta", "🇲🇹"),
+            "JP": ("JP", "Japonya", "🇯🇵"), "JPN": ("JP", "Japonya", "🇯🇵"),
+            "KR": ("KOR", "Güney Kore", "🇰🇷"), "KOR": ("KOR", "Güney Kore", "🇰🇷"),
+            "US": ("USA", "ABD", "🇺🇸"), "USA": ("USA", "ABD", "🇺🇸")
+        }
 
         if any(k in title_lower for k in ["kansai", "world masters games", "wmg", "japan", "japonya"]):
             return "JP", "Japonya", "🇯🇵"
-        if any(k in title_lower for k in ["türkiye", "turkey", "istanbul", "izmir", "bursa", "ankara", "taf"]):
+        if any(k in title_lower for k in ["türkiye", "turkey", "turkish", "istanbul", "izmir", "bursa", "ankara", "taf"]):
             return "TR", "Türkiye", "🇹🇷"
-        if any(k in title_lower for k in ["almanya", "germany", "deutschland", "dlv", "ladv"]):
+        if any(k in title_lower for k in ["almanya", "germany", "german", "deutschland", "deutsche", "dlv", "ladv"]):
             return "DE", "Almanya", "🇩🇪"
-        if any(k in title_lower for k in ["fransa", "france", "ffa", "miramas"]):
+        if any(k in title_lower for k in ["fransa", "france", "french", "ffa", "miramas", "nantes", "saint-brieuc", "épinal", "epinal", "châteauroux", "belfort"]):
             return "FR", "Fransa", "🇫🇷"
-        if any(k in title_lower for k in ["yunanistan", "greece", "hellas", "athens"]):
+        if any(k in title_lower for k in ["yunanistan", "greece", "greek", "hellas", "athens", "thessaloniki", "selanik"]):
             return "GR", "Yunanistan", "🇬🇷"
-        if any(k in title_lower for k in ["italya", "italy", "italia", "catania", "fidal"]):
+        if any(k in title_lower for k in ["italya", "italy", "italian", "italia", "catania", "roma", "ancona", "fidal"]):
             return "IT", "İtalya", "🇮🇹"
-        if any(k in title_lower for k in ["polonya", "poland", "polska", "torun", "toruń"]):
+        if any(k in title_lower for k in ["polonya", "poland", "polish", "polska", "torun", "toruń", "warszawa", "włocławek"]):
             return "PL", "Polonya", "🇵🇱"
-        if any(k in title_lower for k in ["ispanya", "spain", "españa", "ojós", "ojos"]):
+        if any(k in title_lower for k in ["ispanya", "spain", "spanish", "españa", "ojós", "ojos", "madrid", "barcelona", "valencia", "malaga"]):
             return "ES", "İspanya", "🇪🇸"
-        if any(k in title_lower for k in ["finlandiya", "finland", "jyväskylä", "jyvaskyla"]):
+        if any(k in title_lower for k in ["finlandiya", "finland", "finnish", "jyväskylä", "jyvaskyla", "tampere", "helsinki"]):
             return "FIN", "Finlandiya", "🇫🇮"
-        if any(k in title_lower for k in ["isviçre", "switzerland", "schweiz", "lucerne"]):
+        if any(k in title_lower for k in ["isviçre", "switzerland", "swiss", "schweiz", "lucerne", "luzern", "kreuzlingen", "bellinzona", "zürich"]):
             return "CH", "İsviçre", "🇨🇭"
-        if any(k in title_lower for k in ["romanya", "romania", "craiova", "rasnov", "râșnov"]):
+        if any(k in title_lower for k in ["romanya", "romania", "romanian", "craiova", "rasnov", "râșnov", "bucharest", "bükreş"]):
             return "RO", "Romanya", "🇷🇴"
-        if any(k in title_lower for k in ["ingiltere", "uk", "gbr", "glasgow", "great britain"]):
+        if any(k in title_lower for k in ["ingiltere", "uk", "gbr", "glasgow", "great britain", "british", "scotland", "england", "london", "sheffield", "birmingham", "derby"]):
             return "GB", "Birleşik Krallık", "🇬🇧"
-        if any(k in title_lower for k in ["irlanda", "ireland", "galway"]):
+        if any(k in title_lower for k in ["irlanda", "ireland", "irish", "galway", "dublin", "athlone"]):
             return "IE", "İrlanda", "🇮🇪"
-        if any(k in title_lower for k in ["slovenya", "slovenia", "novo mesto", "domzale"]):
+        if any(k in title_lower for k in ["slovenya", "slovenia", "slovenian", "novo mesto", "domzale", "ljubljana", "celje"]):
             return "SI", "Slovenya", "🇸🇮"
-        if any(k in title_lower for k in ["arnavutluk", "albania", "shkodër", "shkoder", "tirana", "tiran"]):
+        if any(k in title_lower for k in ["arnavutluk", "albania", "albanian", "shkodër", "shkoder", "tirana", "tiran"]):
             return "AL", "Arnavutluk", "🇦🇱"
-        if any(k in title_lower for k in ["çekya", "czech", "rumburk", "lovosice", "janske lazne"]):
+        if any(k in title_lower for k in ["çekya", "czech", "rumburk", "lovosice", "janske lazne", "prague", "praha", "olomouc"]):
             return "CZ", "Çekya", "🇨🇿"
-        if any(k in title_lower for k in ["portekiz", "portugal", "lisboa", "lisbon"]):
+        if any(k in title_lower for k in ["portekiz", "portugal", "portuguese", "lisboa", "lisbon", "porto", "braga", "pombal"]):
             return "PT", "Portekiz", "🇵🇹"
-        if any(k in title_lower for k in ["norveç", "norway", "oslo"]):
+        if any(k in title_lower for k in ["norveç", "norway", "norwegian", "oslo", "bergen", "moss"]):
             return "NO", "Norveç", "🇳🇴"
-        if any(k in title_lower for k in ["danimarka", "denmark", "dansk", "hvidovre", "aabenraa"]):
+        if any(k in title_lower for k in ["danimarka", "denmark", "danish", "dansk", "hvidovre", "aabenraa", "copenhagen", "odense"]):
             return "DK", "Danimarka", "🇩🇰"
-        if any(k in title_lower for k in ["izlanda", "iceland", "selfoss"]):
+        if any(k in title_lower for k in ["izlanda", "iceland", "icelandic", "selfoss", "reykjavik"]):
             return "IS", "İzlanda", "🇮🇸"
         if any(k in title_lower for k in ["güney kore", "korea", "daegu"]):
             return "KOR", "Güney Kore", "🇰🇷"
-        if any(k in title_lower for k in ["letonya", "latvia", "liepaja"]):
+        if any(k in title_lower for k in ["letonya", "latvia", "latvian", "liepaja", "riga", "valmiera"]):
             return "LV", "Letonya", "🇱🇻"
-        if any(k in title_lower for k in ["litvanya", "lithuania", "marijampole", "klaipeda"]):
+        if any(k in title_lower for k in ["litvanya", "lithuania", "lithuanian", "marijampole", "klaipeda", "vilnius", "kaunas"]):
             return "LT", "Litvanya", "🇱🇹"
-        if any(k in title_lower for k in ["hırvatistan", "croatia", "zagreb", "varaždin", "varazdin"]):
+        if any(k in title_lower for k in ["hırvatistan", "croatia", "croatian", "zagreb", "varaždin", "varazdin", "split"]):
             return "HR", "Hırvatistan", "🇭🇷"
-        if any(k in title_lower for k in ["avusturya", "austria", "götzis", "gotzis"]):
+        if any(k in title_lower for k in ["avusturya", "austria", "austrian", "götzis", "gotzis", "wien", "vienna", "linz"]):
             return "AT", "Avusturya", "🇦🇹"
-        if any(k in title_lower for k in ["belçika", "belgium", "merksem"]):
+        if any(k in title_lower for k in ["belçika", "belgium", "belgian", "merksem", "brussels", "gent", "louvain"]):
             return "BE", "Belçika", "🇧🇪"
-        if any(k in title_lower for k in ["isveç", "sweden", "östersund", "ostersund"]):
+        if any(k in title_lower for k in ["hollanda", "netherlands", "dutch", "amsterdam", "apeldoorn", "hilversum"]):
+            return "NL", "Hollanda", "🇳🇱"
+        if any(k in title_lower for k in ["isveç", "sweden", "swedish", "östersund", "ostersund", "gothenburg", "göteborg", "stockholm", "malmö"]):
             return "SE", "İsveç", "🇸🇪"
-        if any(k in title_lower for k in ["estonya", "estonia", "pärnu", "parnu"]):
+        if any(k in title_lower for k in ["estonya", "estonia", "estonian", "pärnu", "parnu", "tartu", "tallinn"]):
             return "EE", "Estonya", "🇪🇪"
-        if any(k in title_lower for k in ["sırbistan", "serbia", "belgrad", "kruševac"]):
+        if any(k in title_lower for k in ["sırbistan", "serbia", "serbian", "belgrad", "belgrade", "kruševac"]):
             return "RS", "Sırbistan", "🇷🇸"
-        if any(k in title_lower for k in ["bulgaristan", "bulgaria", "sofya", "plovdiv"]):
+        if any(k in title_lower for k in ["bulgaristan", "bulgaria", "bulgarian", "sofya", "sofia", "plovdiv", "stara zagora"]):
             return "BG", "Bulgaristan", "🇧🇬"
+        if any(k in title_lower for k in ["macaristan", "hungary", "hungarian", "budapest", "nyíregyháza"]):
+            return "HU", "Macaristan", "🇭🇺"
+        if any(k in title_lower for k in ["slovakya", "slovakia", "slovak", "bratislava", "banská bystrica"]):
+            return "SK", "Slovakya", "🇸🇰"
+
+        if def_upper in iso_map:
+            return iso_map[def_upper]
+
         if any(k in title_lower for k in ["balkan"]):
             return "EU", "Avrupa", "🇪🇺"
-        
-        country_flags = {
-            "TR": "🇹🇷", "DE": "🇩🇪", "FR": "🇫🇷", "GR": "🇬🇷", "IT": "🇮🇹",
-            "JP": "🇯🇵", "ES": "🇪🇸", "GB": "🇬🇧", "PL": "🇵🇱", "SE": "🇸🇪",
-            "RO": "🇷🇴", "BG": "🇧🇬", "RS": "🇷🇸", "KOR": "🇰🇷", "USA": "🇺🇸",
-            "FIN": "🇫🇮", "CH": "🇨🇭", "IE": "🇮🇪", "SI": "🇸🇮", "AL": "🇦🇱",
-            "CZ": "🇨🇿", "PT": "🇵🇹", "NO": "🇳🇴", "DK": "🇩🇰", "IS": "🇮🇸",
-            "LV": "🇱🇻", "LT": "🇱🇹", "HR": "🇭🇷", "AT": "🇦🇹", "BE": "🇧🇪",
-            "EE": "🇪🇪", "EU": "🇪🇺", "INT": "🌍"
-        }
-        flag = country_flags.get(default_country.upper(), "🏃")
-        return default_country, default_name, flag
+
+        return default_country, default_name, "🏃"
 
     def detect_venue_type(self, text: str) -> str:
         """Metin içerisindeki anahtar kelimelerden salon/açık/yol ayrımını yapar."""
