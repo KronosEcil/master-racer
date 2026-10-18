@@ -88,19 +88,47 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
 
     existing_comps = fetch_existing_competitions(db)
 
-    # Sadece %100 Yapay Zeka (Gemini AI) Keşif ve Tekilleştirme Motoru çalışır.
+    # Resmi Federasyon Siteleri + Gemini AI Keşif ve Tekilleştirme Motoru
     ai_parser = AutonomousDiscoveryParser(existing_comps=existing_comps)
     all_scraped: List[Competition] = []
 
     logger.info(f"[{ai_parser.name}] Taraması başlatılıyor...")
     try:
         all_scraped = ai_parser.parse()
-        logger.info(f"[{ai_parser.name}] {len(all_scraped)} benzersiz yarışma hazırlandı.")
+        logger.info(f"[{ai_parser.name}] {len(all_scraped)} doğrulanmış yarışma hazırlandı.")
     except Exception as e:
         logger.error(f"[{ai_parser.name}] Çalışırken hata: {e}")
 
     stats = {"NEW": 0, "DATE_CHANGED": 0, "LOCATION_CHANGED": 0, "UPDATED": 0, "UNCHANGED": 0}
+    scraped_ids = {c.id for c in all_scraped}
+    current_year_start = f"{datetime.utcnow().year}-01-01"
+    deleted_count = 0
 
+    # 1. TEMİZ VERİTABANI SENKRONİZASYONU:
+    # Tarama başarılıysa (en az 15 yarışma bulunduysa), mevcut yıl ve sonrasına ait olup
+    # yeni resmi site tarama listesinde yer almayan tüm eski/kopya/bozuk kayıtları Firestore'dan temizle.
+    # ÖNEMLİ: Geçmiş yıllara (start_date < current_year_start, örn. 2027'ye geçildiğinde 2026 yılı)
+    # ait yarışmalar kullanıcının kariyer ve derece geçmişi için ASLA silinmez!
+    if db and not dry_run and len(scraped_ids) >= 15:
+        for doc_id, doc_data in existing_comps.items():
+            if doc_id not in scraped_ids:
+                s_date = str(doc_data.get("start_date", "")).strip()
+                title = str(doc_data.get("title", "")).strip()
+                # Sadece geçmiş yıllara ait geçerli kayıtları koru; mevcut/gelecek yıllardaki tüm eski artıkları temizle
+                if s_date and s_date < current_year_start and not doc_id.startswith("tbd-"):
+                    continue
+                try:
+                    db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()
+                    logger.info(f"🗑️ [ESKİ/HATALI KAYIT TEMİZLENDİ] {title} (ID: {doc_id})")
+                    deleted_count += 1
+                except Exception as e:
+                    logger.error(f"Firestore silme hatası ({doc_id}): {e}")
+
+    # Toplu veritabanı yenilemesinde (10'dan fazla yeni kayıt eklendiğinde) bildirim yağmuru oluşmasını engelle
+    new_candidates = sum(1 for c in all_scraped if c.id not in existing_comps)
+    allow_push_notifications = new_candidates <= 10
+
+    # 2. DOĞRULANMIŞ RESMİ YARIŞMALARI VERİTABANINA YAZ
     for comp in all_scraped:
         existing = existing_comps.get(comp.id)
         change_type, should_notify = evaluate_change(existing, comp)
@@ -142,34 +170,17 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
             except Exception as e:
                 logger.error(f"Firestore yazma hatası ({comp.id}): {e}")
 
-        # FCM Bildirimi Gönder
-        if should_notify:
+        # FCM Bildirimi Gönder (Toplu sıfırlama/kurulum haricinde)
+        if should_notify and allow_push_notifications:
             notification_mgr.send_competition_notification(comp, change_type)
-
-    # Gemini AI tarafından açıkça kopya veya Master dışı olduğu tespit edilen kayıtları sil.
-    # ÖNEMLİ: Geçmiş yıllarda (ör. 2026) yapılmış geçerli Master yarışmaları kullanıcının kendi
-    # derecelerini ve geçmişini takip edebilmesi için ASLA silinmez!
-    scraped_ids = {c.id for c in all_scraped}
-    deleted_count = 0
-
-    if db and not dry_run and ai_parser.ids_to_delete:
-        for del_id in ai_parser.ids_to_delete:
-            if del_id in existing_comps and del_id not in scraped_ids:
-                title = existing_comps[del_id].get("title", "")
-                try:
-                    db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(del_id).delete()
-                    logger.info(f"🗑️ [AI DENETİMİ: KOPYA/GEÇERSİZ KAYIT SİLİNDİ] {title} (ID: {del_id})")
-                    deleted_count += 1
-                except Exception as e:
-                    logger.error(f"Firestore silme hatası ({del_id}): {e}")
 
     logger.info("=== Tarama Özeti ===")
     logger.info(f"Yeni Eklenen     : {stats['NEW']}")
     logger.info(f"Tarihi Değişen   : {stats['DATE_CHANGED']}")
     logger.info(f"Detayı Değişen   : {stats['UPDATED']}")
     logger.info(f"Değişmeyen       : {stats['UNCHANGED']}")
-    logger.info(f"Silinen Kopya/Eski: {deleted_count}")
-    logger.info(f"Bu Taramada Aktif: {len(all_scraped)}")
+    logger.info(f"Temizlenen Eski  : {deleted_count}")
+    logger.info(f"Toplam Aktif     : {len(all_scraped)}")
 
     if export_path:
         with open(export_path, "w", encoding="utf-8") as f:
