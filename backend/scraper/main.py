@@ -160,19 +160,40 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
         if should_notify:
             notification_mgr.send_competition_notification(comp, change_type)
 
-    # Firestore Otomatik Senkronizasyon ve Eski/Kopya Kayıt Temizliği (Garbage Collection)
+    # Firestore Akıllı Senkronizasyon ve Kopya/Hatalı Kayıt Temizliği (Smart Garbage Collection)
     scraped_ids = {c.id for c in all_scraped}
+    scraped_canonical_keys = {get_canonical_key(c) for c in all_scraped}
+    scraped_date_country = {(c.country, c.start_date) for c in all_scraped}
     deleted_count = 0
 
-    # Güvenlik eşiği: Tarayıcı en az 5 geçerli yarışma bulduysa, güncel tarama listesinde yer almayan
-    # tüm eski/kopya/hatalı kayıtları Firestore'dan otomatik olarak temizle (Tam Senkronizasyon).
     if db and not dry_run and len(scraped_ids) >= 5:
         for doc_id, doc_data in existing_comps.items():
-            if doc_id not in scraped_ids:
-                title = doc_data.get("title", "")
+            if doc_id in scraped_ids:
+                continue
+
+            title = str(doc_data.get("title", "")).strip()
+            start_date = str(doc_data.get("start_date", "")).strip()
+            country = str(doc_data.get("country", "")).strip()
+            city = str(doc_data.get("city", "")).strip()
+
+            # 1. Master dışı (Elit/Büyükler/U20/Olimpik Deneme) veya geçersiz başlıkları kesin olarak sil
+            is_invalid_master = not is_valid_competition_title(title)
+
+            # 2. Eski/bozuk ID formatına sahip veya yeni kanonik ID ile güncellenmiş kopya kayıtları sil
+            doc_canonical = get_canonical_key(title, start_date, country, city)
+            expected_id = doc_canonical.lower()
+            is_superseded_duplicate = (
+                doc_canonical in scraped_canonical_keys
+                or (country, start_date) in scraped_date_country
+                or doc_id.endswith("-na")
+                or doc_id.endswith("-tbd")
+                or doc_id != expected_id
+            )
+
+            if is_invalid_master or is_superseded_duplicate:
                 try:
                     db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()
-                    logger.info(f"🗑️ [ESKİ/KOPYA VERİ SİLİNDİ] {title} (ID: {doc_id})")
+                    logger.info(f"🗑️ [ESKİ/KOPYA/GEÇERSİZ VERİ SİLİNDİ] {title} (ID: {doc_id})")
                     deleted_count += 1
                 except Exception as e:
                     logger.error(f"Firestore silme hatası ({doc_id}): {e}")
@@ -182,8 +203,8 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
     logger.info(f"Tarihi Değişen   : {stats['DATE_CHANGED']}")
     logger.info(f"Detayı Değişen   : {stats['UPDATED']}")
     logger.info(f"Değişmeyen       : {stats['UNCHANGED']}")
-    logger.info(f"Silinen Eski Kayıt: {deleted_count}")
-    logger.info(f"Toplam Aktif     : {len(all_scraped)}")
+    logger.info(f"Silinen Kopya/Eski: {deleted_count}")
+    logger.info(f"Bu Taramada Aktif: {len(all_scraped)}")
 
     if export_path:
         with open(export_path, "w", encoding="utf-8") as f:
