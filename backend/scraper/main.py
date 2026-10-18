@@ -101,28 +101,48 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
 
     stats = {"NEW": 0, "DATE_CHANGED": 0, "LOCATION_CHANGED": 0, "UPDATED": 0, "UNCHANGED": 0}
     scraped_ids = {c.id for c in all_scraped}
-    current_year_start = f"{datetime.utcnow().year}-01-01"
     deleted_count = 0
 
-    # 1. TEMİZ VERİTABANI SENKRONİZASYONU:
-    # Tarama başarılıysa (en az 15 yarışma bulunduysa), mevcut yıl ve sonrasına ait olup
-    # yeni resmi site tarama listesinde yer almayan tüm eski/kopya/bozuk kayıtları Firestore'dan temizle.
-    # ÖNEMLİ: Geçmiş yıllara (start_date < current_year_start, örn. 2027'ye geçildiğinde 2026 yılı)
-    # ait yarışmalar kullanıcının kariyer ve derece geçmişi için ASLA silinmez!
-    if db and not dry_run and len(scraped_ids) >= 15:
-        for doc_id, doc_data in existing_comps.items():
-            if doc_id not in scraped_ids:
-                s_date = str(doc_data.get("start_date", "")).strip()
-                title = str(doc_data.get("title", "")).strip()
-                # Sadece geçmiş yıllara ait geçerli kayıtları koru; mevcut/gelecek yıllardaki tüm eski artıkları temizle
-                if s_date and s_date < current_year_start and not doc_id.startswith("tbd-"):
-                    continue
-                try:
-                    db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()
-                    logger.info(f"🗑️ [ESKİ/HATALI KAYIT TEMİZLENDİ] {title} (ID: {doc_id})")
-                    deleted_count += 1
-                except Exception as e:
-                    logger.error(f"Firestore silme hatası ({doc_id}): {e}")
+    # 1. TEK SEFERLİK TEMİZ VERİTABANI GEÇİŞİ (clean_reset_done_v1):
+    # Eski testlerden kalan hatalı/kopya/elit yarışmaları SADECE BİR KERELİĞİNE temizler.
+    # Bu temizlik bir kez tamamlandıktan sonra Firestore'daki bayrak `clean_reset_done_v1 = True` olur
+    # ve bundan sonraki hiçbir taramada mevcut yarışmalar (2026, 2027, 2028, 2029) silinmez; kalıcı olarak korunur!
+    if db and not dry_run:
+        state_ref = db.collection("app_metadata").document("scraper_state")
+        clean_reset_done = False
+        try:
+            state_doc = state_ref.get()
+            if state_doc.exists and state_doc.to_dict().get("clean_reset_done_v1") is True:
+                clean_reset_done = True
+        except Exception as e:
+            logger.warning(f"scraper_state okuma uyarısı: {e}")
+
+        if not clean_reset_done and len(scraped_ids) >= 15:
+            logger.info("🧹 [TEK SEFERLİK TEMİZ VERİTABANI GEÇİŞİ] Eski testlerden kalan hatalı/kopya kayıtlar temizleniyor...")
+            for doc_id, doc_data in existing_comps.items():
+                if doc_id not in scraped_ids:
+                    title = str(doc_data.get("title", "")).strip()
+                    try:
+                        db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()
+                        logger.info(f"🗑️ [ESKİ/HATALI KAYIT TEMİZLENDİ] {title} (ID: {doc_id})")
+                        deleted_count += 1
+                    except Exception as e:
+                        logger.error(f"Firestore silme hatası ({doc_id}): {e}")
+            try:
+                state_ref.set(
+                    {
+                        "clean_reset_done_v1": True,
+                        "reset_completed_at": datetime.utcnow().isoformat(),
+                        "cleaned_records_count": deleted_count,
+                    },
+                    merge=True,
+                )
+                logger.info(
+                    f"✅ [TEK SEFERLİK TEMİZLİK TAMAMLANDI] {deleted_count} eski kayıt silindi. "
+                    "Bundan sonraki taramalarda hiçbir yarışma silinmeyecek, kalıcı olarak korunacaktır."
+                )
+            except Exception as e:
+                logger.error(f"scraper_state yazma hatası: {e}")
 
     # Toplu veritabanı yenilemesinde (10'dan fazla yeni kayıt eklendiğinde) bildirim yağmuru oluşmasını engelle
     new_candidates = sum(1 for c in all_scraped if c.id not in existing_comps)
