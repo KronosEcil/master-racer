@@ -161,9 +161,13 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
             notification_mgr.send_competition_notification(comp, change_type)
 
     # Firestore Akıllı Senkronizasyon ve Kopya/Hatalı Kayıt Temizliği (Smart Garbage Collection)
+    from .deduplication import normalize_text, extract_primary_city_slug
     scraped_ids = {c.id for c in all_scraped}
     scraped_canonical_keys = {get_canonical_key(c) for c in all_scraped}
-    scraped_date_country = {(c.country, c.start_date) for c in all_scraped}
+    scraped_date_country_city = {
+        (c.country, c.start_date, extract_primary_city_slug(c.city, c.country_name))
+        for c in all_scraped
+    }
     deleted_count = 0
 
     if db and not dry_run and len(scraped_ids) >= 5:
@@ -175,16 +179,17 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
             start_date = str(doc_data.get("start_date", "")).strip()
             country = str(doc_data.get("country", "")).strip()
             city = str(doc_data.get("city", "")).strip()
+            c_slug = extract_primary_city_slug(city, str(doc_data.get("country_name", "")))
 
             # 1. Master dışı (Elit/Büyükler/U20/Olimpik Deneme) veya geçersiz başlıkları kesin olarak sil
             is_invalid_master = not is_valid_competition_title(title)
 
             # 2. Eski/bozuk ID formatına sahip veya yeni kanonik ID ile güncellenmiş kopya kayıtları sil
             doc_canonical = get_canonical_key(title, start_date, country, city)
-            expected_id = doc_canonical.lower()
+            expected_id = normalize_text(doc_canonical)
             is_superseded_duplicate = (
                 doc_canonical in scraped_canonical_keys
-                or (country, start_date) in scraped_date_country
+                or (bool(c_slug) and (country, start_date, c_slug) in scraped_date_country_city)
                 or doc_id.endswith("-na")
                 or doc_id.endswith("-tbd")
                 or doc_id != expected_id

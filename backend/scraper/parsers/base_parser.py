@@ -1,4 +1,5 @@
 import abc
+import re
 import logging
 import requests
 from typing import List, Optional
@@ -7,10 +8,12 @@ from ..config import Competition, ScraperConfig
 
 logger = logging.getLogger(__name__)
 
+
 class BaseParser(abc.ABC):
     """
-    Tüm federasyon takvim kazıyıcılarının türetildiği temel sınıf.
+    Tüm federasyon ve yapay zeka takvim kazıyıcılarının türetildiği temel sınıf.
     """
+
     def __init__(self, name: str, base_url: str):
         self.name = name
         self.base_url = base_url
@@ -40,13 +43,10 @@ class BaseParser(abc.ABC):
     def detect_country(self, title: str, default_country: str = "INT", default_name: str = "Uluslararası") -> tuple[str, str, str]:
         """
         Yarışma başlığından ve metninden ev sahibi ülkeyi, ülke adını ve bayrağını belirler.
-        Tüm tespitler GitHub scraper motorunda otomatik yapılır.
         """
         def_upper = (default_country or "INT").strip().upper()
-        def_name_lower = (default_name or "").strip().lower()
         title_lower = f"{title or ''} {default_name or ''} {default_country or ''}".lower()
 
-        # 1. Doğrudan ISO ülke kodları veya ülke isimleri eşleşmesi (Avrupa ve Dünya)
         iso_map = {
             "TR": ("TR", "Türkiye", "🇹🇷"), "TUR": ("TR", "Türkiye", "🇹🇷"),
             "DE": ("DE", "Almanya", "🇩🇪"), "GER": ("DE", "Almanya", "🇩🇪"), "DEU": ("DE", "Almanya", "🇩🇪"),
@@ -91,8 +91,16 @@ class BaseParser(abc.ABC):
             "US": ("USA", "ABD", "🇺🇸"), "USA": ("USA", "ABD", "🇺🇸")
         }
 
+        # Özel küresel şampiyona kuralları
         if any(k in title_lower for k in ["kansai", "world masters games", "wmg", "japan", "japonya"]):
             return "JP", "Japonya", "🇯🇵"
+
+        # Eğer doğrudan geçerli bir ISO ülke kodu verilmişse (örn. RO, GB, DE, FR), alt dize çakışmalarını önlemek için doğrudan kullan
+        if def_upper in iso_map:
+            return iso_map[def_upper]
+
+        if any(k in title_lower for k in ["romanya", "romania", "romanian", "craiova", "rasnov", "râșnov", "bucharest", "bükreş", "bucuresti"]):
+            return "RO", "Romanya", "🇷🇴"
         if any(k in title_lower for k in ["türkiye", "turkey", "turkish", "istanbul", "izmir", "bursa", "ankara", "taf"]):
             return "TR", "Türkiye", "🇹🇷"
         if any(k in title_lower for k in ["almanya", "germany", "german", "deutschland", "deutsche", "dlv", "ladv"]):
@@ -101,27 +109,25 @@ class BaseParser(abc.ABC):
             return "FR", "Fransa", "🇫🇷"
         if any(k in title_lower for k in ["yunanistan", "greece", "greek", "hellas", "athens", "thessaloniki", "selanik"]):
             return "GR", "Yunanistan", "🇬🇷"
-        if any(k in title_lower for k in ["italya", "italy", "italian", "italia", "catania", "roma", "ancona", "fidal"]):
+        if any(k in title_lower for k in ["italya", "italy", "italian", "italia", "catania", "ancona", "fidal"]) or re.search(r"\broma\b", title_lower):
             return "IT", "İtalya", "🇮🇹"
         if any(k in title_lower for k in ["polonya", "poland", "polish", "polska", "torun", "toruń", "warszawa", "włocławek"]):
             return "PL", "Polonya", "🇵🇱"
-        if any(k in title_lower for k in ["ispanya", "spain", "spanish", "españa", "ojós", "ojos", "madrid", "barcelona", "valencia", "malaga"]):
+        if any(k in title_lower for k in ["ispanya", "spain", "spanish", "españa", "ojós", "ojos", "madrid", "barcelona", "valencia", "malaga", "antequera"]):
             return "ES", "İspanya", "🇪🇸"
-        if any(k in title_lower for k in ["finlandiya", "finland", "finnish", "jyväskylä", "jyvaskyla", "tampere", "helsinki"]):
+        if any(k in title_lower for k in ["finlandiya", "finland", "finnish", "jyväskylä", "jyvaskyla", "tampere", "helsinki", "saul"]):
             return "FIN", "Finlandiya", "🇫🇮"
         if any(k in title_lower for k in ["isviçre", "switzerland", "swiss", "schweiz", "lucerne", "luzern", "kreuzlingen", "bellinzona", "zürich"]):
             return "CH", "İsviçre", "🇨🇭"
-        if any(k in title_lower for k in ["romanya", "romania", "romanian", "craiova", "rasnov", "râșnov", "bucharest", "bükreş"]):
-            return "RO", "Romanya", "🇷🇴"
-        if any(k in title_lower for k in ["ingiltere", "uk", "gbr", "glasgow", "great britain", "british", "scotland", "england", "london", "sheffield", "birmingham", "derby"]):
+        if any(k in title_lower for k in ["ingiltere", "birleşik krallık", "uk", "gbr", "glasgow", "great britain", "british", "bmaf", "scotland", "england", "wales", "london", "sheffield", "birmingham", "derby", "cardiff", "oxford"]):
             return "GB", "Birleşik Krallık", "🇬🇧"
-        if any(k in title_lower for k in ["irlanda", "ireland", "irish", "galway", "dublin", "athlone"]):
+        if any(k in title_lower for k in ["irlanda", "ireland", "irish", "imaa", "galway", "dublin", "athlone", "tullamore"]):
             return "IE", "İrlanda", "🇮🇪"
         if any(k in title_lower for k in ["slovenya", "slovenia", "slovenian", "novo mesto", "domzale", "ljubljana", "celje"]):
             return "SI", "Slovenya", "🇸🇮"
         if any(k in title_lower for k in ["arnavutluk", "albania", "albanian", "shkodër", "shkoder", "tirana", "tiran"]):
             return "AL", "Arnavutluk", "🇦🇱"
-        if any(k in title_lower for k in ["çekya", "czech", "rumburk", "lovosice", "janske lazne", "prague", "praha", "olomouc"]):
+        if any(k in title_lower for k in ["çekya", "czech", "rumburk", "lovosice", "janske lazne", "prague", "praha", "olomouc", "ostrava"]):
             return "CZ", "Çekya", "🇨🇿"
         if any(k in title_lower for k in ["portekiz", "portugal", "portuguese", "lisboa", "lisbon", "porto", "braga", "pombal"]):
             return "PT", "Portekiz", "🇵🇹"
@@ -158,23 +164,43 @@ class BaseParser(abc.ABC):
         if any(k in title_lower for k in ["slovakya", "slovakia", "slovak", "bratislava", "banská bystrica"]):
             return "SK", "Slovakya", "🇸🇰"
 
-        if def_upper in iso_map:
-            return iso_map[def_upper]
-
         if any(k in title_lower for k in ["balkan"]):
             return "EU", "Avrupa", "🇪🇺"
 
         return default_country, default_name, "🏃"
 
+    def detect_scope(self, title: str, country: str = "") -> str:
+        """
+        Yarışma başlığından kapsamı (scope) belirler:
+        'world' | 'europe' | 'balkan' | 'ema_league' | 'national' | 'regional'
+        """
+        t_low = (title or "").lower()
+        if any(w in t_low for w in ["world", "dünya", "wma", "wmg", "kansai"]):
+            return "world"
+        if any(w in t_low for w in ["ema league", "ema ligi", "meeting européen", "speed masters athletics challenge", "christina ziemann"]):
+            return "ema_league"
+        if any(w in t_low for w in ["balkan", "bamacs", "bamaci"]):
+            return "balkan"
+        if any(w in t_low for w in ["european", "avrupa", "emacs", "emaci", "emacns", "emmtrc", "emamrc", "emorrc"]):
+            return "europe"
+        if any(w in t_low for w in [
+            "national", "ulusal", "türkiye", "british masters", "bmaf", "deutsche", "championnats de france",
+            "campionati italiani", "campeonato de españa", "campeonatos nacionais", "mistrzostwa polski",
+            "nk masters", "nk indoor", "irish masters", "imaa", "swiss masters", "österr", "mčr",
+            "sm-hallit", "sm-kilpailut", "ism veteraner", "sm veteraner", "nm masters", "dm masters"
+        ]):
+            return "national"
+        return "regional"
+
     def detect_venue_type(self, text: str) -> str:
-        """Metin içerisindeki anahtar kelimelerden salon/açık/yol ayrımını yapar."""
+        """Metin içerisindeki anahtar kelimelerden salon/açık/yol/kros ayrımını yapar."""
         text_lower = text.lower()
-        if any(w in text_lower for w in ["salon", "indoor", "kapalı", "halle", "en salle", "hallenmeeting", "pista cubierta"]):
+        if any(w in text_lower for w in ["salon", "indoor", "kapalı", "halle", "en salle", "hallen", "pista cubierta", "pista curta", "short track", "al coperto", "halowe"]):
             return "indoor"
-        if any(w in text_lower for w in ["yol", "maraton", "yarı maraton", "road", "10k", "21k", "42k"]):
-            return "road"
-        if any(w in text_lower for w in ["kros", "cross", "cross country", "arazi"]):
+        if any(w in text_lower for w in ["kros", "cross", "cross country", "arazi", "veldloop"]):
             return "cross"
+        if any(w in text_lower for w in ["yol", "maraton", "yarı maraton", "road", "5k", "10k", "10km", "21k", "42k", "strada", "estrada", "ruta", "halbmarathon"]):
+            return "road"
         return "outdoor"
 
     def detect_categories(self, text: str, venue_type: str = "") -> List[str]:
@@ -182,42 +208,36 @@ class BaseParser(abc.ABC):
         text_lower = text.lower()
         categories = []
 
-        is_road = venue_type == "road" or any(w in text_lower for w in ["yol", "maraton", "yarı maraton", "road", "10k", "21k", "42k"])
+        is_road = venue_type == "road" or any(w in text_lower for w in ["yol", "maraton", "yarı maraton", "road", "5k", "10k", "21k", "42k"])
         is_cross = venue_type == "cross" or any(w in text_lower for w in ["kros", "cross", "cross country", "arazi"])
 
-        # Yol veya kros koşularında sadece uzun mesafe branşı bulunur; sprint/atlama/atma pist branşları yer almaz!
         if is_road or is_cross:
             return ["Uzun Mesafe"]
 
-        # Pist / Salon / Genel şampiyonalar için branş tespiti
         if any(w in text_lower for w in ["sprint", "koşu", "100m", "200m", "400m", "bayrak", "60m"]):
             categories.append("Sprint")
         if any(w in text_lower for w in ["engel", "hurdle", "engelli", "60m h"]):
             categories.append("Engelli")
         if any(w in text_lower for w in ["atlama", "uzun atlama", "üçadım", "yüksek atlama", "sırık", "jump"]):
             categories.append("Atlamalar")
-        if any(w in text_lower for w in ["atma", "gülle", "cirit", "disk", "çekiç", "throw", "shot put", "winterwurf", "wurf", "lancers"]):
+        if any(w in text_lower for w in ["atma", "gülle", "cirit", "disk", "çekiç", "throw", "shot put", "winterwurf", "wurf", "lancers", "hammer"]):
             categories.append("Atmalar")
         if any(w in text_lower for w in ["uzun mesafe", "800m", "1500m", "3000m", "5000m", "10000m", "distance"]):
             categories.append("Uzun Mesafe")
-        
+
         if not categories:
-            # Standart tam pist/salon şampiyonası ise tüm branşları içerir
             categories = ["Sprint", "Engelli", "Atlamalar", "Atmalar", "Uzun Mesafe"]
         return categories
 
     def is_master_athletics(self, text: str) -> bool:
         """
         Sadece 35+ yaş kategorisini kapsayan Master/Veteran yarışmalarını doğrular.
-        Sadece Gençler (U14-U23) veya salt elit yarışmaları eler.
         """
         text_lower = text.lower()
-        # Eğer gençlik/yıldız kategorisiyse ve master kelimesi yoksa ele
         if any(k in text_lower for k in ["u14", "u16", "u18", "u20", "u23", "gençler", "yıldızlar", "jugend", "cadet"]):
             if not any(k in text_lower for k in ["master", "veteran", "senioren", "35+"]):
                 return False
 
-        # Resmi Master/Veteran belirteçleri
         master_keywords = [
             "master", "veteran", "senioren", "35+", "m35", "w35",
             "bamacs", "bamaci", "emaci", "emacs", "wmaci", "wma", "world masters"
