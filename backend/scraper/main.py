@@ -117,13 +117,14 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
         except Exception as e:
             logger.warning(f"scraper_state okuma uyarısı: {e}")
 
-        if not clean_reset_done and len(scraped_ids) >= 5:
+        if not clean_reset_done:
             logger.info("🧹 [TEK SEFERLİK TEMİZ VERİTABANI GEÇİŞİ] Eski testlerden kalan hatalı/kopya kayıtlar temizleniyor...")
-            for doc_id, doc_data in existing_comps.items():
+            for doc_id, doc_data in list(existing_comps.items()):
                 if doc_id not in scraped_ids:
                     title = str(doc_data.get("title", "")).strip()
                     try:
                         db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()
+                        existing_comps.pop(doc_id, None)
                         logger.info(f"🗑️ [ESKİ/HATALI KAYIT TEMİZLENDİ] {title} (ID: {doc_id})")
                         deleted_count += 1
                     except Exception as e:

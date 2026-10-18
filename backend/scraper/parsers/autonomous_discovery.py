@@ -39,6 +39,7 @@ class AutonomousDiscoveryParser(BaseParser):
         self.years = [current_year, current_year + 1, current_year + 2, current_year + 3]
         self.existing_comps: Dict[str, dict] = existing_comps or {}
         self._exhausted_models = set()
+        self._available_models: List[str] = []
 
     def parse(self) -> List[Competition]:
         logger.info(f"Resmi Federasyon Takvimleri Yapay Zeka Tarayıcısı başlatılıyor (Yıllar: {self.years})...")
@@ -250,6 +251,65 @@ class AutonomousDiscoveryParser(BaseParser):
 
         return combined_list
 
+    def _get_available_gemini_models(self, api_key: str) -> List[str]:
+        """
+        Google Generative Language API'den o an aktif olan tüm Gemini modellerini dinamik olarak çeker.
+        Kullanımdan kaldırılmış (404) modellere istek atılmasını önler ve kotası boş olan yedek modelleri bulur.
+        """
+        if self._available_models:
+            return self._available_models
+
+        preferred_order = [
+            "gemini-2.5-flash",
+            "gemini-2.5-flash-lite",
+            "gemini-3-flash-preview",
+            "gemini-3.1-flash-lite-preview",
+            "gemini-2.5-pro",
+            "gemini-3-pro-preview",
+            "gemini-3.1-pro-preview",
+        ]
+        excluded_tokens = (
+            "2.0", "1.5", "1.0", "embedding", "imagen", "veo", "tts",
+            "audio", "robotics", "computer-use", "aqa", "image", "live",
+            "thinking", "customtools", "learnlm", "gemma",
+        )
+        discovered: List[str] = []
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
+            resp = requests.get(url, timeout=15)
+            if resp.status_code == 200:
+                for m in resp.json().get("models", []):
+                    methods = m.get("supportedGenerationMethods", [])
+                    if "generateContent" not in methods:
+                        continue
+                    name = str(m.get("name", "")).replace("models/", "").strip()
+                    if not name.startswith("gemini-"):
+                        continue
+                    if any(tok in name.lower() for tok in excluded_tokens):
+                        continue
+                    discovered.append(name)
+        except Exception as e:
+            logger.debug(f"[Gemini-AI] Model listesi sorgulama uyarısı: {e}")
+
+        if not discovered:
+            self._available_models = preferred_order[:3]
+            return self._available_models
+
+        ordered: List[str] = []
+        for pref in preferred_order:
+            if pref in discovered and pref not in ordered:
+                ordered.append(pref)
+        for d in discovered:
+            if d not in ordered and not d.endswith("-latest"):
+                ordered.append(d)
+        for d in discovered:
+            if d not in ordered:
+                ordered.append(d)
+
+        self._available_models = ordered
+        logger.info(f"[Gemini-AI] Kullanılabilir aktif Gemini modelleri: {self._available_models}")
+        return self._available_models
+
     def _call_gemini_json(
         self,
         api_key: str,
@@ -258,19 +318,23 @@ class AutonomousDiscoveryParser(BaseParser):
     ) -> List[Dict[str, Any]]:
         """
         Gemini REST API'sini hafif token konfigürasyonu ve temperature=0.0 (sıfır tahmin/halüsinasyon)
-        ile çağırır; HTTP 429/503 durumunda günlük kotası dolan modeli atlayıp anında yedek modele geçer.
+        ile çağırır; HTTP 429/503/404 durumunda kotası dolan veya geçersiz modeli atlayıp anında yedek modele geçer.
         """
-        all_models = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash"]
+        all_models = self._get_available_gemini_models(api_key)
         headers = {
             "x-goog-api-key": api_key,
             "Content-Type": "application/json",
         }
         for attempt in range(2):
-            active_models = [m for m in all_models if m not in self._exhausted_models] or all_models
+            active_models = [m for m in all_models if m not in self._exhausted_models]
+            if not active_models:
+                logger.warning("[Gemini-AI] Tüm Gemini modellerinin günlük ücretsiz kotası dolmuş durumda.")
+                return []
+
             for model in active_models:
                 endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
                 gen_config: Dict[str, Any] = {"temperature": 0.0}
-                if "2.5" in model:
+                if model in ("gemini-2.5-flash", "gemini-2.5-flash-lite"):
                     gen_config["thinkingConfig"] = {"thinkingBudget": 0}
                 payload: Dict[str, Any] = {
                     "contents": [{"parts": parts}],
@@ -283,12 +347,16 @@ class AutonomousDiscoveryParser(BaseParser):
                     resp = requests.post(endpoint, headers=headers, json=payload, timeout=90)
                     if resp.status_code in (429, 503):
                         body_lower = resp.text.lower()
-                        if resp.status_code == 429 and ("perday" in body_lower or "per_day" in body_lower):
+                        if resp.status_code == 429 and ("perday" in body_lower or "per_day" in body_lower or "daily" in body_lower):
                             self._exhausted_models.add(model)
                             logger.warning(f"[Gemini-AI] Model ({model}) günlük ücretsiz kota sınırına ulaştı, yedek modele geçiliyor...")
                         else:
                             logger.warning(f"[Gemini-AI] Model ({model}) HTTP {resp.status_code}, yedek model deneniyor...")
-                        time.sleep(3)
+                        time.sleep(2)
+                        continue
+                    if resp.status_code in (400, 404):
+                        self._exhausted_models.add(model)
+                        logger.warning(f"[Gemini-AI] Model ({model}) HTTP {resp.status_code} nedeniyle devre dışı bırakıldı.")
                         continue
                     if resp.status_code != 200:
                         logger.warning(f"[Gemini-AI] Model ({model}) HTTP {resp.status_code}: {resp.text[:160]}")
@@ -305,8 +373,8 @@ class AutonomousDiscoveryParser(BaseParser):
                 except Exception as e:
                     logger.warning(f"[Gemini-AI] Model ({model}) çağrı uyarısı: {e}")
 
-            if attempt == 0:
-                time.sleep(12)
+            if attempt == 0 and len(self._exhausted_models) < len(all_models):
+                time.sleep(10)
         return []
 
     def _convert_gemini_items(self, items: List[Dict[str, Any]], default_url: str) -> List[Competition]:
