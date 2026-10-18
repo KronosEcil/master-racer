@@ -1,5 +1,4 @@
 import os
-import re
 import sys
 import json
 import logging
@@ -11,12 +10,8 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 from .config import Competition, ScraperConfig
-from .deduplication import evaluate_change, deduplicate_competitions, is_valid_competition_title, get_canonical_key
+from .deduplication import evaluate_change
 from .notification import NotificationManager
-from .parsers.taf_parser import TAFParser
-from .parsers.ema_parser import EMAParser
-from .parsers.wma_balkan_parser import WMABalkanParser
-from .parsers.national_parser import NationalFederationsParser
 from .parsers.autonomous_discovery import AutonomousDiscoveryParser
 
 logging.basicConfig(
@@ -25,6 +20,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S"
 )
 logger = logging.getLogger("MasterRacerRunner")
+
 
 def init_firebase() -> Optional[firestore.firestore.Client]:
     """
@@ -65,6 +61,7 @@ def init_firebase() -> Optional[firestore.firestore.Client]:
         logger.warning("Firebase kimlik bilgisi bulunamadı! [DRY-RUN / SİMÜLASYON MODUNDA ÇALIŞIYOR]")
         return None
 
+
 def fetch_existing_competitions(db: Optional[firestore.firestore.Client]) -> Dict[str, dict]:
     """Firestore'dan mevcut tüm yarışma kayıtlarını ID indeksli olarak çeker."""
     existing_map = {}
@@ -82,37 +79,26 @@ def fetch_existing_competitions(db: Optional[firestore.firestore.Client]) -> Dic
         logger.error(f"Firestore okuma hatası: {e}")
     return existing_map
 
+
 def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
     logger.info("=== Master Racer Otomasyon & Tarama Motoru Başlatılıyor ===")
-    
+
     db = init_firebase() if not dry_run else None
     notification_mgr = NotificationManager(is_initialized=(db is not None and not dry_run))
 
     existing_comps = fetch_existing_competitions(db)
 
-    # Sadece tamamen canlı ve otonom keşif motoru (AutonomousDiscoveryParser) çalışır.
-    # Statik varsayımlar veya yapay tarihler üreten eski ayrıştırıcılar devre dışıdır.
-    parsers = [
-        AutonomousDiscoveryParser()
-    ]
-
+    # Sadece %100 Yapay Zeka (Gemini AI) Keşif ve Tekilleştirme Motoru çalışır.
+    ai_parser = AutonomousDiscoveryParser(existing_comps=existing_comps)
     all_scraped: List[Competition] = []
-    for parser in parsers:
-        logger.info(f"[{parser.name}] Taraması başlatılıyor...")
-        try:
-            comps = parser.parse()
-            logger.info(f"[{parser.name}] {len(comps)} yarışma bulundu.")
-            all_scraped.extend(comps)
-        except Exception as e:
-            logger.error(f"[{parser.name}] Çalışırken hata: {e}")
 
-    logger.info(f"Toplam ham taranan yarışma sayısı: {len(all_scraped)}")
+    logger.info(f"[{ai_parser.name}] Taraması başlatılıyor...")
+    try:
+        all_scraped = ai_parser.parse()
+        logger.info(f"[{ai_parser.name}] {len(all_scraped)} benzersiz yarışma hazırlandı.")
+    except Exception as e:
+        logger.error(f"[{ai_parser.name}] Çalışırken hata: {e}")
 
-    # Tekilleştirme motorunu çalıştır (Duplicate ve döküman başlıklarını eler)
-    all_scraped = deduplicate_competitions(all_scraped)
-    logger.info(f"Tekilleştirme sonrası aktif yarışma sayısı: {len(all_scraped)}")
-
-    # Tekilleştirme, Değişiklik Tespiti ve Veritabanı Güncelleme
     stats = {"NEW": 0, "DATE_CHANGED": 0, "LOCATION_CHANGED": 0, "UPDATED": 0, "UNCHANGED": 0}
 
     for comp in all_scraped:
@@ -160,48 +146,22 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
         if should_notify:
             notification_mgr.send_competition_notification(comp, change_type)
 
-    # Firestore Akıllı Senkronizasyon ve Kopya/Hatalı Kayıt Temizliği (Smart Garbage Collection)
-    from .deduplication import normalize_text, extract_primary_city_slug
+    # Gemini AI tarafından açıkça kopya veya Master dışı olduğu tespit edilen kayıtları sil.
+    # ÖNEMLİ: Geçmiş yıllarda (ör. 2026) yapılmış geçerli Master yarışmaları kullanıcının kendi
+    # derecelerini ve geçmişini takip edebilmesi için ASLA silinmez!
     scraped_ids = {c.id for c in all_scraped}
-    scraped_canonical_keys = {get_canonical_key(c) for c in all_scraped}
-    scraped_date_country_city = {
-        (c.country, c.start_date, extract_primary_city_slug(c.city, c.country_name))
-        for c in all_scraped
-    }
     deleted_count = 0
 
-    if db and not dry_run and len(scraped_ids) >= 5:
-        for doc_id, doc_data in existing_comps.items():
-            if doc_id in scraped_ids:
-                continue
-
-            title = str(doc_data.get("title", "")).strip()
-            start_date = str(doc_data.get("start_date", "")).strip()
-            country = str(doc_data.get("country", "")).strip()
-            city = str(doc_data.get("city", "")).strip()
-            c_slug = extract_primary_city_slug(city, str(doc_data.get("country_name", "")))
-
-            # 1. Master dışı (Elit/Büyükler/U20/Olimpik Deneme) veya geçersiz başlıkları kesin olarak sil
-            is_invalid_master = not is_valid_competition_title(title)
-
-            # 2. Eski/bozuk ID formatına sahip veya yeni kanonik ID ile güncellenmiş kopya kayıtları sil
-            doc_canonical = get_canonical_key(title, start_date, country, city)
-            expected_id = normalize_text(doc_canonical)
-            is_superseded_duplicate = (
-                doc_canonical in scraped_canonical_keys
-                or (bool(c_slug) and (country, start_date, c_slug) in scraped_date_country_city)
-                or doc_id.endswith("-na")
-                or doc_id.endswith("-tbd")
-                or doc_id != expected_id
-            )
-
-            if is_invalid_master or is_superseded_duplicate:
+    if db and not dry_run and ai_parser.ids_to_delete:
+        for del_id in ai_parser.ids_to_delete:
+            if del_id in existing_comps and del_id not in scraped_ids:
+                title = existing_comps[del_id].get("title", "")
                 try:
-                    db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()
-                    logger.info(f"🗑️ [ESKİ/KOPYA/GEÇERSİZ VERİ SİLİNDİ] {title} (ID: {doc_id})")
+                    db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(del_id).delete()
+                    logger.info(f"🗑️ [AI DENETİMİ: KOPYA/GEÇERSİZ KAYIT SİLİNDİ] {title} (ID: {del_id})")
                     deleted_count += 1
                 except Exception as e:
-                    logger.error(f"Firestore silme hatası ({doc_id}): {e}")
+                    logger.error(f"Firestore silme hatası ({del_id}): {e}")
 
     logger.info("=== Tarama Özeti ===")
     logger.info(f"Yeni Eklenen     : {stats['NEW']}")
@@ -218,6 +178,7 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
 
     return stats
 
+
 def main():
     parser = argparse.ArgumentParser(description="Master Racer Otomasyon & Tarama Motoru")
     parser.add_argument("--dry-run", action="store_true", help="Veritabanına yazmadan ve bildirim atmadan simüle et")
@@ -229,6 +190,7 @@ def main():
     except Exception as e:
         logger.exception(f"Tarama motoru beklenmeyen bir hata ile karşılaştı: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
