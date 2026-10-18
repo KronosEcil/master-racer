@@ -1,9 +1,9 @@
 """
-Master Racer - Autonomous AI Discovery Engine (100% Gemini AI + Search Grounding + Multimodal PDF)
-Statik HTML/CSS seçicilere veya kırılgan federasyon URL'lerine bağımlı kalmadan;
+Master Racer - Autonomous AI Discovery Engine (100% Dynamic Gemini AI + Search Grounding + Multimodal PDF)
+Hiçbir sabit şehir, sabit yıl veya sabit kişi/memorial ismine bağımlı kalmadan;
 yalnızca Google Gemini API (Google Search Grounding + Multimodal Resmi PDF Analizi)
 kullanarak Türkiye, Balkanlar, Avrupa ve Dünya genelindeki tüm 35+ Masterlar atletizm
-yarışmalarını derinlemesine keşfeden tek katmanlı otonom yapay zeka motoru.
+yarışmalarını dinamik yıl döngüsüyle keşfeden otonom yapay zeka motoru.
 """
 
 import re
@@ -30,13 +30,14 @@ logger = logging.getLogger(__name__)
 class AutonomousDiscoveryParser(BaseParser):
     """
     Yalnızca Google Gemini AI (Multimodal PDF + Google Search Grounding) katmanını kullanarak
-    2026, 2027 ve 2028 yıllarındaki 35+ Masterlar (Masters / Veteran / Senioren)
-    atletizm yarışmalarını otonom olarak tarayan ve standartlaştıran motor.
+    içinde bulunulan yıl ve takip eden 2 yıldaki tüm 35+ Masterlar (Masters / Veteran / Senioren)
+    atletizm yarışmalarını sabit şehir veya kişi isimlerine bağımlı olmadan otonom tarayan motor.
     """
 
     def __init__(self):
         super().__init__(name="AutonomousDiscovery_Parser", base_url="https://european-masters-athletics.org")
-        self.years = [2026, 2027, 2028]
+        current_year = datetime.utcnow().year
+        self.years = [current_year, current_year + 1, current_year + 2]
 
     def parse(self) -> List[Competition]:
         logger.info(f"Otonom Yapay Zeka (Gemini AI) Tarayıcısı başlatılıyor (Yıllar: {self.years})...")
@@ -50,12 +51,13 @@ class AutonomousDiscoveryParser(BaseParser):
     def _discover_with_gemini_ai(self) -> List[Competition]:
         """
         Google Gemini API (Search Grounding + Multimodal PDF okuma) kullanarak:
-        1. TAF'ın faaliyet takvimi sayfasındaki resmi PDF dosyasını doğrudan Gemini'ye okutur.
-        2. Dünya (WMA/WMG), Avrupa (EMA Şampiyonaları ve EMA League) ve Balkan (BAMACI/BAMACS)
-           ana şampiyona takvimlerini tarar.
-        3. Tüm Avrupa ülkelerinin Ulusal Salon, Açık Saha, Atmalar, Çoklu Branşlar, Kros, Bayrak (Relays)
-           ve Yol (5k, 10k, Yarı Maraton, Maraton, Yürüyüş) Masterlar Şampiyonalarını odaklanmış
-           bölge sorgularıyla eksiksiz keşfeder.
+        1. TAF'ın faaliyet takvimi sayfasındaki resmi PDF dosyasını doğrudan Gemini'ye okutur;
+           sadece 'Yaş Grubu' sütununda 'Master / Masterlar' yazan satırları alır (kişi veya şehir adına bağımlı değildir).
+        2. Dünya (WMA/WMG), Avrupa (EMA Şampiyonaları ve EMA League) ve Balkan (BAMA)
+           ana şampiyona takvimlerini dinamik yıllar için tarar.
+        3. Tüm Avrupa ülkelerinin Ulusal Salon, Açık Saha, Atmalar, Çoklu Branşlar, Kros, Bayrak (Relays),
+           Yürüyüş ve Yol (1 Mil, 5k, 10k, 10 Mil, Yarı Maraton, Maraton, Ultra) Masterlar Şampiyonalarını
+           ve açık/bölgesel Master yarışmalarını o yıl hangi şehirde ve hangi isimle düzenleniyorsa canlı keşfeder.
         """
         api_key = (ScraperConfig.GEMINI_API_KEY or "").strip()
         if not api_key:
@@ -63,10 +65,13 @@ class AutonomousDiscoveryParser(BaseParser):
             return []
 
         results: List[Competition] = []
+        y1, y2, y3 = self.years[0], self.years[1], self.years[2]
+        years_str = f"{y1}, {y2}, and {y3}"
+        years_short = f"{y1} and {y2}"
         logger.info("[Gemini-AI] Yapay zeka destekli derinlemesine keşif motoru başlatılıyor...")
 
         # -------------------------------------------------------------------------
-        # ADIM 1: TAF Resmi Faaliyet Takvimi PDF Analizi (Multimodal)
+        # ADIM 1: TAF Resmi Faaliyet Takvimi PDF Analizi (Multimodal - Yaş Grubu Sütunu Bazlı)
         # -------------------------------------------------------------------------
         taf_pdf_urls = self._find_taf_calendar_pdf_urls()
         for pdf_url in taf_pdf_urls[:1]:
@@ -76,17 +81,17 @@ class AutonomousDiscoveryParser(BaseParser):
                     pdf_b64 = base64.b64encode(resp.content).decode("utf-8")
                     prompt = (
                         "Bu Türkiye Atletizm Federasyonu (TAF) resmi faaliyet takvimi PDF belgesini satır satır incele.\n"
-                        "KURAL 1: SADECE 'Yaş Grubu' sütununda 'Master' veya 'Masterlar' yazan VEYA yarışma adında açıkça "
-                        "'Master', 'Masterlar', 'Masterler', 'BAMACI', 'BAMACS', 'EMACI', 'EMACS', 'WMA' geçen "
-                        "35+ yaş Masterlar yarışmalarını çıkar.\n"
+                        "KURAL 1: Tablodaki 'Yaş Grubu' sütununu kontrol et. SADECE Yaş Grubu sütununda 'Master' veya 'Masterlar' "
+                        "yazan yarışmaları çıkar. Yarışmaya o yıl kimin adı verilmiş olursa olsun veya hangi şehirde yapılırsa yapılsın, "
+                        "kriter yalnızca Yaş Grubu'nun 35+ Master/Masterlar olmasıdır!\n"
                         "KURAL 2: Yaş Grubu 'B' (Büyükler), 'U23', 'U20', 'U18', 'U16', 'U14' olan yarışmaları "
-                        "(örneğin Büyükler Balkan Salon Şampiyonası, Salon Olimpik Deneme, Olimpik Deneme, TOHM, SEM, "
-                        "Okullar, Kulüpler Süper Lig vb.) KESİNLİKLE DAHİL ETME!\n"
-                        "KURAL 3: Yarışma adında 'Masterlar' kelimesi eksikse ama Yaş Grubu 'Master' ise başlığa mutlaka "
-                        "'Masterlar' ibaresini ekle (Örn: 'Balkan Masterlar Salon Atletizm Şampiyonası (BAMACI)').\n"
+                        "(örneğin Büyükler Balkan Şampiyonası, Salon Olimpik Deneme, Olimpik Deneme, TOHM, SEM, "
+                        "Okullar, Kulüpler Ligi vb.) KESİNLİKLE DAHİL ETME!\n"
+                        "KURAL 3: Eğer Yaş Grubu sütununda 'Master' yazıyor ancak yarışma adında 'Masterlar' kelimesi geçmiyorsa "
+                        "(örneğin bir anma/yol koşusu veya kupa ise), `title` alanının sonuna mutlaka '(Masterlar)' ibaresini ekle.\n"
                         "Sadece geçerli bir JSON dizisi (array) döndür, başka hiçbir açıklama yazma:\n"
-                        '[{"title": "Resmi Yarışma Adı (Masterlar)", "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", '
-                        '"city": "Şehir", "country": "ISO-2 Ülke Kodu (TR, SI, RO, PL vb.)", '
+                        '[{"title": "Takvimdeki Resmi Yarışma Adı", "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", '
+                        '"city": "Takvimdeki Şehir", "country": "ISO-2 Ülke Kodu (TR, SI, RO, PL vb.)", '
                         '"country_name": "Türkçe Ülke Adı", "venue_type": "indoor|outdoor|road|cross", '
                         '"scope": "national|balkan|europe|world|regional", '
                         '"federation": "TAF", "website_url": "https://taf.org.tr"}]'
@@ -104,18 +109,19 @@ class AutonomousDiscoveryParser(BaseParser):
                 logger.warning(f"[Gemini-AI] TAF PDF analizi hatası ({pdf_url}): {e}")
 
         # -------------------------------------------------------------------------
-        # ADIM 2: Odaklanmış ve Güçlendirilmiş Google Search Grounding Sorguları
+        # ADIM 2: Sabit Şehir/İsim İçermeyen, Dinamik Google Search Grounding Sorguları
         # -------------------------------------------------------------------------
         schema_instruction = (
             "\n\nÇIKTI KURALLARI:\n"
             "1. SADECE 35+ yaş Masterlar (Masters / Veteran / Vétérans / Senioren / Veterani / Veteranos) "
-            "atletizm yarışmalarını dahil et. Elit/Büyükler (Senior Elite), Olimpik Deneme, U23, U20, U18 yarışmalarını ASLA dahil etme!\n"
-            "2. Her yarışmanın `title` (başlık) alanında mutlaka 'Masters', 'Masterlar', 'Master', 'Veteran', 'Senioren' veya "
-            "resmi kısaltması ('EMACI', 'EMACS', 'BAMACI', 'BAMACS', 'WMA', 'WMG', 'BMAF', 'EMA League') yer almalıdır.\n"
+            "kategorisindeki yarışmaları dahil et. Elit/Büyükler (Senior Elite), Olimpik Deneme, U23, U20, U18 yarışmalarını ASLA dahil etme!\n"
+            "2. Yarışmanın o yılki resmi adı ve o yıl yapılacağı şehir/stadyum ne ise takvimden doğrudan onu al. "
+            "Eğer yarışma başlığında 'Masters / Masterlar / Veteran / Senioren / BMAF / EMA / WMA / BAMACI / BAMACS' ibaresi yoksa "
+            "ama yarışma resmi bir Masterlar yarışması ise başlığa '(Masters)' ekle.\n"
             "3. Çok günlü yarışmalarda `start_date` (başlangıç) ve `end_date` (bitiş) tarihlerini tam aralık olarak (YYYY-MM-DD) yaz. "
             "Kesin tarihi belli olmayan (TBD/TBC) yarışmaları dahil etme.\n"
-            "4. `city` alanına yalnızca gerçek şehir adını (varsa parantez içinde stadyum/salon adını, örn: 'Bursa (Osmangazi Atletizm Salonu)' "
-            "veya 'Toruń') yaz. Asla 'N/A', 'TBD', 'Unknown' yazma.\n"
+            "4. `city` alanına yarışmanın o yıl düzenleneceği gerçek şehir adını (varsa parantez içinde tesis adını) yaz. "
+            "Asla 'N/A', 'TBD', 'Unknown' yazma.\n"
             "5. `scope` alanı yalnızca şu 6 değerden biri olmalıdır: 'national', 'world', 'balkan', 'europe', 'ema_league', 'regional'.\n"
             "6. Sadece geçerli bir JSON dizisi (array) döndür, markdown veya açıklama metni ekleme:\n"
             '[{"title": "Resmi Yarışma Adı", "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", '
@@ -127,93 +133,85 @@ class AutonomousDiscoveryParser(BaseParser):
 
         discovery_queries = [
             (
-                "Dünya (WMA/WMG), Avrupa (EMA & EMA League) ve Balkan (BAMACI/BAMACS) Şampiyonaları",
-                "Search official calendars of World Masters Athletics (world-masters-athletics.org), "
-                "European Masters Athletics (european-masters-athletics.org / data.opentrack.run), and Balkan Masters Athletics "
-                "for ALL 2026, 2027, and 2028 international Masters athletics championships and cups. "
-                "Specifically include:\n"
-                "- European Masters Indoor Championships (EMACI 2026 Toruń, EMACI 2028 Glasgow)\n"
-                "- European Masters Stadia / Outdoor Championships (EMACS 2027 Jyväskylä)\n"
-                "- European Masters Non-Stadia Championships (EMACNS 2026, EMACNS 2028 Galway)\n"
-                "- European Masters Marathon, Off-Road, Trail & Mountain Running Championships (EMORRC 2026 Porto Santo, EMMTRC 2027 Ojós, EMAMRC 2027 Lucerne)\n"
-                "- All EMA League Meetings (Meeting Européen Masters en Salle Nantes 2027, Catania 2026, Speed Masters Thessaloniki 2026, Christina Ziemann Trophy, etc.)\n"
-                "- World Masters Athletics Championships (WMA Stadia Daegu 2026, WMA Marathon Zagreb 2026, WMA Indoor/Road/Mountain 2026-2028) & World Masters Games (WMG Kansai 2027)\n"
-                "- Balkan Masters Indoor Championships (BAMACI 2026 Novo Mesto, BAMACI 2027) and Balkan Masters Stadia Championships (BAMACS 2026 Craiova, BAMACS 2027)."
+                f"Dünya (WMA/WMG), Avrupa (EMA & EMA League) ve Balkan (BAMA) Şampiyonaları ({years_str})",
+                f"Search the official calendars of World Masters Athletics (world-masters-athletics.org), "
+                f"European Masters Athletics (european-masters-athletics.org / data.opentrack.run), and Balkan Masters Athletics "
+                f"for ALL {years_str} international Masters (35+) athletics championships, cups, and league meetings, "
+                f"with their current official host cities and exact dates:\n"
+                f"- European Masters Indoor Championships (EMACI), Stadia/Outdoor Championships (EMACS), and Non-Stadia Championships (EMACNS)\n"
+                f"- European Masters Marathon, Off-Road, Mountain & Trail Running Championships (EMORRC, EMMTRC, EMAMRC) and Winter Throws\n"
+                f"- All European Masters Athletics League (EMA League) indoor and outdoor meetings across Europe\n"
+                f"- World Masters Athletics Championships (WMA Indoor, WMA Outdoor/Stadia, WMA Marathon, WMA Road, WMA Mountain/Trail) & World Masters Games (WMG)\n"
+                f"- Balkan Masters Athletics Championships: Balkan Masters Indoor (BAMACI), Balkan Masters Outdoor/Stadia (BAMACS), and Balkan Masters Marathon/Cross."
             ),
             (
-                "Türkiye & Doğu Balkanlar (TR, GR, BG, RO)",
-                "2026 ve 2027 yıllarında Türkiye (TAF - taf.org.tr), Yunanistan (SEGAS / OEBA), Bulgaristan (BFLA) ve Romanya (FRA) "
-                "tarafından düzenlenen TÜM 35+ yaş Masterlar (Veteran) atletizm yarışmalarını detaylıca bul:\n"
-                "- Türkiye: Alkan Öral Türkiye Masterlar Salon Şampiyonası (Bursa), Murat Akman Türkiye Masterlar Açık Saha Şampiyonası (İzmir), "
-                "Türkiye Masterlar Kros Şampiyonası, Türkiye Masterlar Atmalar / Uzun Mesafeler Şampiyonası, İsmail Akçay Yol Koşusu, "
-                "Fahir Özgüden Masterlar Kupası ve diğer TAF Masterlar yarışmaları.\n"
-                "- Yunanistan, Bulgaristan ve Romanya (country='RO'): 2026 ve 2027 Ulusal Masterlar Salon (Indoor), Açık Saha (Outdoor/Stadia), "
-                "Open Romanian Outdoor Masters (Bucharest, country='RO') ve Balkan Masterlar Şampiyonası (BAMACS Craiova)."
+                f"Türkiye & Doğu Balkanlar - TR, GR, BG, RO ({years_short})",
+                f"{years_short} yıllarında Türkiye (TAF - taf.org.tr), Yunanistan (SEGAS / OEBA), Bulgaristan (BFLA) ve Romanya (FRA - country='RO') "
+                f"resmi federasyon takvimlerinde yer alan TÜM 35+ yaş Masterlar (Veteran) atletizm yarışmalarını "
+                f"(o yılki resmi isimleri ve düzenleneceği şehirlerle birlikte) detaylıca bul:\n"
+                f"- Ulusal Masterlar Salon (Indoor) ve Açık Saha (Outdoor/Stadia) Atletizm Şampiyonaları\n"
+                f"- Ulusal Masterlar Kros (Cross Country), Atmalar (Throws), Çoklu Branşlar ve Yol Koşusu Şampiyonaları\n"
+                f"- Federasyon takvimindeki resmi Masterlar Kupa, Bayrak ve Açık (Open) Master yarışmaları."
             ),
             (
-                "Batı Balkanlar & Adriyatik (RS, HR, SI, BA, AL, ME, MK)",
-                "Find all official 2026 and 2027 National Masters (Veteran) Indoor Championships, National Masters Outdoor (Stadia) "
-                "Championships, Masters Throws/Road/Cross Championships, and Balkan Masters Championships (BAMACI Novo Mesto, WMA Marathon Zagreb) "
-                "in Serbia (SAS), Croatia (HAS / HAVU), Slovenia (AZS / ZAVS), Bosnia and Herzegovina, Albania, Montenegro, and North Macedonia."
+                f"Batı Balkanlar & Adriyatik - RS, HR, SI, BA, AL, ME, MK ({years_short})",
+                f"Find all official {years_short} National Masters (35+ Veteran) Indoor Championships, National Masters Outdoor (Stadia) "
+                f"Championships, Masters Throws, Road, Cross Country, and Open/Balkan Masters Championships in "
+                f"Serbia (SAS), Croatia (HAS / HAVU), Slovenia (AZS / ZAVS), Bosnia and Herzegovina, Albania, Montenegro, and North Macedonia, "
+                f"with their scheduled host cities and exact dates."
             ),
             (
-                "Birleşik Krallık ve İrlanda (GB - BMAF & IE - IMAA Tüm Pist, Salon, Kros ve Yol Şampiyonaları)",
-                "Search the official British Masters Athletic Federation fixture calendar (bmaf.org.uk/fixtures/ and bmaf.opentrack.run) "
-                "and Irish Masters Athletic Association (irishmastersathletics.com) for ALL 2026 and 2027 championships and open events. "
-                "Make sure to include EVERY single one of these BMAF and IMAA championships with their exact dates and venues:\n"
-                "- BMAF / British Masters Indoor Track & Field Championships (Lee Valley)\n"
-                "- BMAF / British Masters Outdoor Track & Field Championships (Derby)\n"
-                "- BMAF Indoor Pentathlon, 3000m and Open Events (Cardiff)\n"
-                "- BMAF Winter Throws Championships (Horspath, Oxford) & BMAF Throws Pentathlon / 10,000m Championships\n"
-                "- British Masters Cross Country Championships & British Masters Cross Country Relay Championships (Long Eaton / West Park)\n"
-                "- British Masters Road Relay Championships (Mallory Park)\n"
-                "- British Masters 5k Road Championships (Battersea Park / Horwich)\n"
-                "- British Masters 10k Road Championships, 10 Mile Road Championships, Half Marathon Championships, and Marathon Championships\n"
-                "- British Masters Race Walking Championships (Indoor, Track & Road)\n"
-                "- Irish Masters (IMAA) Indoor Championships (Athlone) and Irish Masters Outdoor Track & Field Championships (Tullamore)."
+                f"Birleşik Krallık ve İrlanda - GB (BMAF) & IE (IMAA) ({years_short})",
+                f"Search the official British Masters Athletic Federation fixture calendar (bmaf.org.uk/fixtures/ and bmaf.opentrack.run) "
+                f"and Irish Masters Athletic Association (irishmastersathletics.com) for ALL {years_short} scheduled 35+ Masters championships "
+                f"and open fixtures, regardless of which UK/Irish city hosts them each year:\n"
+                f"- BMAF / British Masters Indoor & Outdoor Track & Field Championships\n"
+                f"- BMAF Indoor Pentathlon & 3000m Championships, Outdoor Combined Events Championships\n"
+                f"- BMAF Winter Throws Championships, Throws Pentathlon, and 10,000m Track Championships\n"
+                f"- British Masters Cross Country Championships & British Masters Cross Country Relay Championships\n"
+                f"- British Masters Road Relay Championships\n"
+                f"- British Masters Road Running Championships: 1 Mile, 5k Road, 10k Road, 10 Mile Road, Half Marathon, Marathon, and Ultra/24h\n"
+                f"- British Masters Race Walking Championships (Indoor, Track & Road)\n"
+                f"- Irish Masters (IMAA) Indoor, Outdoor Track & Field, Cross Country, and Road Championships."
             ),
             (
-                "Fransa ve Almanya (FR - FFA & DE - DLV/LADV Tüm Salon, Pist, Atmalar ve Yol Şampiyonaları)",
-                "Find all official 2026 and 2027 Masters (Senioren / Vétérans) athletics championships in France and Germany:\n"
-                "- France (FFA - athle.fr): Championnats de France Masters en Salle (Saint-Brieuc 2026, Nantes 2027), "
-                "Championnats de France Masters sur Piste / Stadia (Épinal 2026, Tours 2027), Championnats de France Masters d'Épreuves Combinées, "
-                "Championnats de France Masters de Marche, Championnats de France Masters Lancers Longs (Hiver), 5km / 10km / Semi-Marathon / Cross Masters, "
-                "and Meeting Européen Masters en Salle / EMA League Nantes.\n"
-                "- Germany (DLV / LADV - leichtathletik.de): Deutsche Masters Hallenmeisterschaften & Winterwurf (Düsseldorf 2026, Frankfurt), "
-                "Deutsche Masters Freiluftmeisterschaften (Mönchengladbach 2026, Gotha), Deutsche Masters Mehrkampfmeisterschaften, "
-                "Team DM Masters / DM Masters Bahngehen (Troisdorf), Deutsche Straßenlauf-/Halbmarathon-/Crosslauf-Meisterschaften Masters, "
-                "and BW-Meisterschaften Halbmarathon Bernhausen."
+                f"Fransa ve Almanya - FR (FFA) & DE (DLV/LADV) ({years_short})",
+                f"Find all official {years_short} National and Regional 35+ Masters (Senioren / Vétérans) athletics championships in France and Germany, "
+                f"with their current year host cities and dates:\n"
+                f"- France (FFA - athle.fr): Championnats de France Masters en Salle (Indoor), Championnats de France Masters sur Piste (Outdoor/Stadia), "
+                f"Épreuves Combinées, Marche, Lancers Longs, Cross, 5km, 10km, Semi-Marathon, Marathon, and EMA League / Open Masters meetings.\n"
+                f"- Germany (DLV / LADV - leichtathletik.de): Deutsche Masters Hallenmeisterschaften & Winterwurf, "
+                f"Deutsche Masters Freiluftmeisterschaften (Stadia), Mehrkampf, Team DM Masters, Bahngehen / Straßengehen, "
+                f"Straßenlauf (5km, 10km, Halbmarathon, Marathon), Crosslauf, and major Landes/Regional Masters Championships."
             ),
             (
-                "Benelüks, İsviçre ve Avusturya (NL, BE, LU, CH, AT)",
-                "Find all official 2026 and 2027 Masters athletics championships in the Netherlands, Belgium, Switzerland, and Austria:\n"
-                "- Netherlands (Atletiekunie): NK Masters Indoor (Apeldoorn Omnisport), NK Masters Outdoor Track & Field, NK Cross / 10km / Marathon Masters.\n"
-                "- Belgium (VAL / LBFA / KBAB): Belgian Masters Indoor Championships, Belgian Masters Outdoor Track & Field & Throws Championships.\n"
-                "- Switzerland (Swiss Athletics / Swiss Masters - swiss-masters.ch): Swiss Masters Indoor Championships, "
-                "Swiss Masters Outdoor Championships (Part 1 & Part 2), Swiss Winter Throws & Throwing Pentathlon Championships Masters, "
-                "Swiss Masters Hammer / Pentathlon Championships.\n"
-                "- Austria (ÖLV - oelv.at): Int. Österreichische Hallenmeisterschaften der Masters & Österreichische Meisterschaften der Masters (Outdoor / Straße)."
+                f"Benelüks, İsviçre ve Avusturya - NL, BE, LU, CH, AT ({years_short})",
+                f"Find all official {years_short} National 35+ Masters athletics championships in the Netherlands, Belgium, Luxembourg, Switzerland, and Austria, "
+                f"with their scheduled host cities and dates:\n"
+                f"- Netherlands (Atletiekunie): NK Masters Indoor, NK Masters Outdoor Track & Field, NK Cross / Road / Throws Masters.\n"
+                f"- Belgium (VAL / LBFA / KBAB): Belgian Masters Indoor, Outdoor Track & Field, Throws, Combined Events, and Road/Cross Championships.\n"
+                f"- Switzerland (Swiss Athletics / Swiss Masters - swiss-masters.ch): Swiss Masters Indoor & Outdoor Championships (including Part 1 & Part 2), "
+                f"Winter Throws & Throwing Pentathlon, Hammer, Combined Events, and Road/Mountain Masters.\n"
+                f"- Austria (ÖLV - oelv.at): Österreichische Hallenmeisterschaften der Masters & Österreichische Meisterschaften der Masters (Outdoor, Throws, Road)."
             ),
             (
-                "Güney Avrupa - İtalya, İspanya, Portekiz (IT, ES, PT)",
-                "Find all official 2026 and 2027 National Masters (Veteranos / Master) Indoor, Outdoor, Throws, Combined Events, Road, and Cross Championships in:\n"
-                "- Italy (FIDAL - fidal.it): Campionati Italiani Master Indoor e Pentathlon Lanci Invernale (Ancona), "
-                "Campionati Italiani Individuali su Pista Master (Outdoor), Prove Multiple e Staffette Master, "
-                "Campionati Italiani Master 5km / 10km / Mezza Maratona / Maratona / 24h su Strada / Cross.\n"
-                "- Spain (RFEA - rfea.es): Campeonato de España Máster Short Track / Pista Cubierta (Antequera), "
-                "Campeonato de España Máster al Aire Libre, Lanzamientos Largos Máster, Pruebas Combinadas, Milla / 10km / Media Maratón / Campo a Través Máster.\n"
-                "- Portugal (FPAtletismo / ANAV): Campeonatos Nacionais de Veteranos em Pista Curta / Coberta (Indoor), "
-                "Campeonatos Nacionais de Veteranos ao Ar Livre (Outdoor), Pentatlo / Lançamentos / 10km em Estrada Veteranos."
+                f"Güney Avrupa - İtalya, İspanya, Portekiz - IT, ES, PT ({years_short})",
+                f"Find all official {years_short} National 35+ Masters (Veteranos / Master) athletics championships in Italy, Spain, and Portugal, "
+                f"with their current year host cities and dates:\n"
+                f"- Italy (FIDAL - fidal.it): Campionati Italiani Master Indoor & Pentathlon Lanci Invernale, Campionati Italiani Individuali su Pista Master (Outdoor), "
+                f"Prove Multiple e Staffette Master, Campionati Italiani Master 5km / 10km / Mezza Maratona / Maratona / 24h su Strada / Cross / Montagna.\n"
+                f"- Spain (RFEA - rfea.es): Campeonato de España Máster Short Track / Pista Cubierta, Aire Libre, Lanzamientos Largos, "
+                f"Pruebas Combinadas, Clubes, Milla, 10km, Media Maratón, Maratón, and Campo a Través Máster.\n"
+                f"- Portugal (FPAtletismo / ANAV): Campeonatos Nacionais de Veteranos em Pista Curta / Coberta (Indoor), "
+                f"Ar Livre (Outdoor), Pentatlo, Lançamentos, Corta-Mato (Cross), and Estrada (10km / Meia Maratona / Maratona)."
             ),
             (
-                "Orta, Kuzey ve Baltık Avrupa (PL, CZ, SK, HU, SE, NO, FI, DK, EE, LV, LT)",
-                "Find all official 2026 and 2027 National Masters (Veteránů / Veteraner / SAUL / Masters) Indoor, Outdoor, Throws, and Road/Cross Championships in:\n"
-                "- Poland (PZLA / PMA - pma.org.pl): Halowe Mistrzostwa Polski Masters (Toruń) & Mistrzostwa Polski Masters na otwartym stadionie, Rzuty (Throws).\n"
-                "- Czechia (ČAS / Sdružení veteránů): MČR veteránů v hale (Ostrava) & Czech Masters Open Outdoor Championships (MČR veteránů na dráze).\n"
-                "- Slovakia (SAZ) & Hungary (MASZ): National Masters Indoor and Outdoor Athletics Championships.\n"
-                "- Nordic & Baltic: Nordic Masters Indoor & Outdoor Championships, Sweden (ISM Veteraner & SM Veteraner), "
-                "Norway (NM Masters Innendørs & Utendørs), Finland (SAUL SM-hallit, SM-kilpailut, SM-maastot, SM-maantie), "
-                "Denmark (DM Masters Indendørs & Udendørs), and Baltic Open / Estonian, Latvian, Lithuanian Masters Championships."
+                f"Orta, Kuzey ve Baltık Avrupa - PL, CZ, SK, HU, SE, NO, FI, DK, EE, LV, LT ({years_short})",
+                f"Find all official {years_short} National and Regional 35+ Masters (Veteránů / Veteraner / SAUL / Masters) Indoor, Outdoor, Throws, Combined, "
+                f"Road, and Cross Championships (with their current year host cities and dates) in:\n"
+                f"- Poland (PZLA / PMA - pma.org.pl), Czechia (ČAS), Slovakia (SAZ), and Hungary (MASZ)\n"
+                f"- Sweden (Friidrott - ISM & SM Veteraner), Norway (NM Masters), Finland (SAUL SM-hallit, SM-kilpailut, SM-maastot, SM-maantie), and Denmark (DM Masters)\n"
+                f"- Estonia, Latvia, Lithuania, Nordic Masters Championships, and Baltic Masters Championships."
             ),
         ]
 
@@ -231,15 +229,16 @@ class AutonomousDiscoveryParser(BaseParser):
         return results
 
     def _find_taf_calendar_pdf_urls(self) -> List[str]:
-        """TAF faaliyet takvimi sayfasındaki güncel PDF bağlantısını bulur."""
+        """TAF faaliyet takvimi sayfasındaki güncel PDF bağlantısını dinamik yıllara göre bulur."""
         pdf_urls: List[str] = []
+        year_strs = [str(y) for y in self.years]
         try:
             html = self.fetch_html("https://taf.org.tr/ova_doc/faaliyet-takvimi/", timeout=12)
             if html:
                 soup = BeautifulSoup(html, "html.parser")
                 for a_tag in soup.find_all("a", href=True):
                     href = a_tag["href"]
-                    if href.lower().endswith(".pdf") and any(y in href for y in ["2026", "2027"]):
+                    if href.lower().endswith(".pdf") and any(y in href for y in year_strs):
                         if href not in pdf_urls:
                             pdf_urls.append(href)
                             break
@@ -300,6 +299,7 @@ class AutonomousDiscoveryParser(BaseParser):
         converted: List[Competition] = []
         valid_scopes = {"national", "world", "balkan", "europe", "ema_league", "regional"}
         valid_venues = {"indoor", "outdoor", "road", "cross"}
+        min_year = self.years[0]
 
         for item in items:
             try:
@@ -310,9 +310,11 @@ class AutonomousDiscoveryParser(BaseParser):
                 end_date = str(item.get("end_date", start_date)).strip()[:10] or start_date
                 if not title or not is_valid_competition_title(title):
                     continue
-                if not re.match(r"^202[6-9]-\d{2}-\d{2}$", start_date):
+                if not re.match(r"^20\d{2}-\d{2}-\d{2}$", start_date):
                     continue
-                if not re.match(r"^202[6-9]-\d{2}-\d{2}$", end_date) or end_date < start_date:
+                if int(start_date[:4]) < min_year:
+                    continue
+                if not re.match(r"^20\d{2}-\d{2}-\d{2}$", end_date) or end_date < start_date:
                     end_date = start_date
 
                 raw_country = str(item.get("country", "EU")).strip().upper()
