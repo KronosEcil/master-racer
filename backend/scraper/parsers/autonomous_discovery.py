@@ -98,7 +98,7 @@ class AutonomousDiscoveryParser(BaseParser):
                     converted = self._convert_gemini_items(items, default_url=pdf_url)
                     logger.info(f"[Gemini-AI] TAF Resmi PDF takviminden {len(converted)} Master yarışması çıkarıldı.")
                     results.extend(converted)
-                    time.sleep(6)
+                    time.sleep(12)
             except Exception as e:
                 logger.warning(f"[Gemini-AI] TAF PDF analizi hatası ({pdf_url}): {e}")
 
@@ -176,7 +176,7 @@ class AutonomousDiscoveryParser(BaseParser):
                 converted = self._convert_gemini_items(items, default_url="https://european-masters-athletics.org")
                 logger.info(f"[Gemini-AI] {label} taramasından {len(converted)} yarışma çıkarıldı.")
                 results.extend(converted)
-                time.sleep(6)
+                time.sleep(12)
             except Exception as e:
                 logger.warning(f"[Gemini-AI] Resmi site tarama hatası ({label}): {e}")
 
