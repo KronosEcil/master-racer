@@ -78,10 +78,11 @@ class AutonomousDiscoveryParser(BaseParser):
                 if resp.status_code == 200 and len(resp.content) > 1000:
                     pdf_b64 = base64.b64encode(resp.content).decode("utf-8")
                     prompt = (
-                        "Bu Türkiye Atletizm Federasyonu (TAF - https://taf.org.tr) resmi faaliyet takvimi PDF belgesini satır satır incele.\n"
-                        "KURAL 1: Tablodaki 'Yaş Grubu' sütununu kontrol et. SADECE Yaş Grubu sütununda 'Master' veya 'Masterlar' "
-                        "yazan VE Türkiye sınırları içinde (Yurt İçi, country='TR') düzenlenen yarışmaları çıkar.\n"
-                        "KURAL 2: Yaş Grubu 'B' (Büyükler), 'U23', 'U20', 'U18', 'U16', 'U14' olan yarışmaları "
+                        "Bu Türkiye Atletizm Federasyonu (TAF - https://taf.org.tr) resmi faaliyet takvimi PDF belgesinin TÜM sayfalarını satır satır incele.\n"
+                        "KURAL 1: Tablodaki 'Yaş Grubu' sütununu ve yarışma adını kontrol et. Yaş Grubu sütununda 'Master' / 'Masterlar' yazan "
+                        "veya yarışma adında 'Master' / 'Masterlar' / 'Masterler' geçen TÜM yarışmaları (Salon Şampiyonası, Açık Saha/Pist Şampiyonası, "
+                        "Kros Şampiyonası, Atmalar Kupası, Mesafeler ve Atmalar Kupası, Yürüyüş, Yol Koşusu, Balkan/Avrupa Şampiyonası vb.) eksiksiz çıkar.\n"
+                        "KURAL 2: Yaş Grubu sadece 'B' (Büyükler), 'U23', 'U20', 'U18', 'U16', 'U14' olan yarışmaları "
                         "(Salon Olimpik Deneme, Olimpik Deneme, TOHM, SEM, Okullar, Kulüpler Ligi vb.) KESİNLİKLE DAHİL ETME!\n"
                         "KURAL 3: Eğer Yaş Grubu sütununda 'Master' yazıyor ancak yarışma adında 'Masterlar' kelimesi geçmiyorsa "
                         "`title` alanının sonuna '(Masterlar)' ibaresini ekle.\n"
@@ -253,60 +254,36 @@ class AutonomousDiscoveryParser(BaseParser):
 
     def _get_available_gemini_models(self, api_key: str) -> List[str]:
         """
-        Google Generative Language API'den o an aktif olan tüm Gemini modellerini dinamik olarak çeker.
-        Kullanımdan kaldırılmış (404) modellere istek atılmasını önler ve kotası boş olan yedek modelleri bulur.
+        Google Generative Language API'de aktif olan temel Flash modellerini döndürür.
+        Deneysel/transcribe/image modellerine gereksiz istek atılmasını engeller.
         """
         if self._available_models:
             return self._available_models
 
-        preferred_order = [
+        allowed_models = [
             "gemini-2.5-flash",
             "gemini-2.5-flash-lite",
             "gemini-3-flash-preview",
             "gemini-3.1-flash-lite-preview",
-            "gemini-2.5-pro",
-            "gemini-3-pro-preview",
-            "gemini-3.1-pro-preview",
         ]
-        excluded_tokens = (
-            "2.0", "1.5", "1.0", "embedding", "imagen", "veo", "tts",
-            "audio", "robotics", "computer-use", "aqa", "image", "live",
-            "thinking", "customtools", "learnlm", "gemma",
-        )
-        discovered: List[str] = []
+        discovered_set = set()
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
             resp = requests.get(url, timeout=15)
             if resp.status_code == 200:
                 for m in resp.json().get("models", []):
                     methods = m.get("supportedGenerationMethods", [])
-                    if "generateContent" not in methods:
-                        continue
-                    name = str(m.get("name", "")).replace("models/", "").strip()
-                    if not name.startswith("gemini-"):
-                        continue
-                    if any(tok in name.lower() for tok in excluded_tokens):
-                        continue
-                    discovered.append(name)
+                    if "generateContent" in methods:
+                        name = str(m.get("name", "")).replace("models/", "").strip()
+                        discovered_set.add(name)
         except Exception as e:
             logger.debug(f"[Gemini-AI] Model listesi sorgulama uyarısı: {e}")
 
-        if not discovered:
-            self._available_models = preferred_order[:3]
-            return self._available_models
+        if discovered_set:
+            self._available_models = [m for m in allowed_models if m in discovered_set] or allowed_models[:2]
+        else:
+            self._available_models = allowed_models[:2]
 
-        ordered: List[str] = []
-        for pref in preferred_order:
-            if pref in discovered and pref not in ordered:
-                ordered.append(pref)
-        for d in discovered:
-            if d not in ordered and not d.endswith("-latest"):
-                ordered.append(d)
-        for d in discovered:
-            if d not in ordered:
-                ordered.append(d)
-
-        self._available_models = ordered
         logger.info(f"[Gemini-AI] Kullanılabilir aktif Gemini modelleri: {self._available_models}")
         return self._available_models
 
@@ -318,7 +295,7 @@ class AutonomousDiscoveryParser(BaseParser):
     ) -> List[Dict[str, Any]]:
         """
         Gemini REST API'sini hafif token konfigürasyonu ve temperature=0.0 (sıfır tahmin/halüsinasyon)
-        ile çağırır; HTTP 429/503/404 durumunda kotası dolan veya geçersiz modeli atlayıp anında yedek modele geçer.
+        ile çağırır; HTTP 429/503/402/404 durumunda kotası dolan modeli atlayıp yedek modele geçer.
         """
         all_models = self._get_available_gemini_models(api_key)
         headers = {
@@ -328,7 +305,6 @@ class AutonomousDiscoveryParser(BaseParser):
         for attempt in range(2):
             active_models = [m for m in all_models if m not in self._exhausted_models]
             if not active_models:
-                logger.warning("[Gemini-AI] Tüm Gemini modellerinin günlük ücretsiz kotası dolmuş durumda.")
                 return []
 
             for model in active_models:
@@ -345,6 +321,14 @@ class AutonomousDiscoveryParser(BaseParser):
 
                 try:
                     resp = requests.post(endpoint, headers=headers, json=payload, timeout=90)
+                    if resp.status_code == 402:
+                        logger.error(
+                            "[Gemini-AI] HTTP 402 (Prepayment credits depleted): API anahtarının bağlı olduğu Google AI Studio "
+                            "projesi 'Tier 1 - Prepay (No credits)' modunda olduğu için istekler reddediliyor. "
+                            "Ücretsiz günlük kotadan yararlanmak için AI Studio'da 'Free tier' (Ücretsiz Katman) projesine ait bir API anahtarı kullanın."
+                        )
+                        self._exhausted_models.update(all_models)
+                        return []
                     if resp.status_code in (429, 503):
                         body_lower = resp.text.lower()
                         if resp.status_code == 429 and ("perday" in body_lower or "per_day" in body_lower or "daily" in body_lower):
@@ -352,7 +336,7 @@ class AutonomousDiscoveryParser(BaseParser):
                             logger.warning(f"[Gemini-AI] Model ({model}) günlük ücretsiz kota sınırına ulaştı, yedek modele geçiliyor...")
                         else:
                             logger.warning(f"[Gemini-AI] Model ({model}) HTTP {resp.status_code}, yedek model deneniyor...")
-                        time.sleep(2)
+                        time.sleep(3)
                         continue
                     if resp.status_code in (400, 404):
                         self._exhausted_models.add(model)
