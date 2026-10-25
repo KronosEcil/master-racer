@@ -221,13 +221,13 @@ data class Competition(
     }
 
     /**
-     * Ekranda ve filtrelemede kullanılacak standart 2/3 harfli ülke kodu.
+     * Ekranda ve filtrelemede kullanılacak standart ISO-2 (2 harfli) ülke kodu.
      */
     fun getDisplayCountryCode(): String {
         val titleLower = title.lowercase()
         val cityLower = city.lowercase()
         val cNameLower = country_name.lowercase()
-        val cUpper = country.uppercase()
+        val cUpper = country.trim().uppercase()
 
         if (titleLower.contains("kansai") || titleLower.contains("world masters games") || titleLower.contains("wmg") ||
             cityLower.contains("kansai") || cNameLower.contains("kansai") || cUpper == "JP" || cUpper == "JPN"
@@ -242,117 +242,135 @@ data class Competition(
         }
 
         val resolvedFromText = when {
+            cNameLower.contains("yeni zelanda") || cNameLower.contains("new zealand") || cityLower.contains("auckland") || cityLower.contains("wellington") || cityLower.contains("christchurch") -> "NZ"
+            cNameLower.contains("avustralya") || cNameLower.contains("australia") || cityLower.contains("sydney") || cityLower.contains("melbourne") || cityLower.contains("brisbane") || cityLower.contains("perth") -> "AU"
+            cNameLower.contains("isviçre") || cNameLower.contains("switz") || cityLower.contains("lucerne") || cityLower.contains("luzern") || cityLower.contains("klosters") || cityLower.contains("zurich") || cityLower.contains("zürich") -> "CH"
             cNameLower.contains("portekiz") || cNameLower.contains("portugal") || cityLower.contains("lisboa") || cityLower.contains("lizbon") || cityLower.contains("porto") || titleLower.contains("portug") -> "PT"
             cNameLower.contains("çek") || cNameLower.contains("czech") || cityLower.contains("janske") || cityLower.contains("prag") -> "CZ"
             cNameLower.contains("sloven") || cityLower.contains("domzale") || cityLower.contains("novo mesto") || cityLower.contains("ljubljana") -> "SI"
             cNameLower.contains("norve") || cNameLower.contains("norway") || cityLower.contains("oslo") -> "NO"
-            cNameLower.contains("ispan") || cNameLower.contains("spain") || cityLower.contains("madrid") || cityLower.contains("barcelona") -> "ES"
+            cNameLower.contains("ispan") || cNameLower.contains("spain") || cityLower.contains("madrid") || cityLower.contains("barcelona") || cityLower.contains("murcia") || cityLower.contains("ojós") || cityLower.contains("ojos") -> "ES"
             cNameLower.contains("ital") || cityLower.contains("catania") || cityLower.contains("roma") -> "IT"
             cNameLower.contains("alman") || cNameLower.contains("german") || cityLower.contains("berlin") || cityLower.contains("münchen") -> "DE"
             cNameLower.contains("türk") || cNameLower.contains("turk") || cityLower.contains("izmir") || cityLower.contains("istanbul") -> "TR"
             cNameLower.contains("hırvat") || cNameLower.contains("croat") || cityLower.contains("zagreb") -> "HR"
-            cNameLower.contains("finland") || cityLower.contains("jyvaskyla") || cityLower.contains("tampere") -> "FIN"
-            cNameLower.contains("isviçre") || cNameLower.contains("switz") || cityLower.contains("lucerne") -> "CHE"
-            cNameLower.contains("irlanda") || cNameLower.contains("ireland") || cityLower.contains("galway") -> "IRL"
+            cNameLower.contains("finland") || cityLower.contains("jyvaskyla") || cityLower.contains("jyväskylä") || cityLower.contains("tampere") -> "FI"
+            cNameLower.contains("irlanda") || cNameLower.contains("ireland") || cityLower.contains("galway") || cityLower.contains("dublin") -> "IE"
             cNameLower.contains("fransa") || cNameLower.contains("france") || cityLower.contains("paris") -> "FR"
-            cNameLower.contains("romanya") || cNameLower.contains("romania") || cityLower.contains("craiova") -> "RO"
-            cNameLower.contains("polonya") || cNameLower.contains("poland") || cityLower.contains("torun") -> "PL"
-            cNameLower.contains("isveç") || cNameLower.contains("sweden") || cityLower.contains("gothenburg") -> "SE"
+            cNameLower.contains("romanya") || cNameLower.contains("romania") || cityLower.contains("craiova") || cityLower.contains("bükreş") || cityLower.contains("bucuresti") -> "RO"
+            cNameLower.contains("polonya") || cNameLower.contains("poland") || cityLower.contains("torun") || cityLower.contains("toruń") -> "PL"
+            cNameLower.contains("isveç") || cNameLower.contains("sweden") || cityLower.contains("gothenburg") || cityLower.contains("göteborg") -> "SE"
             cNameLower.contains("hollanda") || cNameLower.contains("netherland") || cityLower.contains("amsterdam") -> "NL"
-            cNameLower.contains("yunan") || cNameLower.contains("greece") || cityLower.contains("atina") -> "GR"
+            cNameLower.contains("yunan") || cNameLower.contains("greece") || cityLower.contains("atina") || cityLower.contains("athens") -> "GR"
             cNameLower.contains("avusturya") || cNameLower.contains("austria") || cityLower.contains("wien") || cityLower.contains("viyana") -> "AT"
             cNameLower.contains("belçika") || cNameLower.contains("belcika") || cNameLower.contains("belgium") || cityLower.contains("brussel") || cityLower.contains("brüksel") -> "BE"
-            cNameLower.contains("danimarka") || cNameLower.contains("denmark") || cityLower.contains("kopenhag") -> "DK"
+            cNameLower.contains("danimarka") || cNameLower.contains("denmark") || cityLower.contains("kopenhag") || cityLower.contains("aarhus") -> "DK"
             cNameLower.contains("macar") || cNameLower.contains("hungar") || cityLower.contains("budapest") -> "HU"
             cNameLower.contains("slovak") || cityLower.contains("bratislava") -> "SK"
             cNameLower.contains("eston") || cityLower.contains("tallinn") -> "EE"
             cNameLower.contains("leton") || cNameLower.contains("latvi") || cityLower.contains("riga") -> "LV"
             cNameLower.contains("litvan") || cNameLower.contains("lithuan") || cityLower.contains("vilnius") -> "LT"
+            cNameLower.contains("kanada") || cNameLower.contains("canada") -> "CA"
+            cNameLower.contains("güney kore") || cNameLower.contains("korea") || cityLower.contains("daegu") || cityLower.contains("seoul") -> "KR"
             else -> ""
         }
-        if (resolvedFromText.isNotEmpty() && (cUpper == "EU" || cUpper == "INT" || cUpper.isBlank())) {
+        if (resolvedFromText.isNotEmpty() && (cUpper == "EU" || cUpper == "INT" || cUpper.isBlank() || cityLower.contains("luzern") || cityLower.contains("klosters"))) {
             return resolvedFromText
         }
 
-        return when (cUpper) {
-            "TUR", "TR" -> "TR"
-            "GRE", "GR" -> "GR"
-            "GER", "DE" -> "DE"
-            "ITA", "IT" -> "IT"
-            "GBR", "UK", "GB" -> "GB"
-            "ESP", "ES" -> "ES"
-            "FRA", "FR" -> "FR"
-            "POL", "PL" -> "PL"
-            "BUL", "BG" -> "BG"
-            "ROU", "RO" -> "RO"
-            "SRB", "RS" -> "RS"
-            "SWE", "SE" -> "SE"
-            "NED", "NL" -> "NL"
-            "POR", "PT" -> "PT"
-            "KOR" -> "KOR"
-            "USA" -> "USA"
-            "FIN" -> "FIN"
-            "CHE", "CH" -> "CH"
-            "IRL", "IE" -> "IE"
-            "SVN", "SI" -> "SI"
-            "ALB", "AL" -> "AL"
-            "CZE", "CZ" -> "CZ"
-            "NOR", "NO" -> "NO"
-            "DNK", "DK" -> "DK"
-            "ISL", "IS" -> "IS"
-            "LVA", "LV" -> "LV"
-            "LTU", "LT" -> "LT"
-            "HRV", "HR" -> "HR"
-            "AUT", "AT" -> "AT"
-            "BEL", "BE" -> "BE"
-            "EST", "EE" -> "EE"
-            else -> if (resolvedFromText.isNotEmpty()) resolvedFromText else country.ifBlank { "TR" }
+        val normalized = normalizeToIso2(cUpper)
+        if (normalized.isNotEmpty() && normalized != "INT" && normalized != "EU") {
+            return normalized
         }
+        return if (resolvedFromText.isNotEmpty()) resolvedFromText else normalized.ifBlank { "TR" }
     }
 
     /**
-     * Ekranda gösterilecek standart Türkçe ülke ismi.
+     * Ekranda gösterilecek standart Türkçe ülke ismi (tüm dünya ülkeleri destekli).
      */
     fun getDisplayCountryName(): String {
-        val code = getDisplayCountryCode().uppercase()
+        val code = normalizeToIso2(getDisplayCountryCode())
         val cNameLower = country_name.lowercase()
 
-        if (code == "AL" || cNameLower.contains("albania") || cNameLower.contains("arnavutluk")) {
-            return "Arnavutluk"
+        when (code) {
+            "TR" -> return "Türkiye"
+            "AL" -> return "Arnavutluk"
+            "JP" -> return "Japonya"
+            "DE" -> return "Almanya"
+            "FR" -> return "Fransa"
+            "GR" -> return "Yunanistan"
+            "IT" -> return "İtalya"
+            "ES" -> return "İspanya"
+            "GB" -> return "Birleşik Krallık"
+            "PL" -> return "Polonya"
+            "BG" -> return "Bulgaristan"
+            "RO" -> return "Romanya"
+            "RS" -> return "Sırbistan"
+            "SE" -> return "İsveç"
+            "NL" -> return "Hollanda"
+            "PT" -> return "Portekiz"
+            "KR" -> return "Güney Kore"
+            "US" -> return "ABD"
+            "FI" -> return "Finlandiya"
+            "CH" -> return "İsviçre"
+            "IE" -> return "İrlanda"
+            "SI" -> return "Slovenya"
+            "CZ" -> return "Çekya"
+            "NO" -> return "Norveç"
+            "DK" -> return "Danimarka"
+            "IS" -> return "İzlanda"
+            "LV" -> return "Letonya"
+            "LT" -> return "Litvanya"
+            "HR" -> return "Hırvatistan"
+            "AT" -> return "Avusturya"
+            "BE" -> return "Belçika"
+            "EE" -> return "Estonya"
+            "HU" -> return "Macaristan"
+            "SK" -> return "Slovakya"
+            "UA" -> return "Ukrayna"
+            "BA" -> return "Bosna-Hersek"
+            "ME" -> return "Karadağ"
+            "MK" -> return "Kuzey Makedonya"
+            "XK" -> return "Kosova"
+            "MD" -> return "Moldova"
+            "CY" -> return "Kıbrıs"
+            "MT" -> return "Malta"
+            "LU" -> return "Lüksemburg"
+            "NZ" -> return "Yeni Zelanda"
+            "AU" -> return "Avustralya"
+            "CA" -> return "Kanada"
+            "BR" -> return "Brezilya"
+            "AR" -> return "Arjantin"
+            "MX" -> return "Meksika"
+            "PE" -> return "Peru"
+            "CL" -> return "Şili"
+            "CO" -> return "Kolombiya"
+            "ZA" -> return "Güney Afrika"
+            "MA" -> return "Fas"
+            "TN" -> return "Tunus"
+            "EG" -> return "Mısır"
+            "CN" -> return "Çin"
+            "TW" -> return "Tayvan"
+            "IN" -> return "Hindistan"
+            "SG" -> return "Singapur"
+            "MY" -> return "Malezya"
+            "TH" -> return "Tayland"
+            "KZ" -> return "Kazakistan"
+            "UZ" -> return "Özbekistan"
+            "AZ" -> return "Azerbaycan"
+            "GE" -> return "Gürcistan"
         }
-        if (code == "JP" || cNameLower.contains("japan") || cNameLower.contains("japonya") || cNameLower.contains("kansai")) {
-            return "Japonya"
+
+        // Herhangi bir ISO-2 ülke kodu için Android ICU Türkçe ülke adı altyapısı
+        if (code.length == 2 && code != "EU" && code != "INT") {
+            val localeTrName = java.util.Locale("", code).getDisplayCountry(java.util.Locale("tr"))
+            if (localeTrName.isNotBlank() && !localeTrName.equals(code, ignoreCase = true)) {
+                return localeTrName
+            }
         }
-        if (code == "TR" || cNameLower.contains("turkey") || cNameLower.contains("türkiye")) return "Türkiye"
-        if (code == "DE" || cNameLower.contains("germany") || cNameLower.contains("almanya")) return "Almanya"
-        if (code == "FR" || cNameLower.contains("france") || cNameLower.contains("fransa")) return "Fransa"
-        if (code == "GR" || cNameLower.contains("greece") || cNameLower.contains("yunanistan")) return "Yunanistan"
-        if (code == "IT" || cNameLower.contains("italy") || cNameLower.contains("italya")) return "İtalya"
-        if (code == "ES" || cNameLower.contains("spain") || cNameLower.contains("ispanya")) return "İspanya"
-        if (code == "GB" || cNameLower.contains("united kingdom") || cNameLower.contains("great britain") || cNameLower.contains("birleşik krallık")) return "Birleşik Krallık"
-        if (code == "PL" || cNameLower.contains("poland") || cNameLower.contains("polonya")) return "Polonya"
-        if (code == "BG" || cNameLower.contains("bulgaria") || cNameLower.contains("bulgaristan")) return "Bulgaristan"
-        if (code == "RO" || cNameLower.contains("romania") || cNameLower.contains("romanya")) return "Romanya"
-        if (code == "RS" || cNameLower.contains("serbia") || cNameLower.contains("sırbistan")) return "Sırbistan"
-        if (code == "SE" || cNameLower.contains("sweden") || cNameLower.contains("isveç")) return "İsveç"
-        if (code == "NL" || cNameLower.contains("netherlands") || cNameLower.contains("hollanda")) return "Hollanda"
-        if (code == "PT" || cNameLower.contains("portugal") || cNameLower.contains("portekiz")) return "Portekiz"
-        if (code == "KOR" || cNameLower.contains("korea") || cNameLower.contains("güney kore")) return "Güney Kore"
-        if (code == "USA" || cNameLower.contains("united states") || cNameLower.contains("abd")) return "ABD"
-        if (code == "FIN" || cNameLower.contains("finland") || cNameLower.contains("finlandiya")) return "Finlandiya"
-        if (code == "CH" || cNameLower.contains("switzerland") || cNameLower.contains("isviçre")) return "İsviçre"
-        if (code == "IE" || cNameLower.contains("ireland") || cNameLower.contains("irlanda")) return "İrlanda"
-        if (code == "SI" || cNameLower.contains("slovenia") || cNameLower.contains("slovenya")) return "Slovenya"
-        if (code == "CZ" || cNameLower.contains("czech") || cNameLower.contains("çekya")) return "Çekya"
-        if (code == "NO" || cNameLower.contains("norway") || cNameLower.contains("norveç")) return "Norveç"
-        if (code == "DK" || cNameLower.contains("denmark") || cNameLower.contains("danimarka")) return "Danimarka"
-        if (code == "IS" || cNameLower.contains("iceland") || cNameLower.contains("izlanda")) return "İzlanda"
-        if (code == "LV" || cNameLower.contains("latvia") || cNameLower.contains("letonya")) return "Letonya"
-        if (code == "LT" || cNameLower.contains("lithuania") || cNameLower.contains("litvanya")) return "Litvanya"
-        if (code == "HR" || cNameLower.contains("croatia") || cNameLower.contains("hırvatistan")) return "Hırvatistan"
-        if (code == "AT" || cNameLower.contains("austria") || cNameLower.contains("avusturya")) return "Avusturya"
-        if (code == "BE" || cNameLower.contains("belgium") || cNameLower.contains("belçika")) return "Belçika"
-        if (code == "EE" || cNameLower.contains("estonia") || cNameLower.contains("estonya")) return "Estonya"
+
+        if (cNameLower.contains("new zealand") || cNameLower.contains("yeni zelanda")) return "Yeni Zelanda"
+        if (cNameLower.contains("australia") || cNameLower.contains("avustralya")) return "Avustralya"
 
         return country_name.ifBlank { country }
     }
@@ -364,55 +382,127 @@ data class Competition(
         val cName = getDisplayCountryName()
         val titleLower = title.lowercase()
         val isKansai = titleLower.contains("kansai") || titleLower.contains("world masters games") || titleLower.contains("wmg") || city.lowercase().contains("kansai")
-        val cCity = if (isKansai) {
+        val rawCity = if (isKansai) {
             "Kansai"
         } else {
-            city
+            city.trim()
+        }
+        val invalidCities = setOf(
+            "", "not specified", "unspecified", "tbd", "tbc", "tba", "n/a", "na", "none", "null", "unknown", "belirlenecek"
+        )
+        val cCity = if (rawCity.lowercase() in invalidCities || rawCity.equals(cName, ignoreCase = true) || rawCity.equals(country_name, ignoreCase = true)) {
+            ""
+        } else {
+            rawCity
         }
         return if (cCity.isNotBlank()) "$cCity, $cName" else cName
     }
 
     /**
-     * Ülke Bayrak Emojisi.
+     * Evrensel Ülke Bayrak Emojisi:
+     * Hangi ülke olursa olsun (Yeni Zelanda, Avustralya, Peru, Kanada, tüm Avrupa/Asya/Afrika ülkeleri)
+     * ISO ülke kodunu Unicode Regional Indicator bayrak emojisine dönüştürür.
      */
     fun getCountryFlag(): String {
-        val cCode = getDisplayCountryCode().uppercase()
-        return when (cCode) {
-            "TR", "TUR" -> "🇹🇷"
-            "GR", "GRE" -> "🇬🇷"
-            "DE", "GER" -> "🇩🇪"
-            "IT", "ITA" -> "🇮🇹"
-            "GB", "UK", "GBR" -> "🇬🇧"
-            "ES", "ESP" -> "🇪🇸"
-            "FR", "FRA" -> "🇫🇷"
-            "PL", "POL" -> "🇵🇱"
-            "BG", "BUL" -> "🇧🇬"
-            "RO", "ROU" -> "🇷🇴"
-            "RS", "SRB" -> "🇷🇸"
-            "SE", "SWE" -> "🇸🇪"
-            "NL", "NED" -> "🇳🇱"
-            "PT", "POR" -> "🇵🇹"
-            "KOR" -> "🇰🇷"
-            "JP", "JPN" -> "🇯🇵"
-            "USA" -> "🇺🇸"
-            "FIN" -> "🇫🇮"
-            "CH", "CHE" -> "🇨🇭"
-            "IE", "IRL" -> "🇮🇪"
-            "SI", "SVN" -> "🇸🇮"
-            "AL", "ALB" -> "🇦🇱"
-            "CZ", "CZE" -> "🇨🇿"
-            "NO", "NOR" -> "🇳🇴"
-            "DK", "DNK" -> "🇩🇰"
-            "IS", "ISL" -> "🇮🇸"
-            "LV", "LVA" -> "🇱🇻"
-            "LT", "LTU" -> "🇱🇹"
-            "HR", "HRV" -> "🇭🇷"
-            "AT", "AUT" -> "🇦🇹"
-            "BE", "BEL" -> "🇧🇪"
-            "EE", "EST" -> "🇪🇪"
-            "EU" -> "🇪🇺"
-            "INT" -> "🌍"
-            else -> "🏃"
+        return countryCodeToFlagEmoji(getDisplayCountryCode())
+    }
+
+    companion object {
+        fun normalizeToIso2(rawCode: String): String {
+            return when (rawCode.trim().uppercase()) {
+                "TUR", "TR" -> "TR"
+                "GRE", "GR" -> "GR"
+                "GER", "DEU", "DE" -> "DE"
+                "ITA", "IT" -> "IT"
+                "GBR", "UK", "ENG", "SCO", "WAL", "NIR", "GB" -> "GB"
+                "ESP", "ES" -> "ES"
+                "FRA", "FR" -> "FR"
+                "POL", "PL" -> "PL"
+                "BUL", "BGR", "BG" -> "BG"
+                "ROU", "ROM", "RO" -> "RO"
+                "SRB", "RS" -> "RS"
+                "SWE", "SE" -> "SE"
+                "NED", "NLD", "NL" -> "NL"
+                "POR", "PRT", "PT" -> "PT"
+                "KOR", "KR" -> "KR"
+                "JPN", "JP" -> "JP"
+                "USA", "US" -> "US"
+                "CAN", "CA" -> "CA"
+                "FIN", "FI" -> "FI"
+                "CHE", "SUI", "CH" -> "CH"
+                "IRL", "IE" -> "IE"
+                "SVN", "SLO", "SI" -> "SI"
+                "ALB", "AL" -> "AL"
+                "CZE", "CZ" -> "CZ"
+                "SVK", "SK" -> "SK"
+                "HUN", "HU" -> "HU"
+                "NOR", "NO" -> "NO"
+                "DNK", "DEN", "DK" -> "DK"
+                "ISL", "IS" -> "IS"
+                "LVA", "LAT", "LV" -> "LV"
+                "LTU", "LT" -> "LT"
+                "EST", "EE" -> "EE"
+                "HRV", "CRO", "HR" -> "HR"
+                "AUT", "AT" -> "AT"
+                "BEL", "BE" -> "BE"
+                "LUX", "LU" -> "LU"
+                "MLT", "MT" -> "MT"
+                "CYP", "CY" -> "CY"
+                "BIH", "BA" -> "BA"
+                "MNE", "ME" -> "ME"
+                "MKD", "MK" -> "MK"
+                "KOS", "XK" -> "XK"
+                "MDA", "MD" -> "MD"
+                "UKR", "UA" -> "UA"
+                "NZL", "NZ" -> "NZ"
+                "AUS", "AU" -> "AU"
+                "BRA", "BR" -> "BR"
+                "ARG", "AR" -> "AR"
+                "MEX", "MX" -> "MX"
+                "PER", "PE" -> "PE"
+                "CHL", "CHI", "CL" -> "CL"
+                "COL", "CO" -> "CO"
+                "URY", "URU", "UY" -> "UY"
+                "ZAF", "RSA", "ZA" -> "ZA"
+                "MAR", "MA" -> "MA"
+                "TUN", "TN" -> "TN"
+                "EGY", "EG" -> "EG"
+                "KEN", "KE" -> "KE"
+                "ETH", "ET" -> "ET"
+                "CHN", "CN" -> "CN"
+                "TPE", "TWN", "TW" -> "TW"
+                "HKG", "HK" -> "HK"
+                "IND", "IN" -> "IN"
+                "SGP", "SG" -> "SG"
+                "MYS", "MAS", "MY" -> "MY"
+                "THA", "TH" -> "TH"
+                "IDN", "INA", "ID" -> "ID"
+                "PHL", "PHI", "PH" -> "PH"
+                "VNM", "VIE", "VN" -> "VN"
+                "KAZ", "KZ" -> "KZ"
+                "UZB", "UZ" -> "UZ"
+                "AZE", "AZ" -> "AZ"
+                "GEO", "GE" -> "GE"
+                "ARM", "AM" -> "AM"
+                "ISR", "IL" -> "IL"
+                "ARE", "UAE", "AE" -> "AE"
+                "QAT", "QA" -> "QA"
+                "SAU", "KSA", "SA" -> "SA"
+                else -> rawCode.trim().uppercase()
+            }
+        }
+
+        fun countryCodeToFlagEmoji(rawCode: String): String {
+            val iso2 = normalizeToIso2(rawCode)
+            if (iso2 == "EU") return "🇪🇺"
+            if (iso2 == "INT" || iso2 == "WORLD") return "🌍"
+            if (iso2 == "XK") return "🇽🇰"
+            if (iso2.length == 2 && iso2[0] in 'A'..'Z' && iso2[1] in 'A'..'Z') {
+                val first = Character.toChars(0x1F1E6 + (iso2[0].code - 'A'.code))
+                val second = Character.toChars(0x1F1E6 + (iso2[1].code - 'A'.code))
+                return String(first) + String(second)
+            }
+            return "🌍"
         }
     }
 }

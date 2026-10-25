@@ -40,6 +40,18 @@ class BaseParser(abc.ABC):
         """Tüm yarışmaları tarayıp Competition listesi döndürür."""
         pass
 
+    @staticmethod
+    def iso2_to_flag_emoji(code: str) -> str:
+        """Herhangi bir 2 harfli ISO ülke kodunu resmi Unicode Bayrak Emojisine dönüştürür."""
+        c = (code or "").strip().upper()
+        if c == "EU":
+            return "🇪🇺"
+        if c in ("INT", "WORLD"):
+            return "🌍"
+        if len(c) == 2 and "A" <= c[0] <= "Z" and "A" <= c[1] <= "Z":
+            return chr(0x1F1E6 + ord(c[0]) - ord("A")) + chr(0x1F1E6 + ord(c[1]) - ord("A"))
+        return "🌍"
+
     def detect_country(self, title: str, default_country: str = "INT", default_name: str = "Uluslararası") -> tuple[str, str, str]:
         """
         Hiçbir sabit şehir ismine bağımlı kalmadan; ISO ülke kodlarından, ülke isimlerinden
@@ -75,10 +87,12 @@ class BaseParser(abc.ABC):
             "BA": ("BA", "Bosna-Hersek", "🇧🇦"), "BIH": ("BA", "Bosna-Hersek", "🇧🇦"),
             "ME": ("ME", "Karadağ", "🇲🇪"), "MNE": ("ME", "Karadağ", "🇲🇪"),
             "MK": ("MK", "Kuzey Makedonya", "🇲🇰"), "MKD": ("MK", "Kuzey Makedonya", "🇲🇰"),
+            "XK": ("XK", "Kosova", "🇽🇰"), "KOS": ("XK", "Kosova", "🇽🇰"),
+            "MD": ("MD", "Moldova", "🇲🇩"), "MDA": ("MD", "Moldova", "🇲🇩"),
             "AL": ("AL", "Arnavutluk", "🇦🇱"), "ALB": ("AL", "Arnavutluk", "🇦🇱"),
             "SE": ("SE", "İsveç", "🇸🇪"), "SWE": ("SE", "İsveç", "🇸🇪"),
             "NO": ("NO", "Norveç", "🇳🇴"), "NOR": ("NO", "Norveç", "🇳🇴"),
-            "FI": ("FIN", "Finlandiya", "🇫🇮"), "FIN": ("FIN", "Finlandiya", "🇫🇮"),
+            "FI": ("FI", "Finlandiya", "🇫🇮"), "FIN": ("FI", "Finlandiya", "🇫🇮"),
             "DK": ("DK", "Danimarka", "🇩🇰"), "DEN": ("DK", "Danimarka", "🇩🇰"), "DNK": ("DK", "Danimarka", "🇩🇰"),
             "IS": ("IS", "İzlanda", "🇮🇸"), "ISL": ("IS", "İzlanda", "🇮🇸"),
             "EE": ("EE", "Estonya", "🇪🇪"), "EST": ("EE", "Estonya", "🇪🇪"),
@@ -88,15 +102,40 @@ class BaseParser(abc.ABC):
             "CY": ("CY", "Kıbrıs", "🇨🇾"), "CYP": ("CY", "Kıbrıs", "🇨🇾"),
             "MT": ("MT", "Malta", "🇲🇹"), "MLT": ("MT", "Malta", "🇲🇹"),
             "JP": ("JP", "Japonya", "🇯🇵"), "JPN": ("JP", "Japonya", "🇯🇵"),
-            "KR": ("KOR", "Güney Kore", "🇰🇷"), "KOR": ("KOR", "Güney Kore", "🇰🇷"),
-            "US": ("USA", "ABD", "🇺🇸"), "USA": ("USA", "ABD", "🇺🇸"),
-            "AU": ("AUS", "Avustralya", "🇦🇺"), "AUS": ("AUS", "Avustralya", "🇦🇺"),
-            "CA": ("CAN", "Kanada", "🇨🇦"), "CAN": ("CAN", "Kanada", "🇨🇦"),
+            "KR": ("KR", "Güney Kore", "🇰🇷"), "KOR": ("KR", "Güney Kore", "🇰🇷"),
+            "US": ("US", "ABD", "🇺🇸"), "USA": ("US", "ABD", "🇺🇸"),
+            "AU": ("AU", "Avustralya", "🇦🇺"), "AUS": ("AU", "Avustralya", "🇦🇺"),
+            "NZ": ("NZ", "Yeni Zelanda", "🇳🇿"), "NZL": ("NZ", "Yeni Zelanda", "🇳🇿"),
+            "CA": ("CA", "Kanada", "🇨🇦"), "CAN": ("CA", "Kanada", "🇨🇦"),
+            "BR": ("BR", "Brezilya", "🇧🇷"), "BRA": ("BR", "Brezilya", "🇧🇷"),
+            "AR": ("AR", "Arjantin", "🇦🇷"), "ARG": ("AR", "Arjantin", "🇦🇷"),
+            "MX": ("MX", "Meksika", "🇲🇽"), "MEX": ("MX", "Meksika", "🇲🇽"),
+            "PE": ("PE", "Peru", "🇵🇪"), "PER": ("PE", "Peru", "🇵🇪"),
+            "CL": ("CL", "Şili", "🇨🇱"), "CHL": ("CL", "Şili", "🇨🇱"), "CHI": ("CL", "Şili", "🇨🇱"),
+            "CO": ("CO", "Kolombiya", "🇨🇴"), "COL": ("CO", "Kolombiya", "🇨🇴"),
+            "ZA": ("ZA", "Güney Afrika", "🇿🇦"), "RSA": ("ZA", "Güney Afrika", "🇿🇦"), "ZAF": ("ZA", "Güney Afrika", "🇿🇦"),
+            "MA": ("MA", "Fas", "🇲🇦"), "MAR": ("MA", "Fas", "🇲🇦"),
+            "TN": ("TN", "Tunus", "🇹🇳"), "TUN": ("TN", "Tunus", "🇹🇳"),
+            "EG": ("EG", "Mısır", "🇪🇬"), "EGY": ("EG", "Mısır", "🇪🇬"),
+            "CN": ("CN", "Çin", "🇨🇳"), "CHN": ("CN", "Çin", "🇨🇳"),
+            "TW": ("TW", "Tayvan", "🇹🇼"), "TPE": ("TW", "Tayvan", "🇹🇼"),
+            "IN": ("IN", "Hindistan", "🇮🇳"), "IND": ("IN", "Hindistan", "🇮🇳"),
+            "SG": ("SG", "Singapur", "🇸🇬"), "SGP": ("SG", "Singapur", "🇸🇬"),
+            "MY": ("MY", "Malezya", "🇲🇾"), "MAS": ("MY", "Malezya", "🇲🇾"), "MYS": ("MY", "Malezya", "🇲🇾"),
+            "TH": ("TH", "Tayland", "🇹🇭"), "THA": ("TH", "Tayland", "🇹🇭"),
+            "KZ": ("KZ", "Kazakistan", "🇰🇿"), "KAZ": ("KZ", "Kazakistan", "🇰🇿"),
+            "UZ": ("UZ", "Özbekistan", "🇺🇿"), "UZB": ("UZ", "Özbekistan", "🇺🇿"),
+            "AZ": ("AZ", "Azerbaycan", "🇦🇿"), "AZE": ("AZ", "Azerbaycan", "🇦🇿"),
+            "GE": ("GE", "Gürcistan", "🇬🇪"), "GEO": ("GE", "Gürcistan", "🇬🇪"),
         }
 
         if def_upper in iso_map:
             return iso_map[def_upper]
 
+        if any(k in title_lower for k in ["yeni zelanda", "new zealand"]):
+            return "NZ", "Yeni Zelanda", "🇳🇿"
+        if any(k in title_lower for k in ["avustralya", "australia", "australian"]):
+            return "AU", "Avustralya", "🇦🇺"
         if any(k in title_lower for k in ["romanya", "romania", "romanian"]):
             return "RO", "Romanya", "🇷🇴"
         if any(k in title_lower for k in ["türkiye", "turkey", "turkish", "taf"]):
@@ -114,7 +153,7 @@ class BaseParser(abc.ABC):
         if any(k in title_lower for k in ["ispanya", "spain", "spanish", "españa", "rfea"]):
             return "ES", "İspanya", "🇪🇸"
         if any(k in title_lower for k in ["finlandiya", "finland", "finnish", "saul"]):
-            return "FIN", "Finlandiya", "🇫🇮"
+            return "FI", "Finlandiya", "🇫🇮"
         if any(k in title_lower for k in ["isviçre", "switzerland", "swiss", "schweiz"]):
             return "CH", "İsviçre", "🇨🇭"
         if any(k in title_lower for k in ["ingiltere", "birleşik krallık", "great britain", "british", "bmaf", "scotland", "england", "wales"]):
@@ -136,7 +175,7 @@ class BaseParser(abc.ABC):
         if any(k in title_lower for k in ["izlanda", "iceland", "icelandic"]):
             return "IS", "İzlanda", "🇮🇸"
         if any(k in title_lower for k in ["güney kore", "south korea", "korea"]):
-            return "KOR", "Güney Kore", "🇰🇷"
+            return "KR", "Güney Kore", "🇰🇷"
         if any(k in title_lower for k in ["japonya", "japan", "japanese"]):
             return "JP", "Japonya", "🇯🇵"
         if any(k in title_lower for k in ["letonya", "latvia", "latvian"]):
@@ -167,7 +206,7 @@ class BaseParser(abc.ABC):
         if any(k in title_lower for k in ["balkan"]):
             return "EU", "Avrupa", "🇪🇺"
 
-        return default_country, default_name, "🏃"
+        return default_country, default_name, self.iso2_to_flag_emoji(def_upper)
 
     def detect_scope(self, title: str, country: str = "") -> str:
         """

@@ -36,8 +36,10 @@ def extract_primary_city_slug(city: str, country_name: str = "") -> str:
     c_clean = re.split(r"[\-\/]", c_clean)[0].strip()
     slug = normalize_text(c_clean)
     invalid_slugs = {
-        "", "na", "n-a", "none", "null", "tbd", "tbc", "ybd", "unknown",
-        "belirlenecek", "to-be-determined", "avrupa", "uluslararasi",
+        "", "na", "n-a", "none", "null", "tbd", "tbc", "tba", "ybd", "unknown",
+        "belirlenecek", "belirsiz", "to-be-determined", "to-be-announced", "to-be-confirmed",
+        "not-specified", "unspecified", "not-announced", "various", "multiple",
+        "a-determiner", "por-determinar", "da-definire", "avrupa", "uluslararasi",
         normalize_text(country_name),
     }
     return "" if slug in invalid_slugs else slug
@@ -247,8 +249,13 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
             elif existing.start_date == comp.start_date and comp.end_date > existing.end_date:
                 existing.end_date = comp.end_date
 
-            if len(comp.city or "") > len(existing.city or ""):
+            ex_valid_city = extract_primary_city_slug(existing.city, existing.country_name)
+            in_valid_city = extract_primary_city_slug(comp.city, comp.country_name)
+            if in_valid_city and (not ex_valid_city or len(comp.city or "") > len(existing.city or "")):
                 existing.city = comp.city
+                if comp.country and comp.country not in ("INT", "EU"):
+                    existing.country = comp.country
+                    existing.country_name = comp.country_name
             if len(comp.website_url or "") > len(existing.website_url or ""):
                 existing.website_url = comp.website_url
 
@@ -270,7 +277,7 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
                     if specific_comp.start_date == generic_comp.start_date:
                         if generic_comp.end_date > specific_comp.end_date:
                             specific_comp.end_date = generic_comp.end_date
-                        if len(generic_comp.city or "") > len(specific_comp.city or ""):
+                        if extract_primary_city_slug(generic_comp.city, generic_comp.country_name) and not extract_primary_city_slug(specific_comp.city, specific_comp.country_name):
                             specific_comp.city = generic_comp.city
                         specific_comp.content_hash = compute_content_hash(specific_comp)
                         keys_to_remove.add(k)
@@ -299,6 +306,17 @@ def evaluate_change(existing: Optional[dict], incoming: Competition) -> Tuple[st
         incoming.end_date = ex_end
         incoming.content_hash = compute_content_hash(incoming)
 
+    ex_city = extract_primary_city_slug(existing.get("city", ""), existing.get("country_name", ""))
+    in_city = extract_primary_city_slug(incoming.city, incoming.country_name)
+
+    # Mevcut kayıtta geçerli bir şehir varken yeni gelen kayıtta şehir belirtilmemişse mevcut konumu koru
+    if ex_city and not in_city:
+        incoming.city = existing.get("city", incoming.city)
+        incoming.country = existing.get("country", incoming.country)
+        incoming.country_name = existing.get("country_name", incoming.country_name)
+        incoming.content_hash = compute_content_hash(incoming)
+        in_city = ex_city
+
     existing_hash = existing.get("content_hash", "")
     new_hash = incoming.content_hash
 
@@ -310,8 +328,6 @@ def evaluate_change(existing: Optional[dict], incoming: Competition) -> Tuple[st
         or existing.get("end_date") != incoming.end_date
     )
 
-    ex_city = extract_primary_city_slug(existing.get("city", ""))
-    in_city = extract_primary_city_slug(incoming.city)
     location_changed = (
         existing.get("country") != incoming.country
         or (ex_city != in_city and bool(in_city))

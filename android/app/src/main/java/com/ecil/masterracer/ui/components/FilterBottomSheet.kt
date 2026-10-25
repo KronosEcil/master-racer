@@ -297,41 +297,6 @@ private fun CompactChip(
 }
 
 private fun getFilterCountryFlag(countryCode: String): String {
-    return when (countryCode.uppercase()) {
-        "TR", "TUR" -> "🇹🇷"
-        "GR", "GRE" -> "🇬🇷"
-        "DE", "GER" -> "🇩🇪"
-        "IT", "ITA" -> "🇮🇹"
-        "GB", "UK", "GBR" -> "🇬🇧"
-        "ES", "ESP" -> "🇪🇸"
-        "FR", "FRA" -> "🇫🇷"
-        "PL", "POL" -> "🇵🇱"
-        "BG", "BUL" -> "🇧🇬"
-        "RO", "ROU" -> "🇷🇴"
-        "RS", "SRB" -> "🇷🇸"
-        "SE", "SWE" -> "🇸🇪"
-        "NL", "NED" -> "🇳🇱"
-        "PT", "POR" -> "🇵🇹"
-        "KOR" -> "🇰🇷"
-        "JP", "JPN" -> "🇯🇵"
-        "USA" -> "🇺🇸"
-        "FIN" -> "🇫🇮"
-        "CH" -> "🇨🇭"
-        "IE" -> "🇮🇪"
-        "SI" -> "🇸🇮"
-        "AL" -> "🇦🇱"
-        "CZ" -> "🇨🇿"
-        "NO" -> "🇳🇴"
-        "DK" -> "🇩🇰"
-        "IS" -> "🇮🇸"
-        "LV" -> "🇱🇻"
-        "LT" -> "🇱🇹"
-        "HR" -> "🇭🇷"
-        "AT" -> "🇦🇹"
-        "BE" -> "🇧🇪"
-        "EE" -> "🇪🇪"
-        "EU" -> "🇪🇺"
-        else -> "🏃"
-    }
+    return com.ecil.masterracer.data.model.Competition.countryCodeToFlagEmoji(countryCode)
 }
 
