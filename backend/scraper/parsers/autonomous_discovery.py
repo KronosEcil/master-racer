@@ -148,16 +148,16 @@ class AutonomousDiscoveryParser(BaseParser):
                 f"(EMA https://european-masters-athletics.org/championships/, WMA https://world-masters-athletics.org/championships/, "
                 f"IMGA https://wmg2027.jp/en/, BAMA https://balkanmasters.com/), ensuring EVERY confirmed {y1}, {y2}, {y3}, and {y4} event is included:\n"
                 f"1. European Masters Athletics Championships ({y1}, {y2}, {y3}, {y4}):\n"
-                f"   - EMACI (European Masters Athletics Championships Indoor - e.g. {y1} Torun, {y3} Indoor)\n"
-                f"   - EMACS (European Masters Athletics Championships Stadia - e.g. {y2} Jyväskylä Finland, {y3} Stadia)\n"
-                f"   - EMACNS (European Masters Non-Stadia Championships - e.g. {y1} Catania, {y3} Non-Stadia)\n"
-                f"   - EMMTRC / EMORRC (European Masters Mountain & Trail / Off-Road Running Championships - e.g. {y1} Ojós Murcia Spain, {y2}, {y3})\n"
-                f"   - EMAMRC (European Masters Marathon Championships - e.g. {y1} Porto, {y2} Lucerne Switzerland, {y3})\n"
+                f"   - EMACI (European Masters Athletics Championships Indoor - e.g. {y1} Torun Poland, {y3} Indoor)\n"
+                f"   - EMACS (European Masters Athletics Championships Stadia - e.g. {y2} Jyväskylä Finland 2027-08-11..2027-08-21, {y3} Stadia)\n"
+                f"   - EMACNS (European Masters Non-Stadia Championships - e.g. {y1} Catania Italy, {y3} Non-Stadia)\n"
+                f"   - EMMTRC (European Masters Mountain & Trail Running Championships - e.g. {y2} Ojós Murcia Spain 2027-04-15..2027-04-18, {y3})\n"
+                f"   - EMAMRC (European Masters Marathon Championships - e.g. {y1} Porto Portugal, {y2} Lucerne Switzerland, {y3})\n"
                 f"   - European Masters Games {y2} (EMG {y2} Como / Lombardia Italy)\n"
                 f"2. World Masters Athletics (WMA) & World Masters Games (WMG) ({y1}, {y2}, {y3}, {y4}):\n"
                 f"   - World Masters Games {y2} (WMG {y2} Kansai, Japan, 2027-05-14 to 2027-05-30)\n"
                 f"   - WMA Outdoor/Stadia Championships ({y1} Daegu South Korea, {y3})\n"
-                f"   - WMA Indoor Championships ({y2})\n"
+                f"   - WMA Indoor Championships ({y2} Gainesville Florida USA 2027-03-18..2027-03-26)\n"
                 f"   - WMA Mountain Running Championships ({y1} Meduno Italy, {y2} Klosters Switzerland)\n"
                 f"   - WMA Marathon, Half Marathon, 50km/100km & Race Walking Championships ({y1}, {y2}, {y3})\n"
                 f"3. EMA League Meetings ({y1} and {y2}) & Balkan Masters Championships (BAMACI Indoor, BAMACS Stadia, BAMAM Marathon in {y1}, {y2}, {y3})."
@@ -183,21 +183,30 @@ class AutonomousDiscoveryParser(BaseParser):
                 f"- Irish Masters (IMAA) Indoor Championships (Athlone) & Outdoor Track & Field Championships (Tullamore) ({y1} and {y2})."
             ),
             (
-                f"3. Fransa (FFA), Almanya (DLV), İsviçre, Avusturya ve Benelüks {y1}-{y2} Ulusal Takvimleri",
+                f"3. Fransa (FFA/CNAM), Almanya (DLV), İsviçre, Avusturya ve Benelüks {y1}-{y2} Ulusal Takvimleri",
                 [
-                    "https://www.athle.fr/contenu/calendrier-championnats-de-france/32",
+                    "https://masters.athle.fr/asp.net/espaces.html/html.aspx?id=40541",
+                    "https://masters.athle.fr/asp.net/espaces.html/html.aspx?id=40540",
+                    "https://masters.athle.fr/asp.net/espaces.html/html.aspx?id=51036",
+                    "https://masters.athle.fr/asp.net/espaces.html/html.aspx?id=41949",
+                    "https://masters.athle.fr/asp.net/espaces.html/html.aspx?id=40543",
+                    "https://masters.athle.fr/asp.net/espaces.html/html.aspx?id=42028",
                     "https://www.leichtathletik.de/wettkaempfe/termine",
                     "https://ladv.de/ausschreibungen",
                     "https://www.oelv.at/de/wettkaempfe/kalender",
                 ],
                 [
-                    f"Championnats de France Masters {y1} {y2} salle piste lancers marche cross",
+                    f"Championnats de France Masters {y1} {y2} salle Miramas piste Epinal lancers marche cross site:masters.athle.fr OR site:athle.fr",
                     f"Deutsche Meisterschaften Masters {y1} {y2} Halle Freiluft Wurf-Mehrkampf Cross",
                     f"Österreichische Mastersmeisterschaften {y1} {y2} Halle Freiluft oelv",
                     f"Schweizermeisterschaften Masters {y1} {y2} NK Masters Indoor Outdoor {y1} {y2} BK Masters Atletiek {y1} {y2}",
                 ],
-                f"List all confirmed {y1} AND {y2} national 35+ Masters (Vétérans / Senioren / Masters) championships from the official federation calendars of France, Germany, Switzerland, Austria, Netherlands, and Belgium (include both {y1} and {y2} editions):\n"
-                f"- France (FFA - country='FR'): Championnats de France Masters en salle (Indoor), Championnats de France Masters sur piste (Outdoor), Championnats de France Masters d'Épreuves Combinées & Marche, Lancers hivernaux, Cross, 5km, 10km, Semi-Marathon, Marathon ({y1} and {y2}).\n"
+                f"List all confirmed {y1} AND {y2} national and regional 35+ Masters (Vétérans / Senioren / Masters) championships from the official federation calendars of France (https://masters.athle.fr/), Germany, Switzerland, Austria, Netherlands, and Belgium (include both {y1} and {y2} editions):\n"
+                f"- France (FFA / CNAM - https://masters.athle.fr/ - country='FR'):\n"
+                f"  * Championnats de France Masters en Salle (e.g. 2027-03-12..2027-03-14 in Miramas, 2026 in Saint-Brieuc)\n"
+                f"  * Championnats de France Masters sur Piste / Estival (e.g. Epinal)\n"
+                f"  * Championnats de France Masters d'Épreuves Combinées, Demi-fond long & Marche (e.g. Châteauroux)\n"
+                f"  * Championnat de France du 10 km Marche Masters, Championnat de France de Cross Masters, Lancers hivernaux, 5km/10km/Semi-Marathon/Marathon, and regional Masters meetings (Bordeaux, Nantes, Caen, Mont de Marsan) ({y1} and {y2}).\n"
                 f"- Germany (DLV - country='DE'): Deutsche Meisterschaften (DM) Masters Freiluft (Outdoor), DM Halle Masters & Winterwurf (Indoor), DM Wurf-Mehrkampf Masters, DM Cross Masters, DM Straßenlauf/Halbmarathon/Marathon Masters, Team-DM Masters ({y1} and {y2}).\n"
                 f"- Switzerland (Swiss Masters - country='CH'): Schweizermeisterschaften Masters Indoor, Schweizermeisterschaften Masters Outdoor (Part 1 & Part 2), Wurf-Fünfkampf ({y1} and {y2}).\n"
                 f"- Austria (ÖLV - country='AT'): Österreichische Masters-Hallenmeisterschaften (Indoor) & Österreichische Mastersmeisterschaften Freiluft (Outdoor) ({y1} and {y2}).\n"
@@ -273,11 +282,11 @@ class AutonomousDiscoveryParser(BaseParser):
         self,
         urls: List[str],
         search_queries: List[str],
-        max_total_chars: int = 24000,
+        max_total_chars: int = 15000,
     ) -> str:
         """
-        1. Bing RSS, Google News/Web RSS ve DuckDuckGo Lite üzerinden canlı arama sonuçlarını (snippet) toplar.
-        2. Doğrulanmış resmi federasyon URL'lerini doğrudan indirir.
+        1. Bing RSS, Google News/Web RSS üzerinden canlı arama sonuçlarını (snippet) toplar.
+        2. Doğrulanmış resmi federasyon URL'lerini doğrudan indirir (menü/sidebar gürültüsünü temizler).
         """
         chunks: List[str] = []
         search_lines: List[str] = []
@@ -290,7 +299,7 @@ class AutonomousDiscoveryParser(BaseParser):
                 resp = self.session.get(bing_url, timeout=8)
                 if resp.status_code == 200 and resp.text:
                     soup = BeautifulSoup(resp.text, "xml")
-                    for item in soup.find_all("item")[:8]:
+                    for item in soup.find_all("item")[:7]:
                         t_txt = re.sub(r"\s+", " ", item.title.get_text(" ", strip=True)) if item.title else ""
                         s_txt = re.sub(r"\s+", " ", item.description.get_text(" ", strip=True)) if item.description else ""
                         u_txt = re.sub(r"\s+", " ", item.link.get_text(" ", strip=True)) if item.link else ""
@@ -307,7 +316,7 @@ class AutonomousDiscoveryParser(BaseParser):
                 resp = self.session.get(gn_url, timeout=8)
                 if resp.status_code == 200 and resp.text:
                     soup = BeautifulSoup(resp.text, "xml")
-                    for item in soup.find_all("item")[:5]:
+                    for item in soup.find_all("item")[:4]:
                         t_txt = re.sub(r"\s+", " ", item.title.get_text(" ", strip=True)) if item.title else ""
                         line = f"- {t_txt}"
                         if t_txt and line not in seen_snippets:
@@ -317,24 +326,32 @@ class AutonomousDiscoveryParser(BaseParser):
                 logger.debug(f"[Google-RSS] Arama uyarısı ({sq}): {e}")
 
         if search_lines:
-            chunks.append("=== [CANLI WEB ARAMA İNDEKSİ SONUÇLARI] ===\n" + "\n".join(search_lines[:45]))
+            chunks.append("=== [CANLI WEB ARAMA İNDEKSİ SONUÇLARI] ===\n" + "\n".join(search_lines[:35]))
 
         # 2. Doğrudan Resmi Federasyon Takvim Sayfaları
-        per_url_limit = max(3500, (max_total_chars - sum(len(c) for c in chunks)) // max(1, len(urls)))
+        per_url_limit = 2800
         for url in urls:
             try:
                 resp = self.session.get(url, timeout=10)
                 if resp.status_code != 200 or not resp.text:
                     continue
                 soup = BeautifulSoup(resp.text, "html.parser")
-                for tag in soup(["script", "style", "noscript", "svg", "footer", "nav"]):
+                for tag in soup(["script", "style", "noscript", "svg", "footer", "nav", "header", "aside"]):
                     tag.decompose()
+                # Eski ASP.NET federasyon sitelerindeki (örn. masters.athle.fr) sol menü ve üst barları temizle
+                for sel in ["#ctnLeft", "#ctnLeftMenu", "#ctnTop", ".menuLeft", "#sidebar", ".sidebar"]:
+                    for el in soup.select(sel):
+                        el.decompose()
                 lines = []
                 for line in soup.get_text(separator="\n").splitlines():
                     cleaned = re.sub(r"\s+", " ", line).strip()
                     if len(cleaned) >= 4:
                         lines.append(cleaned)
-                text_block = "\n".join(lines)[:per_url_limit]
+                text_block = "\n".join(lines)
+                # masters.athle.fr sağ sütunundaki 100 komite listesini ("Les Espaces Structures") kes
+                if "Les Espaces Structures" in text_block:
+                    text_block = text_block.split("Les Espaces Structures")[0].strip()
+                text_block = text_block[:per_url_limit]
                 if text_block:
                     chunks.append(f"=== [RESMİ TAKVİM SAYFASI: {url}] ===\n{text_block}")
             except Exception as e:
@@ -411,22 +428,18 @@ class AutonomousDiscoveryParser(BaseParser):
 
     def _get_available_gemini_models(self, api_key: str) -> List[str]:
         """
-        En hızlı yanıt veren (2-4 sn) ve 503 yoğunluğuna takılmayan Lite modelleri en başa koyar.
+        Sadece 2026'da gerçek çalışan ve HTTP 503 vermeyen modelleri listeler:
+        1. gemini-3.5-flash-lite (En hızlı, 3-5 sn yanıt)
+        2. gemini-3-flash-preview (En yüksek kapsamlı çıkarım gücü)
+        3. gemma-3-27b-it (Yedek açık model)
         """
         if self._available_models:
             return self._available_models
 
-        # Öncelik sırası: En hızlı ve 503 vermeyen Lite modeller ilk sırada!
         allowed_models = [
             "gemini-3.5-flash-lite",
-            "gemini-3.1-flash-lite",
-            "gemini-3.1-flash-lite-preview",
-            "gemma-3-27b-it",
-            "gemini-3.5-flash",
-            "gemini-3.6-flash",
-            "gemini-3.7-flash",
-            "gemini-3.8-flash",
             "gemini-3-flash-preview",
+            "gemma-3-27b-it",
         ]
         discovered_set = set()
         try:
@@ -442,11 +455,11 @@ class AutonomousDiscoveryParser(BaseParser):
             logger.debug(f"[Gemini-AI] Model listesi sorgulama uyarısı: {e}")
 
         if discovered_set:
-            self._available_models = [m for m in allowed_models if m in discovered_set] or allowed_models[:4]
+            self._available_models = [m for m in allowed_models if m in discovered_set] or allowed_models
         else:
-            self._available_models = allowed_models[:4]
+            self._available_models = allowed_models
 
-        logger.info(f"[Gemini-AI] Hız öncelikli aktif AI modelleri: {self._available_models}")
+        logger.info(f"[Gemini-AI] Aktif AI modelleri: {self._available_models}")
         return self._available_models
 
     def _call_gemini_json(
@@ -456,21 +469,20 @@ class AutonomousDiscoveryParser(BaseParser):
         use_search: bool = False,
     ) -> List[Dict[str, Any]]:
         """
-        Hızlı Lite modelleri 35 sn zaman aşımı ile çağırır.
-        Ana çalışan model olan `gemini-3.5-flash-lite` geçici RPM/503 alırsa karalisteye alınmaz,
-        8 sn beklenip tekrar denenir; diğer bozuk (503) modeller ise anında devre dışı bırakılır.
+        Çalışan modelleri (`gemini-3.5-flash-lite` -> `gemini-3-flash-preview` -> `gemma-3-27b-it`)
+        50 sn zaman aşımı ile çağırır ve geçici yoğunlukta ana modelleri karalisteye almaz.
         """
         all_models = self._get_available_gemini_models(api_key)
         headers = {
             "x-goog-api-key": api_key,
             "Content-Type": "application/json",
         }
-        primary_model = all_models[0] if all_models else "gemini-3.5-flash-lite"
+        core_models = {"gemini-3.5-flash-lite", "gemini-3-flash-preview"}
 
         for attempt in range(2):
             active_models = [m for m in all_models if m not in self._exhausted_models]
             if not active_models:
-                active_models = [primary_model]
+                active_models = list(all_models)
 
             for model in active_models:
                 if model.startswith("gemma-") and any("inline_data" in p for p in parts):
@@ -485,12 +497,12 @@ class AutonomousDiscoveryParser(BaseParser):
                     payload["tools"] = [{"google_search": {}}]
 
                 try:
-                    resp = requests.post(endpoint, headers=headers, json=payload, timeout=35)
+                    resp = requests.post(endpoint, headers=headers, json=payload, timeout=50)
 
                     # Free Tier google_search aracı 429 veya 400 verirse anında aynı modeli araçsız çağır
                     if resp.status_code in (400, 429) and "tools" in payload:
                         payload.pop("tools", None)
-                        resp = requests.post(endpoint, headers=headers, json=payload, timeout=35)
+                        resp = requests.post(endpoint, headers=headers, json=payload, timeout=50)
 
                     if resp.status_code == 402:
                         logger.error(
@@ -505,17 +517,13 @@ class AutonomousDiscoveryParser(BaseParser):
                         is_daily_limit = resp.status_code == 429 and (
                             "perday" in body_lower or "per_day" in body_lower or "daily" in body_lower
                         )
-                        if model == primary_model and not is_daily_limit:
-                            logger.warning(f"[Gemini-AI] Ana model ({model}) geçici HTTP {resp.status_code}, 8 sn beklenip tekrar denenecek...")
-                            time.sleep(8)
-                            retry_resp = requests.post(endpoint, headers=headers, json=payload, timeout=35)
-                            if retry_resp.status_code == 200:
-                                resp = retry_resp
-                            else:
-                                continue
+                        if model in core_models and not is_daily_limit:
+                            logger.warning(f"[Gemini-AI] Model ({model}) geçici HTTP {resp.status_code}, sıradaki modele geçiliyor...")
+                            time.sleep(2)
+                            continue
                         else:
                             self._exhausted_models.add(model)
-                            logger.warning(f"[Gemini-AI] Model ({model}) HTTP {resp.status_code}, hızlı yedek modele geçiliyor...")
+                            logger.warning(f"[Gemini-AI] Model ({model}) HTTP {resp.status_code}, devre dışı bırakıldı.")
                             time.sleep(1)
                             continue
 
@@ -538,14 +546,14 @@ class AutonomousDiscoveryParser(BaseParser):
                     if parsed:
                         return parsed
                 except requests.exceptions.Timeout:
-                    if model != primary_model:
+                    if model not in core_models:
                         self._exhausted_models.add(model)
-                    logger.warning(f"[Gemini-AI] Model ({model}) 35 sn içinde yanıt vermedi.")
+                    logger.warning(f"[Gemini-AI] Model ({model}) 50 sn içinde yanıt vermedi, sıradaki model deneniyor...")
                 except Exception as e:
                     logger.warning(f"[Gemini-AI] Model ({model}) çağrı uyarısı: {e}")
 
             if attempt == 0:
-                time.sleep(6)
+                time.sleep(5)
         return []
 
     def _convert_gemini_items(self, items: List[Dict[str, Any]], default_url: str) -> List[Competition]:
@@ -588,8 +596,13 @@ class AutonomousDiscoveryParser(BaseParser):
                 if start_date.endswith("-01-01") and not raw_city:
                     continue
 
+                title_low = title.lower()
                 city_low = raw_city.lower()
-                if any(k in city_low for k in ["luzern", "lucerne", "klosters", "zurich", "zürich"]):
+                if ("mountain" in title_low or "trail" in title_low or "emmtrc" in title_low) and start_date.startswith("2027"):
+                    raw_city = "Ojós, Murcia"
+                    raw_country = "ES"
+                    raw_cname = "İspanya"
+                elif any(k in city_low for k in ["luzern", "lucerne", "klosters", "zurich", "zürich"]):
                     raw_country = "CH"
                     raw_cname = "İsviçre"
                 elif any(k in city_low for k in ["ojós", "ojos", "murcia"]):
