@@ -234,13 +234,14 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
         if should_notify and allow_push_notifications:
             notification_mgr.send_competition_notification(comp, change_type)
 
+    total_in_db = len(set(existing_comps.keys()) | scraped_ids)
     logger.info("=== Tarama Özeti ===")
     logger.info(f"Yeni Eklenen     : {stats['NEW']}")
     logger.info(f"Tarihi Değişen   : {stats['DATE_CHANGED']}")
     logger.info(f"Detayı Değişen   : {stats['UPDATED']}")
     logger.info(f"Değişmeyen       : {stats['UNCHANGED']}")
     logger.info(f"Temizlenen Eski  : {deleted_count}")
-    logger.info(f"Toplam Aktif     : {len(all_scraped)}")
+    logger.info(f"Toplam Aktif     : {total_in_db}")
 
     if export_path:
         with open(export_path, "w", encoding="utf-8") as f:

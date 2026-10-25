@@ -212,39 +212,44 @@ class AutonomousDiscoveryParser(BaseParser):
         # ADIM 2: Resmi Federasyon Takvimleri + Canlı Arama Motoru İndeksleri
         schema_instruction = (
             "\n\nKESİN ÇIKTI VE DOĞRULUK KURALLARI:\n"
-            f"1. Yukarıdaki resmi federasyon takvim verilerini ve resmi federasyon takvimlerini kullanarak {years_all_tr} yıllarında "
+            f"1. Yukarıdaki resmi federasyon sitelerini ve resmi federasyon takvimlerini kullanarak {years_all_tr} yıllarında "
             "tarihi (YYYY-MM-DD) ve yapılacağı şehri kesinleşmiş olan tüm 35+ yaş Masterlar (Masters / Veteran / Vétérans / Senioren / Veteranos / SAUL) "
-            "şampiyonalarını eksiksiz çıkar. Resmi takvimde yer almayan hiçbir yarışmayı, tarihi veya şehri ASLA TAHMİN ETME / UYDURMA!\n"
+            "şampiyonalarını ve World Masters Games (WMG) oyunlarını eksiksiz çıkar.\n"
             "2. Elit/Büyükler (Senior Elite), Olimpik Deneme, U23, U20, U18 yarışmalarını ASLA dahil etme.\n"
             "3. Çok günlü yarışmalarda `start_date` ve `end_date` tarihlerini resmi takvimdeki tam aralık olarak (YYYY-MM-DD) yaz. "
             "Tarihi veya ülkesi 'TBD', 'TBC', 'N/A' olan ya da 1 Ocak (YYYY-01-01) gibi yer tutucu tarihli yarışmaları DAHİL ETME!\n"
             "4. `scope` alanı yalnızca şu 6 değerden biri olmalıdır: 'national', 'world', 'balkan', 'europe', 'ema_league', 'regional'.\n"
             "5. Sadece geçerli bir JSON dizisi (array) döndür, markdown veya açıklama metni ekleme:\n"
             '[{"title": "Resmi Yarışma Adı", "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", '
-            '"city": "Şehir", "country": "ISO-2 Ülke Kodu (TR, DE, FR, GB, IT, ES, PL, RO vb.)", '
+            '"city": "Şehir", "country": "ISO-2 Ülke Kodu (TR, DE, FR, GB, IT, ES, PL, RO, JP vb.)", '
             '"country_name": "Türkçe Ülke Adı", "scope": "national|world|balkan|europe|ema_league|regional", '
             '"federation": "Federasyon Kısaltması", "website_url": "Resmi Takvim URL"}]'
         )
 
         official_batches = [
             (
-                f"1. Uluslararası Resmi Takvimler: WMA, EMA, OpenTrack ve Balkan Masters ({years_all_tr})",
+                f"1. Uluslararası Resmi Takvimler: WMA, WMG, EMA, OpenTrack ve Balkan Masters ({years_all_tr})",
                 [
                     "https://european-masters-athletics.org/championships/",
                     "https://balkanmasters.com/",
                     "https://world-masters-athletics.org/championships/",
-                    "https://wmg2027.jp/",
+                    "https://wmg2027.jp/en/",
+                    "https://imga.ch/events/world-masters-games/",
                 ],
                 [
                     f"World Masters Athletics Championships {y1} {y2} {y3} {y4} site:world-masters-athletics.org",
+                    f"World Masters Games {y2} {y3} {y4} site:wmg2027.jp OR site:imga.ch",
                     f"European Masters Athletics Championships EMACI EMACS EMACNS EMMTRC EMAMRC {y1} {y2} {y3} {y4}",
                     f"Balkan Masters Athletics Championships BAMACI BAMACS BAMAM {y1} {y2} {y3} site:balkanmasters.com",
-                    f"World Masters Games {y2} {y3} {y4} athletics dates city",
                 ],
-                f"Extract all confirmed {years_all_en} World Masters Athletics Championships (WMA Indoor, Stadia/Outdoor, Marathon, Mountain Running, 50km/100km), "
-                f"World Masters Games (WMG), European Masters Championships (EMACI, EMACS, EMACNS, EMMTRC, EMAMRC, EMORRC), EMA League meetings, "
-                f"and Balkan Masters Athletics Championships (BAMACI Indoor, BAMACS Outdoor/Stadia, BAMAM Marathon) from official calendars "
-                f"(https://world-masters-athletics.org/championships/, https://european-masters-athletics.org/championships/, https://balkanmasters.com/, https://wmg2027.jp/)."
+                f"Extract all confirmed {years_all_en} international Masters championships and games from official calendars "
+                f"(https://world-masters-athletics.org/championships/, https://wmg2027.jp/en/, https://imga.ch/events/world-masters-games/, "
+                f"https://european-masters-athletics.org/championships/, https://balkanmasters.com/), including:\n"
+                f"- World Masters Games (WMG 2027 in Japan 2027-05-14..2027-05-30, Winter World Masters Games 2028, European Masters Games 2027)\n"
+                f"- World Masters Athletics Championships (WMA Stadia 2026 & 2028, WMA Indoor 2027, WMA Marathon, WMA Mountain Running, WMA 50km/100km)\n"
+                f"- European Masters Athletics Championships (EMACI Indoor, EMACS Stadia, EMACNS Non-Stadia, EMMTRC Mountain/Trail, EMAMRC Marathon, EMORRC Off-Road)\n"
+                f"- EMA League meetings ({y1} and {y2})\n"
+                f"- Balkan Masters Athletics Championships (BAMACI Indoor, BAMACS Outdoor/Stadia, BAMAM Marathon)."
             ),
             (
                 f"2. Birleşik Krallık (BMAF) ve İrlanda (IMAA) Resmi Takvim Siteleri ({years_all_tr})",
@@ -332,14 +337,14 @@ class AutonomousDiscoveryParser(BaseParser):
                     )
                 full_prompt += schema_instruction
                 parts = [{"text": full_prompt}]
-                items = self._call_gemini_json(api_key, parts)
+                items = self._call_gemini_json(api_key, parts, use_search=True)
                 converted = self._convert_gemini_items(
                     items,
                     default_url=site_urls[0] if site_urls else "https://european-masters-athletics.org",
                 )
                 logger.info(f"[Gemini-AI] {label} taramasından {len(converted)} yarışma çıkarıldı.")
                 results.extend(converted)
-                time.sleep(3)
+                time.sleep(6)
             except Exception as e:
                 logger.warning(f"[Gemini-AI] Resmi site tarama hatası ({label}): {e}")
 
@@ -514,25 +519,26 @@ class AutonomousDiscoveryParser(BaseParser):
         self,
         api_key: str,
         parts: List[Dict[str, Any]],
+        use_search: bool = False,
     ) -> List[Dict[str, Any]]:
         """
-        Hızlı Lite modelleri 35 sn zaman aşımı ve 503/Timeout devre kesicisi (circuit breaker) ile çağırır.
-        Bir model 503 veya Timeout verirse o model anında devre dışı bırakılır, 90 sn bekletmez!
+        Hızlı Lite modelleri 35 sn zaman aşımı ile çağırır.
+        Ana çalışan model olan `gemini-3.5-flash-lite` geçici RPM/503 alırsa karalisteye alınmaz,
+        8 sn beklenip tekrar denenir; diğer bozuk (503) modeller ise anında devre dışı bırakılır.
         """
         all_models = self._get_available_gemini_models(api_key)
         headers = {
             "x-goog-api-key": api_key,
             "Content-Type": "application/json",
         }
+        primary_model = all_models[0] if all_models else "gemini-3.5-flash-lite"
 
         for attempt in range(2):
             active_models = [m for m in all_models if m not in self._exhausted_models]
             if not active_models:
-                # Eğer hepsi geçici 503 yüzünden listeye girdiyse ikinci denemede hızlı lite modelleri tekrar aç
-                active_models = all_models[:3]
+                active_models = [primary_model]
 
             for model in active_models:
-                # Gemma modelleri inline_data (PDF) desteklemez, sadece metin destekler
                 if model.startswith("gemma-") and any("inline_data" in p for p in parts):
                     continue
 
@@ -541,9 +547,17 @@ class AutonomousDiscoveryParser(BaseParser):
                     "contents": [{"parts": parts}],
                     "generationConfig": {"temperature": 0.0},
                 }
+                if use_search and not model.startswith("gemma-"):
+                    payload["tools"] = [{"google_search": {}}]
 
                 try:
                     resp = requests.post(endpoint, headers=headers, json=payload, timeout=35)
+
+                    # Free Tier google_search aracı 429 veya 400 verirse anında aynı modeli araçsız çağır
+                    if resp.status_code in (400, 429) and "tools" in payload:
+                        payload.pop("tools", None)
+                        resp = requests.post(endpoint, headers=headers, json=payload, timeout=35)
+
                     if resp.status_code == 402:
                         logger.error(
                             "[Gemini-AI] HTTP 402: API anahtarının bağlı olduğu proje 'Prepay (No credits)' modunda. "
@@ -553,11 +567,23 @@ class AutonomousDiscoveryParser(BaseParser):
                         return []
 
                     if resp.status_code in (429, 503):
-                        # 503 veya 429 veren modeli bu çalışmada devre dışı bırak ki sonraki adımlarda vakit kaybettirmesin
-                        self._exhausted_models.add(model)
-                        logger.warning(f"[Gemini-AI] Model ({model}) HTTP {resp.status_code}, hızlı yedek modele geçiliyor...")
-                        time.sleep(1)
-                        continue
+                        body_lower = resp.text.lower()
+                        is_daily_limit = resp.status_code == 429 and (
+                            "perday" in body_lower or "per_day" in body_lower or "daily" in body_lower
+                        )
+                        if model == primary_model and not is_daily_limit:
+                            logger.warning(f"[Gemini-AI] Ana model ({model}) geçici HTTP {resp.status_code}, 8 sn beklenip tekrar denenecek...")
+                            time.sleep(8)
+                            retry_resp = requests.post(endpoint, headers=headers, json=payload, timeout=35)
+                            if retry_resp.status_code == 200:
+                                resp = retry_resp
+                            else:
+                                continue
+                        else:
+                            self._exhausted_models.add(model)
+                            logger.warning(f"[Gemini-AI] Model ({model}) HTTP {resp.status_code}, hızlı yedek modele geçiliyor...")
+                            time.sleep(1)
+                            continue
 
                     if resp.status_code in (400, 404):
                         self._exhausted_models.add(model)
@@ -578,13 +604,14 @@ class AutonomousDiscoveryParser(BaseParser):
                     if parsed:
                         return parsed
                 except requests.exceptions.Timeout:
-                    self._exhausted_models.add(model)
-                    logger.warning(f"[Gemini-AI] Model ({model}) 35 sn içinde yanıt vermedi, devre dışı bırakıldı.")
+                    if model != primary_model:
+                        self._exhausted_models.add(model)
+                    logger.warning(f"[Gemini-AI] Model ({model}) 35 sn içinde yanıt vermedi.")
                 except Exception as e:
                     logger.warning(f"[Gemini-AI] Model ({model}) çağrı uyarısı: {e}")
 
             if attempt == 0:
-                time.sleep(4)
+                time.sleep(6)
         return []
 
     def _convert_gemini_items(self, items: List[Dict[str, Any]], default_url: str) -> List[Competition]:
