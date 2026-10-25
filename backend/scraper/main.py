@@ -107,13 +107,19 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
     # Eski testlerden kalan hatalı/kopya/elit yarışmaları SADECE BİR KERELİĞİNE temizler.
     # Bu temizlik bir kez tamamlandıktan sonra Firestore'daki bayrak `clean_reset_done_v1 = True` olur
     # ve bundan sonraki hiçbir taramada mevcut yarışmalar (2026, 2027, 2028, 2029) silinmez; kalıcı olarak korunur!
+    clean_reset_done = False
+    badges_baseline_reset = False
+    state_ref = None
     if db and not dry_run:
         state_ref = db.collection("app_metadata").document("scraper_state")
-        clean_reset_done = False
         try:
             state_doc = state_ref.get()
-            if state_doc.exists and state_doc.to_dict().get("clean_reset_done_v1") is True:
-                clean_reset_done = True
+            if state_doc.exists:
+                s_dict = state_doc.to_dict() or {}
+                if s_dict.get("clean_reset_done_v1") is True:
+                    clean_reset_done = True
+                if s_dict.get("badges_baseline_reset_v1") is True:
+                    badges_baseline_reset = True
         except Exception as e:
             logger.warning(f"scraper_state okuma uyarısı: {e}")
 
@@ -184,9 +190,9 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                     except Exception as e:
                         logger.error(f"Firestore mükerrer silme hatası ({doc_id}): {e}")
 
-    # Toplu veritabanı yenilemesinde (10'dan fazla yeni kayıt eklendiğinde) bildirim yağmuru oluşmasını engelle
+    # Toplu veritabanı yenilemesinde veya ilk temel rozet sıfırlamasında bildirim gönderme
     new_candidates = sum(1 for c in all_scraped if c.id not in existing_comps)
-    allow_push_notifications = new_candidates <= 10
+    allow_push_notifications = (new_candidates <= 10) and badges_baseline_reset
 
     # 2. DOĞRULANMIŞ RESMİ YARIŞMALARI VERİTABANINA YAZ
     for comp in all_scraped:
@@ -198,7 +204,15 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
             continue
 
         comp.updated_at = datetime.utcnow().isoformat()
-        if change_type == "NEW":
+        if not badges_baseline_reset:
+            # Temel referans (baseline) kurulumunda mevcut hiçbir yarışmada Yeni / Güncellendi etiketi gösterme
+            comp.is_new = False
+            comp.date_changed = False
+            comp.location_changed = False
+            comp.old_start_date = None
+            comp.old_location = None
+            logger.info(f"🔄 [TEMEL KAYIT GÜNCELLENDİ] {comp.title} ({comp.start_date}) - {comp.city}, {comp.country_name}")
+        elif change_type == "NEW":
             comp.is_new = True
             comp.date_changed = False
             comp.location_changed = False
@@ -233,6 +247,56 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
         # FCM Bildirimi Gönder (Toplu sıfırlama/kurulum haricinde)
         if should_notify and allow_push_notifications:
             notification_mgr.send_competition_notification(comp, change_type)
+
+    # 3. TEK SEFERLİK ROZET SIFIRLAMA (badges_baseline_reset_v1):
+    # Şu an veritabanında var olan tüm yarışmaların "Yeni", "Tarih Güncellendi", "Konum Güncellendi"
+    # etiketlerini temizler; bundan sonraki taramalarda yalnızca gerçekten yeni eklenen veya değişenlerde görünür.
+    if db and not dry_run and not badges_baseline_reset:
+        logger.info("🧹 [ROZET SIFIRLAMA] Mevcut tüm yarışmaların 'Yeni / Konum Güncellendi / Tarih Güncellendi' etiketleri sıfırlanıyor...")
+        reset_badge_count = 0
+        try:
+            col_ref = db.collection(ScraperConfig.FIRESTORE_COLLECTION)
+            for doc in col_ref.stream():
+                d = doc.to_dict() or {}
+                updates = {}
+                # World Masters Mountain 2027 konum düzeltmesi (Ojós -> Klosters, İsviçre)
+                if doc.id == "world-2027-mountain-trail" and "oj" in str(d.get("city", "")).lower():
+                    updates["city"] = "Klosters"
+                    updates["country"] = "CH"
+                    updates["country_name"] = "İsviçre"
+                if (
+                    d.get("is_new")
+                    or d.get("date_changed")
+                    or d.get("location_changed")
+                    or d.get("old_start_date")
+                    or d.get("old_location")
+                ):
+                    updates.update(
+                        {
+                            "is_new": False,
+                            "date_changed": False,
+                            "location_changed": False,
+                            "old_start_date": None,
+                            "old_location": None,
+                        }
+                    )
+                if updates:
+                    col_ref.document(doc.id).update(updates)
+                    reset_badge_count += 1
+            if state_ref:
+                state_ref.set(
+                    {
+                        "badges_baseline_reset_v1": True,
+                        "badges_reset_at": datetime.utcnow().isoformat(),
+                    },
+                    merge=True,
+                )
+            logger.info(
+                f"✅ [ROZET SIFIRLAMA TAMAMLANDI] {reset_badge_count} yarışmanın bildirim etiketi temizlendi. "
+                "Bundan sonra yalnızca yeni eklenen veya değişen yarışmalarda etiket görünecektir."
+            )
+        except Exception as e:
+            logger.error(f"Rozet sıfırlama hatası: {e}")
 
     total_in_db = len(set(existing_comps.keys()) | scraped_ids)
     logger.info("=== Tarama Özeti ===")

@@ -107,8 +107,8 @@ def _detect_discipline_subtype(title_norm: str) -> str:
         return "NON-STADIA"
     if "world-masters-games" in title_norm or "wmg" in title_norm:
         return "WMG"
-    if any(w in title_norm for w in ["cross", "kros", "veldloop", "terrang", "maasto", "campo-a-traves", "corta-mato"]):
-        return "CROSS-RELAY" if any(r in title_norm for r in ["relay", "relais", "staffel", "stafett", "relevos"]) else "CROSS"
+    if any(w in title_norm for w in ["cross", "kros", "veldloop", "terrang", "terreng", "maasto", "campo-a-traves", "corta-mato", "campestre", "przelaj", "krosu", "kross"]):
+        return "CROSS-RELAY" if any(r in title_norm for r in ["relay", "relais", "staffel", "stafett", "relevos", "staffette"]) else "CROSS"
     if any(w in title_norm for w in ["throw", "atma", "winterwurf", "wurf", "lancer", "lanzamiento", "lanci", "hammer", "marteau", "martillo", "martello", "rzut", "lancamentos"]):
         return "WINTER-THROWS" if is_indoor else "THROWS"
     if any(w in title_norm for w in ["combin", "coklu", "mehrkampf", "pentathlon", "pentatlo", "decathlon", "heptathlon", "prove-multiple"]):

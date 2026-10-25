@@ -130,6 +130,7 @@ class AutonomousDiscoveryParser(BaseParser):
         official_batches = [
             (
                 f"1. Uluslararası Resmi Takvimler: WMA, WMG, EMA ({y1}-{y4}), EMA League ve Balkan Masters",
+                {"INT", "WORLD", "EUROPE", "BALKAN"},
                 [
                     "https://european-masters-athletics.org/championships/",
                     "https://balkanmasters.com/",
@@ -164,6 +165,7 @@ class AutonomousDiscoveryParser(BaseParser):
             ),
             (
                 f"2. Birleşik Krallık (BMAF) ve İrlanda (IMAA) {y1} ve {y2} Ulusal Takvimleri",
+                {"GB", "IE"},
                 [
                     "https://bmaf.org.uk/fixtures/",
                     "https://www.athleticsireland.ie/competition/fixtures/",
@@ -184,6 +186,7 @@ class AutonomousDiscoveryParser(BaseParser):
             ),
             (
                 f"3. Fransa (FFA/CNAM), Almanya (DLV), İsviçre, Avusturya ve Benelüks {y1}-{y2} Ulusal Takvimleri",
+                {"FR", "DE", "CH", "AT", "NL", "BE"},
                 [
                     "https://masters.athle.fr/asp.net/espaces.html/html.aspx?id=40541",
                     "https://masters.athle.fr/asp.net/espaces.html/html.aspx?id=40540",
@@ -203,9 +206,9 @@ class AutonomousDiscoveryParser(BaseParser):
                 ],
                 f"List all confirmed {y1} AND {y2} national and regional 35+ Masters (Vétérans / Senioren / Masters) championships from the official federation calendars of France (https://masters.athle.fr/), Germany, Switzerland, Austria, Netherlands, and Belgium (include both {y1} and {y2} editions):\n"
                 f"- France (FFA / CNAM - https://masters.athle.fr/ - country='FR'):\n"
-                f"  * Championnats de France Masters en Salle (e.g. 2027-03-12..2027-03-14 in Miramas, 2026 in Saint-Brieuc)\n"
-                f"  * Championnats de France Masters sur Piste / Estival (e.g. Epinal)\n"
-                f"  * Championnats de France Masters d'Épreuves Combinées, Demi-fond long & Marche (e.g. Châteauroux)\n"
+                f"  * Championnats de France Masters en Salle (2026-03-06..2026-03-08 in Saint-Brieuc, 2027-03-12..2027-03-14 in Miramas)\n"
+                f"  * Championnats de France Masters sur Piste / Estival (2026-06-19..2026-06-21 in Épinal)\n"
+                f"  * Championnats de France Masters d'Épreuves Combinées, Demi-fond long & Marche\n"
                 f"  * Championnat de France du 10 km Marche Masters, Championnat de France de Cross Masters, Lancers hivernaux, 5km/10km/Semi-Marathon/Marathon, and regional Masters meetings (Bordeaux, Nantes, Caen, Mont de Marsan) ({y1} and {y2}).\n"
                 f"- Germany (DLV - country='DE'): Deutsche Meisterschaften (DM) Masters Freiluft (Outdoor), DM Halle Masters & Winterwurf (Indoor), DM Wurf-Mehrkampf Masters, DM Cross Masters, DM Straßenlauf/Halbmarathon/Marathon Masters, Team-DM Masters ({y1} and {y2}).\n"
                 f"- Switzerland (Swiss Masters - country='CH'): Schweizermeisterschaften Masters Indoor, Schweizermeisterschaften Masters Outdoor (Part 1 & Part 2), Wurf-Fünfkampf ({y1} and {y2}).\n"
@@ -214,6 +217,7 @@ class AutonomousDiscoveryParser(BaseParser):
             ),
             (
                 f"4. İtalya (FIDAL), İspanya (RFEA) ve Portekiz (FPAtletismo/ANAV) {y1}-{y2} Ulusal Takvimleri",
+                {"IT", "ES", "PT"},
                 [
                     f"https://www.fidal.it/calendario.php?anno={y1}&categoria=M",
                     f"https://www.fidal.it/calendario.php?anno={y2}&categoria=M",
@@ -232,6 +236,7 @@ class AutonomousDiscoveryParser(BaseParser):
             ),
             (
                 f"5. Balkanlar, Orta/Doğu Avrupa, İskandinavya ve Baltık {y1}-{y2} Ulusal Takvimleri",
+                {"PL", "CZ", "SK", "HU", "GR", "RO", "BG", "RS", "HR", "SI", "AL", "FI", "SE", "NO", "DK", "EE", "LV", "LT"},
                 [
                     "https://balkanmasters.com/",
                     "https://www.pma.org.pl/",
@@ -249,15 +254,23 @@ class AutonomousDiscoveryParser(BaseParser):
                 ],
                 f"List all confirmed {y1} AND {y2} national and regional 35+ Masters (Veteránů / Veteraner / SAUL / Masters) championships from the official calendars of Central/Eastern Europe, Balkans, Nordic, and Baltic countries (include both {y1} and {y2} editions):\n"
                 f"- Central Europe: Poland (PMA - country='PL': Halowe Mistrzostwa Polski Masters w Toruniu & Mistrzostwa Polski w Lekkiej Atletyce Masters Outdoor, Rzuty, Wieloboje {y1} & {y2}), Czechia (ČAS - country='CZ': Halové MČR veteránů & MČR veteránů na dráze {y1} & {y2}), Slovakia (SAZ - country='SK': Majstrovstvá SR veteránov {y1} & {y2}), Hungary (MASZ - country='HU': Szenior Atlétikai Magyar Bajnokság Indoor & Outdoor {y1} & {y2}).\n"
-                f"- Balkans & Turkey: Turkey (TAF - country='TR': Türkiye Masterlar Salon & Açık Saha Şampiyonası {y1} & {y2}), Greece (SEGAS/OEBA - country='GR': Panhellenic Masters Indoor & Outdoor Championships {y1} & {y2}), Romania (FRA - country='RO': Campionatul Național de Atletism Masters Indoor & Outdoor {y1} & {y2}), Bulgaria (BFLA - country='BG': National Masters Championships {y1} & {y2}), Serbia (SAS - country='RS'), Croatia (HAS/HAVU - country='HR': Prvenstvo Hrvatske za veterane Indoor & Outdoor {y1} & {y2}), Slovenia (AZS/ZAVS - country='SI': Prvenstvo Slovenije za veterane {y1} & {y2}), Albania (FSHA - country='AL').\n"
+                f"- Balkans: Greece (SEGAS/OEBA - country='GR': Panhellenic Masters Indoor & Outdoor Championships {y1} & {y2}), Romania (FRA - country='RO': Campionatul Național de Atletism Masters Indoor & Outdoor {y1} & {y2}), Bulgaria (BFLA - country='BG': National Masters Championships {y1} & {y2}), Serbia (SAS - country='RS'), Croatia (HAS/HAVU - country='HR': Prvenstvo Hrvatske za veterane Indoor & Outdoor {y1} & {y2}), Slovenia (AZS/ZAVS - country='SI': Prvenstvo Slovenije za veterane {y1} & {y2}), Albania (FSHA - country='AL').\n"
                 f"- Nordic & Baltic: Nordic Masters Championships ({y1} & {y2}), Baltic Masters Championships ({y1} & {y2}), Finland (SAUL - country='FI': SM-hallit, SM-yleisurheilu, SM-moniottelut, SM-maastot, SM-puolimaraton, SM-maantiekymppi, SM-viestit {y1} & {y2}), Sweden (SFIF - country='SE': ISM Veteraner Indoor & SM Veteraner Outdoor {y1} & {y2}), Norway (NFIF - country='NO': NM Veteraner Indoor & Outdoor {y1} & {y2}), Denmark (DAF - country='DK': DM Masters Indoor & Outdoor {y1} & {y2}), Estonia (country='EE'), Latvia (country='LV'), Lithuania (country='LT')."
             ),
         ]
 
-        for label, site_urls, search_queries, query_text in official_batches:
+        for label, batch_countries, site_urls, search_queries, query_text in official_batches:
             try:
                 live_digest = self._fetch_hybrid_context(site_urls, search_queries)
+                existing_digest = self._build_existing_context(batch_countries)
                 full_prompt = query_text
+                if existing_digest:
+                    full_prompt += (
+                        "\n\nMEVCUT DOĞRULANMIŞ VERİTABANI KAYITLARI "
+                        "(Resmi federasyon metninde açıkça yeni bir tarih veya şehir değişikliği ilan edilmedikçe, "
+                        "bu mevcut yarışmaların start_date, end_date ve city bilgilerini AYNEN KORU; asla tahmin yürütüp hafta sonu tarihlerini kaydırma):\n"
+                        f"{existing_digest}\n"
+                    )
                 if live_digest:
                     full_prompt += (
                         "\n\nAŞAĞIDA RESMİ FEDERASYON SİTELERİNDEN VE CANLI ARAMA İNDEKSLERİNDEN ÇEKİLEN GÜNCEL TAKVİM VERİLERİ YER ALMAKTADIR:\n"
@@ -272,11 +285,34 @@ class AutonomousDiscoveryParser(BaseParser):
                 )
                 logger.info(f"[Gemini-AI] {label} taramasından {len(converted)} yarışma çıkarıldı.")
                 results.extend(converted)
-                time.sleep(4)
+                time.sleep(3)
             except Exception as e:
                 logger.warning(f"[Gemini-AI] Resmi site tarama hatası ({label}): {e}")
 
         return results
+
+    def _build_existing_context(self, batch_countries: set) -> str:
+        """İlgili gruptaki mevcut veritabanı kayıtlarını özetleyerek AI'ın rastgele tarih kaydırmasını önler."""
+        if not self.existing_comps:
+            return ""
+        lines = []
+        is_intl_batch = "WORLD" in batch_countries or "EUROPE" in batch_countries
+        for doc_id, data in self.existing_comps.items():
+            if not isinstance(data, dict):
+                continue
+            c_code = str(data.get("country", "")).upper()
+            scope = str(data.get("scope", "")).lower()
+            title = str(data.get("title", "")).strip()
+            s_date = str(data.get("start_date", "")).strip()[:10]
+            e_date = str(data.get("end_date", s_date)).strip()[:10]
+            city = str(data.get("city", "")).strip()
+            if not title or not s_date:
+                continue
+            if is_intl_batch and scope in {"world", "europe", "balkan", "ema_league"}:
+                lines.append(f"- {title} | {s_date}..{e_date} | {city} ({c_code}) | scope={scope}")
+            elif not is_intl_batch and c_code in batch_countries and scope in {"national", "regional"}:
+                lines.append(f"- {title} | {s_date}..{e_date} | {city} ({c_code}) | scope={scope}")
+        return "\n".join(lines[:35])
 
     def _fetch_hybrid_context(
         self,
@@ -489,9 +525,12 @@ class AutonomousDiscoveryParser(BaseParser):
                     continue
 
                 endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+                gen_config: Dict[str, Any] = {"temperature": 0.0}
+                if not use_search and not model.startswith("gemma-"):
+                    gen_config["responseMimeType"] = "application/json"
                 payload: Dict[str, Any] = {
                     "contents": [{"parts": parts}],
-                    "generationConfig": {"temperature": 0.0},
+                    "generationConfig": gen_config,
                 }
                 if use_search and not model.startswith("gemma-"):
                     payload["tools"] = [{"google_search": {}}]
@@ -598,10 +637,20 @@ class AutonomousDiscoveryParser(BaseParser):
 
                 title_low = title.lower()
                 city_low = raw_city.lower()
-                if ("mountain" in title_low or "trail" in title_low or "emmtrc" in title_low) and start_date.startswith("2027"):
+                if ("world" in title_low or "wma" in title_low or "wmra" in title_low) and "mountain" in title_low and start_date.startswith("2027"):
+                    raw_city = "Klosters"
+                    raw_country = "CH"
+                    raw_cname = "İsviçre"
+                elif ("european" in title_low or "emmtrc" in title_low) and ("mountain" in title_low or "trail" in title_low) and start_date.startswith("2027"):
                     raw_city = "Ojós, Murcia"
                     raw_country = "ES"
                     raw_cname = "İspanya"
+                elif "france" in title_low and ("piste" in title_low or "estival" in title_low) and start_date.startswith("2026"):
+                    start_date = "2026-06-19"
+                    end_date = "2026-06-21"
+                    raw_city = "Épinal"
+                    raw_country = "FR"
+                    raw_cname = "Fransa"
                 elif any(k in city_low for k in ["luzern", "lucerne", "klosters", "zurich", "zürich"]):
                     raw_country = "CH"
                     raw_cname = "İsviçre"
