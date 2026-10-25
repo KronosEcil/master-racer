@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - 'android/**'
+      - '.github/workflows/build_apk.yml'
 
 jobs:
   build-apk:
@@ -23,8 +24,8 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Android SDK Kurulumu
-        uses: android-actions/setup-android@v3
+      - name: Android SDK Lisanslarını Onayla
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Gradle 8.4 Kurulumu
         uses: gradle/actions/setup-gradle@v3
