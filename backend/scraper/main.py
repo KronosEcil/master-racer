@@ -10,7 +10,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 from .config import Competition, ScraperConfig
-from .deduplication import evaluate_change
+from .deduplication import evaluate_change, generate_competition_id
 from .notification import NotificationManager
 from .parsers.autonomous_discovery import AutonomousDiscoveryParser
 
@@ -144,6 +144,45 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                 )
             except Exception as e:
                 logger.error(f"scraper_state yazma hatası: {e}")
+        else:
+            # Mevcut veritabanındaki tüm geçerli yarışmalar kalıcı olarak korunur;
+            # Yalnızca kanonik ID kuralı güncellenmiş veya aynı gün başka bir spesifik branş kaydının
+            # "-acik-saha" kopyası olan mükerrer ID'ler temizlenir.
+            all_dates_by_prefix = {}
+            for doc_id, doc_data in existing_comps.items():
+                if not doc_id.endswith("-acik-saha"):
+                    parts = doc_id.split("-")
+                    if len(parts) >= 2:
+                        prefix = f"{parts[0]}-{parts[1]}-"
+                        all_dates_by_prefix.setdefault(prefix, set()).add(str(doc_data.get("start_date", ""))[:10])
+            for c in all_scraped:
+                if not c.id.endswith("-acik-saha"):
+                    parts = c.id.split("-")
+                    if len(parts) >= 2:
+                        prefix = f"{parts[0]}-{parts[1]}-"
+                        all_dates_by_prefix.setdefault(prefix, set()).add(c.start_date[:10])
+
+            for doc_id, doc_data in list(existing_comps.items()):
+                title = str(doc_data.get("title", "")).strip()
+                s_date = str(doc_data.get("start_date", "")).strip()[:10]
+                country = str(doc_data.get("country", "")).strip()
+                city = str(doc_data.get("city", "")).strip()
+                canon_id = generate_competition_id(title, s_date, country, city)
+
+                is_same_date_generic_dup = False
+                if doc_id.endswith("-acik-saha"):
+                    prefix = doc_id[: -len("acik-saha")]
+                    if s_date and s_date in all_dates_by_prefix.get(prefix, set()):
+                        is_same_date_generic_dup = True
+
+                if canon_id != doc_id or is_same_date_generic_dup:
+                    try:
+                        db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()
+                        existing_comps.pop(doc_id, None)
+                        logger.info(f"🗑️ [MÜKERRER/ESKİ ID TEMİZLENDİ] {title} (Eski ID: {doc_id} -> Yeni: {canon_id})")
+                        deleted_count += 1
+                    except Exception as e:
+                        logger.error(f"Firestore mükerrer silme hatası ({doc_id}): {e}")
 
     # Toplu veritabanı yenilemesinde (10'dan fazla yeni kayıt eklendiğinde) bildirim yağmuru oluşmasını engelle
     new_candidates = sum(1 for c in all_scraped if c.id not in existing_comps)

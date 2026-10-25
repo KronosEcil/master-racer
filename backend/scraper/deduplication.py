@@ -166,7 +166,14 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
         return f"WORLD-{year}-{subtype}"
 
     is_ema_league = any(w in title_norm for w in ["ema-league", "ema-ligi", "meeting-europeen", "speed-masters"])
-    if not is_ema_league and any(w in title_norm for w in ["european-masters", "european-stadia", "avrupa-master", "emaci", "emacs", "emacns", "emmtrc", "emamrc", "emorrc"]):
+    if not is_ema_league and any(
+        w in title_norm
+        for w in [
+            "european-masters", "european-stadia", "avrupa-master",
+            "emaci", "emacs", "emacns", "emmtrc", "emamrc", "emorrc",
+            "ema-marathon", "ema-mountain", "ema-indoor", "ema-stadia", "ema-non-stadia", "ema-off-road", "ema-championship"
+        ]
+    ):
         return f"EUROPE-{year}-{subtype}"
 
     if any(w in title_norm for w in ["balkan-master", "balkan-veteran", "bamaci", "bamacs", "bamam"]):
@@ -247,6 +254,30 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
 
             existing.content_hash = compute_content_hash(existing)
             unique_map[key] = existing
+
+    # İkinci Aşama: Aynı başlangıç tarihine (start_date) ve aynı kapsama sahip olup,
+    # bir tanesi başlıkta branş detayı ("Indoor" vb.) eksik yazıldığı için genel "-ACIK-SAHA"
+    # anahtarına düşen ikiz kayıtları (örn. WORLD-2027-SALON ve WORLD-2027-ACIK-SAHA, 2027-03-18) birleştir.
+    keys_to_remove = set()
+    all_keys = list(unique_map.keys())
+    for k in all_keys:
+        if k.endswith("-ACIK-SAHA"):
+            prefix = k[: -len("-ACIK-SAHA")]
+            generic_comp = unique_map[k]
+            for other_k in all_keys:
+                if other_k != k and other_k.startswith(prefix) and not other_k.endswith("-ACIK-SAHA"):
+                    specific_comp = unique_map[other_k]
+                    if specific_comp.start_date == generic_comp.start_date:
+                        if generic_comp.end_date > specific_comp.end_date:
+                            specific_comp.end_date = generic_comp.end_date
+                        if len(generic_comp.city or "") > len(specific_comp.city or ""):
+                            specific_comp.city = generic_comp.city
+                        specific_comp.content_hash = compute_content_hash(specific_comp)
+                        keys_to_remove.add(k)
+                        break
+
+    for rk in keys_to_remove:
+        unique_map.pop(rk, None)
 
     return list(unique_map.values())
 

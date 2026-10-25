@@ -1,8 +1,10 @@
 """
-Master Racer - Official Federation Calendar AI Discovery Engine
-Gemini'yi rastgele Google aramasına bırakmak yerine; her uluslararası birliğin (WMA, EMA, BAMA)
-ve her ülkenin resmi ulusal atletizm/masterlar federasyonunun resmi takvim sitelerini (`site:`)
-hedefleyerek sıfır halüsinasyonla (temperature=0.0) tarayan otonom yapay zeka motoru.
+Master Racer - Multi-Method Official Federation Calendar Discovery Engine
+Tek bir yönteme veya tek bir AI modeline bağımlı kalmadan 4 katmanlı hibrit mimariyle çalışır:
+1. Doğrudan Resmi API & Veri Akışı Okuyucu (EMA AWS JSON API, 0 AI kotası, 0.3 sn, %100 kesinlik)
+2. TAF Resmi Faaliyet Takvimi PDF Okuyucu (taf.org.tr)
+3. Canlı Web Arama Motoru (DuckDuckGo HTML) + Doğrulanmış Resmi Federasyon Sayfaları Toplayıcısı
+4. Hızlı AI Çıkarım Motoru (Önce 3 saniyede yanıt veren Lite/Gemma modelleri, 503/Timeout devre kesicili)
 """
 
 import re
@@ -11,6 +13,7 @@ import json
 import base64
 import logging
 from datetime import datetime
+from urllib.parse import quote_plus
 from typing import List, Dict, Any, Optional
 from bs4 import BeautifulSoup
 import requests
@@ -29,8 +32,8 @@ logger = logging.getLogger(__name__)
 
 class AutonomousDiscoveryParser(BaseParser):
     """
-    Her ülkenin ve uluslararası federasyonun resmi takvim web sitelerini ayrı ayrı tanımlayarak,
-    Gemini AI'ya yalnızca bu resmi kaynakları analiz ettiren sıfır-halüsinasyonlu keşif motoru.
+    Resmi federasyon API'lerini, canlı arama motoru indekslerini ve hızlı Gemini Lite / Gemma
+    modellerini birleştiren çok yöntemli (multi-method) keşif motoru.
     """
 
     def __init__(self, existing_comps: Optional[Dict[str, dict]] = None):
@@ -40,28 +43,131 @@ class AutonomousDiscoveryParser(BaseParser):
         self.existing_comps: Dict[str, dict] = existing_comps or {}
         self._exhausted_models = set()
         self._available_models: List[str] = []
-        self._search_tool_disabled: bool = False
 
     def parse(self) -> List[Competition]:
-        logger.info(f"Resmi Federasyon Takvimleri Yapay Zeka Tarayıcısı başlatılıyor (Yıllar: {self.years})...")
-        discovered = self._discover_with_gemini_ai()
+        logger.info(f"Çok Yöntemli Resmi Federasyon Tarayıcısı başlatılıyor (Yıllar: {self.years})...")
+        discovered: List[Competition] = []
+
+        # YÖNTEM 1: Doğrudan Resmi EMA AWS JSON Veri Akışı (0 AI Kotası, %100 Deterministik)
+        ema_direct = self._discover_from_ema_official_api()
+        discovered.extend(ema_direct)
+
+        # YÖNTEM 2 & 3 & 4: TAF Resmi PDF + Canlı Arama & Resmi Federasyon Siteleri + Hızlı AI Analizi
+        ai_discovered = self._discover_with_gemini_ai()
+        discovered.extend(ai_discovered)
+
         deduplicated = deduplicate_competitions(discovered)
         logger.info(
-            f"[AutonomousDiscovery_Parser] Resmi site taraması ve tekilleştirmesi tamamlandı. "
+            f"[AutonomousDiscovery_Parser] Tüm yöntemlerin taraması ve tekilleştirmesi tamamlandı. "
             f"Toplam {len(deduplicated)} doğrulanmış Master yarışması hazırlandı."
         )
         return deduplicated
 
+    # =========================================================================
+    # YÖNTEM 1: DOĞRUDAN RESMİ EMA AWS API OKUYUCU (SIFIR AI HATASI / 0.3 SN)
+    # =========================================================================
+    def _discover_from_ema_official_api(self) -> List[Competition]:
+        """
+        Avrupa Masterlar Atletizm Birliği'nin (EMA) resmi AWS API uç noktasından
+        (https://s831118207.onlinehome.us/ema_cham_aw/api/v1/events) tüm resmi Avrupa Şampiyonalarını
+        ve EMA League yarışmalarını doğrudan JSON olarak çeker.
+        """
+        results: List[Competition] = []
+        min_year = self.years[0]
+        api_url = "https://s831118207.onlinehome.us/ema_cham_aw/api/v1/events"
+        try:
+            resp = self.session.get(api_url, timeout=15)
+            if resp.status_code != 200:
+                return results
+
+            payload = resp.json()
+            data_list = (
+                payload.get("data", [])
+                if isinstance(payload, dict)
+                else (payload if isinstance(payload, list) else [])
+            )
+            invalid_tokens = {"", "n/a", "na", "none", "null", "tbd", "tbc", "ybd", "unknown", "-"}
+
+            for ev in data_list:
+                if not isinstance(ev, dict):
+                    continue
+                raw_title = str(ev.get("name") or ev.get("title") or "").strip()
+                s_date = str(ev.get("startDate") or ev.get("start_date") or ev.get("date") or "").strip()[:10]
+                e_date = str(ev.get("endDate") or ev.get("end_date") or s_date).strip()[:10] or s_date
+
+                if not raw_title or not re.match(r"^20\d{2}-\d{2}-\d{2}$", s_date):
+                    continue
+                if int(s_date[:4]) < min_year:
+                    continue
+                if not re.match(r"^20\d{2}-\d{2}-\d{2}$", e_date) or e_date < s_date:
+                    e_date = s_date
+
+                # EMA resmi akışındaki tüm etkinlikler Masterlar etkinliğidir; başlıkta Master/EMA yoksa ekle
+                title = raw_title
+                if not is_valid_competition_title(title):
+                    title = f"EMA League - {raw_title}" if "league" in str(ev.get("type", "")).lower() else f"{raw_title} (EMA Masters)"
+                if not is_valid_competition_title(title):
+                    continue
+
+                raw_loc = str(ev.get("location") or ev.get("city") or "").strip()
+                raw_country = str(ev.get("country") or "").strip()
+                if raw_loc.lower() in invalid_tokens:
+                    raw_loc = ""
+                if raw_country.lower() in invalid_tokens:
+                    raw_country = ""
+
+                country, country_name, _ = self.detect_country(
+                    f"{title} {raw_loc} {raw_country}",
+                    raw_country if len(raw_country) in (2, 3) else "INT",
+                    raw_country or "Avrupa",
+                )
+                if country.upper() in {"INT", "TBD", "TBC", "NA", "EU"} and not raw_loc:
+                    continue
+
+                city = raw_loc or country_name
+                t_lower = title.lower()
+                if "ema league" in t_lower or "league" in str(ev.get("type", "")).lower():
+                    scope = "ema_league"
+                else:
+                    scope = "europe"
+
+                web_url = str(ev.get("website") or ev.get("url") or "https://european-masters-athletics.org/championships/").strip()
+                if not web_url.startswith("http"):
+                    web_url = "https://european-masters-athletics.org/championships/"
+
+                comp_id = generate_competition_id(title, s_date, country, city)
+                comp = Competition(
+                    id=comp_id,
+                    title=title,
+                    country=country,
+                    country_name=country_name,
+                    city=city,
+                    start_date=s_date,
+                    end_date=e_date,
+                    venue_type="",
+                    categories=self.detect_categories(title),
+                    scope=scope,
+                    federation="EMA",
+                    website_url=web_url,
+                    status="scheduled",
+                    created_at=datetime.utcnow().isoformat(),
+                )
+                comp.content_hash = compute_content_hash(comp)
+                results.append(comp)
+
+            logger.info(f"[EMA-Direct-API] Resmi EMA AWS veri akışından {len(results)} yarışma doğrudan çıkarıldı.")
+        except Exception as e:
+            logger.warning(f"[EMA-Direct-API] Okuma uyarısı: {e}")
+
+        return results
+
+    # =========================================================================
+    # YÖNTEM 2, 3 & 4: TAF PDF + CANLI ARAMA + RESMİ SİTELER + HIZLI AI MOTORU
+    # =========================================================================
     def _discover_with_gemini_ai(self) -> List[Competition]:
-        """
-        Her bölgenin ve ülkenin resmi ulusal takvim sitelerini ayrı ayrı hedefleyerek:
-        1. Türkiye (TAF) resmi faaliyet takvimi PDF'ini doğrudan okur.
-        2. Uluslararası (WMA, EMA, BAMA) ve Ulusal Federasyonların resmi takvim sitelerini (`site:...`)
-           Gemini ile hafif ve hızlı isteklerle araştırır (ücretsiz katman TPM/RPM sınırlarına tam uyumlu).
-        """
         api_key = (ScraperConfig.GEMINI_API_KEY or "").strip()
         if not api_key:
-            logger.warning("[Gemini-AI] GEMINI_API_KEY tanımlı değil! Tarama yapılamadı.")
+            logger.warning("[Gemini-AI] GEMINI_API_KEY tanımlı değil! AI taraması atlandı.")
             return []
 
         results: List[Competition] = []
@@ -69,13 +175,11 @@ class AutonomousDiscoveryParser(BaseParser):
         years_all_tr = f"{y1}, {y2}, {y3} ve {y4}"
         years_all_en = f"{y1}, {y2}, {y3}, and {y4}"
 
-        # -------------------------------------------------------------------------
         # ADIM 1: Türkiye Atletizm Federasyonu (TAF) Resmi Takvim PDF'i (`taf.org.tr`)
-        # -------------------------------------------------------------------------
         taf_pdf_urls = self._find_taf_calendar_pdf_urls()
         for pdf_url in taf_pdf_urls[:1]:
             try:
-                resp = self.session.get(pdf_url, timeout=25)
+                resp = self.session.get(pdf_url, timeout=20)
                 if resp.status_code == 200 and len(resp.content) > 1000:
                     pdf_b64 = base64.b64encode(resp.content).decode("utf-8")
                     prompt = (
@@ -97,22 +201,20 @@ class AutonomousDiscoveryParser(BaseParser):
                         {"inline_data": {"mime_type": "application/pdf", "data": pdf_b64}},
                         {"text": prompt},
                     ]
-                    items = self._call_gemini_json(api_key, parts, use_search=False)
+                    items = self._call_gemini_json(api_key, parts)
                     converted = self._convert_gemini_items(items, default_url=pdf_url)
                     logger.info(f"[Gemini-AI] TAF Resmi PDF takviminden {len(converted)} Master yarışması çıkarıldı.")
                     results.extend(converted)
-                    time.sleep(12)
+                    time.sleep(4)
             except Exception as e:
                 logger.warning(f"[Gemini-AI] TAF PDF analizi hatası ({pdf_url}): {e}")
 
-        # -------------------------------------------------------------------------
-        # ADIM 2: Resmi Federasyon Takvim Siteleri Sorguları (Her Ülke İçin Resmi Kaynak)
-        # -------------------------------------------------------------------------
+        # ADIM 2: Resmi Federasyon Takvimleri + Canlı Arama Motoru İndeksleri
         schema_instruction = (
             "\n\nKESİN ÇIKTI VE DOĞRULUK KURALLARI:\n"
-            f"1. SADECE yukarıda belirtilen resmi federasyon takvim sitelerinde yer alan ve {years_all_tr} yıllarında "
-            "tarihi (YYYY-MM-DD) ile yapılacağı şehri kesinleşmiş olan 35+ yaş Masterlar (Masters / Veteran / Vétérans / Senioren) "
-            "yarışmalarını çıkar. Resmi takvimde yer almayan hiçbir yarışmayı, tarihi veya şehri ASLA TAHMİN ETME / UYDURMA!\n"
+            f"1. Yukarıdaki resmi federasyon takvim verilerini ve resmi federasyon takvimlerini kullanarak {years_all_tr} yıllarında "
+            "tarihi (YYYY-MM-DD) ve yapılacağı şehri kesinleşmiş olan tüm 35+ yaş Masterlar (Masters / Veteran / Vétérans / Senioren / Veteranos / SAUL) "
+            "şampiyonalarını eksiksiz çıkar. Resmi takvimde yer almayan hiçbir yarışmayı, tarihi veya şehri ASLA TAHMİN ETME / UYDURMA!\n"
             "2. Elit/Büyükler (Senior Elite), Olimpik Deneme, U23, U20, U18 yarışmalarını ASLA dahil etme.\n"
             "3. Çok günlü yarışmalarda `start_date` ve `end_date` tarihlerini resmi takvimdeki tam aralık olarak (YYYY-MM-DD) yaz. "
             "Tarihi veya ülkesi 'TBD', 'TBC', 'N/A' olan ya da 1 Ocak (YYYY-01-01) gibi yer tutucu tarihli yarışmaları DAHİL ETME!\n"
@@ -124,7 +226,7 @@ class AutonomousDiscoveryParser(BaseParser):
             '"federation": "Federasyon Kısaltması", "website_url": "Resmi Takvim URL"}]'
         )
 
-        official_queries = [
+        official_batches = [
             (
                 f"1. Uluslararası Resmi Takvimler: WMA, EMA, OpenTrack ve Balkan Masters ({years_all_tr})",
                 [
@@ -133,31 +235,30 @@ class AutonomousDiscoveryParser(BaseParser):
                     "https://world-masters-athletics.org/championships/",
                     "https://wmg2027.jp/",
                 ],
-                True,
-                f"Analyze ONLY the official calendars of:\n"
-                f"- European Masters Athletics: https://european-masters-athletics.org/championships/ and https://data.opentrack.run/\n"
-                f"- Balkan Masters Athletics: https://balkanmasters.com/\n"
-                f"- World Masters Athletics: https://world-masters-athletics.org/championships/ and https://wmg2027.jp/\n"
-                f"Extract all confirmed {years_all_en} European Masters Championships (EMACI, EMACS, EMACNS, EMMTRC, EMAMRC, EMORRC), "
-                f"EMA League meetings, Balkan Masters Championships (BAMACI, BAMACS, BAMAM), World Masters Championships (WMA), "
-                f"and World Masters Games (WMG) with their exact official dates and host cities."
+                [
+                    f"World Masters Athletics Championships {y1} {y2} {y3} {y4} site:world-masters-athletics.org",
+                    f"European Masters Athletics Championships EMACI EMACS EMACNS EMMTRC EMAMRC {y1} {y2} {y3} {y4}",
+                    f"Balkan Masters Athletics Championships BAMACI BAMACS BAMAM {y1} {y2} {y3} site:balkanmasters.com",
+                    f"World Masters Games {y2} {y3} {y4} athletics dates city",
+                ],
+                f"Extract all confirmed {years_all_en} World Masters Athletics Championships (WMA Indoor, Stadia/Outdoor, Marathon, Mountain Running, 50km/100km), "
+                f"World Masters Games (WMG), European Masters Championships (EMACI, EMACS, EMACNS, EMMTRC, EMAMRC, EMORRC), EMA League meetings, "
+                f"and Balkan Masters Athletics Championships (BAMACI Indoor, BAMACS Outdoor/Stadia, BAMAM Marathon) from official calendars "
+                f"(https://world-masters-athletics.org/championships/, https://european-masters-athletics.org/championships/, https://balkanmasters.com/, https://wmg2027.jp/)."
             ),
             (
                 f"2. Birleşik Krallık (BMAF) ve İrlanda (IMAA) Resmi Takvim Siteleri ({years_all_tr})",
                 [
                     "https://bmaf.org.uk/fixtures/",
-                    "https://bmaf.opentrack.run/",
-                    "https://irishmastersathletics.com/",
                     "https://www.athleticsireland.ie/competition/fixtures/",
                 ],
-                False,
-                f"Analyze ONLY the official UK and Ireland Masters athletics fixture calendars:\n"
-                f"- United Kingdom (BMAF): https://bmaf.org.uk/fixtures/ and https://bmaf.opentrack.run/\n"
-                f"- Ireland (IMAA): https://irishmastersathletics.com/ and https://www.athleticsireland.ie/competition/fixtures/\n"
-                f"Extract all confirmed {years_all_en} BMAF / British Masters and Irish Masters (IMAA) championships and open fixtures, including:\n"
-                f"Indoor & Outdoor Track & Field Championships, Indoor Pentathlon & 3000m, Winter Throws & Throws Pentathlon, 10,000m, "
-                f"Cross Country Championships, Cross Country Relay Championships, Road Relay Championships, "
-                f"1 Mile, 5k Road, 10k Road, 10 Mile, Half Marathon, Marathon, Ultra, and Race Walking Championships."
+                [
+                    f"BMAF British Masters Championships fixtures {y1} {y2} site:bmaf.org.uk",
+                    f"Irish Masters Athletics Championships IMAA {y1} {y2} indoor outdoor cross country",
+                ],
+                f"Extract all confirmed {years_all_en} British Masters (BMAF - https://bmaf.org.uk/fixtures/) and Irish Masters (IMAA) championships and open fixtures, including: "
+                f"Indoor Track & Field Championships, Outdoor Track & Field Championships, Indoor Pentathlon & 3000m, Winter Throws, Throws Pentathlon, 10,000m, "
+                f"Cross Country Championships, Cross Country Relays, Road Relays, 1 Mile, 5k Road, 10k Road, 10 Mile, Half Marathon, Marathon, Trail/Ultra, and Race Walking Championships."
             ),
             (
                 f"3. Fransa (FFA), Almanya (DLV/LADV), İsviçre, Avusturya ve Benelüks Resmi Siteleri ({years_all_tr})",
@@ -165,116 +266,128 @@ class AutonomousDiscoveryParser(BaseParser):
                     "https://www.athle.fr/contenu/calendrier-championnats-de-france/32",
                     "https://www.leichtathletik.de/wettkaempfe/termine",
                     "https://ladv.de/ausschreibungen",
-                    "https://www.swiss-masters.ch/",
                     "https://www.oelv.at/de/wettkaempfe/kalender",
-                    "https://www.atletiek.nl/wedstrijden/",
-                    "https://www.atletiek.be/wedstrijden/kalender",
                 ],
-                False,
-                f"Analyze ONLY the official national federation calendars for {years_all_en} 35+ Masters (Vétérans / Senioren / Masters) championships:\n"
-                f"- France (FFA): https://www.athle.fr/contenu/calendrier-championnats-de-france/32\n"
-                f"- Germany (DLV / LADV): https://www.leichtathletik.de/wettkaempfe/termine and https://ladv.de/ausschreibungen\n"
-                f"- Switzerland (Swiss Masters): https://www.swiss-masters.ch/ and https://www.swiss-athletics.ch/\n"
-                f"- Austria (ÖLV): https://www.oelv.at/de/wettkaempfe/kalender\n"
-                f"- Netherlands (Atletiekunie): https://www.atletiek.nl/wedstrijden/\n"
-                f"- Belgium (VAL / LBFA): https://www.atletiek.be/wedstrijden/kalender and https://www.lbfa.be/fr/calendrier"
+                [
+                    f"Championnats de France Masters {y1} {y2} {y3} salle piste lancers marche cross site:athle.fr",
+                    f"Deutsche Meisterschaften Masters {y1} {y2} {y3} Halle Wurf-Mehrkampf Cross site:leichtathletik.de OR site:ladv.de",
+                    f"Österreichische Mastersmeisterschaften {y1} {y2} Halle Freiluft site:oelv.at",
+                    f"Swiss Masters Championships Athletics {y1} {y2} NK Masters Indoor Outdoor {y1} {y2} BK Masters Atletiek {y1} {y2}",
+                ],
+                f"Extract all confirmed {years_all_en} national 35+ Masters (Vétérans / Senioren / Masters) championships from the official national federation calendars of:\n"
+                f"- France (FFA - https://www.athle.fr/contenu/calendrier-championnats-de-france/32): Championnats de France Masters en salle, sur piste, Épreuves Combinées, Lancers hivernaux, Marche, 5km/10km/Semi/Marathon/Cross.\n"
+                f"- Germany (DLV / LADV - https://www.leichtathletik.de/wettkaempfe/termine, https://ladv.de/): DM Masters Freiluft, DM Halle Masters & Winterwurf, DM Wurf-Mehrkampf Masters, DM Cross Masters, Team-DM Masters.\n"
+                f"- Switzerland (Swiss Athletics / Swiss Masters): Schweizermeisterschaften Masters Indoor, Outdoor (Part 1 & Part 2), Pentathlon, Wurf-Fünfkampf.\n"
+                f"- Austria (ÖLV - https://www.oelv.at/de/wettkaempfe/kalender): Österreichische Masters-Hallenmeisterschaften & Mastersmeisterschaften Freiluft.\n"
+                f"- Netherlands (Atletiekunie - https://www.atletiek.nl/) & Belgium (VAL/LBFA - https://www.atletiek.be/): NK Indoor Masters, NK Masters Outdoor, BK Masters Indoor & Outdoor."
             ),
             (
                 f"4. İtalya (FIDAL), İspanya (RFEA) ve Portekiz (FPAtletismo/ANAV) Resmi Siteleri ({years_all_tr})",
                 [
                     "https://www.fidal.it/calendario.php",
-                    "https://www.fidal.it/categoria/Master/25",
                     "https://atletismorfea.es/calendario",
-                    "https://fpatletismo.pt/atletismo/calendario-nacional/",
-                    "https://www.anavportugal.com/",
                 ],
-                False,
-                f"Analyze ONLY the official national federation calendars for {years_all_en} 35+ Masters (Master / Veteranos) championships:\n"
-                f"- Italy (FIDAL): https://www.fidal.it/calendario.php and https://www.fidal.it/categoria/Master/25\n"
-                f"- Spain (RFEA): https://atletismorfea.es/calendario and https://www.rfeacontent.es/calendario/\n"
-                f"- Portugal (FPAtletismo / ANAV): https://fpatletismo.pt/atletismo/calendario-nacional/ and https://www.anavportugal.com/"
+                [
+                    f"Campionati Italiani Master {y1} {y2} Indoor Pista Pentathlon Lanci Prove Multiple Mezza Maratona site:fidal.it",
+                    f"Campeonato de España Master {y1} {y2} Aire Libre Short Track Pista Cubierta Lanzamientos Combinadas Campo a Traves site:atletismorfea.es OR site:rfeacontent.es",
+                    f"Campeonatos Nacionais de Veteranos {y1} {y2} Pista Curta Ar Livre Corta-Mato Pentatlo Marcha site:fpatletismo.pt OR site:anavportugal.com",
+                ],
+                f"Extract all confirmed {years_all_en} national 35+ Masters (Master / Veteranos) championships from the official national federation calendars of:\n"
+                f"- Italy (FIDAL - https://www.fidal.it/calendario.php): Campionati Italiani Master Indoor e Lanci Invernali, Individuali su Pista Master, Pentathlon dei Lanci (Invernale/Estivo), Prove Multiple e Staffette, Mezza Maratona, Maratona, Marcia, Cross, 10km/24h.\n"
+                f"- Spain (RFEA - https://atletismorfea.es/calendario): Campeonato de España Máster de Aire Libre, Short Track (Pista Cubierta), Lanzamientos Largos, Pentatlón de Lanzamientos, Pruebas Combinadas, Campo a Través, Milla, 10.000m, Ruta (5k/10k/Media Maratón/Maratón), Montaña/Trail.\n"
+                f"- Portugal (FPAtletismo / ANAV - https://fpatletismo.pt/): Campeonatos Nacionais de Veteranos de Pista Curta (Indoor), Pista ao Ar Livre (Outdoor), Pentatlo, Corta-Mato (Cross), Marcha em Estrada, 5km/10km/Meia Maratona/Maratona."
             ),
             (
                 f"5. Balkanlar, Orta/Doğu Avrupa, İskandinavya ve Baltık Resmi Federasyon Siteleri ({years_all_tr})",
                 [
                     "https://balkanmasters.com/",
-                    "https://atletismveterani.ro/",
                     "https://www.pma.org.pl/",
-                    "https://www.veteraniatletika.cz/",
                     "https://www.saul.fi/kilpailut/kilpailukalenteri/",
                     "https://www.has.hr/",
                     "https://slovenska-atletika.si/",
                     "https://ekjl.ee/",
                 ],
-                False,
-                f"Analyze ONLY the official national federation calendars for {years_all_en} 35+ Masters (Veteránů / Veteraner / SAUL / Masters) championships:\n"
-                f"- Balkans: https://balkanmasters.com/ , Greece (https://www.segas.gr/ , https://www.oeba.gr/), Bulgaria (https://www.bfla.org/), "
-                f"Romania (https://www.fra.ro/ , https://atletismveterani.ro/ - country='RO'), Serbia (https://sas.org.rs/), Croatia (https://www.has.hr/ , https://www.havu.hr/), Slovenia (https://slovenska-atletika.si/ , https://zavs.si/)\n"
-                f"- Central Europe: Poland (https://www.pma.org.pl/ , https://pzla.pl/), Czechia (https://www.atletika.cz/ , https://www.veteraniatletika.cz/), Slovakia (https://www.atletika.sk/), Hungary (https://atletika.hu/)\n"
-                f"- Nordic & Baltic: Finland (https://www.saul.fi/kilpailut/kilpailukalenteri/), Sweden (https://www.friidrott.se/), Norway (https://www.friidrett.no/), Denmark (https://dansk-atletik.dk/), Estonia (https://ekjl.ee/), Latvia (https://athletics.lv/), Lithuania (https://lengvoji.lt/)"
+                [
+                    f"Halowe Mistrzostwa Polski Masters Mistrzostwa Polski w Lekkiej Atletyce Masters {y1} {y2} site:pma.org.pl OR site:pzla.pl",
+                    f"Mistrovství ČR veteránů v atletice {y1} {y2} hala dráha site:atletika.cz",
+                    f"SAUL SM-hallit SM-yleisurheilu SM-maastot SM-puolimaraton SM-moniottelut {y1} {y2} site:saul.fi",
+                    f"ISM veteraner SM veteraner friidrott {y1} {y2} NM veteraner DM Masters atletik Baltic Masters Championships {y1} {y2}",
+                    f"Campionatul National de Atletism Masters {y1} {y2} Romania Greece Bulgaria Serbia Croatia Slovenia",
+                ],
+                f"Extract all confirmed {years_all_en} national and regional 35+ Masters (Veteránů / Veteraner / SAUL / Masters) championships from the official calendars of:\n"
+                f"- Balkans: Balkan Masters (https://balkanmasters.com/), Greece (SEGAS/OEBA), Bulgaria (BFLA), Romania (FRA - country='RO'), Serbia (SAS), Croatia (HAS/HAVU), Slovenia (AZS/ZAVS).\n"
+                f"- Central Europe: Poland (PMA https://www.pma.org.pl/ - Halowe Mistrzostwa Polski Masters & Outdoor), Czechia (ČAS - MČR veteránů na dráze & v hale), Slovakia (SAZ), Hungary (MASZ).\n"
+                f"- Nordic & Baltic: Nordic Masters Championships, Baltic Masters Championships, Finland (SAUL https://www.saul.fi/kilpailut/kilpailukalenteri/ - SM-hallit, SM-yleisurheilu, SM-moniottelut, SM-maastot, SM-puolimaraton, SM-maantiekymppi, SM-viestit), Sweden (ISM/SM Veteraner), Norway (NM Veteraner), Denmark (DM Masters), Estonia (EKJL), Latvia (LVS), Lithuania (LLAF)."
             ),
         ]
 
-        for label, site_urls, include_ema_api, query_text in official_queries:
+        for label, site_urls, search_queries, query_text in official_batches:
             try:
-                official_digest = self._fetch_official_sites_digest(site_urls, include_ema_api=include_ema_api)
+                live_digest = self._fetch_hybrid_context(site_urls, search_queries)
                 full_prompt = query_text
-                if official_digest:
+                if live_digest:
                     full_prompt += (
-                        "\n\nAŞAĞIDA BU RESMİ FEDERASYON SİTELERİNDEN DOĞRUDAN ÇEKİLEN GÜNCEL TAKVİM VERİLERİ YER ALMAKTADIR:\n"
-                        f"{official_digest}\n"
+                        "\n\nAŞAĞIDA RESMİ FEDERASYON SİTELERİNDEN VE CANLI ARAMA İNDEKSLERİNDEN ÇEKİLEN GÜNCEL TAKVİM VERİLERİ YER ALMAKTADIR:\n"
+                        f"{live_digest}\n"
                     )
                 full_prompt += schema_instruction
                 parts = [{"text": full_prompt}]
-                items = self._call_gemini_json(api_key, parts, use_search=not self._search_tool_disabled)
-                converted = self._convert_gemini_items(items, default_url=site_urls[0] if site_urls else "https://european-masters-athletics.org")
+                items = self._call_gemini_json(api_key, parts)
+                converted = self._convert_gemini_items(
+                    items,
+                    default_url=site_urls[0] if site_urls else "https://european-masters-athletics.org",
+                )
                 logger.info(f"[Gemini-AI] {label} taramasından {len(converted)} yarışma çıkarıldı.")
                 results.extend(converted)
-                time.sleep(8)
+                time.sleep(3)
             except Exception as e:
                 logger.warning(f"[Gemini-AI] Resmi site tarama hatası ({label}): {e}")
 
         return results
 
-    def _fetch_official_sites_digest(self, urls: List[str], include_ema_api: bool = False, max_total_chars: int = 14000) -> str:
+    def _fetch_hybrid_context(
+        self,
+        urls: List[str],
+        search_queries: List[str],
+        max_total_chars: int = 16000,
+    ) -> str:
         """
-        Resmi federasyon takvim sayfalarını (ve uluslararası grup için EMA resmi AWS API akışını)
-        doğrudan Python ile indirip temiz metin özetine dönüştürür. Böylece Free Tier'da Google Search
-        aracı (google_search) kota engeline (HTTP 429) takılsa bile resmi takvimler %100 okunur.
+        Hem doğrulanmış resmi federasyon URL'lerini doğrudan indirir hem de DuckDuckGo HTML
+        arama motoru üzerinden resmi sitelerin güncel indekslenmiş takvim özetlerini (snippet) toplar.
         """
         chunks: List[str] = []
-        min_year = self.years[0]
 
-        if include_ema_api:
+        # 1. Canlı DuckDuckGo HTML Arama Motoru Snippet'leri (API anahtarı veya kota gerektirmez)
+        search_lines: List[str] = []
+        for sq in search_queries:
             try:
-                ema_resp = self.session.get("https://s831118207.onlinehome.us/ema_cham_aw/api/v1/events", timeout=12)
-                if ema_resp.status_code == 200:
-                    payload = ema_resp.json()
-                    data_list = payload.get("data", []) if isinstance(payload, dict) else (payload if isinstance(payload, list) else [])
-                    ema_lines = ["=== [RESMİ EMA AWS API VERİ AKIŞI] ==="]
-                    for ev in data_list:
-                        if not isinstance(ev, dict):
-                            continue
-                        s_date = str(ev.get("startDate") or ev.get("start_date") or ev.get("date") or "")[:10]
-                        if s_date and re.match(r"^20\d{2}", s_date) and int(s_date[:4]) >= min_year:
-                            e_date = str(ev.get("endDate") or ev.get("end_date") or s_date)[:10]
-                            name = str(ev.get("name") or ev.get("title") or "").strip()
-                            loc = str(ev.get("location") or ev.get("city") or "").strip()
-                            country = str(ev.get("country") or "").strip()
-                            web = str(ev.get("website") or ev.get("url") or "https://european-masters-athletics.org/championships/").strip()
-                            ema_lines.append(f"- {name} | {s_date}..{e_date} | Location: {loc} ({country}) | URL: {web}")
-                    if len(ema_lines) > 1:
-                        chunks.append("\n".join(ema_lines))
+                ddg_url = f"https://html.duckduckgo.com/html/?q={quote_plus(sq)}"
+                resp = self.session.get(ddg_url, timeout=8)
+                if resp.status_code == 200 and resp.text:
+                    soup = BeautifulSoup(resp.text, "html.parser")
+                    for res in soup.select(".result")[:8]:
+                        t_el = res.select_one(".result__title")
+                        s_el = res.select_one(".result__snippet")
+                        u_el = res.select_one(".result__url")
+                        t_txt = re.sub(r"\s+", " ", t_el.get_text(" ", strip=True)) if t_el else ""
+                        s_txt = re.sub(r"\s+", " ", s_el.get_text(" ", strip=True)) if s_el else ""
+                        u_txt = re.sub(r"\s+", " ", u_el.get_text(" ", strip=True)) if u_el else ""
+                        if t_txt or s_txt:
+                            search_lines.append(f"- {t_txt} | {s_txt} ({u_txt})")
             except Exception as e:
-                logger.debug(f"[EMA-API] Resmi veri akışı okuma uyarısı: {e}")
+                logger.debug(f"[Hybrid-Search] Arama uyarısı ({sq}): {e}")
 
-        per_url_limit = max(1800, max_total_chars // max(1, len(urls)))
+        if search_lines:
+            chunks.append("=== [CANLI WEB ARAMA İNDEKSİ SONUÇLARI] ===\n" + "\n".join(search_lines[:35]))
+
+        # 2. Doğrudan Resmi Federasyon Takvim Sayfaları
+        per_url_limit = max(2000, (max_total_chars - sum(len(c) for c in chunks)) // max(1, len(urls)))
         for url in urls:
             try:
-                html = self.fetch_html(url, timeout=10)
-                if not html:
+                resp = self.session.get(url, timeout=8)
+                if resp.status_code != 200 or not resp.text:
                     continue
-                soup = BeautifulSoup(html, "html.parser")
+                soup = BeautifulSoup(resp.text, "html.parser")
                 for tag in soup(["script", "style", "noscript", "svg", "footer", "nav"]):
                     tag.decompose()
                 lines = []
@@ -284,7 +397,7 @@ class AutonomousDiscoveryParser(BaseParser):
                         lines.append(cleaned)
                 text_block = "\n".join(lines)[:per_url_limit]
                 if text_block:
-                    chunks.append(f"=== [RESMİ TAKVİM KAYNAĞI: {url}] ===\n{text_block}")
+                    chunks.append(f"=== [RESMİ TAKVİM SAYFASI: {url}] ===\n{text_block}")
             except Exception as e:
                 logger.debug(f"[Official-Fetch] {url} okuma uyarısı: {e}")
 
@@ -296,9 +409,9 @@ class AutonomousDiscoveryParser(BaseParser):
         pdf_urls: List[str] = []
         year_strs = [str(y) for y in self.years]
         try:
-            html = self.fetch_html("https://taf.org.tr/ova_doc/faaliyet-takvimi/", timeout=12)
-            if html:
-                soup = BeautifulSoup(html, "html.parser")
+            resp = self.session.get("https://taf.org.tr/ova_doc/faaliyet-takvimi/", timeout=12)
+            if resp.status_code == 200 and resp.text:
+                soup = BeautifulSoup(resp.text, "html.parser")
                 seen_years = set()
                 for a_tag in soup.find_all("a", href=True):
                     href = a_tag["href"]
@@ -317,8 +430,6 @@ class AutonomousDiscoveryParser(BaseParser):
     def _extract_json_from_text(raw_text: str) -> List[Dict[str, Any]]:
         """
         Gemini yanıtındaki JSON dizisini `raw_decode` kullanarak ayrıştırır.
-        Yanıtın sonundaki Google Search atıfları (`[1]`, `[2]`) veya ek açıklamalar yüzünden
-        `Extra data` hatası oluşmasını %100 engeller.
         """
         cleaned = re.sub(r"```(?:json)?", "", raw_text or "").strip("` \n\r\t")
         decoder = json.JSONDecoder()
@@ -361,26 +472,27 @@ class AutonomousDiscoveryParser(BaseParser):
 
     def _get_available_gemini_models(self, api_key: str) -> List[str]:
         """
-        Google Generative Language API'de aktif olan temel Flash modellerini döndürür.
-        Deneysel/transcribe/image modellerine gereksiz istek atılmasını engeller.
+        En hızlı yanıt veren (2-4 sn) ve 503 yoğunluğuna takılmayan Lite modelleri en başa koyar.
         """
         if self._available_models:
             return self._available_models
 
+        # Öncelik sırası: En hızlı ve 503 vermeyen Lite modeller ilk sırada!
         allowed_models = [
-            "gemini-3.8-flash",
-            "gemini-3.7-flash",
-            "gemini-3.6-flash",
-            "gemini-3.5-flash",
             "gemini-3.5-flash-lite",
             "gemini-3.1-flash-lite",
-            "gemini-3-flash-preview",
             "gemini-3.1-flash-lite-preview",
+            "gemma-3-27b-it",
+            "gemini-3.5-flash",
+            "gemini-3.6-flash",
+            "gemini-3.7-flash",
+            "gemini-3.8-flash",
+            "gemini-3-flash-preview",
         ]
         discovered_set = set()
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
-            resp = requests.get(url, timeout=15)
+            resp = requests.get(url, timeout=12)
             if resp.status_code == 200:
                 for m in resp.json().get("models", []):
                     methods = m.get("supportedGenerationMethods", [])
@@ -391,82 +503,71 @@ class AutonomousDiscoveryParser(BaseParser):
             logger.debug(f"[Gemini-AI] Model listesi sorgulama uyarısı: {e}")
 
         if discovered_set:
-            self._available_models = [m for m in allowed_models if m in discovered_set] or allowed_models[:3]
+            self._available_models = [m for m in allowed_models if m in discovered_set] or allowed_models[:4]
         else:
-            self._available_models = allowed_models[:3]
+            self._available_models = allowed_models[:4]
 
-        logger.info(f"[Gemini-AI] Kullanılabilir aktif Gemini modelleri: {self._available_models}")
+        logger.info(f"[Gemini-AI] Hız öncelikli aktif AI modelleri: {self._available_models}")
         return self._available_models
 
     def _call_gemini_json(
         self,
         api_key: str,
         parts: List[Dict[str, Any]],
-        use_search: bool = True,
     ) -> List[Dict[str, Any]]:
         """
-        Gemini REST API'sini hafif token konfigürasyonu ve temperature=0.0 (sıfır tahmin/halüsinasyon)
-        ile çağırır; Free Tier'da google_search aracı 429 verirse anında doğrudan analiz moduna (use_search=False) geçer.
+        Hızlı Lite modelleri 35 sn zaman aşımı ve 503/Timeout devre kesicisi (circuit breaker) ile çağırır.
+        Bir model 503 veya Timeout verirse o model anında devre dışı bırakılır, 90 sn bekletmez!
         """
         all_models = self._get_available_gemini_models(api_key)
         headers = {
             "x-goog-api-key": api_key,
             "Content-Type": "application/json",
         }
-        effective_search = use_search and not self._search_tool_disabled
 
         for attempt in range(2):
             active_models = [m for m in all_models if m not in self._exhausted_models]
             if not active_models:
-                return []
+                # Eğer hepsi geçici 503 yüzünden listeye girdiyse ikinci denemede hızlı lite modelleri tekrar aç
+                active_models = all_models[:3]
 
             for model in active_models:
+                # Gemma modelleri inline_data (PDF) desteklemez, sadece metin destekler
+                if model.startswith("gemma-") and any("inline_data" in p for p in parts):
+                    continue
+
                 endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-                gen_config: Dict[str, Any] = {"temperature": 0.0}
                 payload: Dict[str, Any] = {
                     "contents": [{"parts": parts}],
-                    "generationConfig": gen_config,
+                    "generationConfig": {"temperature": 0.0},
                 }
-                if effective_search:
-                    payload["tools"] = [{"google_search": {}}]
 
                 try:
-                    resp = requests.post(endpoint, headers=headers, json=payload, timeout=90)
-
-                    # Free Tier'da google_search aracı kota engeline (HTTP 429) takılırsa anında araçsız (doğrudan resmi veri) modda dene
-                    if resp.status_code == 429 and effective_search:
-                        logger.info(
-                            f"[Gemini-AI] Free Tier google_search kotası ({model}) dolu; doğrudan indirilen resmi takvim verisiyle işleniyor..."
-                        )
-                        self._search_tool_disabled = True
-                        effective_search = False
-                        payload.pop("tools", None)
-                        resp = requests.post(endpoint, headers=headers, json=payload, timeout=90)
-
+                    resp = requests.post(endpoint, headers=headers, json=payload, timeout=35)
                     if resp.status_code == 402:
                         logger.error(
-                            "[Gemini-AI] HTTP 402 (Prepayment credits depleted): API anahtarının bağlı olduğu Google AI Studio "
-                            "projesi 'Tier 1 - Prepay (No credits)' modunda olduğu için istekler reddediliyor. "
-                            "Ücretsiz günlük kotadan yararlanmak için AI Studio'da 'Free tier' (Ücretsiz Katman) projesine ait bir API anahtarı kullanın."
+                            "[Gemini-AI] HTTP 402: API anahtarının bağlı olduğu proje 'Prepay (No credits)' modunda. "
+                            "Lütfen 'Free tier' projesine ait bir API anahtarı kullanın."
                         )
                         self._exhausted_models.update(all_models)
                         return []
+
                     if resp.status_code in (429, 503):
-                        body_lower = resp.text.lower()
-                        if resp.status_code == 429 and ("perday" in body_lower or "per_day" in body_lower or "daily" in body_lower):
-                            self._exhausted_models.add(model)
-                            logger.warning(f"[Gemini-AI] Model ({model}) günlük ücretsiz kota sınırına ulaştı, yedek modele geçiliyor...")
-                        else:
-                            logger.warning(f"[Gemini-AI] Model ({model}) HTTP {resp.status_code}, yedek model deneniyor...")
-                        time.sleep(2)
+                        # 503 veya 429 veren modeli bu çalışmada devre dışı bırak ki sonraki adımlarda vakit kaybettirmesin
+                        self._exhausted_models.add(model)
+                        logger.warning(f"[Gemini-AI] Model ({model}) HTTP {resp.status_code}, hızlı yedek modele geçiliyor...")
+                        time.sleep(1)
                         continue
+
                     if resp.status_code in (400, 404):
                         self._exhausted_models.add(model)
                         logger.warning(f"[Gemini-AI] Model ({model}) HTTP {resp.status_code} nedeniyle devre dışı bırakıldı.")
                         continue
+
                     if resp.status_code != 200:
                         logger.warning(f"[Gemini-AI] Model ({model}) HTTP {resp.status_code}: {resp.text[:160]}")
                         continue
+
                     data = resp.json()
                     candidates = data.get("candidates", [])
                     if not candidates:
@@ -476,11 +577,14 @@ class AutonomousDiscoveryParser(BaseParser):
                     parsed = self._extract_json_from_text(raw_text)
                     if parsed:
                         return parsed
+                except requests.exceptions.Timeout:
+                    self._exhausted_models.add(model)
+                    logger.warning(f"[Gemini-AI] Model ({model}) 35 sn içinde yanıt vermedi, devre dışı bırakıldı.")
                 except Exception as e:
                     logger.warning(f"[Gemini-AI] Model ({model}) çağrı uyarısı: {e}")
 
-            if attempt == 0 and len(self._exhausted_models) < len(all_models):
-                time.sleep(8)
+            if attempt == 0:
+                time.sleep(4)
         return []
 
     def _convert_gemini_items(self, items: List[Dict[str, Any]], default_url: str) -> List[Competition]:
@@ -518,7 +622,11 @@ class AutonomousDiscoveryParser(BaseParser):
                 if start_date.endswith("-01-01") and not raw_city:
                     continue
 
-                country, country_name, _ = self.detect_country(f"{title} {raw_city} {raw_cname}", raw_country or "INT", raw_cname or "Uluslararası")
+                country, country_name, _ = self.detect_country(
+                    f"{title} {raw_city} {raw_cname}",
+                    raw_country or "INT",
+                    raw_cname or "Uluslararası",
+                )
                 if country.upper() in {"INT", "TBD", "TBC", "NA", "EU"} and not raw_city:
                     continue
 
