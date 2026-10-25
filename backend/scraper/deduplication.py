@@ -54,6 +54,7 @@ def is_valid_competition_title(title: str) -> bool:
         return False
 
     t_lower = title.strip().lower()
+    t_norm = normalize_text(title)
 
     junk_phrases = [
         "technical manual", "timetable", "schedule", "preliminary schedule",
@@ -78,12 +79,12 @@ def is_valid_competition_title(title: str) -> bool:
         return False
 
     master_indicators = [
-        "master", "veteran", "senioren", "35+", "m35", "w35",
+        "master", "veteran", "senioren", "szenior", "35+", "m35", "w35",
         "emacs", "emaci", "emacns", "emmtrc", "emamrc", "emorrc",
         "bamacs", "bamaci", "bamam", "wma", "wmg", "ema", "bmaf", "imaa",
-        "anav", "saul", "pma"
+        "anav", "saul", "pma", "aikuis", "sm-hallit", "sm-yleisurheilu", "sm-maasto"
     ]
-    if not any(m in t_lower for m in master_indicators):
+    if not any(m in t_lower or m in t_norm for m in master_indicators):
         return False
 
     return True

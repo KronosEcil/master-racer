@@ -3,7 +3,7 @@ import sys
 import json
 import logging
 import argparse
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 import firebase_admin
@@ -118,7 +118,7 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                 s_dict = state_doc.to_dict() or {}
                 if s_dict.get("clean_reset_done_v1") is True:
                     clean_reset_done = True
-                if s_dict.get("badges_baseline_reset_v1") is True:
+                if s_dict.get("badges_baseline_reset_v2") is True:
                     badges_baseline_reset = True
         except Exception as e:
             logger.warning(f"scraper_state okuma uyarısı: {e}")
@@ -139,7 +139,7 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                 state_ref.set(
                     {
                         "clean_reset_done_v1": True,
-                        "reset_completed_at": datetime.utcnow().isoformat(),
+                        "reset_completed_at": datetime.now(timezone.utc).isoformat(),
                         "cleaned_records_count": deleted_count,
                     },
                     merge=True,
@@ -203,7 +203,7 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
         if change_type == "UNCHANGED":
             continue
 
-        comp.updated_at = datetime.utcnow().isoformat()
+        comp.updated_at = datetime.now(timezone.utc).isoformat()
         if not badges_baseline_reset:
             # Temel referans (baseline) kurulumunda mevcut hiçbir yarışmada Yeni / Güncellendi etiketi gösterme
             comp.is_new = False
@@ -286,8 +286,8 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
             if state_ref:
                 state_ref.set(
                     {
-                        "badges_baseline_reset_v1": True,
-                        "badges_reset_at": datetime.utcnow().isoformat(),
+                        "badges_baseline_reset_v2": True,
+                        "badges_reset_at": datetime.now(timezone.utc).isoformat(),
                     },
                     merge=True,
                 )

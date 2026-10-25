@@ -12,7 +12,7 @@ import time
 import json
 import base64
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from urllib.parse import quote_plus
 from typing import List, Dict, Any, Optional
 from bs4 import BeautifulSoup
@@ -690,7 +690,7 @@ class AutonomousDiscoveryParser(BaseParser):
                     federation=federation,
                     website_url=web_url,
                     status="scheduled",
-                    created_at=datetime.utcnow().isoformat(),
+                    created_at=datetime.now(timezone.utc).isoformat(),
                 )
                 comp.content_hash = compute_content_hash(comp)
                 converted.append(comp)
