@@ -73,9 +73,9 @@ class AutonomousDiscoveryParser(BaseParser):
         years_all_tr = f"{y1}, {y2}, {y3} ve {y4}"
         years_all_en = f"{y1}, {y2}, {y3}, and {y4}"
 
-        # ADIM 1: Türkiye Atletizm Federasyonu (TAF) Resmi Takvim PDF'i (`taf.org.tr`)
+        # ADIM 1: Türkiye Atletizm Federasyonu (TAF) Resmi Takvim PDF'leri (`taf.org.tr` - 2026 ve 2027)
         taf_pdf_urls = self._find_taf_calendar_pdf_urls()
-        for pdf_url in taf_pdf_urls[:1]:
+        for pdf_url in taf_pdf_urls[:2]:
             try:
                 resp = self.session.get(pdf_url, timeout=20)
                 if resp.status_code == 200 and len(resp.content) > 1000:
@@ -240,7 +240,7 @@ class AutonomousDiscoveryParser(BaseParser):
                 ],
                 f"List all confirmed {y1} AND {y2} national and regional 35+ Masters (Veteránů / Veteraner / SAUL / Masters) championships from the official calendars of Central/Eastern Europe, Balkans, Nordic, and Baltic countries (include both {y1} and {y2} editions):\n"
                 f"- Central Europe: Poland (PMA - country='PL': Halowe Mistrzostwa Polski Masters w Toruniu & Mistrzostwa Polski w Lekkiej Atletyce Masters Outdoor, Rzuty, Wieloboje {y1} & {y2}), Czechia (ČAS - country='CZ': Halové MČR veteránů & MČR veteránů na dráze {y1} & {y2}), Slovakia (SAZ - country='SK': Majstrovstvá SR veteránov {y1} & {y2}), Hungary (MASZ - country='HU': Szenior Atlétikai Magyar Bajnokság Indoor & Outdoor {y1} & {y2}).\n"
-                f"- Balkans: Greece (SEGAS/OEBA - country='GR': Panhellenic Masters Indoor & Outdoor Championships {y1} & {y2}), Romania (FRA - country='RO': Campionatul Național de Atletism Masters Indoor & Outdoor {y1} & {y2}), Bulgaria (BFLA - country='BG': National Masters Championships {y1} & {y2}), Serbia (SAS - country='RS'), Croatia (HAS/HAVU - country='HR': Prvenstvo Hrvatske za veterane Indoor & Outdoor {y1} & {y2}), Slovenia (AZS/ZAVS - country='SI': Prvenstvo Slovenije za veterane {y1} & {y2}).\n"
+                f"- Balkans & Turkey: Turkey (TAF - country='TR': Türkiye Masterlar Salon & Açık Saha Şampiyonası {y1} & {y2}), Greece (SEGAS/OEBA - country='GR': Panhellenic Masters Indoor & Outdoor Championships {y1} & {y2}), Romania (FRA - country='RO': Campionatul Național de Atletism Masters Indoor & Outdoor {y1} & {y2}), Bulgaria (BFLA - country='BG': National Masters Championships {y1} & {y2}), Serbia (SAS - country='RS'), Croatia (HAS/HAVU - country='HR': Prvenstvo Hrvatske za veterane Indoor & Outdoor {y1} & {y2}), Slovenia (AZS/ZAVS - country='SI': Prvenstvo Slovenije za veterane {y1} & {y2}), Albania (FSHA - country='AL').\n"
                 f"- Nordic & Baltic: Nordic Masters Championships ({y1} & {y2}), Baltic Masters Championships ({y1} & {y2}), Finland (SAUL - country='FI': SM-hallit, SM-yleisurheilu, SM-moniottelut, SM-maastot, SM-puolimaraton, SM-maantiekymppi, SM-viestit {y1} & {y2}), Sweden (SFIF - country='SE': ISM Veteraner Indoor & SM Veteraner Outdoor {y1} & {y2}), Norway (NFIF - country='NO': NM Veteraner Indoor & Outdoor {y1} & {y2}), Denmark (DAF - country='DK': DM Masters Indoor & Outdoor {y1} & {y2}), Estonia (country='EE'), Latvia (country='LV'), Lithuania (country='LT')."
             ),
         ]
