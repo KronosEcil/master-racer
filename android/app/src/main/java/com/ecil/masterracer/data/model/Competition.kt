@@ -1,6 +1,7 @@
 package com.ecil.masterracer.data.model
 
 import androidx.annotation.Keep
+import com.google.firebase.firestore.IgnoreExtraProperties
 import com.google.firebase.firestore.PropertyName
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -9,6 +10,7 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 @Keep
+@IgnoreExtraProperties
 data class Competition(
     @get:PropertyName("id") @set:PropertyName("id")
     var id: String = "",
@@ -31,23 +33,11 @@ data class Competition(
     @get:PropertyName("end_date") @set:PropertyName("end_date")
     var end_date: String = "",
 
-    @get:PropertyName("venue_type") @set:PropertyName("venue_type")
-    var venue_type: String = "outdoor", // indoor, outdoor, road, cross
-
-    @get:PropertyName("categories") @set:PropertyName("categories")
-    var categories: List<String> = emptyList(),
-
     @get:PropertyName("scope") @set:PropertyName("scope")
-    var scope: String = "regional", // turkey, balkan, europe, world, regional
+    var scope: String = "regional", // national, balkan, europe, world, ema_league, regional
 
     @get:PropertyName("federation") @set:PropertyName("federation")
     var federation: String = "",
-
-    @get:PropertyName("min_age") @set:PropertyName("min_age")
-    var min_age: Int = 35,
-
-    @get:PropertyName("age_category") @set:PropertyName("age_category")
-    var age_category: String = "35+",
 
     @get:PropertyName("regulations_url") @set:PropertyName("regulations_url")
     var regulations_url: String? = null,
@@ -74,28 +64,13 @@ data class Competition(
     var old_location: String? = null
 ) {
     /**
-     * Tesis türüne göre doğrulanmış güncel branş listesini döndürür.
-     * Yol koşusu veya kros yarışmalarında sprint, engel, atlama, atma bulunamaz; yalnızca Uzun Mesafe geçerlidir.
-     */
-    fun getEffectiveCategories(): List<String> {
-        val vt = venue_type.lowercase()
-        if (vt == "road" || vt == "cross") {
-            return listOf("Uzun Mesafe")
-        }
-        return if (categories.isNotEmpty()) categories else listOf("Sprint", "Engelli", "Atlamalar", "Atmalar", "Uzun Mesafe")
-    }
-
-    /**
      * Yarışmanın 35+ Master/Veteran atletizm kriterlerine tam uygunluğunu doğrular.
-     * Almanya (DE) için sadece 'Meisterschaften' veya 'Meeting' olup 'Senioren'/'Master' içermeyen genel yarışmaları eler.
-     * Yol maratonları veya 35+ kategorisi olan şampiyonalar geçerlidir.
      */
     fun isStrictMasterAthletics(): Boolean {
         if (country.equals("DE", ignoreCase = true)) {
             val fullText = "$title $federation".lowercase()
             val hasGermanMasterKeyword = listOf("senioren", "master", "35+", "m35", "w35").any { fullText.contains(it) }
-            val isRoadMarathon = venue_type.equals("road", ignoreCase = true) || fullText.contains("marathon") || fullText.contains("maraton")
-            // Almanya'da ya açıkça Senioren/Master yarışması olmalı ya da Master yaş kategorisi içeren maraton olmalı
+            val isRoadMarathon = fullText.contains("marathon") || fullText.contains("maraton")
             return hasGermanMasterKeyword || isRoadMarathon
         }
         return true
@@ -142,19 +117,6 @@ data class Competition(
             }
         } catch (e: Exception) {
             "$start_date ~ $end_date"
-        }
-    }
-
-    /**
-     * Tesis türü Türkçe etiketi.
-     */
-    fun getVenueTitle(): String {
-        return when (venue_type.lowercase()) {
-            "indoor" -> "Salon (Indoor)"
-            "outdoor" -> "Pist (Açık Saha)"
-            "road" -> "Yol Koşusu / Maraton"
-            "cross" -> "Kros (Arazi)"
-            else -> "Açık Saha"
         }
     }
 

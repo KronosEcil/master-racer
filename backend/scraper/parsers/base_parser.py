@@ -24,17 +24,6 @@ class BaseParser(abc.ABC):
             "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7"
         })
 
-    def fetch_html(self, url: str, timeout: int = 15) -> Optional[str]:
-        try:
-            resp = self.session.get(url, timeout=timeout)
-            if resp.status_code == 200:
-                resp.encoding = resp.apparent_encoding or "utf-8"
-                return resp.text
-            logger.warning(f"[{self.name}] HTTP {resp.status_code} alındı: {url}")
-        except Exception as e:
-            logger.error(f"[{self.name}] İstek hatası ({url}): {e}")
-        return None
-
     @abc.abstractmethod
     def parse(self) -> List[Competition]:
         """Tüm yarışmaları tarayıp Competition listesi döndürür."""
@@ -230,55 +219,3 @@ class BaseParser(abc.ABC):
         ]):
             return "national"
         return "regional"
-
-    def detect_venue_type(self, text: str) -> str:
-        """Metin içerisindeki anahtar kelimelerden salon/açık/yol/kros ayrımını yapar."""
-        text_lower = text.lower()
-        if any(w in text_lower for w in ["salon", "indoor", "kapalı", "halle", "en salle", "hallen", "pista cubierta", "pista curta", "short track", "al coperto", "halowe"]):
-            return "indoor"
-        if any(w in text_lower for w in ["kros", "cross", "cross country", "arazi", "veldloop"]):
-            return "cross"
-        if any(w in text_lower for w in ["yol", "maraton", "yarı maraton", "road", "5k", "10k", "10km", "21k", "42k", "strada", "estrada", "ruta", "halbmarathon"]):
-            return "road"
-        return "outdoor"
-
-    def detect_categories(self, text: str, venue_type: str = "") -> List[str]:
-        """Metne ve tesis türüne göre branş gruplarını sınıflandırır."""
-        text_lower = text.lower()
-        categories = []
-
-        is_road = venue_type == "road" or any(w in text_lower for w in ["yol", "maraton", "yarı maraton", "road", "5k", "10k", "21k", "42k"])
-        is_cross = venue_type == "cross" or any(w in text_lower for w in ["kros", "cross", "cross country", "arazi"])
-
-        if is_road or is_cross:
-            return ["Uzun Mesafe"]
-
-        if any(w in text_lower for w in ["sprint", "koşu", "100m", "200m", "400m", "bayrak", "60m"]):
-            categories.append("Sprint")
-        if any(w in text_lower for w in ["engel", "hurdle", "engelli", "60m h"]):
-            categories.append("Engelli")
-        if any(w in text_lower for w in ["atlama", "uzun atlama", "üçadım", "yüksek atlama", "sırık", "jump"]):
-            categories.append("Atlamalar")
-        if any(w in text_lower for w in ["atma", "gülle", "cirit", "disk", "çekiç", "throw", "shot put", "winterwurf", "wurf", "lancers", "hammer"]):
-            categories.append("Atmalar")
-        if any(w in text_lower for w in ["uzun mesafe", "800m", "1500m", "3000m", "5000m", "10000m", "distance"]):
-            categories.append("Uzun Mesafe")
-
-        if not categories:
-            categories = ["Sprint", "Engelli", "Atlamalar", "Atmalar", "Uzun Mesafe"]
-        return categories
-
-    def is_master_athletics(self, text: str) -> bool:
-        """
-        Sadece 35+ yaş kategorisini kapsayan Master/Veteran yarışmalarını doğrular.
-        """
-        text_lower = text.lower()
-        if any(k in text_lower for k in ["u14", "u16", "u18", "u20", "u23", "gençler", "yıldızlar", "jugend", "cadet"]):
-            if not any(k in text_lower for k in ["master", "veteran", "senioren", "35+"]):
-                return False
-
-        master_keywords = [
-            "master", "veteran", "senioren", "35+", "m35", "w35",
-            "bamacs", "bamaci", "emaci", "emacs", "wmaci", "wma", "world masters"
-        ]
-        return any(k in text_lower for k in master_keywords)

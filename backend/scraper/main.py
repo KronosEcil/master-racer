@@ -109,6 +109,7 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
     # ve bundan sonraki hiçbir taramada mevcut yarışmalar (2026, 2027, 2028, 2029) silinmez; kalıcı olarak korunur!
     clean_reset_done = False
     badges_baseline_reset = False
+    obsolete_fields_cleaned = False
     state_ref = None
     if db and not dry_run:
         state_ref = db.collection("app_metadata").document("scraper_state")
@@ -120,6 +121,8 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                     clean_reset_done = True
                 if s_dict.get("badges_baseline_reset_v3") is True:
                     badges_baseline_reset = True
+                if s_dict.get("obsolete_fields_cleaned_v1") is True:
+                    obsolete_fields_cleaned = True
         except Exception as e:
             logger.warning(f"scraper_state okuma uyarısı: {e}")
 
@@ -297,6 +300,25 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
             )
         except Exception as e:
             logger.error(f"Rozet sıfırlama hatası: {e}")
+
+    # 4. KULLANILMAYAN ESKİ ALANLARI (categories, venue_type, min_age, age_category) FIRESTORE'DAN SİL
+    if db and not dry_run and not obsolete_fields_cleaned:
+        logger.info("🧹 [ALAN TEMİZLİĞİ] Kullanılmayan 'categories', 'venue_type', 'min_age', 'age_category' alanları Firestore'dan siliniyor...")
+        cleaned_docs = 0
+        obsolete_keys = ("categories", "venue_type", "min_age", "age_category")
+        try:
+            col_ref = db.collection(ScraperConfig.FIRESTORE_COLLECTION)
+            for doc in col_ref.stream():
+                d = doc.to_dict() or {}
+                del_updates = {k: firestore.DELETE_FIELD for k in obsolete_keys if k in d}
+                if del_updates:
+                    col_ref.document(doc.id).update(del_updates)
+                    cleaned_docs += 1
+            if state_ref:
+                state_ref.set({"obsolete_fields_cleaned_v1": True}, merge=True)
+            logger.info(f"✅ [ALAN TEMİZLİĞİ TAMAMLANDI] {cleaned_docs} kayıttan gereksiz alanlar silindi.")
+        except Exception as e:
+            logger.error(f"Eski alan temizleme hatası: {e}")
 
     total_in_db = len(set(existing_comps.keys()) | scraped_ids)
     logger.info("=== Tarama Özeti ===")
