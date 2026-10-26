@@ -13,7 +13,7 @@ import json
 import base64
 import logging
 from datetime import datetime, timezone
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, urljoin
 from typing import List, Dict, Any, Optional
 from bs4 import BeautifulSoup
 import requests
@@ -38,7 +38,7 @@ class AutonomousDiscoveryParser(BaseParser):
 
     def __init__(self, existing_comps: Optional[Dict[str, dict]] = None):
         super().__init__(name="AutonomousDiscovery_Parser", base_url="https://european-masters-athletics.org")
-        current_year = datetime.utcnow().year
+        current_year = datetime.now(timezone.utc).year
         self.years = [current_year, current_year + 1, current_year + 2, current_year + 3]
         self.existing_comps: Dict[str, dict] = existing_comps or {}
         self._exhausted_models = set()
@@ -48,7 +48,11 @@ class AutonomousDiscoveryParser(BaseParser):
         logger.info(f"Çok Yöntemli Resmi Federasyon Tarayıcısı başlatılıyor (Yıllar: {self.years})...")
         discovered: List[Competition] = []
 
-        # TAF Resmi PDF + Çoklu Arama İndeksi (Bing/Google RSS/DDG) + Resmi Federasyon Siteleri + Hızlı AI Analizi
+        # 1. Doğrudan OpenTrack & LADV Yapısal Master Takvim Akışları (trust_level=3, 0 AI kotası)
+        direct_feeds = self._discover_from_opentrack_and_ladv()
+        discovered.extend(direct_feeds)
+
+        # 2. TAF Resmi PDF (trust_level=3) + Resmi Federasyon Siteleri (trust_level=2) + Canlı Arama İndeksleri
         ai_discovered = self._discover_with_gemini_ai()
         discovered.extend(ai_discovered)
 
@@ -58,6 +62,92 @@ class AutonomousDiscoveryParser(BaseParser):
             f"Toplam {len(deduplicated)} doğrulanmış Master yarışması hazırlandı."
         )
         return deduplicated
+
+    # =========================================================================
+    # 1. DOĞRUDAN OPENTRACK & LADV YAPISAL TAKVİM OKUYUCU (TRUST LEVEL = 3)
+    # =========================================================================
+    def _discover_from_opentrack_and_ladv(self) -> List[Competition]:
+        """
+        Avrupa Master yarışmalarının resmi kayıt/takvim altyapısı olan OpenTrack (bmaf.opentrack.run,
+        ema.opentrack.run, data.opentrack.run) ve Almanya LADV sayfalarındaki yapısal JSON-LD / tablo
+        verilerini doğrudan (0 AI kotası ve trust_level=3 kesinliği ile) okur.
+        """
+        direct_results: List[Competition] = []
+        min_year = self.years[0]
+        feed_urls = [
+            ("https://ema.opentrack.run/", "EMA", "europe"),
+            ("https://bmaf.opentrack.run/", "BMAF", "national"),
+            ("https://data.opentrack.run/en-gb/x/", "OpenTrack", "national"),
+        ]
+        for feed_url, default_fed, default_scope in feed_urls:
+            try:
+                resp = self.session.get(feed_url, timeout=10)
+                if resp.status_code != 200 or not resp.text:
+                    continue
+                soup = BeautifulSoup(resp.text, "html.parser")
+                # A) JSON-LD SportsEvent / Event yapısal verisi varsa doğrudan çıkar
+                for script_tag in soup.find_all("script", type="application/ld+json"):
+                    try:
+                        ld_data = json.loads(script_tag.string or "")
+                        ld_items = ld_data if isinstance(ld_data, list) else [ld_data]
+                        for ev in ld_items:
+                            if not isinstance(ev, dict):
+                                continue
+                            title = str(ev.get("name", "")).strip()
+                            s_date = str(ev.get("startDate", ""))[:10]
+                            e_date = str(ev.get("endDate", s_date))[:10] or s_date
+                            if not title or not is_valid_competition_title(title):
+                                continue
+                            if not re.match(r"^20\d{2}-\d{2}-\d{2}$", s_date) or int(s_date[:4]) < min_year:
+                                continue
+                            loc = ev.get("location") or {}
+                            addr = loc.get("address") if isinstance(loc, dict) else {}
+                            city = ""
+                            c_code = ""
+                            if isinstance(addr, dict):
+                                city = str(addr.get("addressLocality", "")).strip()
+                                c_code = str(addr.get("addressCountry", "")).strip().upper()
+                            elif isinstance(loc, dict):
+                                city = str(loc.get("name", "")).strip()
+                            ev_url = str(ev.get("url", "")).strip() or feed_url
+                            ev_url = urljoin(feed_url, ev_url)
+                            country, country_name, _ = self.detect_country(
+                                f"{title} {city} {c_code}",
+                                c_code or ("GB" if "bmaf" in feed_url else "INT"),
+                                "Birleşik Krallık" if "bmaf" in feed_url else "Uluslararası",
+                            )
+                            if not city and country in ("INT", "EU"):
+                                continue
+                            city = city or country_name
+                            scope = self.detect_scope(title, country) or default_scope
+                            comp_id = generate_competition_id(title, s_date, country, city)
+                            comp = Competition(
+                                id=comp_id,
+                                title=title,
+                                country=country,
+                                country_name=country_name,
+                                city=city,
+                                start_date=s_date,
+                                end_date=e_date if e_date >= s_date else s_date,
+                                venue_type="",
+                                categories=self.detect_categories(title),
+                                scope=scope,
+                                federation=default_fed,
+                                website_url=ev_url,
+                                trust_level=3,
+                                status="scheduled",
+                                created_at=datetime.now(timezone.utc).isoformat(),
+                            )
+                            comp.content_hash = compute_content_hash(comp)
+                            direct_results.append(comp)
+                    except Exception:
+                        pass
+            except Exception as e:
+                logger.debug(f"[OpenTrack-Direct] {feed_url} okuma uyarısı: {e}")
+
+        if direct_results:
+            logger.info(f"[OpenTrack-Direct] Doğrudan yapısal akıştan {len(direct_results)} Master yarışması çıkarıldı.")
+        return direct_results
 
     # =========================================================================
     # TAF PDF + CANLI ARAMA İNDEKSLERİ + RESMİ SİTELER + HIZLI AI MOTORU
@@ -100,7 +190,12 @@ class AutonomousDiscoveryParser(BaseParser):
                         {"text": prompt},
                     ]
                     items = self._call_gemini_json(api_key, parts)
-                    converted = self._convert_gemini_items(items, default_url=pdf_url)
+                    converted = self._convert_gemini_items(
+                        items,
+                        default_url="https://taf.org.tr",
+                        default_trust_level=3,
+                        default_regulations_url=pdf_url,
+                    )
                     logger.info(f"[Gemini-AI] TAF Resmi PDF takviminden {len(converted)} Master yarışması çıkarıldı.")
                     results.extend(converted)
                     time.sleep(3)
@@ -120,11 +215,14 @@ class AutonomousDiscoveryParser(BaseParser):
             "4. Çok günlü yarışmalarda `start_date` ve `end_date` tarihlerini resmi takvimdeki tam aralık olarak (YYYY-MM-DD) yaz. "
             "Tarihi, şehri veya ülkesi 'TBD', 'TBC', 'N/A', 'Not Specified' olan ya da 1 Ocak (YYYY-01-01) gibi yer tutucu tarihli yarışmaları DAHİL ETME!\n"
             "5. `scope` alanı yalnızca şu 6 değerden biri olmalıdır: 'national', 'world', 'balkan', 'europe', 'ema_league', 'regional'.\n"
-            "6. Sadece geçerli bir JSON dizisi (array) döndür, markdown veya açıklama metni ekleme:\n"
+            "6. Metin içinde yarışmaya ait doğrudan detay/kayıt sayfası bağlantısı `[URL: https://...]` varsa `website_url` alanına bu doğrudan bağlantıyı yaz. "
+            "Yarışmaya ait resmi şartname, reglaman, bülten veya kılavuz PDF bağlantısı `[PDF: https://...]` varsa `regulations_url` alanına tam URL olarak yaz (yoksa null bırak).\n"
+            "7. Sadece geçerli bir JSON dizisi (array) döndür, markdown veya açıklama metni ekleme:\n"
             '[{"title": "Resmi Yarışma Adı", "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", '
             '"city": "Şehir", "country": "ISO-2 Ülke Kodu (TR, DE, FR, GB, IT, ES, PL, RO, JP, NZ vb.)", '
             '"country_name": "Türkçe Ülke Adı", "scope": "national|world|balkan|europe|ema_league|regional", '
-            '"federation": "Federasyon Kısaltması", "website_url": "Resmi Takvim URL"}]'
+            '"federation": "Federasyon Kısaltması", "website_url": "Doğrudan Yarışma veya Resmi Takvim URL", '
+            '"regulations_url": "Varsa Resmi Şartname PDF URL veya null"}]'
         )
 
         official_batches = [
@@ -133,6 +231,7 @@ class AutonomousDiscoveryParser(BaseParser):
                 {"INT", "WORLD", "EUROPE", "BALKAN"},
                 [
                     "https://european-masters-athletics.org/championships/",
+                    "https://ema.opentrack.run/",
                     "https://balkanmasters.com/",
                     "https://world-masters-athletics.org/championships/",
                     "https://wmg2027.jp/en/",
@@ -168,6 +267,7 @@ class AutonomousDiscoveryParser(BaseParser):
                 {"GB", "IE"},
                 [
                     "https://bmaf.org.uk/fixtures/",
+                    "https://bmaf.opentrack.run/",
                     "https://www.athleticsireland.ie/competition/fixtures/",
                 ],
                 [
@@ -175,7 +275,7 @@ class AutonomousDiscoveryParser(BaseParser):
                     f"British Masters Road Relays 5k 10k Half Marathon Marathon {y1} {y2} bmaf",
                     f"Irish Masters Athletics Championships IMAA {y1} {y2} Indoor Outdoor",
                 ],
-                f"List all confirmed {y1} AND {y2} British Masters (BMAF - https://bmaf.org.uk/fixtures/) and Irish Masters (IMAA) championships and open fixtures (both {y1} and {y2} editions!), including:\n"
+                f"List all confirmed {y1} AND {y2} British Masters (BMAF - https://bmaf.org.uk/fixtures/ and https://bmaf.opentrack.run/) and Irish Masters (IMAA) championships and open fixtures (both {y1} and {y2} editions!), including:\n"
                 f"- BMAF Indoor Track & Field Championships ({y1} and {y2}, Lee Valley London)\n"
                 f"- BMAF Outdoor Track & Field Championships ({y1} and {y2}, Derby)\n"
                 f"- BMAF Indoor Pentathlon & 3000m Championships ({y1} and {y2})\n"
@@ -194,17 +294,18 @@ class AutonomousDiscoveryParser(BaseParser):
                     "https://masters.athle.fr/asp.net/espaces.html/html.aspx?id=41949",
                     "https://masters.athle.fr/asp.net/espaces.html/html.aspx?id=40543",
                     "https://masters.athle.fr/asp.net/espaces.html/html.aspx?id=42028",
-                    "https://www.leichtathletik.de/wettkaempfe/termine",
+                    "https://ladv.de/meisterschaften",
                     "https://ladv.de/ausschreibungen",
+                    "https://www.leichtathletik.de/wettkaempfe/termine",
                     "https://www.oelv.at/de/wettkaempfe/kalender",
                 ],
                 [
                     f"Championnats de France Masters {y1} {y2} salle Miramas piste Epinal lancers marche cross site:masters.athle.fr OR site:athle.fr",
-                    f"Deutsche Meisterschaften Masters {y1} {y2} Halle Freiluft Wurf-Mehrkampf Cross",
+                    f"Deutsche Meisterschaften Masters {y1} {y2} Halle Freiluft Wurf-Mehrkampf Cross ladv",
                     f"Österreichische Mastersmeisterschaften {y1} {y2} Halle Freiluft oelv",
                     f"Schweizermeisterschaften Masters {y1} {y2} NK Masters Indoor Outdoor {y1} {y2} BK Masters Atletiek {y1} {y2}",
                 ],
-                f"List all confirmed {y1} AND {y2} national and regional 35+ Masters (Vétérans / Senioren / Masters) championships from the official federation calendars of France (https://masters.athle.fr/), Germany, Switzerland, Austria, Netherlands, and Belgium (include both {y1} and {y2} editions):\n"
+                f"List all confirmed {y1} AND {y2} national and regional 35+ Masters (Vétérans / Senioren / Masters) championships from the official federation calendars of France (https://masters.athle.fr/), Germany (DLV / LADV), Switzerland, Austria, Netherlands, and Belgium (include both {y1} and {y2} editions):\n"
                 f"- France (FFA / CNAM - https://masters.athle.fr/ - country='FR'):\n"
                 f"  * Championnats de France Masters en Salle (2026-03-06..2026-03-08 in Saint-Brieuc, 2027-03-12..2027-03-14 in Miramas)\n"
                 f"  * Championnats de France Masters sur Piste / Estival (2026-06-19..2026-06-21 in Épinal)\n"
@@ -235,27 +336,57 @@ class AutonomousDiscoveryParser(BaseParser):
                 f"- Portugal (FPAtletismo / ANAV - country='PT'): Campeonatos Nacionais de Veteranos de Pista Curta (Indoor), Campeonatos Nacionais de Veteranos de Pista ao Ar Livre (Outdoor), Pentatlo de Lançamentos, Corta-Mato (Cross), Marcha em Estrada, Estrada 10km/Meia Maratona ({y1} and {y2})."
             ),
             (
-                f"5. Balkanlar, Orta/Doğu Avrupa, İskandinavya ve Baltık {y1}-{y2} Ulusal Takvimleri",
-                {"PL", "CZ", "SK", "HU", "GR", "RO", "BG", "RS", "HR", "SI", "AL", "FI", "SE", "NO", "DK", "EE", "LV", "LT"},
+                f"5. Balkanlar ve Orta Avrupa (Polonya, Çekya, Macaristan, Yunanistan, Romanya, Bulgaristan, Hırvatistan, Sırbistan, Slovenya) {y1}-{y2} Ulusal Takvimleri",
+                {"PL", "CZ", "SK", "HU", "GR", "RO", "BG", "RS", "HR", "SI", "AL"},
                 [
-                    "https://balkanmasters.com/",
                     "https://www.pma.org.pl/",
-                    "https://www.saul.fi/kilpailut/kilpailukalenteri/",
+                    "https://www.atletika.cz/kalendar-akci/",
+                    "https://atletika.hu/",
                     "https://www.has.hr/",
                     "https://slovenska-atletika.si/",
-                    "https://ekjl.ee/",
+                    "https://www.segas.gr/",
+                    "https://fra.ro/",
                 ],
                 [
-                    f"Halowe Mistrzostwa Polski Masters Mistrzostwa Polski w Lekkiej Atletyce Masters {y1} {y2} Torun",
-                    f"Mistrovství ČR veteránů v atletice {y1} {y2} hala dráha",
-                    f"SAUL SM-hallit SM-yleisurheilu SM-maastot SM-puolimaraton SM-moniottelut {y1} {y2}",
-                    f"ISM veteraner SM veteraner friidrott {y1} {y2} NM veteraner DM Masters atletik Baltic Masters Championships {y1} {y2}",
-                    f"Campionatul National de Atletism Masters {y1} {y2} Romania Greece Bulgaria Serbia Croatia Slovenia Hungary Slovakia",
+                    f"Halowe Mistrzostwa Polski Masters Mistrzostwa Polski w Lekkiej Atletyce Masters {y1} {y2} Torun pma",
+                    f"Halové MČR veteránů Mistrovství ČR veteránů na dráze {y1} {y2} Majstrovstvá SR veteránov {y1} {y2}",
+                    f"Szenior Atlétikai Magyar Bajnokság {y1} {y2} fedettpályás szabadtéri",
+                    f"Campionatul National de Atletism Masters {y1} {y2} Bucuresti Panhellenic Masters Athletics Championships {y1} {y2}",
+                    f"Prvenstvo Hrvatske za veterane {y1} {y2} Prvenstvo Slovenije za veterane {y1} {y2} Bulgaria Serbia Masters Athletics {y1} {y2}",
                 ],
-                f"List all confirmed {y1} AND {y2} national and regional 35+ Masters (Veteránů / Veteraner / SAUL / Masters) championships from the official calendars of Central/Eastern Europe, Balkans, Nordic, and Baltic countries (include both {y1} and {y2} editions):\n"
-                f"- Central Europe: Poland (PMA - country='PL': Halowe Mistrzostwa Polski Masters w Toruniu & Mistrzostwa Polski w Lekkiej Atletyce Masters Outdoor, Rzuty, Wieloboje {y1} & {y2}), Czechia (ČAS - country='CZ': Halové MČR veteránů & MČR veteránů na dráze {y1} & {y2}), Slovakia (SAZ - country='SK': Majstrovstvá SR veteránov {y1} & {y2}), Hungary (MASZ - country='HU': Szenior Atlétikai Magyar Bajnokság Indoor & Outdoor {y1} & {y2}).\n"
-                f"- Balkans: Greece (SEGAS/OEBA - country='GR': Panhellenic Masters Indoor & Outdoor Championships {y1} & {y2}), Romania (FRA - country='RO': Campionatul Național de Atletism Masters Indoor & Outdoor {y1} & {y2}), Bulgaria (BFLA - country='BG': National Masters Championships {y1} & {y2}), Serbia (SAS - country='RS'), Croatia (HAS/HAVU - country='HR': Prvenstvo Hrvatske za veterane Indoor & Outdoor {y1} & {y2}), Slovenia (AZS/ZAVS - country='SI': Prvenstvo Slovenije za veterane {y1} & {y2}), Albania (FSHA - country='AL').\n"
-                f"- Nordic & Baltic: Nordic Masters Championships ({y1} & {y2}), Baltic Masters Championships ({y1} & {y2}), Finland (SAUL - country='FI': SM-hallit, SM-yleisurheilu, SM-moniottelut, SM-maastot, SM-puolimaraton, SM-maantiekymppi, SM-viestit {y1} & {y2}), Sweden (SFIF - country='SE': ISM Veteraner Indoor & SM Veteraner Outdoor {y1} & {y2}), Norway (NFIF - country='NO': NM Veteraner Indoor & Outdoor {y1} & {y2}), Denmark (DAF - country='DK': DM Masters Indoor & Outdoor {y1} & {y2}), Estonia (country='EE'), Latvia (country='LV'), Lithuania (country='LT')."
+                f"List all confirmed {y1} AND {y2} national 35+ Masters (Masters / Veteránů / Veteránov / Szenior / Veterane) championships from the official calendars of Central Europe and the Balkans (include both {y1} and {y2} editions):\n"
+                f"- Poland (PMA - country='PL'): Halowe Mistrzostwa Polski Masters w Lekkiej Atletyce (Toruń Indoor {y1} & {y2}), Mistrzostwa Polski w Lekkiej Atletyce Masters (Outdoor {y1} & {y2}), Mistrzostwa Polski Masters w Rzutach & Wielobojach ({y1} & {y2}).\n"
+                f"- Czechia (ČAS - country='CZ'): Halové MČR veteránů ({y1} & {y2} Indoor), Mistrovství ČR veteránů na dráze ({y1} & {y2} Outdoor).\n"
+                f"- Slovakia (SAZ - country='SK'): Halové majstrovstvá SR veteránov & Majstrovstvá SR veteránov na dráhe ({y1} & {y2}).\n"
+                f"- Hungary (MASZ - country='HU'): Fedettpályás Szenior Atlétikai Magyar Bajnokság (Indoor {y1} & {y2}) & Szenior Atlétikai Magyar Bajnokság (Outdoor {y1} & {y2}).\n"
+                f"- Greece (SEGAS/OEBA - country='GR'): Panhellenic Masters Indoor & Outdoor Athletics Championships ({y1} & {y2}).\n"
+                f"- Romania (FRA - country='RO'): Campionatul Național de Atletism Masters de Sală (Indoor {y1} & {y2}, București) & Campionatul Național de Atletism Masters în Aer Liber (Outdoor {y1} & {y2}, București).\n"
+                f"- Bulgaria (BFLA - country='BG'), Serbia (SAS - country='RS'), Croatia (HAS/HAVU - country='HR': Dvoransko prvenstvo Hrvatske za veterane & Prvenstvo Hrvatske za veterane na otvorenom {y1} & {y2}), Slovenia (AZS/ZAVS - country='SI': Prvenstvo Slovenije v atletiki za veterane {y1} & {y2}), Albania (FSHA - country='AL')."
+            ),
+            (
+                f"6. İskandinavya (Finlandiya, İsveç, Norveç, Danimarka) ve Baltık (Estonya, Letonya, Litvanya) {y1}-{y2} Ulusal Takvimleri",
+                {"FI", "SE", "NO", "DK", "EE", "LV", "LT"},
+                [
+                    "https://www.saul.fi/kilpailut/kilpailukalenteri/",
+                    "https://www.friidrott.se/tavling-landslag/tavling/tavlingskalender/",
+                    "https://www.friidrett.no/aktivitet/terminliste/",
+                    "https://dansk-atletik.dk/",
+                    "https://ekjl.ee/voistlused/voistluskalender/",
+                    "https://athletics.lv/lv/kalendars",
+                ],
+                [
+                    f"SAUL SM-hallit SM-yleisurheilu SM-maastot SM-puolimaraton SM-moniottelut {y1} {y2}",
+                    f"ISM veteraner SM veteraner friidrott {y1} {y2} Sverige",
+                    f"NM veteraner friidrett {y1} {y2} DM Masters atletik {y1} {y2} Nordic Masters Championships {y1} {y2}",
+                    f"Baltic Masters Athletics Championships {y1} {y2} Eesti meistrivõistlused veteranidele Latvijas čempionāts veterāniem",
+                ],
+                f"List all confirmed {y1} AND {y2} national and regional 35+ Masters (SAUL / Veteraner / Masters) championships from the official calendars of the Nordic and Baltic countries (include both {y1} and {y2} editions):\n"
+                f"- Nordic & Baltic Regional: Nordic Masters Championships Indoor & Outdoor ({y1} & {y2}), Baltic Open Masters Athletics Championships ({y1} & {y2}).\n"
+                f"- Finland (SAUL - country='FI'): SAUL SM-hallit (Indoor {y1} & {y2}), SAUL SM-yleisurheilu (Outdoor {y1} & {y2}), SAUL SM-moniottelut, SAUL SM-maastot (Cross), SAUL SM-puolimaraton, SAUL SM-maantiekymppi, SAUL SM-viestit ({y1} & {y2}).\n"
+                f"- Sweden (SFIF - country='SE'): ISM Veteraner (Indoor {y1} & {y2}), SM Veteraner (Outdoor {y1} & {y2}), SM Kastmångkamp Veteraner ({y1} & {y2}).\n"
+                f"- Norway (NFIF - country='NO'): NM Innendørs Veteraner (Indoor {y1} & {y2}) & NM Hovedmesterskap Veteraner (Outdoor {y1} & {y2}).\n"
+                f"- Denmark (DAF - country='DK'): DM Masters Indendørs (Indoor {y1} & {y2}) & DM Masters Udendørs (Outdoor {y1} & {y2}).\n"
+                f"- Baltic States: Estonia (EKJL - country='EE': Estonian Masters Indoor & Outdoor Championships {y1} & {y2}), Latvia (LVS - country='LV': Latvian Masters Indoor & Outdoor Championships {y1} & {y2}), Lithuania (LLAF - country='LT': Lithuanian Masters Championships {y1} & {y2})."
             ),
         ]
 
@@ -282,6 +413,7 @@ class AutonomousDiscoveryParser(BaseParser):
                 converted = self._convert_gemini_items(
                     items,
                     default_url=site_urls[0] if site_urls else "https://european-masters-athletics.org",
+                    default_trust_level=2,
                 )
                 logger.info(f"[Gemini-AI] {label} taramasından {len(converted)} yarışma çıkarıldı.")
                 results.extend(converted)
@@ -318,11 +450,12 @@ class AutonomousDiscoveryParser(BaseParser):
         self,
         urls: List[str],
         search_queries: List[str],
-        max_total_chars: int = 15000,
+        max_total_chars: int = 16000,
     ) -> str:
         """
         1. Bing RSS, Google News/Web RSS üzerinden canlı arama sonuçlarını (snippet) toplar.
-        2. Doğrulanmış resmi federasyon URL'lerini doğrudan indirir (menü/sidebar gürültüsünü temizler).
+        2. Doğrulanmış resmi federasyon URL'lerini doğrudan indirir (menü/sidebar gürültüsünü temizler,
+           ancak yarışma detay sayfalarını [URL: ...] ve şartname PDF bağlantılarını [PDF: ...] olarak korur).
         """
         chunks: List[str] = []
         search_lines: List[str] = []
@@ -339,7 +472,7 @@ class AutonomousDiscoveryParser(BaseParser):
                         t_txt = re.sub(r"\s+", " ", item.title.get_text(" ", strip=True)) if item.title else ""
                         s_txt = re.sub(r"\s+", " ", item.description.get_text(" ", strip=True)) if item.description else ""
                         u_txt = re.sub(r"\s+", " ", item.link.get_text(" ", strip=True)) if item.link else ""
-                        line = f"- {t_txt} | {s_txt} ({u_txt})"
+                        line = f"- {t_txt} | {s_txt} [URL: {u_txt}]"
                         if (t_txt or s_txt) and line not in seen_snippets:
                             seen_snippets.add(line)
                             search_lines.append(line)
@@ -364,8 +497,14 @@ class AutonomousDiscoveryParser(BaseParser):
         if search_lines:
             chunks.append("=== [CANLI WEB ARAMA İNDEKSİ SONUÇLARI] ===\n" + "\n".join(search_lines[:35]))
 
-        # 2. Doğrudan Resmi Federasyon Takvim Sayfaları
+        # 2. Doğrudan Resmi Federasyon Takvim Sayfaları (Gerçek href ve PDF linklerini koruyarak)
         per_url_limit = 2800
+        ignored_domains = ("facebook.com", "instagram.com", "twitter.com", "x.com", "youtube.com", "linkedin.com")
+        deep_link_keywords = (
+            ".pdf", "reglement", "regolamento", "regulamento", "regulations", "manual",
+            "ausschreibung", "circular", "bulletin", "opentrack.run", "ladv.de/ausschreibung",
+            "espaces.html", "championship", "calendario", "fixtures", "event", "meeting"
+        )
         for url in urls:
             try:
                 resp = self.session.get(url, timeout=10)
@@ -378,6 +517,22 @@ class AutonomousDiscoveryParser(BaseParser):
                 for sel in ["#ctnLeft", "#ctnLeftMenu", "#ctnTop", ".menuLeft", "#sidebar", ".sidebar"]:
                     for el in soup.select(sel):
                         el.decompose()
+
+                # Yarışma detay linklerini [URL: ...] ve şartname/bülten PDF'lerini [PDF: ...] olarak metne göm
+                for a_tag in soup.find_all("a", href=True):
+                    raw_href = (a_tag.get("href") or "").strip()
+                    if not raw_href or raw_href.startswith(("#", "javascript:", "mailto:", "tel:")):
+                        continue
+                    full_href = urljoin(url, raw_href)
+                    href_low = full_href.lower()
+                    if any(d in href_low for d in ignored_domains):
+                        continue
+                    anchor_txt = a_tag.get_text(" ", strip=True)
+                    if href_low.endswith(".pdf"):
+                        a_tag.string = f"{anchor_txt} [PDF: {full_href}]"
+                    elif full_href != url and any(k in href_low for k in deep_link_keywords) and len(anchor_txt) >= 3:
+                        a_tag.string = f"{anchor_txt} [URL: {full_href}]"
+
                 lines = []
                 for line in soup.get_text(separator="\n").splitlines():
                     cleaned = re.sub(r"\s+", " ", line).strip()
@@ -595,7 +750,13 @@ class AutonomousDiscoveryParser(BaseParser):
                 time.sleep(5)
         return []
 
-    def _convert_gemini_items(self, items: List[Dict[str, Any]], default_url: str) -> List[Competition]:
+    def _convert_gemini_items(
+        self,
+        items: List[Dict[str, Any]],
+        default_url: str,
+        default_trust_level: int = 2,
+        default_regulations_url: Optional[str] = None,
+    ) -> List[Competition]:
         """Gemini JSON çıktılarını doğrular ve Competition nesnelerine dönüştürür."""
         converted: List[Competition] = []
         valid_scopes = {"national", "world", "balkan", "europe", "ema_league", "regional"}
@@ -673,7 +834,23 @@ class AutonomousDiscoveryParser(BaseParser):
                     scope = self.detect_scope(title, country)
 
                 federation = str(item.get("federation", "")).strip() or "EMA / Ulusal"
-                web_url = str(item.get("website_url", "")).strip() or default_url
+                raw_web = str(item.get("website_url", "") or "").strip()
+                web_url = raw_web if raw_web.startswith("http") else default_url
+
+                raw_reg = str(item.get("regulations_url", "") or "").strip()
+                reg_url: Optional[str] = None
+                if raw_reg.startswith("http") and raw_reg.lower() not in invalid_tokens:
+                    reg_url = raw_reg
+                elif web_url.lower().endswith(".pdf"):
+                    reg_url = web_url
+                elif default_regulations_url:
+                    reg_url = default_regulations_url
+
+                # Doğrudan OpenTrack, LADV, resmi PDF veya resmi CNAM alt sayfalarından gelen kayıtların güven puanı = 3
+                trust_level = default_trust_level
+                if reg_url or any(d in web_url.lower() for d in ("opentrack.run", "ladv.de/ausschreibung", "masters.athle.fr/asp.net/espaces.html")):
+                    trust_level = 3
+
                 comp_id = generate_competition_id(title, start_date, country, city)
 
                 comp = Competition(
@@ -689,6 +866,8 @@ class AutonomousDiscoveryParser(BaseParser):
                     scope=scope,
                     federation=federation,
                     website_url=web_url,
+                    regulations_url=reg_url,
+                    trust_level=trust_level,
                     status="scheduled",
                     created_at=datetime.now(timezone.utc).isoformat(),
                 )

@@ -241,24 +241,47 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
             unique_map[key] = comp
         else:
             existing = unique_map[key]
+            ex_trust = int(getattr(existing, "trust_level", 2) or 2)
+            in_trust = int(getattr(comp, "trust_level", 2) or 2)
+
             existing_is_range = bool(existing.end_date and existing.end_date > existing.start_date)
             incoming_is_range = bool(comp.end_date and comp.end_date > comp.start_date)
-
-            if incoming_is_range and not existing_is_range:
-                existing.start_date = comp.start_date
-                existing.end_date = comp.end_date
-            elif existing.start_date == comp.start_date and comp.end_date > existing.end_date:
-                existing.end_date = comp.end_date
-
             ex_valid_city = extract_primary_city_slug(existing.city, existing.country_name)
             in_valid_city = extract_primary_city_slug(comp.city, comp.country_name)
-            if in_valid_city and (not ex_valid_city or len(comp.city or "") > len(existing.city or "")):
-                existing.city = comp.city
-                if comp.country and comp.country not in ("INT", "EU"):
-                    existing.country = comp.country
-                    existing.country_name = comp.country_name
+
+            # Kaynak güvenilirlik hiyerarşisi (3 = Resmi API/PDF/OpenTrack > 2 = Federasyon Sayfası > 1 = Arama)
+            if in_trust > ex_trust:
+                existing.start_date = comp.start_date
+                existing.end_date = comp.end_date
+                existing.trust_level = in_trust
+                if in_valid_city:
+                    existing.city = comp.city
+                    if comp.country and comp.country not in ("INT", "EU"):
+                        existing.country = comp.country
+                        existing.country_name = comp.country_name
+            elif in_trust == ex_trust:
+                if incoming_is_range and not existing_is_range:
+                    existing.start_date = comp.start_date
+                    existing.end_date = comp.end_date
+                elif existing.start_date == comp.start_date and comp.end_date > existing.end_date:
+                    existing.end_date = comp.end_date
+
+                if in_valid_city and (not ex_valid_city or len(comp.city or "") > len(existing.city or "")):
+                    existing.city = comp.city
+                    if comp.country and comp.country not in ("INT", "EU"):
+                        existing.country = comp.country
+                        existing.country_name = comp.country_name
+            else:
+                # Daha düşük güven seviyeli kayıt yalnızca eksik bitiş tarihini veya eksik şehri tamamlayabilir
+                if existing.start_date == comp.start_date and not existing_is_range and incoming_is_range:
+                    existing.end_date = comp.end_date
+                if in_valid_city and not ex_valid_city:
+                    existing.city = comp.city
+
             if len(comp.website_url or "") > len(existing.website_url or ""):
                 existing.website_url = comp.website_url
+            if comp.regulations_url and not existing.regulations_url:
+                existing.regulations_url = comp.regulations_url
 
             existing.content_hash = compute_content_hash(existing)
             unique_map[key] = existing
@@ -297,18 +320,35 @@ def compute_content_hash(comp: Competition) -> str:
 
 
 def evaluate_change(existing: Optional[dict], incoming: Competition) -> Tuple[str, bool]:
-    """Değişiklik analizi yapar."""
+    """Değişiklik analizi yapar ve kaynak güvenilirlik hiyerarşisini (trust_level) uygular."""
     if not existing:
         return "NEW", True
 
+    ex_trust = int(existing.get("trust_level", 2) or 2)
+    in_trust = int(getattr(incoming, "trust_level", 2) or 2)
+
     ex_start = existing.get("start_date", "")
     ex_end = existing.get("end_date", "")
+    ex_city = extract_primary_city_slug(existing.get("city", ""), existing.get("country_name", ""))
+    in_city = extract_primary_city_slug(incoming.city, incoming.country_name)
+
+    # Eğer veritabanındaki kayıt daha yüksek güven seviyesine sahipse (örn. trust_level=3 Resmi PDF/API/OpenTrack),
+    # daha düşük güvenli bir kaynak (trust_level=1 veya 2) tarih veya konumu ezemez.
+    if ex_trust > in_trust:
+        if ex_start:
+            incoming.start_date = ex_start
+            incoming.end_date = ex_end or ex_start
+        if ex_city:
+            incoming.city = existing.get("city", incoming.city)
+            incoming.country = existing.get("country", incoming.country)
+            incoming.country_name = existing.get("country_name", incoming.country_name)
+            in_city = ex_city
+        incoming.trust_level = ex_trust
+        incoming.content_hash = compute_content_hash(incoming)
+
     if ex_start == incoming.start_date and ex_end > ex_start and incoming.end_date == incoming.start_date:
         incoming.end_date = ex_end
         incoming.content_hash = compute_content_hash(incoming)
-
-    ex_city = extract_primary_city_slug(existing.get("city", ""), existing.get("country_name", ""))
-    in_city = extract_primary_city_slug(incoming.city, incoming.country_name)
 
     # Mevcut kayıtta geçerli bir şehir varken yeni gelen kayıtta şehir belirtilmemişse mevcut konumu koru
     if ex_city and not in_city:
@@ -318,10 +358,21 @@ def evaluate_change(existing: Optional[dict], incoming: Competition) -> Tuple[st
         incoming.content_hash = compute_content_hash(incoming)
         in_city = ex_city
 
+    # Mevcut kayıttaki şartname PDF bağlantısını veya daha detaylı web bağlantısını koru
+    ex_reg = existing.get("regulations_url")
+    if ex_reg and not incoming.regulations_url:
+        incoming.regulations_url = ex_reg
+    ex_web = str(existing.get("website_url", "") or "")
+    if len(ex_web) > len(incoming.website_url or ""):
+        incoming.website_url = ex_web
+
     existing_hash = existing.get("content_hash", "")
     new_hash = incoming.content_hash
 
     if existing_hash == new_hash:
+        # Eğer sadece regulations_url eklendiyse sessiz güncelleme yap (bildirim atmadan)
+        if incoming.regulations_url and incoming.regulations_url != ex_reg:
+            return "UPDATED", False
         return "UNCHANGED", False
 
     date_changed = (

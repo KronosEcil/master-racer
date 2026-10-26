@@ -118,7 +118,7 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                 s_dict = state_doc.to_dict() or {}
                 if s_dict.get("clean_reset_done_v1") is True:
                     clean_reset_done = True
-                if s_dict.get("badges_baseline_reset_v2") is True:
+                if s_dict.get("badges_baseline_reset_v3") is True:
                     badges_baseline_reset = True
         except Exception as e:
             logger.warning(f"scraper_state okuma uyarısı: {e}")
@@ -286,7 +286,7 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
             if state_ref:
                 state_ref.set(
                     {
-                        "badges_baseline_reset_v2": True,
+                        "badges_baseline_reset_v3": True,
                         "badges_reset_at": datetime.now(timezone.utc).isoformat(),
                     },
                     merge=True,

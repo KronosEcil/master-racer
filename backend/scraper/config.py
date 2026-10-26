@@ -21,6 +21,7 @@ class Competition(BaseModel):
     website_url: Optional[str] = Field(default=None, description="Resmi etkinlik web sitesi")
     min_age: int = Field(default=35, description="Minimum yarışma yaşı (Standart: 35+)")
     age_category: str = Field(default="35+", description="Yaş kategorisi: 35+ (M35/W35+)")
+    trust_level: int = Field(default=2, description="Kaynak güven seviyesi: 3=Resmi API/PDF/OpenTrack, 2=Resmi Federasyon Sayfası, 1=Web Arama")
     content_hash: str = Field(default="", description="Veri değişiklik takibi için SHA-256 özeti")
     status: str = Field(default="scheduled", description="Durum: scheduled, postponed, cancelled, completed")
     is_new: bool = Field(default=False, description="Yarışmanın sisteme yeni eklendiğini belirtir")
