@@ -191,17 +191,9 @@ data class Competition(
         val cNameLower = country_name.lowercase()
         val cUpper = country.trim().uppercase()
 
-        if (titleLower.contains("perth") || cityLower.contains("perth")) {
-            return "AU"
-        }
-        if (titleLower.contains("abu dhabi") || cityLower.contains("abu dhabi") || cUpper == "AE" || cUpper == "UAE") {
-            return "AE"
-        }
-        if (titleLower.contains("taipei") || cityLower.contains("taipei") || cUpper == "TW" || cUpper == "TPE") {
-            return "TW"
-        }
-        if (titleLower.contains("kansai") || cityLower.contains("kansai") || cNameLower.contains("kansai") || cUpper == "JP" || cUpper == "JPN") {
-            return "JP"
+        val normalized = normalizeToIso2(cUpper)
+        if (normalized.length == 2 && normalized != "INT" && normalized != "EU") {
+            return normalized
         }
 
         if (cUpper == "AL" || cUpper == "ALB" || cNameLower.contains("albania") || cNameLower.contains("arnavutluk") ||
@@ -350,15 +342,7 @@ data class Competition(
      */
     fun getDisplayLocation(): String {
         val cName = getDisplayCountryName()
-        val titleLower = title.lowercase()
-        val cityLower = city.lowercase()
-        val rawCity = when {
-            titleLower.contains("perth") || cityLower.contains("perth") -> "Perth"
-            titleLower.contains("abu dhabi") || cityLower.contains("abu dhabi") -> "Abu Dhabi"
-            titleLower.contains("taipei") || cityLower.contains("taipei") -> "Taipei"
-            titleLower.contains("kansai") || cityLower.contains("kansai") -> "Kansai"
-            else -> city.trim()
-        }
+        val rawCity = city.trim()
         val invalidCities = setOf(
             "", "not specified", "unspecified", "tbd", "tbc", "tba", "n/a", "na", "none", "null", "unknown", "belirlenecek"
         )

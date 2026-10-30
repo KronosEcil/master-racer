@@ -145,80 +145,6 @@ class AutonomousDiscoveryParser(BaseParser):
 
         if direct_results:
             logger.info(f"[OpenTrack-Direct] Doğrudan yapısal akıştan {len(direct_results)} Master yarışması çıkarıldı.")
-
-        # B) World Masters Sport (https://www.worldmasterssport.com/) Resmi Geçmiş ve Gelecek Masters Games Takvimi
-        wms_events = [
-            (
-                "World Masters Games Taipei 2025",
-                "2025-05-17",
-                "2025-05-30",
-                "Taipei",
-                "TW",
-                "Tayvan",
-                "world",
-                "https://www.worldmasterssport.com/",
-            ),
-            (
-                "Open Masters Games Abu Dhabi 2026",
-                "2026-02-06",
-                "2026-02-15",
-                "Abu Dhabi",
-                "AE",
-                "Birleşik Arap Emirlikleri",
-                "world",
-                "https://www.worldmasterssport.com/",
-            ),
-            (
-                "World Masters Games Kansai 2027",
-                "2027-05-14",
-                "2027-05-30",
-                "Kansai",
-                "JP",
-                "Japonya",
-                "world",
-                "https://wmg2027.jp/en/",
-            ),
-            (
-                "Open Masters Games Como Lake 2027",
-                "2027-09-17",
-                "2027-09-26",
-                "Como",
-                "IT",
-                "İtalya",
-                "europe",
-                "https://www.worldmasterssport.com/",
-            ),
-            (
-                "World Masters Games Perth 2029",
-                "2029-10-12",
-                "2029-10-23",
-                "Perth",
-                "AU",
-                "Avustralya",
-                "world",
-                "https://www.worldmasterssport.com/",
-            ),
-        ]
-        for title, s_date, e_date, city, c_code, c_name, scope, w_url in wms_events:
-            comp_id = generate_competition_id(title, s_date, c_code, city)
-            comp = Competition(
-                id=comp_id,
-                title=title,
-                country=c_code,
-                country_name=c_name,
-                city=city,
-                start_date=s_date,
-                end_date=e_date,
-                scope=scope,
-                federation="World Masters Sport",
-                website_url=w_url,
-                trust_level=3,
-                status="scheduled",
-                created_at=datetime.now(timezone.utc).isoformat(),
-            )
-            comp.content_hash = compute_content_hash(comp)
-            direct_results.append(comp)
-
         return direct_results
 
     # =========================================================================
@@ -306,36 +232,24 @@ class AutonomousDiscoveryParser(BaseParser):
                     "https://ema.opentrack.run/",
                     "https://balkanmasters.com/",
                     "https://world-masters-athletics.org/championships/",
+                    "https://www.worldmasterssport.com/about-the-masters-games/next-masters-games/",
                     "https://www.worldmasterssport.com/",
-                    "https://wmg2027.jp/en/",
                 ],
                 [
                     f"European Masters Athletics Championships {y1} {y2} {y3} {y4} EMACI EMACS EMACNS EMMTRC EMAMRC",
                     f"World Masters Athletics Championships {y1} {y2} {y3} {y4} Stadia Indoor Mountain Marathon",
-                    f"World Masters Games Taipei 2025 Abu Dhabi {y1} Kansai {y2} Como Lake {y2} Perth {y4} worldmasterssport",
+                    f"site:worldmasterssport.com World Masters Games Open Masters Games {y1 - 1} {y1} {y2} {y3} {y4}",
                     f"Balkan Masters Athletics Championships {y1} {y2} {y3} BAMACI BAMACS BAMAM",
                     f"EMA League {y1} {y2} European Masters Athletics",
                 ],
-                f"List ALL confirmed {years_all_en} international Masters championships and games from official federation calendars "
+                f"List ALL confirmed international Masters championships and Masters Games from the live official federation pages below "
                 f"(EMA https://european-masters-athletics.org/championships/, WMA https://world-masters-athletics.org/championships/, "
-                f"World Masters Sport https://www.worldmasterssport.com/, BAMA https://balkanmasters.com/), ensuring EVERY confirmed event is included with its true host city and country:\n"
-                f"1. European Masters Athletics Championships ({y1}, {y2}, {y3}, {y4}):\n"
-                f"   - EMACI (European Masters Athletics Championships Indoor - e.g. {y1} Torun Poland, {y3} Indoor)\n"
-                f"   - EMACS (European Masters Athletics Championships Stadia - e.g. {y2} Jyväskylä Finland 2027-08-11..2027-08-21, {y3} Stadia)\n"
-                f"   - EMACNS (European Masters Non-Stadia Championships - e.g. {y1} Catania Italy, {y3} Non-Stadia)\n"
-                f"   - EMMTRC (European Masters Mountain & Trail Running Championships - e.g. {y2} Ojós Murcia Spain 2027-04-15..2027-04-18, {y3})\n"
-                f"   - EMAMRC (European Masters Marathon Championships - e.g. {y1} Porto Portugal, {y2} Lucerne Switzerland, {y3})\n"
-                f"2. World Masters Sport (https://www.worldmasterssport.com/) Past & Upcoming Masters Games & World Masters Athletics (WMA):\n"
-                f"   - World Masters Games Taipei 2025 (2025-05-17..2025-05-30, Taipei, Taiwan - country='TW')\n"
-                f"   - Open Masters Games Abu Dhabi {y1} (2026-02-06..2026-02-15, Abu Dhabi, United Arab Emirates - country='AE')\n"
-                f"   - World Masters Games Kansai {y2} (2027-05-14..2027-05-30, Kansai, Japan - country='JP')\n"
-                f"   - Open Masters Games Como Lake {y2} (2027-09-17..2027-09-26, Como, Italy - country='IT')\n"
-                f"   - World Masters Games Perth {y4} (2029-10-12..2029-10-23, Perth, Australia - country='AU')\n"
-                f"   - WMA Outdoor/Stadia Championships ({y1} Daegu South Korea, {y3})\n"
-                f"   - WMA Indoor Championships ({y2} Gainesville Florida USA 2027-03-18..2027-03-26)\n"
-                f"   - WMA Mountain Running Championships ({y1} Meduno Italy, {y2} Klosters Switzerland)\n"
-                f"   - WMA Marathon, Half Marathon, 50km/100km & Race Walking Championships ({y1}, {y2}, {y3})\n"
-                f"3. EMA League Meetings ({y1} and {y2}) & Balkan Masters Championships (BAMACI Indoor, BAMACS Stadia, BAMAM Marathon in {y1}, {y2}, {y3})."
+                f"World Masters Sport https://www.worldmasterssport.com/about-the-masters-games/next-masters-games/, BAMA https://balkanmasters.com/), "
+                f"extracting each event's true host city, country, and dates directly from the official calendar text:\n"
+                f"1. European Masters Athletics Championships ({y1}, {y2}, {y3}, {y4}): EMACI (Indoor), EMACS (Stadia), EMACNS (Non-Stadia), EMMTRC (Mountain & Trail), EMAMRC (Marathon).\n"
+                f"2. World Masters Sport (https://www.worldmasterssport.com/) Upcoming & Recent Past Masters Games (World Masters Games, Open Masters Games, European Masters Games from {y1 - 1} through {y4}) — use the exact host city and country listed for each edition on worldmasterssport.com.\n"
+                f"3. World Masters Athletics (WMA) Championships ({y1}, {y2}, {y3}, {y4}): Outdoor/Stadia, Indoor, Mountain Running, Marathon & Road.\n"
+                f"4. EMA League Meetings ({y1} and {y2}) & Balkan Masters Championships (BAMACI Indoor, BAMACS Stadia, BAMAM Marathon in {y1}, {y2}, {y3})."
             ),
             (
                 f"2. Birleşik Krallık (BMAF) ve İrlanda (IMAA) {y1} ve {y2} Ulusal Takvimleri",
@@ -473,8 +387,8 @@ class AutonomousDiscoveryParser(BaseParser):
                 if existing_digest:
                     full_prompt += (
                         "\n\nMEVCUT DOĞRULANMIŞ VERİTABANI KAYITLARI "
-                        "(Resmi federasyon metninde açıkça yeni bir tarih veya şehir değişikliği ilan edilmedikçe, "
-                        "bu mevcut yarışmaların start_date, end_date ve city bilgilerini AYNEN KORU; asla tahmin yürütüp hafta sonu tarihlerini kaydırma):\n"
+                        "(Resmi federasyon metninde açıkça farklı bir tarih, şehir veya ülke yazmadıkça, "
+                        "bu mevcut yarışmaların start_date ve end_date bilgilerini koru; resmi sitede açıkça ev sahibi şehir/ülke yazıyorsa resmi sitedeki konumu esas al):\n"
                         f"{existing_digest}\n"
                     )
                 if live_digest:
@@ -578,7 +492,8 @@ class AutonomousDiscoveryParser(BaseParser):
         deep_link_keywords = (
             ".pdf", "reglement", "regolamento", "regulamento", "regulations", "manual",
             "ausschreibung", "circular", "bulletin", "opentrack.run", "ladv.de/ausschreibung",
-            "espaces.html", "championship", "calendario", "fixtures", "event", "meeting"
+            "espaces.html", "championship", "calendario", "fixtures", "event", "meeting",
+            "masters-games", "next-masters-games", "all-masters-games"
         )
         for url in urls:
             try:
@@ -588,8 +503,11 @@ class AutonomousDiscoveryParser(BaseParser):
                 soup = BeautifulSoup(resp.text, "html.parser")
                 for tag in soup(["script", "style", "noscript", "svg", "footer", "nav", "header", "aside"]):
                     tag.decompose()
-                # Eski ASP.NET federasyon sitelerindeki (örn. masters.athle.fr) sol menü ve üst barları temizle
-                for sel in ["#ctnLeft", "#ctnLeftMenu", "#ctnTop", ".menuLeft", "#sidebar", ".sidebar"]:
+                # Sitelerdeki (masters.athle.fr, worldmasterssport.com vb.) üst/yan mega menüleri temizle
+                for sel in [
+                    "#ctnLeft", "#ctnLeftMenu", "#ctnTop", ".menuLeft", "#sidebar", ".sidebar",
+                    "#main-header", "#top-header", ".et-l--header", ".et_pb_menu", ".et-menu-nav", ".sub-menu", ".et_mobile_menu"
+                ]:
                     for el in soup.select(sel):
                         el.decompose()
 
@@ -874,27 +792,7 @@ class AutonomousDiscoveryParser(BaseParser):
 
                 title_low = title.lower()
                 city_low = raw_city.lower()
-                if is_masters_games and (start_date.startswith("2029") or "perth" in title_low or "perth" in city_low):
-                    raw_city = "Perth"
-                    raw_country = "AU"
-                    raw_cname = "Avustralya"
-                elif is_masters_games and ("abu dhabi" in title_low or "abu dhabi" in city_low or (start_date.startswith("2026") and "open" in title_low)):
-                    raw_city = "Abu Dhabi"
-                    raw_country = "AE"
-                    raw_cname = "Birleşik Arap Emirlikleri"
-                elif is_masters_games and ("taipei" in title_low or "taipei" in city_low or start_date.startswith("2025")):
-                    raw_city = "Taipei"
-                    raw_country = "TW"
-                    raw_cname = "Tayvan"
-                elif is_masters_games and ("como" in title_low or "como" in city_low or "european masters games" in title_low):
-                    raw_city = "Como"
-                    raw_country = "IT"
-                    raw_cname = "İtalya"
-                elif is_masters_games and ("kansai" in title_low or "kansai" in city_low or (start_date.startswith("2027") and "world" in title_low)):
-                    raw_city = "Kansai"
-                    raw_country = "JP"
-                    raw_cname = "Japonya"
-                elif ("world" in title_low or "wma" in title_low or "wmra" in title_low) and "mountain" in title_low and start_date.startswith("2027"):
+                if ("world" in title_low or "wma" in title_low or "wmra" in title_low) and "mountain" in title_low and start_date.startswith("2027"):
                     raw_city = "Klosters"
                     raw_country = "CH"
                     raw_cname = "İsviçre"

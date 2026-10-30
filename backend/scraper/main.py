@@ -267,12 +267,6 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                     updates["city"] = "Klosters"
                     updates["country"] = "CH"
                     updates["country_name"] = "İsviçre"
-                # World Masters Games Perth 2029 konum düzeltmesi (Kansai/JP -> Perth, Avustralya)
-                if doc.id == "world-2029-wmg" and str(d.get("country", "")).upper() != "AU":
-                    updates["title"] = "World Masters Games Perth 2029"
-                    updates["city"] = "Perth"
-                    updates["country"] = "AU"
-                    updates["country_name"] = "Avustralya"
                 if (
                     d.get("is_new")
                     or d.get("date_changed")
