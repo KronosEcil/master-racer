@@ -191,9 +191,16 @@ data class Competition(
         val cNameLower = country_name.lowercase()
         val cUpper = country.trim().uppercase()
 
-        if (titleLower.contains("kansai") || titleLower.contains("world masters games") || titleLower.contains("wmg") ||
-            cityLower.contains("kansai") || cNameLower.contains("kansai") || cUpper == "JP" || cUpper == "JPN"
-        ) {
+        if (titleLower.contains("perth") || cityLower.contains("perth")) {
+            return "AU"
+        }
+        if (titleLower.contains("abu dhabi") || cityLower.contains("abu dhabi") || cUpper == "AE" || cUpper == "UAE") {
+            return "AE"
+        }
+        if (titleLower.contains("taipei") || cityLower.contains("taipei") || cUpper == "TW" || cUpper == "TPE") {
+            return "TW"
+        }
+        if (titleLower.contains("kansai") || cityLower.contains("kansai") || cNameLower.contains("kansai") || cUpper == "JP" || cUpper == "JPN") {
             return "JP"
         }
 
@@ -321,6 +328,7 @@ data class Competition(
             "UZ" -> return "Özbekistan"
             "AZ" -> return "Azerbaycan"
             "GE" -> return "Gürcistan"
+            "AE" -> return "Birleşik Arap Emirlikleri"
         }
 
         // Herhangi bir ISO-2 ülke kodu için Android ICU Türkçe ülke adı altyapısı
@@ -343,11 +351,13 @@ data class Competition(
     fun getDisplayLocation(): String {
         val cName = getDisplayCountryName()
         val titleLower = title.lowercase()
-        val isKansai = titleLower.contains("kansai") || titleLower.contains("world masters games") || titleLower.contains("wmg") || city.lowercase().contains("kansai")
-        val rawCity = if (isKansai) {
-            "Kansai"
-        } else {
-            city.trim()
+        val cityLower = city.lowercase()
+        val rawCity = when {
+            titleLower.contains("perth") || cityLower.contains("perth") -> "Perth"
+            titleLower.contains("abu dhabi") || cityLower.contains("abu dhabi") -> "Abu Dhabi"
+            titleLower.contains("taipei") || cityLower.contains("taipei") -> "Taipei"
+            titleLower.contains("kansai") || cityLower.contains("kansai") -> "Kansai"
+            else -> city.trim()
         }
         val invalidCities = setOf(
             "", "not specified", "unspecified", "tbd", "tbc", "tba", "n/a", "na", "none", "null", "unknown", "belirlenecek"

@@ -108,6 +108,7 @@ class BaseParser(abc.ABC):
             "EG": ("EG", "Mısır", "🇪🇬"), "EGY": ("EG", "Mısır", "🇪🇬"),
             "CN": ("CN", "Çin", "🇨🇳"), "CHN": ("CN", "Çin", "🇨🇳"),
             "TW": ("TW", "Tayvan", "🇹🇼"), "TPE": ("TW", "Tayvan", "🇹🇼"),
+            "AE": ("AE", "Birleşik Arap Emirlikleri", "🇦🇪"), "UAE": ("AE", "Birleşik Arap Emirlikleri", "🇦🇪"), "ARE": ("AE", "Birleşik Arap Emirlikleri", "🇦🇪"),
             "IN": ("IN", "Hindistan", "🇮🇳"), "IND": ("IN", "Hindistan", "🇮🇳"),
             "SG": ("SG", "Singapur", "🇸🇬"), "SGP": ("SG", "Singapur", "🇸🇬"),
             "MY": ("MY", "Malezya", "🇲🇾"), "MAS": ("MY", "Malezya", "🇲🇾"), "MYS": ("MY", "Malezya", "🇲🇾"),
@@ -123,8 +124,12 @@ class BaseParser(abc.ABC):
 
         if any(k in title_lower for k in ["yeni zelanda", "new zealand"]):
             return "NZ", "Yeni Zelanda", "🇳🇿"
-        if any(k in title_lower for k in ["avustralya", "australia", "australian"]):
+        if any(k in title_lower for k in ["avustralya", "australia", "australian", "perth"]):
             return "AU", "Avustralya", "🇦🇺"
+        if any(k in title_lower for k in ["abu dhabi", "united arab emirates", "birleşik arap emirlikleri", "uae"]):
+            return "AE", "Birleşik Arap Emirlikleri", "🇦🇪"
+        if any(k in title_lower for k in ["tayvan", "taiwan", "taipei"]):
+            return "TW", "Tayvan", "🇹🇼"
         if any(k in title_lower for k in ["romanya", "romania", "romanian"]):
             return "RO", "Romanya", "🇷🇴"
         if any(k in title_lower for k in ["türkiye", "turkey", "turkish", "taf"]):
@@ -165,7 +170,7 @@ class BaseParser(abc.ABC):
             return "IS", "İzlanda", "🇮🇸"
         if any(k in title_lower for k in ["güney kore", "south korea", "korea"]):
             return "KR", "Güney Kore", "🇰🇷"
-        if any(k in title_lower for k in ["japonya", "japan", "japanese"]):
+        if any(k in title_lower for k in ["japonya", "japan", "japanese", "kansai"]):
             return "JP", "Japonya", "🇯🇵"
         if any(k in title_lower for k in ["letonya", "latvia", "latvian"]):
             return "LV", "Letonya", "🇱🇻"
@@ -203,7 +208,7 @@ class BaseParser(abc.ABC):
         'world' | 'europe' | 'balkan' | 'ema_league' | 'national' | 'regional'
         """
         t_low = (title or "").lower()
-        if any(w in t_low for w in ["world", "dünya", "wma", "wmg"]):
+        if any(w in t_low for w in ["world", "dünya", "wma", "wmg", "open masters games"]):
             return "world"
         if any(w in t_low for w in ["ema league", "ema ligi", "meeting européen", "speed masters athletics challenge"]):
             return "ema_league"

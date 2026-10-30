@@ -106,7 +106,7 @@ def _detect_discipline_subtype(title_norm: str) -> str:
         return "ACIK-SAHA-PART-2"
     if "non-stadia" in title_norm or "emacns" in title_norm:
         return "NON-STADIA"
-    if "world-masters-games" in title_norm or "wmg" in title_norm:
+    if any(w in title_norm for w in ["world-masters-games", "open-masters-games", "european-masters-games", "masters-games", "wmg"]):
         return "WMG"
     if any(w in title_norm for w in ["cross", "kros", "veldloop", "terrang", "terreng", "maasto", "campo-a-traves", "corta-mato", "campestre", "przelaj", "krosu", "kross"]):
         return "CROSS-RELAY" if any(r in title_norm for r in ["relay", "relais", "staffel", "stafett", "relevos", "staffette"]) else "CROSS"
@@ -164,6 +164,11 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
     title_norm = normalize_text(title or "")
     year = date_part[:4] if len(date_part) >= 4 else "2026"
     subtype = _detect_discipline_subtype(title_norm)
+
+    if subtype == "WMG":
+        if "european" in title_norm or "como" in title_norm or "como" in city_core or (year == "2027" and country_part == "IT"):
+            return f"EUROPE-{year}-WMG"
+        return f"WORLD-{year}-WMG"
 
     if any(w in title_norm for w in ["world-masters", "wma-", "-wma", "wmg", "dunya-master"]):
         return f"WORLD-{year}-{subtype}"

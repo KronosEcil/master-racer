@@ -119,7 +119,7 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                 s_dict = state_doc.to_dict() or {}
                 if s_dict.get("clean_reset_done_v1") is True:
                     clean_reset_done = True
-                if s_dict.get("badges_baseline_reset_v3") is True:
+                if s_dict.get("badges_baseline_reset_v4") is True:
                     badges_baseline_reset = True
                 if s_dict.get("obsolete_fields_cleaned_v1") is True:
                     obsolete_fields_cleaned = True
@@ -267,6 +267,12 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                     updates["city"] = "Klosters"
                     updates["country"] = "CH"
                     updates["country_name"] = "İsviçre"
+                # World Masters Games Perth 2029 konum düzeltmesi (Kansai/JP -> Perth, Avustralya)
+                if doc.id == "world-2029-wmg" and str(d.get("country", "")).upper() != "AU":
+                    updates["title"] = "World Masters Games Perth 2029"
+                    updates["city"] = "Perth"
+                    updates["country"] = "AU"
+                    updates["country_name"] = "Avustralya"
                 if (
                     d.get("is_new")
                     or d.get("date_changed")
@@ -289,7 +295,7 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
             if state_ref:
                 state_ref.set(
                     {
-                        "badges_baseline_reset_v3": True,
+                        "badges_baseline_reset_v4": True,
                         "badges_reset_at": datetime.now(timezone.utc).isoformat(),
                     },
                     merge=True,
