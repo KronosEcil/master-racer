@@ -32,7 +32,5 @@ captures/
 .cxx/
 
 # Release outputs in root
-app-release.apk
-app-release.aab
-MasterRacer.apk
-MasterRacer.aab
+*.apk
+*.aab
