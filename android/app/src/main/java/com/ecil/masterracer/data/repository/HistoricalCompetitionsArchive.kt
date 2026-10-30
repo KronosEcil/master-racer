@@ -34,7 +34,7 @@ object HistoricalCompetitionsArchive {
             country_name = countryName,
             scope = scope,
             federation = federation,
-            source_url = sourceUrl,
+            website_url = sourceUrl,
             status = "completed"
         )
     }
@@ -44,7 +44,12 @@ object HistoricalCompetitionsArchive {
             wmaWorldChampionshipsIndoor +
             worldMastersGamesArchive +
             emaEuropeanChampionshipsStadia +
-            emaEuropeanChampionshipsIndoor
+            emaEuropeanChampionshipsIndoor +
+            emaEuropeanNonStadiaArchive +
+            balkanMastersStadiaArchive +
+            balkanMastersIndoorArchive +
+            tafTurkishMastersArchive +
+            europeanNationalMastersArchive
     }
 
     // =========================================================================
@@ -95,7 +100,7 @@ object HistoricalCompetitionsArchive {
     )
 
     // =========================================================================
-    // 3. WORLD MASTERS GAMES & EUROPEAN MASTERS GAMES (IMGA: 1985 - 2025)
+    // 3. WORLD MASTERS GAMES & KITATLARARASI MASTERS GAMES (IMGA: 1985 - 2025)
     // =========================================================================
     private val worldMastersGamesArchive = listOf(
         archiveItem("WMG_1985_TORONTO", "World Masters Games Toronto 1985", "1985-08-07", "1985-08-25", "Toronto", "CA", "Kanada", "international", "IMGA", "https://imga.ch/"),
@@ -106,12 +111,20 @@ object HistoricalCompetitionsArchive {
         archiveItem("WMG_2005_EDMONTON", "World Masters Games Edmonton 2005", "2005-07-22", "2005-07-31", "Edmonton", "CA", "Kanada", "international", "IMGA", "https://imga.ch/"),
         archiveItem("EMG_2008_MALMO", "European Masters Games Malmö 2008", "2008-08-29", "2008-09-07", "Malmö", "SE", "İsveç", "european", "IMGA", "https://imga.ch/"),
         archiveItem("WMG_2009_SYDNEY", "World Masters Games Sydney 2009", "2009-10-10", "2009-10-18", "Sydney", "AU", "Avustralya", "international", "IMGA", "https://imga.ch/"),
+        archiveItem("WWMG_2010_BLED", "Winter World Masters Games Bled 2010", "2010-01-25", "2010-01-31", "Bled", "SI", "Slovenya", "international", "IMGA", "https://imga.ch/"),
         archiveItem("EMG_2011_LIGNANO", "European Masters Games Lignano Sabbiadoro 2011", "2011-09-10", "2011-09-20", "Lignano Sabbiadoro", "IT", "İtalya", "european", "IMGA", "https://imga.ch/"),
         archiveItem("WMG_2013_TORINO", "World Masters Games Torino 2013", "2013-08-02", "2013-08-11", "Turin", "IT", "İtalya", "international", "IMGA", "https://imga.ch/"),
+        archiveItem("WWMG_2015_QUEBEC", "Winter World Masters Games Quebec City 2015", "2015-01-31", "2015-02-08", "Quebec City", "CA", "Kanada", "international", "IMGA", "https://imga.ch/"),
         archiveItem("EMG_2015_NICE", "European Masters Games Nice 2015", "2015-10-01", "2015-10-11", "Nice", "FR", "Fransa", "european", "IMGA", "https://imga.ch/"),
+        archiveItem("PAMG_2016_VANCOUVER", "Americas Masters Games Vancouver 2016", "2016-08-26", "2016-09-04", "Vancouver", "CA", "Kanada", "international", "IMGA", "https://imga.ch/"),
         archiveItem("WMG_2017_AUCKLAND", "World Masters Games Auckland 2017", "2017-04-21", "2017-04-30", "Auckland", "NZ", "Yeni Zelanda", "international", "IMGA", "https://imga.ch/"),
+        archiveItem("APMG_2018_PENANG", "Asia-Pacific Masters Games Penang 2018", "2018-09-07", "2018-09-15", "Penang", "MY", "Malezya", "international", "IMGA", "https://imga.ch/"),
         archiveItem("EMG_2019_TORINO", "European Masters Games Torino 2019", "2019-07-26", "2019-08-04", "Turin", "IT", "İtalya", "european", "IMGA", "https://imga.ch/"),
+        archiveItem("WWMG_2020_INNSBRUCK", "Winter World Masters Games Innsbruck 2020", "2020-01-10", "2020-01-19", "Innsbruck", "AT", "Avusturya", "international", "IMGA", "https://imga.ch/"),
+        archiveItem("APMG_2023_JEONBUK", "Asia-Pacific Masters Games Jeonbuk 2023", "2023-05-12", "2023-05-20", "Jeonbuk", "KR", "Güney Kore", "international", "IMGA", "https://imga.ch/"),
         archiveItem("EMG_2023_TAMPERE", "European Masters Games Tampere 2023", "2023-06-26", "2023-07-09", "Tampere", "FI", "Finlandiya", "european", "IMGA", "https://imga.ch/"),
+        archiveItem("WWMG_2024_LOMBARDIA", "Winter World Masters Games Lombardia 2024", "2024-01-12", "2024-01-21", "Lombardia", "IT", "İtalya", "international", "IMGA", "https://imga.ch/"),
+        archiveItem("PAMG_2024_CLEVELAND", "Pan-American Masters Games Cleveland 2024", "2024-07-12", "2024-07-21", "Cleveland", "US", "ABD", "international", "IMGA", "https://imga.ch/"),
         archiveItem("WMG_2025_TAIPEI", "World Masters Games Taipei & New Taipei City 2025", "2025-05-17", "2025-05-30", "Taipei", "TW", "Tayvan", "international", "IMGA", "https://imga.ch/")
     )
 
@@ -162,5 +175,183 @@ object HistoricalCompetitionsArchive {
         archiveItem("EMAI_2018_MADRID", "12th European Masters Athletics Championships Indoor 2018", "2018-03-19", "2018-03-24", "Madrid", "ES", "İspanya", "european", "EMA", "https://european-masters-athletics.org/"),
         archiveItem("EMAI_2022_BRAGA", "13th European Masters Athletics Championships Indoor 2022", "2022-02-20", "2022-02-27", "Braga", "PT", "Portekiz", "european", "EMA", "https://european-masters-athletics.org/"),
         archiveItem("EMAI_2024_TORUN", "14th European Masters Athletics Championships Indoor 2024", "2024-03-17", "2024-03-23", "Toruń", "PL", "Polonya", "european", "EMA", "https://european-masters-athletics.org/")
+    )
+
+    // =========================================================================
+    // 6. EMA AVRUPA MASTERLAR NON-STADIA (YOL / YARI MARATON / KROS: 1989 - 2025)
+    // =========================================================================
+    private val emaEuropeanNonStadiaArchive = listOf(
+        archiveItem("EMANS_1989_BRUGES", "1st European Masters Athletics Championships Non-Stadia 1989", "1989-05-13", "1989-05-14", "Bruges", "BE", "Belçika", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_1991_DOLO", "2nd European Masters Athletics Championships Non-Stadia 1991", "1991-05-25", "1991-05-26", "Dolo", "IT", "İtalya", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_1993_UPICE", "3rd European Masters Athletics Championships Non-Stadia 1993", "1993-05-29", "1993-05-30", "Úpice", "CZ", "Çekya", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_1995_VALLADOLID", "4th European Masters Athletics Championships Non-Stadia 1995", "1995-05-20", "1995-05-21", "Valladolid", "ES", "İspanya", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_1997_HAGUE", "5th European Masters Athletics Championships Non-Stadia 1997", "1997-05-31", "1997-06-01", "The Hague", "NL", "Hollanda", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_1999_BRUGES", "6th European Masters Athletics Championships Non-Stadia 1999", "1999-06-12", "1999-06-13", "Bruges", "BE", "Belçika", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_2001_QORMI", "7th European Masters Athletics Championships Non-Stadia 2001", "2001-05-12", "2001-05-13", "Qormi", "MT", "Malta", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_2003_UPICE", "8th European Masters Athletics Championships Non-Stadia 2003", "2003-05-24", "2003-05-25", "Úpice", "CZ", "Çekya", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_2005_VILAREAL", "9th European Masters Athletics Championships Non-Stadia 2005", "2005-05-13", "2005-05-15", "Vila Real de Santo António", "PT", "Portekiz", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_2007_REGENSBURG", "10th European Masters Athletics Championships Non-Stadia 2007", "2007-05-18", "2007-05-20", "Regensburg", "DE", "Almanya", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_2009_AARHUS", "11th European Masters Athletics Championships Non-Stadia 2009", "2009-05-29", "2009-05-31", "Aarhus", "DK", "Danimarka", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_2011_THIONVILLE", "12th European Masters Athletics Championships Non-Stadia 2011", "2011-05-13", "2011-05-15", "Thionville", "FR", "Fransa", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_2013_UPICE", "13th European Masters Athletics Championships Non-Stadia 2013", "2013-05-24", "2013-05-26", "Úpice", "CZ", "Çekya", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_2015_GROSSETO", "14th European Masters Athletics Championships Non-Stadia 2015", "2015-05-15", "2015-05-17", "Grosseto", "IT", "İtalya", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_2016_VILAREAL", "15th European Masters Athletics Championships Non-Stadia 2016", "2016-05-20", "2016-05-22", "Vila Real de Santo António", "PT", "Portekiz", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_2018_ALICANTE", "16th European Masters Athletics Championships Non-Stadia 2018", "2018-05-18", "2018-05-20", "Alicante", "ES", "İspanya", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_2022_GROSSETO", "18th European Masters Athletics Championships Non-Stadia 2022", "2022-05-12", "2022-05-15", "Grosseto", "IT", "İtalya", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMANS_2024_PORTOSANTO", "19th European Masters Athletics Championships Non-Stadia 2024", "2024-05-16", "2024-05-19", "Porto Santo", "PT", "Portekiz", "european", "EMA", "https://european-masters-athletics.org/"),
+        archiveItem("EMAMR_2025_JYVASKYLA", "European Masters Marathon Championships Jyväskylä 2025", "2025-09-06", "2025-09-07", "Jyväskylä", "FI", "Finlandiya", "european", "EMA", "https://european-masters-athletics.org/")
+    )
+
+    // =========================================================================
+    // 7. BALKAN MASTERLAR AÇIK SAHA ŞAMPİYONALARI (BAMACS: 1991 - 2025)
+    // =========================================================================
+    private val balkanMastersStadiaArchive = listOf(
+        archiveItem("BAMACS_1991_ATHENS", "1st Balkan Masters Athletics Championships Stadia 1991", "1991-09-21", "1991-09-22", "Athens", "GR", "Yunanistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_1992_ISTANBUL", "2nd Balkan Masters Athletics Championships Stadia 1992", "1992-09-19", "1992-09-20", "İstanbul", "TR", "Türkiye", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_1993_BUCHAREST", "3rd Balkan Masters Athletics Championships Stadia 1993", "1993-09-18", "1993-09-19", "Bucharest", "RO", "Romanya", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_1994_SOFIA", "4th Balkan Masters Athletics Championships Stadia 1994", "1994-09-17", "1994-09-18", "Sofia", "BG", "Bulgaristan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_1995_ISTANBUL", "5th Balkan Masters Athletics Championships Stadia 1995", "1995-09-16", "1995-09-17", "İstanbul", "TR", "Türkiye", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_1996_ATHENS", "6th Balkan Masters Athletics Championships Stadia 1996", "1996-09-21", "1996-09-22", "Athens", "GR", "Yunanistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_1997_BUCHAREST", "7th Balkan Masters Athletics Championships Stadia 1997", "1997-09-20", "1997-09-21", "Bucharest", "RO", "Romanya", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_1998_THESSALONIKI", "8th Balkan Masters Athletics Championships Stadia 1998", "1998-09-19", "1998-09-20", "Thessaloniki", "GR", "Yunanistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_1999_IZMIR", "9th Balkan Masters Athletics Championships Stadia 1999", "1999-09-18", "1999-09-19", "İzmir", "TR", "Türkiye", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2000_KATERINI", "10th Balkan Masters Athletics Championships Stadia 2000", "2000-09-16", "2000-09-17", "Katerini", "GR", "Yunanistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2001_BELGRADE", "11th Balkan Masters Athletics Championships Stadia 2001", "2001-09-15", "2001-09-16", "Belgrade", "RS", "Sırbistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2002_ISTANBUL", "12th Balkan Masters Athletics Championships Stadia 2002", "2002-09-21", "2002-09-22", "İstanbul", "TR", "Türkiye", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2003_KATERINI", "13th Balkan Masters Athletics Championships Stadia 2003", "2003-09-20", "2003-09-21", "Katerini", "GR", "Yunanistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2004_ISTANBUL", "14th Balkan Masters Athletics Championships Stadia 2004", "2004-09-18", "2004-09-19", "İstanbul", "TR", "Türkiye", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2005_NOVISAD", "15th Balkan Masters Athletics Championships Stadia 2005", "2005-09-17", "2005-09-18", "Novi Sad", "RS", "Sırbistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2006_ATHENS", "16th Balkan Masters Athletics Championships Stadia 2006", "2006-09-23", "2006-09-24", "Athens", "GR", "Yunanistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2007_PLOVDIV", "17th Balkan Masters Athletics Championships Stadia 2007", "2007-09-29", "2007-09-30", "Plovdiv", "BG", "Bulgaristan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2008_BAR", "18th Balkan Masters Athletics Championships Stadia 2008", "2008-09-26", "2008-09-28", "Bar", "ME", "Karadağ", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2009_IZMIR", "19th Balkan Masters Athletics Championships Stadia 2009", "2009-09-25", "2009-09-27", "İzmir", "TR", "Türkiye", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2010_LARISSA", "20th Balkan Masters Athletics Championships Stadia 2010", "2010-09-17", "2010-09-19", "Larissa", "GR", "Yunanistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2011_DOMZALE", "21st Balkan Masters Athletics Championships Stadia 2011", "2011-09-02", "2011-09-04", "Domžale", "SI", "Slovenya", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2012_IZMIR", "22nd Balkan Masters Athletics Championships Stadia 2012", "2012-09-21", "2012-09-23", "İzmir", "TR", "Türkiye", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2013_ZAGREB", "23rd Balkan Masters Athletics Championships Stadia 2013", "2013-09-06", "2013-09-08", "Zagreb", "HR", "Hırvatistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2014_BUCHAREST", "24th Balkan Masters Athletics Championships Stadia 2014", "2014-09-19", "2014-09-21", "Bucharest", "RO", "Romanya", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2015_THESSALONIKI", "25th Balkan Masters Athletics Championships Stadia 2015", "2015-09-18", "2015-09-20", "Thessaloniki", "GR", "Yunanistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2016_NOVISAD", "26th Balkan Masters Athletics Championships Stadia 2016", "2016-09-23", "2016-09-25", "Novi Sad", "RS", "Sırbistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2017_STARAZAGORA", "27th Balkan Masters Athletics Championships Stadia 2017", "2017-09-22", "2017-09-24", "Stara Zagora", "BG", "Bulgaristan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2018_CELJE", "28th Balkan Masters Athletics Championships Stadia 2018", "2018-09-21", "2018-09-23", "Celje", "SI", "Slovenya", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2019_BUCHAREST", "29th Balkan Masters Athletics Championships Stadia 2019", "2019-09-19", "2019-09-22", "Bucharest", "RO", "Romanya", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2021_KORCE", "30th Balkan Masters Athletics Championships Stadia 2021", "2021-09-17", "2021-09-19", "Korçë", "AL", "Arnavutluk", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2022_THESSALONIKI", "31st Balkan Masters Athletics Championships Stadia 2022", "2022-09-23", "2022-09-25", "Thessaloniki", "GR", "Yunanistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2023_IZMIR", "32nd Balkan Masters Athletics Championships Stadia 2023", "2023-09-29", "2023-10-01", "İzmir", "TR", "Türkiye", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2024_BAR", "33rd Balkan Masters Athletics Championships Stadia 2024", "2024-09-27", "2024-09-29", "Bar", "ME", "Karadağ", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACS_2025_VARAZDIN", "34th Balkan Masters Athletics Championships Stadia 2025", "2025-08-29", "2025-08-31", "Varaždin", "HR", "Hırvatistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/")
+    )
+
+    // =========================================================================
+    // 8. BALKAN MASTERLAR SALON ŞAMPİYONALARI (BAMACI: 2015 - 2025)
+    // =========================================================================
+    private val balkanMastersIndoorArchive = listOf(
+        archiveItem("BAMACI_2015_ISTANBUL", "1st Balkan Masters Athletics Championships Indoor 2015", "2015-02-21", "2015-02-22", "İstanbul", "TR", "Türkiye", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACI_2016_BUCHAREST", "2nd Balkan Masters Athletics Championships Indoor 2016", "2016-03-12", "2016-03-13", "Bucharest", "RO", "Romanya", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACI_2017_STARAZAGORA", "3rd Balkan Masters Athletics Championships Indoor 2017", "2017-03-11", "2017-03-12", "Stara Zagora", "BG", "Bulgaristan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACI_2018_BELGRADE", "4th Balkan Masters Athletics Championships Indoor 2018", "2018-03-10", "2018-03-11", "Belgrade", "RS", "Sırbistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACI_2019_ISTANBUL", "5th Balkan Masters Athletics Championships Indoor 2019", "2019-03-02", "2019-03-03", "İstanbul", "TR", "Türkiye", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACI_2020_BELGRADE", "6th Balkan Masters Athletics Championships Indoor 2020", "2020-03-07", "2020-03-08", "Belgrade", "RS", "Sırbistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACI_2022_NOVOMESTO", "7th Balkan Masters Athletics Championships Indoor 2022", "2022-03-12", "2022-03-13", "Novo Mesto", "SI", "Slovenya", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACI_2023_ISTANBUL", "8th Balkan Masters Athletics Championships Indoor 2023", "2023-03-18", "2023-03-19", "İstanbul", "TR", "Türkiye", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACI_2024_ISTANBUL", "9th Balkan Masters Athletics Championships Indoor 2024", "2024-03-09", "2024-03-10", "İstanbul", "TR", "Türkiye", "balkan", "BAMA", "https://balkan-masters-athletics.org/"),
+        archiveItem("BAMACI_2025_BELGRADE", "10th Balkan Masters Athletics Championships Indoor 2025", "2025-03-08", "2025-03-09", "Belgrade", "RS", "Sırbistan", "balkan", "BAMA", "https://balkan-masters-athletics.org/")
+    )
+
+    // =========================================================================
+    // 9. TAF TÜRKİYE MASTERLAR ATLETİZM ŞAMPİYONALARI (SALON & AÇIK SAHA: 2010 - 2025)
+    // =========================================================================
+    private val tafTurkishMastersArchive = listOf(
+        archiveItem("TAF_2010_OUTDOOR", "Türkiye Masterlar Açık Saha Atletizm Şampiyonası 2010", "2010-06-19", "2010-06-20", "İzmir", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2011_OUTDOOR", "Türkiye Masterlar Açık Saha Atletizm Şampiyonası 2011", "2011-06-18", "2011-06-19", "İzmir", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2012_INDOOR", "Türkiye Masterlar Salon Atletizm Şampiyonası 2012", "2012-02-18", "2012-02-19", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2012_OUTDOOR", "Türkiye Masterlar Açık Saha Atletizm Şampiyonası 2012", "2012-06-16", "2012-06-17", "İzmir", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2013_INDOOR", "Türkiye Masterlar Salon Atletizm Şampiyonası 2013", "2013-02-16", "2013-02-17", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2013_OUTDOOR", "Türkiye Masterlar Açık Saha Atletizm Şampiyonası 2013", "2013-06-15", "2013-06-16", "İzmir", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2014_INDOOR", "Türkiye Masterlar Salon Atletizm Şampiyonası 2014", "2014-02-15", "2014-02-16", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2014_OUTDOOR", "Türkiye Masterlar Açık Saha Atletizm Şampiyonası 2014", "2014-06-14", "2014-06-15", "İzmir", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2015_INDOOR", "Türkiye Masterlar Salon Atletizm Şampiyonası 2015", "2015-02-07", "2015-02-08", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2015_OUTDOOR", "Türkiye Masterlar Açık Saha Atletizm Şampiyonası 2015", "2015-06-13", "2015-06-14", "İzmir", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2016_INDOOR", "Türkiye Masterlar Salon Atletizm Şampiyonası 2016", "2016-02-20", "2016-02-21", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2016_OUTDOOR", "Türkiye Masterlar Açık Saha Atletizm Şampiyonası 2016", "2016-08-20", "2016-08-21", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2017_INDOOR", "Türkiye Masterlar Salon Atletizm Şampiyonası 2017", "2017-02-18", "2017-02-19", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2017_OUTDOOR", "Türkiye Masterlar Açık Saha Atletizm Şampiyonası 2017", "2017-07-01", "2017-07-02", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2018_INDOOR", "Türkiye Masterlar Salon Atletizm Şampiyonası 2018", "2018-02-24", "2018-02-25", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2018_OUTDOOR", "Türkiye Masterlar Açık Saha Atletizm Şampiyonası 2018", "2018-06-30", "2018-07-01", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2019_INDOOR", "Türkiye Masterlar Salon Atletizm Şampiyonası 2019", "2019-02-16", "2019-02-17", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2019_OUTDOOR", "Türkiye Masterlar Açık Saha Atletizm Şampiyonası 2019", "2019-07-20", "2019-07-21", "Konya", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2020_INDOOR", "Türkiye Masterlar Salon Atletizm Şampiyonası 2020", "2020-02-22", "2020-02-23", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2020_OUTDOOR", "Türkiye Masterlar Açık Saha Atletizm Şampiyonası 2020", "2020-09-12", "2020-09-13", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2021_INDOOR", "Türkiye Masterlar Salon Atletizm Şampiyonası 2021", "2021-03-27", "2021-03-28", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2021_OUTDOOR", "Türkiye Masterlar Açık Saha Atletizm Şampiyonası 2021", "2021-07-03", "2021-07-04", "Bursa", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2022_INDOOR", "Türkiye Masterlar Salon Atletizm Şampiyonası 2022", "2022-01-29", "2022-01-30", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2022_OUTDOOR", "Türkiye Masterlar Açık Saha Atletizm Şampiyonası 2022", "2022-08-20", "2022-08-21", "Bursa", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2023_INDOOR", "Türkiye Masterlar Salon Atletizm Şampiyonası 2023", "2023-03-04", "2023-03-05", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2023_OUTDOOR", "Türkiye Masterlar Açık Saha Atletizm Şampiyonası 2023", "2023-08-19", "2023-08-20", "İzmir", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2024_INDOOR", "Türkiye Masterlar Salon Atletizm Şampiyonası 2024", "2024-02-03", "2024-02-04", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2024_OUTDOOR", "Türkiye Masterlar Açık Saha Atletizm Şampiyonası 2024", "2024-08-24", "2024-08-25", "İzmir", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2025_INDOOR", "Türkiye Masterlar Salon Atletizm Şampiyonası 2025", "2025-02-08", "2025-02-09", "İstanbul", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/"),
+        archiveItem("TAF_2025_OUTDOOR", "Türkiye Masterlar Açık Saha Atletizm Şampiyonası 2025", "2025-07-05", "2025-07-06", "İzmir", "TR", "Türkiye", "national", "TAF", "https://www.taf.org.tr/")
+    )
+
+    // =========================================================================
+    // 10. AVRUPA ULUSAL MASTER ŞAMPİYONALARI (BMAF, FFA, DLV, FIDAL, RFEA: 2018 - 2025)
+    // =========================================================================
+    private val europeanNationalMastersArchive = listOf(
+        // Birleşik Krallık (BMAF)
+        archiveItem("BMAF_2018_OUTDOOR", "BMAF British Masters Track & Field Championships 2018", "2018-08-25", "2018-08-26", "Birmingham", "GB", "Birleşik Krallık", "national", "BMAF", "https://bmaf.org.uk/"),
+        archiveItem("BMAF_2019_OUTDOOR", "BMAF British Masters Track & Field Championships 2019", "2019-08-10", "2019-08-11", "Birmingham", "GB", "Birleşik Krallık", "national", "BMAF", "https://bmaf.org.uk/"),
+        archiveItem("BMAF_2021_OUTDOOR", "BMAF British Masters Track & Field Championships 2021", "2021-09-03", "2021-09-05", "Derby", "GB", "Birleşik Krallık", "national", "BMAF", "https://bmaf.org.uk/"),
+        archiveItem("BMAF_2022_OUTDOOR", "BMAF British Masters Track & Field Championships 2022", "2022-08-26", "2022-08-28", "Derby", "GB", "Birleşik Krallık", "national", "BMAF", "https://bmaf.org.uk/"),
+        archiveItem("BMAF_2023_OUTDOOR", "BMAF British Masters Track & Field Championships 2023", "2023-09-01", "2023-09-03", "Derby", "GB", "Birleşik Krallık", "national", "BMAF", "https://bmaf.org.uk/"),
+        archiveItem("BMAF_2024_INDOOR", "BMAF British Masters Indoor Track & Field Championships 2024", "2024-02-17", "2024-02-18", "Sheffield", "GB", "Birleşik Krallık", "national", "BMAF", "https://bmaf.org.uk/"),
+        archiveItem("BMAF_2024_OUTDOOR", "BMAF British Masters Track & Field Championships 2024", "2024-07-26", "2024-07-28", "Derby", "GB", "Birleşik Krallık", "national", "BMAF", "https://bmaf.org.uk/"),
+        archiveItem("BMAF_2025_INDOOR", "BMAF British Masters Indoor Track & Field Championships 2025", "2025-02-22", "2025-02-23", "Lee Valley, London", "GB", "Birleşik Krallık", "national", "BMAF", "https://bmaf.org.uk/"),
+        archiveItem("BMAF_2025_OUTDOOR", "BMAF British Masters Track & Field Championships 2025", "2025-08-29", "2025-08-31", "Derby", "GB", "Birleşik Krallık", "national", "BMAF", "https://bmaf.org.uk/"),
+
+        // Fransa (FFA)
+        archiveItem("FFA_2018_OUTDOOR", "Championnats de France Masters sur Piste 2018", "2018-06-15", "2018-06-17", "Angers", "FR", "Fransa", "national", "FFA", "https://www.athle.fr/"),
+        archiveItem("FFA_2019_OUTDOOR", "Championnats de France Masters sur Piste 2019", "2019-06-14", "2019-06-16", "Dreux", "FR", "Fransa", "national", "FFA", "https://www.athle.fr/"),
+        archiveItem("FFA_2021_OUTDOOR", "Championnats de France Masters sur Piste 2021", "2021-09-24", "2021-09-26", "Albi", "FR", "Fransa", "national", "FFA", "https://www.athle.fr/"),
+        archiveItem("FFA_2022_OUTDOOR", "Championnats de France Masters sur Piste 2022", "2022-06-10", "2022-06-12", "Châteauroux", "FR", "Fransa", "national", "FFA", "https://www.athle.fr/"),
+        archiveItem("FFA_2023_OUTDOOR", "Championnats de France Masters sur Piste 2023", "2023-06-23", "2023-06-25", "Laval", "FR", "Fransa", "national", "FFA", "https://www.athle.fr/"),
+        archiveItem("FFA_2024_INDOOR", "Championnats de France Masters en Salle 2024", "2024-03-01", "2024-03-03", "Lyon", "FR", "Fransa", "national", "FFA", "https://www.athle.fr/"),
+        archiveItem("FFA_2024_OUTDOOR", "Championnats de France Masters sur Piste 2024", "2024-06-13", "2024-06-16", "Thonon-les-Bains", "FR", "Fransa", "national", "FFA", "https://www.athle.fr/"),
+        archiveItem("FFA_2025_INDOOR", "Championnats de France Masters en Salle 2025", "2025-03-07", "2025-03-09", "Miramas", "FR", "Fransa", "national", "FFA", "https://www.athle.fr/"),
+        archiveItem("FFA_2025_OUTDOOR", "Championnats de France Masters sur Piste 2025", "2025-06-20", "2025-06-22", "Saint-Étienne", "FR", "Fransa", "national", "FFA", "https://www.athle.fr/"),
+
+        // Almanya (DLV)
+        archiveItem("DLV_2018_OUTDOOR", "Deutsche Masters-Meisterschaften 2018", "2018-06-29", "2018-07-01", "Mönchengladbach", "DE", "Almanya", "national", "DLV", "https://www.leichtathletik.de/"),
+        archiveItem("DLV_2019_OUTDOOR", "Deutsche Masters-Meisterschaften 2019", "2019-07-12", "2019-07-14", "Leinefelde-Worbis", "DE", "Almanya", "national", "DLV", "https://www.leichtathletik.de/"),
+        archiveItem("DLV_2021_OUTDOOR", "Deutsche Masters-Meisterschaften 2021", "2021-09-10", "2021-09-12", "Baunatal", "DE", "Almanya", "national", "DLV", "https://www.leichtathletik.de/"),
+        archiveItem("DLV_2022_OUTDOOR", "Deutsche Masters-Meisterschaften 2022", "2022-09-17", "2022-09-18", "Erfurt", "DE", "Almanya", "national", "DLV", "https://www.leichtathletik.de/"),
+        archiveItem("DLV_2023_OUTDOOR", "Deutsche Masters-Meisterschaften 2023", "2023-08-12", "2023-08-13", "Mönchengladbach", "DE", "Almanya", "national", "DLV", "https://www.leichtathletik.de/"),
+        archiveItem("DLV_2024_INDOOR", "Deutsche Hallenmeisterschaften Masters 2024", "2024-03-02", "2024-03-03", "Dortmund", "DE", "Almanya", "national", "DLV", "https://www.leichtathletik.de/"),
+        archiveItem("DLV_2024_OUTDOOR", "Deutsche Masters-Meisterschaften 2024", "2024-06-14", "2024-06-16", "Erding", "DE", "Almanya", "national", "DLV", "https://www.leichtathletik.de/"),
+        archiveItem("DLV_2025_INDOOR", "Deutsche Hallenmeisterschaften Masters 2025", "2025-03-01", "2025-03-02", "Frankfurt-Kalbach", "DE", "Almanya", "national", "DLV", "https://www.leichtathletik.de/"),
+        archiveItem("DLV_2025_OUTDOOR", "Deutsche Masters-Meisterschaften 2025", "2025-08-22", "2025-08-24", "Gotha", "DE", "Almanya", "national", "DLV", "https://www.leichtathletik.de/"),
+
+        // İtalya (FIDAL)
+        archiveItem("FIDAL_2018_OUTDOOR", "Campionati Italiani Individuali su Pista Master 2018", "2018-06-29", "2018-07-01", "Arezzo", "IT", "İtalya", "national", "FIDAL", "https://www.fidal.it/"),
+        archiveItem("FIDAL_2019_OUTDOOR", "Campionati Italiani Individuali su Pista Master 2019", "2019-07-05", "2019-07-07", "Campi Bisenzio", "IT", "İtalya", "national", "FIDAL", "https://www.fidal.it/"),
+        archiveItem("FIDAL_2020_OUTDOOR", "Campionati Italiani Individuali su Pista Master 2020", "2020-10-09", "2020-10-11", "Arezzo", "IT", "İtalya", "national", "FIDAL", "https://www.fidal.it/"),
+        archiveItem("FIDAL_2021_OUTDOOR", "Campionati Italiani Individuali su Pista Master 2021", "2021-09-16", "2021-09-19", "Rieti", "IT", "İtalya", "national", "FIDAL", "https://www.fidal.it/"),
+        archiveItem("FIDAL_2022_OUTDOOR", "Campionati Italiani Individuali su Pista Master 2022", "2022-06-10", "2022-06-12", "Grosseto", "IT", "İtalya", "national", "FIDAL", "https://www.fidal.it/"),
+        archiveItem("FIDAL_2023_OUTDOOR", "Campionati Italiani Individuali su Pista Master 2023", "2023-06-23", "2023-06-25", "Acropoli", "IT", "İtalya", "national", "FIDAL", "https://www.fidal.it/"),
+        archiveItem("FIDAL_2024_INDOOR", "Campionati Italiani Master Indoor 2024", "2024-02-22", "2024-02-25", "Ancona", "IT", "İtalya", "national", "FIDAL", "https://www.fidal.it/"),
+        archiveItem("FIDAL_2024_OUTDOOR", "Campionati Italiani Individuali su Pista Master 2024", "2024-06-21", "2024-06-23", "Rome", "IT", "İtalya", "national", "FIDAL", "https://www.fidal.it/"),
+        archiveItem("FIDAL_2025_INDOOR", "Campionati Italiani Master Indoor 2025", "2025-02-27", "2025-03-02", "Ancona", "IT", "İtalya", "national", "FIDAL", "https://www.fidal.it/"),
+        archiveItem("FIDAL_2025_OUTDOOR", "Campionati Italiani Individuali su Pista Master 2025", "2025-06-20", "2025-06-22", "Misano Adriatico", "IT", "İtalya", "national", "FIDAL", "https://www.fidal.it/"),
+
+        // İspanya (RFEA)
+        archiveItem("RFEA_2018_OUTDOOR", "Campeonato de España Máster Aire Libre 2018", "2018-06-29", "2018-07-01", "Vitoria-Gasteiz", "ES", "İspanya", "national", "RFEA", "https://www.rfea.es/"),
+        archiveItem("RFEA_2019_OUTDOOR", "Campeonato de España Máster Aire Libre 2019", "2019-06-28", "2019-06-30", "Sagunto", "ES", "İspanya", "national", "RFEA", "https://www.rfea.es/"),
+        archiveItem("RFEA_2021_OUTDOOR", "Campeonato de España Máster Aire Libre 2021", "2021-06-18", "2021-06-20", "Málaga", "ES", "İspanya", "national", "RFEA", "https://www.rfea.es/"),
+        archiveItem("RFEA_2022_OUTDOOR", "Campeonato de España Máster Aire Libre 2022", "2022-06-17", "2022-06-19", "Arona", "ES", "İspanya", "national", "RFEA", "https://www.rfea.es/"),
+        archiveItem("RFEA_2023_OUTDOOR", "Campeonato de España Máster Aire Libre 2023", "2023-06-23", "2023-06-25", "Jerez de la Frontera", "ES", "İspanya", "national", "RFEA", "https://www.rfea.es/"),
+        archiveItem("RFEA_2024_INDOOR", "Campeonato de España Máster Short Track 2024", "2024-03-01", "2024-03-03", "San Sebastián", "ES", "İspanya", "national", "RFEA", "https://www.rfea.es/"),
+        archiveItem("RFEA_2024_OUTDOOR", "Campeonato de España Máster Aire Libre 2024", "2024-06-28", "2024-06-30", "Alcobendas", "ES", "İspanya", "national", "RFEA", "https://www.rfea.es/"),
+        archiveItem("RFEA_2025_INDOOR", "Campeonato de España Máster Short Track 2025", "2025-02-28", "2025-03-02", "Antequera", "ES", "İspanya", "national", "RFEA", "https://www.rfea.es/"),
+        archiveItem("RFEA_2025_OUTDOOR", "Campeonato de España Máster Aire Libre 2025", "2025-06-27", "2025-06-29", "La Nucía", "ES", "İspanya", "national", "RFEA", "https://www.rfea.es/")
     )
 }

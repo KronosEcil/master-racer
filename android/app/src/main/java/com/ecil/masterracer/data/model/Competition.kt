@@ -144,13 +144,16 @@ data class Competition(
         if (sLow == "ema_league" || tLow.contains("ema league") || tLow.contains("ema ligi") || tLow.contains("meeting europeen") || tLow.contains("meeting européen")) {
             return "ema_league"
         }
-        if (sLow == "world" || tLow.contains("world") || tLow.contains("wma") || tLow.contains("wmg") || tLow.contains("kansai")) {
+        if (tLow.contains("european masters games")) {
+            return "europe"
+        }
+        if (sLow == "world" || sLow == "international" || tLow.contains("world") || tLow.contains("wma") || tLow.contains("wmg") || tLow.contains("kansai")) {
             return "world"
         }
         if (sLow == "balkan" || tLow.contains("balkan") || tLow.contains("bamacs") || tLow.contains("bamaci")) {
             return "balkan"
         }
-        if (tLow.contains("emacs") || tLow.contains("emaci") || tLow.contains("emamrc") || tLow.contains("emacns") ||
+        if (sLow == "europe" || sLow == "european" || tLow.contains("emacs") || tLow.contains("emaci") || tLow.contains("emamrc") || tLow.contains("emacns") ||
             tLow.contains("emmtrc") || tLow.contains("emorrc") || tLow.contains("european masters championship") ||
             tLow.contains("european masters athletics championship") || tLow.contains("european masters mountain") ||
             tLow.contains("european masters marathon") || tLow.contains("european masters non-stadia") ||
