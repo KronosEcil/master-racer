@@ -184,6 +184,17 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                     if s_date and s_date in all_dates_by_prefix.get(prefix, set()):
                         is_same_date_generic_dup = True
 
+                # 2026 öncesi (1975-2025) yarışmalar uygulama kodunda yerel arşiv olarak tutulacağı için Firestore'dan temizle
+                if s_date and len(s_date) >= 4 and s_date[:4].isdigit() and int(s_date[:4]) < 2026:
+                    try:
+                        db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()
+                        existing_comps.pop(doc_id, None)
+                        logger.info(f"🗑️ [2026 ÖNCESİ KAYIT TEMİZLENDİ] {title} ({s_date})")
+                        deleted_count += 1
+                    except Exception as e:
+                        logger.error(f"Firestore silme hatası ({doc_id}): {e}")
+                    continue
+
                 if canon_id != doc_id or is_same_date_generic_dup:
                     try:
                         # Geçmiş/arşiv yarışmalarının kaybolmaması için: eğer yeni kanonik ID taramada veya

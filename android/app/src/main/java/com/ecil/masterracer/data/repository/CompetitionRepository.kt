@@ -34,7 +34,7 @@ class CompetitionRepository(
                         if (this.id.isBlank()) this.id = doc.id
                     }
                 }
-                trySend(cleanAndDeduplicate(competitions))
+                trySend(cleanAndDeduplicate(competitions + HistoricalCompetitionsArchive.competitions))
             } else {
                 Log.d("CompetitionRepo", "Firestore koleksiyonu boş veya henüz senkronize edilmedi.")
                 trySend(getFallbackCompetitions())
@@ -62,7 +62,7 @@ class CompetitionRepository(
                         if (this.id.isBlank()) this.id = doc.id
                     }
                 }
-                cleanAndDeduplicate(competitions)
+                cleanAndDeduplicate(competitions + HistoricalCompetitionsArchive.competitions)
             } else {
                 getFallbackCompetitions()
             }
@@ -92,7 +92,7 @@ class CompetitionRepository(
     private fun cleanAndDeduplicate(list: List<Competition>): List<Competition> {
         return list
             .filter { comp ->
-                comp.title.isNotBlank() && comp.start_date.length >= 8 && !comp.start_date.startsWith("2006")
+                comp.title.isNotBlank() && comp.start_date.length >= 8
             }
             .map { comp ->
                 comp.copy(
@@ -107,11 +107,10 @@ class CompetitionRepository(
     }
 
     /**
-     * Yerel önbellekte veya ilk açılışta statik veri tutulmaz;
-     * tüm veriler yalnızca canlı Firestore veritabanından çekilir.
+     * Çevrimdışı durumda veya Firestore erişilemediğinde yerel 1975-2025 arşivini döndürür.
      */
     fun getFallbackCompetitions(): List<Competition> {
-        return emptyList()
+        return cleanAndDeduplicate(HistoricalCompetitionsArchive.competitions)
     }
 }
 
