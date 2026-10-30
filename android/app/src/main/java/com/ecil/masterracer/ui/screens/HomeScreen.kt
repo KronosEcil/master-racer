@@ -226,11 +226,7 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = if (uiState.selectedDatePreset == "archive" || !uiState.hideCompleted) {
-                        "Yarışma Arşivi (Tamamlananlar)"
-                    } else {
-                        "Yaklaşan Şampiyonalar"
-                    },
+                    text = "Yaklaşan Şampiyonalar",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1E293B)

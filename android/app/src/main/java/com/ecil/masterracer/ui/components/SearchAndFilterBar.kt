@@ -149,13 +149,11 @@ fun SearchAndFilterBar(
                 "Tümü" to "all",
                 "Gelecek 3 Ay" to "next_90",
                 "Bu Yıl ($currentYear)" to "current_year",
-                "Gelecek Yıl ($nextYear)" to "next_year",
-                "Arşiv (Geçmiş)" to "archive"
+                "Gelecek Yıl ($nextYear)" to "next_year"
             )
 
             presets.forEach { (label, key) ->
-                val isSelected = activeDatePreset == key || (key == "archive" && !hideCompleted)
-                val isArchiveChip = key == "archive"
+                val isSelected = activeDatePreset == key
                 FilterChip(
                     selected = isSelected,
                     onClick = { onDatePresetSelect(if (isSelected && key != "all") "all" else key) },
@@ -168,13 +166,33 @@ fun SearchAndFilterBar(
                     },
                     shape = RoundedCornerShape(20.dp),
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = if (isArchiveChip) Color(0xFF475569) else BluePrimary,
+                        selectedContainerColor = BluePrimary,
                         selectedLabelColor = Color.White,
                         containerColor = Color(0xFFF1F5F9),
                         labelColor = Color(0xFF334155)
                     )
                 )
             }
+
+            // Geçmiş Yarışmaları Göster / Gizle Hızlı Çipi
+            FilterChip(
+                selected = !hideCompleted,
+                onClick = onToggleHideCompleted,
+                label = {
+                    Text(
+                        text = if (!hideCompleted) "✓ Geçmişi Göster" else "Geçmiş Yarışmalar",
+                        fontSize = 12.sp,
+                        fontWeight = if (!hideCompleted) FontWeight.SemiBold else FontWeight.Normal
+                    )
+                },
+                shape = RoundedCornerShape(20.dp),
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = Color(0xFF64748B),
+                    selectedLabelColor = Color.White,
+                    containerColor = Color(0xFFF1F5F9),
+                    labelColor = Color(0xFF334155)
+                )
+            )
         }
     }
 }

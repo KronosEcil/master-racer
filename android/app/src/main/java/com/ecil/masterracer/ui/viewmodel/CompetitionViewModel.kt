@@ -185,33 +185,17 @@ class CompetitionViewModel(
     }
 
     fun onDatePresetSelect(preset: String) {
-        _uiState.update {
-            it.copy(
-                selectedDatePreset = preset,
-                hideCompleted = preset != "archive"
-            )
-        }
+        _uiState.update { it.copy(selectedDatePreset = preset) }
         applyFilters()
     }
 
     fun toggleHideCompleted() {
-        _uiState.update { state ->
-            val nextHide = !state.hideCompleted
-            state.copy(
-                hideCompleted = nextHide,
-                selectedDatePreset = if (!nextHide) "archive" else if (state.selectedDatePreset == "archive") "all" else state.selectedDatePreset
-            )
-        }
+        _uiState.update { it.copy(hideCompleted = !it.hideCompleted) }
         applyFilters()
     }
 
     fun setHideCompleted(hide: Boolean) {
-        _uiState.update { state ->
-            state.copy(
-                hideCompleted = hide,
-                selectedDatePreset = if (!hide) "archive" else if (state.selectedDatePreset == "archive") "all" else state.selectedDatePreset
-            )
-        }
+        _uiState.update { it.copy(hideCompleted = hide) }
         applyFilters()
     }
 
@@ -261,8 +245,6 @@ class CompetitionViewModel(
         val preset = currentState.selectedDatePreset
         val hideCompleted = currentState.hideCompleted
 
-        val isArchiveMode = preset == "archive" || !hideCompleted
-
         val filtered = currentState.allCompetitions.filter { comp ->
             // Almanya ve Genel Sıkı 35+ Master Kriteri Filtresi
             if (!comp.isStrictMasterAthletics()) {
@@ -270,13 +252,10 @@ class CompetitionViewModel(
             }
 
             val days = comp.getDaysRemaining()
-            val completed = comp.isCompleted()
 
-            // Arşiv modunda yalnızca tamamlanmış (geçmiş) yarışmaları, normal modda ise yaklaşan/devam eden yarışmaları göster
-            if (isArchiveMode) {
-                if (!completed) return@filter false
-            } else {
-                if (completed) return@filter false
+            // Tamamlanan Yarışmaları Gizleme Filtresi
+            if (hideCompleted && days < 0) {
+                return@filter false
             }
 
             // Metin Arama Filtresi (Başlık, Şehir, Ülke, Kategori veya Federasyon)
@@ -306,18 +285,11 @@ class CompetitionViewModel(
                 "next_90" -> days in 0..90
                 "current_year" -> comp.start_date.startsWith(currentYearStr)
                 "next_year" -> comp.start_date.startsWith(nextYearStr)
-                "archive" -> completed
                 else -> true
             }
 
             matchesQuery && matchesScope && matchesCountry && matchesDatePreset
-        }.let { list ->
-            if (isArchiveMode) {
-                list.sortedByDescending { it.start_date }
-            } else {
-                list.sortedBy { it.start_date }
-            }
-        }
+        }.sortedWith(compareBy({ it.getDaysRemaining() < 0 }, { it.start_date }))
 
         _uiState.update { it.copy(filteredCompetitions = filtered) }
     }

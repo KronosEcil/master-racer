@@ -202,7 +202,7 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                         logger.error(f"Firestore mükerrer silme hatası ({doc_id}): {e}")
 
     # Toplu veritabanı yenilemesinde veya ilk temel rozet sıfırlamasında bildirim gönderme
-    new_candidates = sum(1 for c in all_scraped if c.id not in existing_comps)
+    new_candidates = sum(1 for c in all_scraped if c.id not in existing_comps and c.status != "completed")
     allow_push_notifications = (new_candidates <= 10) and badges_baseline_reset
 
     # 2. DOĞRULANMIŞ RESMİ YARIŞMALARI VERİTABANINA YAZ
@@ -214,15 +214,17 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
         if change_type == "UNCHANGED":
             continue
 
+        is_past_archive = comp.status == "completed"
         comp.updated_at = datetime.now(timezone.utc).isoformat()
-        if not badges_baseline_reset:
-            # Temel referans (baseline) kurulumunda mevcut hiçbir yarışmada Yeni / Güncellendi etiketi gösterme
+        if not badges_baseline_reset or is_past_archive:
+            # Temel referans (baseline) kurulumunda veya geçmiş arşiv yarışmalarında Yeni / Güncellendi etiketi gösterme
             comp.is_new = False
             comp.date_changed = False
             comp.location_changed = False
             comp.old_start_date = None
             comp.old_location = None
-            logger.info(f"🔄 [TEMEL KAYIT GÜNCELLENDİ] {comp.title} ({comp.start_date}) - {comp.city}, {comp.country_name}")
+            should_notify = False
+            logger.info(f"🔄 [{'ARŞİV EKLENDİ' if is_past_archive else 'TEMEL KAYIT GÜNCELLENDİ'}] {comp.title} ({comp.start_date}) - {comp.city}, {comp.country_name}")
         elif change_type == "NEW":
             comp.is_new = True
             comp.date_changed = False
