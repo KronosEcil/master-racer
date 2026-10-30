@@ -98,7 +98,7 @@ class AutonomousDiscoveryParser(BaseParser):
                             e_date = str(ev.get("endDate", s_date))[:10] or s_date
                             if not title or not is_valid_competition_title(title):
                                 continue
-                            if not re.match(r"^20\d{2}-\d{2}-\d{2}$", s_date) or int(s_date[:4]) < min_year:
+                            if not re.match(r"^20\d{2}-\d{2}-\d{2}$", s_date) or int(s_date[:4]) < 2023:
                                 continue
                             loc = ev.get("location") or {}
                             addr = loc.get("address") if isinstance(loc, dict) else {}
@@ -204,20 +204,21 @@ class AutonomousDiscoveryParser(BaseParser):
         schema_instruction = (
             "\n\nKESİN ÇIKTI VE DOĞRULUK KURALLARI:\n"
             f"1. Hem aşağıda indirilen canlı resmi sayfa/arama verilerini HEM DE ilgili ulusal ve uluslararası federasyonların "
-            f"(EMA, WMA, IMGA, BAMA, BMAF, IMAA, FFA, DLV, ÖLV, Swiss Masters, Atletiekunie, VAL/LBFA, FIDAL, RFEA, FPAtletismo/ANAV, "
+            f"(EMA, WMA, World Masters Sport/IMGA, BAMA, BMAF, IMAA, FFA, DLV, ÖLV, Swiss Masters, Atletiekunie, VAL/LBFA, FIDAL, RFEA, FPAtletismo/ANAV, "
             f"PMA/PZLA, ČAS, SAZ, MASZ, SAUL, SFIF, NFIF, DAF, SEGAS, FRA, BFLA, SAS, HAS, AZS, EKJL, LVS, LLAF) "
-            f"{years_all_tr} yılları için açıklanmış resmi şampiyona takvimlerini birleştirerek tarihi (YYYY-MM-DD) ve yapılacağı şehri/ülkesi "
-            "kesinleşmiş olan TÜM 35+ yaş Masterlar (Masters / Veteran / Vétérans / Senioren / Veteranos / SAUL) şampiyonalarını eksiksiz çıkar.\n"
-            f"2. ÖZELLİKLE {y2} yılı (önümüzdeki yıl) ulusal ve uluslararası Master şampiyonalarını ve {y3} yılı Avrupa/Dünya Master Şampiyonalarını (EMACI, EMACS, EMACNS, WMACS vb.) mutlaka dahil et!\n"
+            f"geçmiş ({y1 - 1}-{y1}) ve gelecek ({years_all_tr} ve sonrası açıklanmış tüm yıllar) resmi şampiyona takvimlerini birleştirerek "
+            "tarihi (YYYY-MM-DD) ve yapılacağı şehri/ülkesi kesinleşmiş olan TÜM 35+ yaş Masterlar (Masters / Veteran / Vétérans / Senioren / Veteranos / SAUL) şampiyonalarını eksiksiz çıkar.\n"
+            f"2. ÖZELLİKLE {y2}, {y3}, {y4} ve daha ileri yıllar için açıklanmış ulusal ve uluslararası Master şampiyonalarını ve arşiv için yakın geçmiş ({y1 - 1}, {y1}) yarışmalarını mutlaka dahil et!\n"
             "3. Elit/Büyükler (Senior Elite), Olimpik Deneme, U23, U20, U18 yarışmalarını ASLA dahil etme.\n"
             "4. Çok günlü yarışmalarda `start_date` ve `end_date` tarihlerini resmi takvimdeki tam aralık olarak (YYYY-MM-DD) yaz. "
             "Tarihi, şehri veya ülkesi 'TBD', 'TBC', 'N/A', 'Not Specified' olan ya da 1 Ocak (YYYY-01-01) gibi yer tutucu tarihli yarışmaları DAHİL ETME!\n"
-            "5. `scope` alanı yalnızca şu 6 değerden biri olmalıdır: 'national', 'world', 'balkan', 'europe', 'ema_league', 'regional'.\n"
-            "6. Metin içinde yarışmaya ait doğrudan detay/kayıt sayfası bağlantısı `[URL: https://...]` varsa `website_url` alanına bu doğrudan bağlantıyı yaz. "
+            "5. Her yarışmanın `city`, `country` ve `country_name` alanlarına yalnızca O YARIŞMANIN kendi resmi ev sahibi şehrini ve ülkesini yaz (örneğin Perth -> AU/Avustralya, Lahti -> FI/Finlandiya, Como -> IT/İtalya, Taipei -> TW/Tayvan, Abu Dhabi -> AE/Birleşik Arap Emirlikleri; farklı yıllardaki Masters Games ev sahiplerini birbirine karıştırma!).\n"
+            "6. `scope` alanı yalnızca şu 6 değerden biri olmalıdır: 'national', 'world', 'balkan', 'europe', 'ema_league', 'regional'.\n"
+            "7. Metin içinde yarışmaya ait doğrudan detay/kayıt sayfası bağlantısı `[URL: https://...]` varsa `website_url` alanına bu doğrudan bağlantıyı yaz. "
             "Yarışmaya ait resmi şartname, reglaman, bülten veya kılavuz PDF bağlantısı `[PDF: https://...]` varsa `regulations_url` alanına tam URL olarak yaz (yoksa null bırak).\n"
-            "7. Sadece geçerli bir JSON dizisi (array) döndür, markdown veya açıklama metni ekleme:\n"
+            "8. Sadece geçerli bir JSON dizisi (array) döndür, markdown veya açıklama metni ekleme:\n"
             '[{"title": "Resmi Yarışma Adı", "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", '
-            '"city": "Şehir", "country": "ISO-2 Ülke Kodu (TR, DE, FR, GB, IT, ES, PL, RO, JP, NZ vb.)", '
+            '"city": "Şehir", "country": "ISO-2 Ülke Kodu (TR, DE, FR, GB, IT, ES, PL, RO, FI, AU, JP, NZ vb.)", '
             '"country_name": "Türkçe Ülke Adı", "scope": "national|world|balkan|europe|ema_league|regional", '
             '"federation": "Federasyon Kısaltması", "website_url": "Doğrudan Yarışma veya Resmi Takvim URL", '
             '"regulations_url": "Varsa Resmi Şartname PDF URL veya null"}]'
@@ -225,7 +226,7 @@ class AutonomousDiscoveryParser(BaseParser):
 
         official_batches = [
             (
-                f"1. Uluslararası Resmi Takvimler: WMA, WMG, EMA ({y1}-{y4}), EMA League ve Balkan Masters",
+                f"1. Uluslararası Resmi Takvimler: WMA, WMG, EMA ({y1 - 1}-{y4}+), EMA League ve Balkan Masters",
                 {"INT", "WORLD", "EUROPE", "BALKAN"},
                 [
                     "https://european-masters-athletics.org/championships/",
@@ -233,26 +234,26 @@ class AutonomousDiscoveryParser(BaseParser):
                     "https://balkanmasters.com/",
                     "https://world-masters-athletics.org/championships/",
                     "https://www.worldmasterssport.com/about-the-masters-games/next-masters-games/",
-                    "https://www.worldmasterssport.com/",
+                    "https://www.worldmasterssport.com/about-the-masters-games/all-masters-games/",
                 ],
                 [
-                    f"European Masters Athletics Championships {y1} {y2} {y3} {y4} EMACI EMACS EMACNS EMMTRC EMAMRC",
-                    f"World Masters Athletics Championships {y1} {y2} {y3} {y4} Stadia Indoor Mountain Marathon",
-                    f"site:worldmasterssport.com World Masters Games Open Masters Games {y1 - 1} {y1} {y2} {y3} {y4}",
-                    f"Balkan Masters Athletics Championships {y1} {y2} {y3} BAMACI BAMACS BAMAM",
-                    f"EMA League {y1} {y2} European Masters Athletics",
+                    f"European Masters Athletics Championships {y1 - 1} {y1} {y2} {y3} {y4} EMACI EMACS EMACNS EMMTRC EMAMRC",
+                    f"World Masters Athletics Championships {y1 - 1} {y1} {y2} {y3} {y4} Stadia Indoor Mountain Marathon",
+                    f"site:worldmasterssport.com World Masters Games Open Masters Games Winter World Masters Games {y1 - 1} {y1} {y2} {y3} {y4}",
+                    f"Balkan Masters Athletics Championships {y1 - 1} {y1} {y2} {y3} BAMACI BAMACS BAMAM",
+                    f"EMA League {y1} {y2} {y3} European Masters Athletics",
                 ],
-                f"List ALL confirmed international Masters championships and Masters Games from the live official federation pages below "
+                f"List ALL confirmed past ({y1 - 1}, {y1}) and upcoming ({years_all_en} and beyond) international Masters championships and Masters Games from the live official federation pages below "
                 f"(EMA https://european-masters-athletics.org/championships/, WMA https://world-masters-athletics.org/championships/, "
                 f"World Masters Sport https://www.worldmasterssport.com/about-the-masters-games/next-masters-games/, BAMA https://balkanmasters.com/), "
                 f"extracting each event's true host city, country, and dates directly from the official calendar text:\n"
-                f"1. European Masters Athletics Championships ({y1}, {y2}, {y3}, {y4}): EMACI (Indoor), EMACS (Stadia), EMACNS (Non-Stadia), EMMTRC (Mountain & Trail), EMAMRC (Marathon).\n"
-                f"2. World Masters Sport (https://www.worldmasterssport.com/) Upcoming & Recent Past Masters Games (World Masters Games, Open Masters Games, European Masters Games from {y1 - 1} through {y4}) — use the exact host city and country listed for each edition on worldmasterssport.com.\n"
-                f"3. World Masters Athletics (WMA) Championships ({y1}, {y2}, {y3}, {y4}): Outdoor/Stadia, Indoor, Mountain Running, Marathon & Road.\n"
-                f"4. EMA League Meetings ({y1} and {y2}) & Balkan Masters Championships (BAMACI Indoor, BAMACS Stadia, BAMAM Marathon in {y1}, {y2}, {y3})."
+                f"1. European Masters Athletics Championships ({y1 - 1}, {y1}, {y2}, {y3}, {y4}+): EMACI (Indoor), EMACS (Stadia), EMACNS (Non-Stadia), EMMTRC (Mountain & Trail), EMAMRC (Marathon).\n"
+                f"2. World Masters Sport (https://www.worldmasterssport.com/) Upcoming & Previous Masters Games (World Masters Games, Winter World Masters Games, Open Masters Games, European Masters Games) — use the exact host city and country listed for each edition on worldmasterssport.com (never assign Japan/Kansai to Perth, Lahti, Como, Taipei, or Abu Dhabi!).\n"
+                f"3. World Masters Athletics (WMA) Championships ({y1 - 1}, {y1}, {y2}, {y3}, {y4}+): Outdoor/Stadia, Indoor, Mountain Running, Marathon & Road.\n"
+                f"4. EMA League Meetings ({y1}, {y2}, {y3}) & Balkan Masters Championships (BAMACI Indoor, BAMACS Stadia, BAMAM Marathon in {y1 - 1}, {y1}, {y2}, {y3}, {y4})."
             ),
             (
-                f"2. Birleşik Krallık (BMAF) ve İrlanda (IMAA) {y1} ve {y2} Ulusal Takvimleri",
+                f"2. Birleşik Krallık (BMAF) ve İrlanda (IMAA) ({y1}-{y4}) Ulusal Takvimleri",
                 {"GB", "IE"},
                 [
                     "https://bmaf.org.uk/fixtures/",
@@ -260,21 +261,18 @@ class AutonomousDiscoveryParser(BaseParser):
                     "https://www.athleticsireland.ie/competition/fixtures/",
                 ],
                 [
-                    f"BMAF British Masters Championships fixtures {y1} {y2} Indoor Outdoor Cross Country Throws",
-                    f"British Masters Road Relays 5k 10k Half Marathon Marathon {y1} {y2} bmaf",
-                    f"Irish Masters Athletics Championships IMAA {y1} {y2} Indoor Outdoor",
+                    f"BMAF British Masters Championships fixtures {y1} {y2} {y3} Indoor Outdoor Cross Country Throws",
+                    f"British Masters Road Relays 5k 10k Half Marathon Marathon {y1} {y2} {y3} bmaf",
+                    f"Irish Masters Athletics Championships IMAA {y1} {y2} {y3} Indoor Outdoor",
                 ],
-                f"List all confirmed {y1} AND {y2} British Masters (BMAF - https://bmaf.org.uk/fixtures/ and https://bmaf.opentrack.run/) and Irish Masters (IMAA) championships and open fixtures (both {y1} and {y2} editions!), including:\n"
-                f"- BMAF Indoor Track & Field Championships ({y1} and {y2}, Lee Valley London)\n"
-                f"- BMAF Outdoor Track & Field Championships ({y1} and {y2}, Derby)\n"
-                f"- BMAF Indoor Pentathlon & 3000m Championships ({y1} and {y2})\n"
-                f"- BMAF Winter Throws & Outdoor Throws Pentathlon Championships ({y1} and {y2})\n"
-                f"- BMAF Cross Country Championships & Cross Country Relays ({y1} and {y2})\n"
-                f"- BMAF Road Relays (Sutton Park), 1 Mile, 5k, 10k, 10 Mile, Half Marathon, Marathon, 10,000m Track, and Race Walking Championships ({y1} and {y2})\n"
-                f"- Irish Masters (IMAA) Indoor Championships (Athlone) & Outdoor Track & Field Championships (Tullamore) ({y1} and {y2})."
+                f"List all confirmed {y1}, {y2}, {y3}, and {y4} (including completed {y1} archive events and all announced future years) British Masters (BMAF - https://bmaf.org.uk/fixtures/ and https://bmaf.opentrack.run/) and Irish Masters (IMAA) championships and open fixtures:\n"
+                f"- BMAF Indoor & Outdoor Track & Field Championships ({y1}, {y2}, {y3}+)\n"
+                f"- BMAF Indoor Pentathlon & 3000m, Winter Throws & Outdoor Throws Pentathlon Championships ({y1}, {y2}, {y3}+)\n"
+                f"- BMAF Cross Country Championships & Relays, Road Relays, 1 Mile, 5k, 10k, 10 Mile, Half Marathon, Marathon, 10,000m Track, and Race Walking Championships ({y1}, {y2}, {y3}+)\n"
+                f"- Irish Masters (IMAA) Indoor (Athlone) & Outdoor Track & Field Championships (Tullamore) ({y1}, {y2}, {y3}+)."
             ),
             (
-                f"3. Fransa (FFA/CNAM), Almanya (DLV), İsviçre, Avusturya ve Benelüks {y1}-{y2} Ulusal Takvimleri",
+                f"3. Fransa (FFA/CNAM), Almanya (DLV), İsviçre, Avusturya ve Benelüks ({y1}-{y4}) Ulusal Takvimleri",
                 {"FR", "DE", "CH", "AT", "NL", "BE"},
                 [
                     "https://masters.athle.fr/asp.net/espaces.html/html.aspx?id=40541",
@@ -289,24 +287,18 @@ class AutonomousDiscoveryParser(BaseParser):
                     "https://www.oelv.at/de/wettkaempfe/kalender",
                 ],
                 [
-                    f"Championnats de France Masters {y1} {y2} salle Miramas piste Epinal lancers marche cross site:masters.athle.fr OR site:athle.fr",
-                    f"Deutsche Meisterschaften Masters {y1} {y2} Halle Freiluft Wurf-Mehrkampf Cross ladv",
-                    f"Österreichische Mastersmeisterschaften {y1} {y2} Halle Freiluft oelv",
-                    f"Schweizermeisterschaften Masters {y1} {y2} NK Masters Indoor Outdoor {y1} {y2} BK Masters Atletiek {y1} {y2}",
+                    f"Championnats de France Masters {y1} {y2} {y3} salle piste lancers marche cross site:masters.athle.fr OR site:athle.fr",
+                    f"Deutsche Meisterschaften Masters {y1} {y2} {y3} Halle Freiluft Wurf-Mehrkampf Cross ladv",
+                    f"Österreichische Mastersmeisterschaften {y1} {y2} {y3} Halle Freiluft oelv",
+                    f"Schweizermeisterschaften Masters {y1} {y2} {y3} NK Masters Indoor Outdoor BK Masters Atletiek",
                 ],
-                f"List all confirmed {y1} AND {y2} national and regional 35+ Masters (Vétérans / Senioren / Masters) championships from the official federation calendars of France (https://masters.athle.fr/), Germany (DLV / LADV), Switzerland, Austria, Netherlands, and Belgium (include both {y1} and {y2} editions):\n"
-                f"- France (FFA / CNAM - https://masters.athle.fr/ - country='FR'):\n"
-                f"  * Championnats de France Masters en Salle (2026-03-06..2026-03-08 in Saint-Brieuc, 2027-03-12..2027-03-14 in Miramas)\n"
-                f"  * Championnats de France Masters sur Piste / Estival (2026-06-19..2026-06-21 in Épinal)\n"
-                f"  * Championnats de France Masters d'Épreuves Combinées, Demi-fond long & Marche\n"
-                f"  * Championnat de France du 10 km Marche Masters, Championnat de France de Cross Masters, Lancers hivernaux, 5km/10km/Semi-Marathon/Marathon, and regional Masters meetings (Bordeaux, Nantes, Caen, Mont de Marsan) ({y1} and {y2}).\n"
-                f"- Germany (DLV - country='DE'): Deutsche Meisterschaften (DM) Masters Freiluft (Outdoor), DM Halle Masters & Winterwurf (Indoor), DM Wurf-Mehrkampf Masters, DM Cross Masters, DM Straßenlauf/Halbmarathon/Marathon Masters, Team-DM Masters ({y1} and {y2}).\n"
-                f"- Switzerland (Swiss Masters - country='CH'): Schweizermeisterschaften Masters Indoor, Schweizermeisterschaften Masters Outdoor (Part 1 & Part 2), Wurf-Fünfkampf ({y1} and {y2}).\n"
-                f"- Austria (ÖLV - country='AT'): Österreichische Masters-Hallenmeisterschaften (Indoor) & Österreichische Mastersmeisterschaften Freiluft (Outdoor) ({y1} and {y2}).\n"
-                f"- Netherlands (Atletiekunie - country='NL') & Belgium (VAL/LBFA - country='BE'): NK Indoor Masters, NK Masters Outdoor, BK/CB Masters Indoor & Outdoor ({y1} and {y2})."
+                f"List all confirmed {y1}, {y2}, {y3}, and {y4} (both completed {y1} archive events and all announced future editions) national and regional 35+ Masters (Vétérans / Senioren / Masters) championships from the official federation calendars of France (https://masters.athle.fr/), Germany (DLV / LADV), Switzerland, Austria, Netherlands, and Belgium:\n"
+                f"- France (FFA / CNAM - https://masters.athle.fr/ - country='FR'): Championnats de France Masters en Salle, sur Piste / Estival, Épreuves Combinées, Marche, Cross, Lancers, Route ({y1}, {y2}, {y3}+).\n"
+                f"- Germany (DLV - country='DE'): Deutsche Meisterschaften (DM) Masters Freiluft, DM Halle & Winterwurf, DM Wurf-Mehrkampf, DM Cross, DM Straßenlauf/Halbmarathon/Marathon, Team-DM Masters ({y1}, {y2}, {y3}+).\n"
+                f"- Switzerland (Swiss Masters - country='CH'), Austria (ÖLV - country='AT'), Netherlands (Atletiekunie - country='NL') & Belgium (VAL/LBFA - country='BE'): all Indoor & Outdoor Masters National Championships ({y1}, {y2}, {y3}+)."
             ),
             (
-                f"4. İtalya (FIDAL), İspanya (RFEA) ve Portekiz (FPAtletismo/ANAV) {y1}-{y2} Ulusal Takvimleri",
+                f"4. İtalya (FIDAL), İspanya (RFEA) ve Portekiz (FPAtletismo/ANAV) ({y1}-{y4}) Ulusal Takvimleri",
                 {"IT", "ES", "PT"},
                 [
                     f"https://www.fidal.it/calendario.php?anno={y1}&categoria=M",
@@ -315,17 +307,17 @@ class AutonomousDiscoveryParser(BaseParser):
                     "https://atletismorfea.es/calendario",
                 ],
                 [
-                    f"Campionati Italiani Master {y1} {y2} Indoor Pista Pentathlon Lanci Prove Multiple Mezza Maratona fidal",
-                    f"Campeonato de España Master {y1} {y2} Aire Libre Short Track Pista Cubierta Lanzamientos Combinadas Campo a Traves rfea",
-                    f"Campeonatos Nacionais de Veteranos {y1} {y2} Pista Curta Ar Livre Corta-Mato Pentatlo Marcha fpatletismo anav",
+                    f"Campionati Italiani Master {y1} {y2} {y3} Indoor Pista Pentathlon Lanci Prove Multiple Mezza Maratona fidal",
+                    f"Campeonato de España Master {y1} {y2} {y3} Aire Libre Short Track Pista Cubierta Lanzamientos Combinadas Campo a Traves rfea",
+                    f"Campeonatos Nacionais de Veteranos {y1} {y2} {y3} Pista Curta Ar Livre Corta-Mato Pentatlo Marcha fpatletismo anav",
                 ],
-                f"List all confirmed {y1} AND {y2} national 35+ Masters (Master / Veteranos) championships from the official national federation calendars of Italy, Spain, and Portugal (include both {y1} and {y2} editions):\n"
-                f"- Italy (FIDAL - country='IT'): Campionati Italiani Master Indoor e Lanci Invernali (Ancona), Campionati Italiani Individuali su Pista Master (Outdoor), Pentathlon dei Lanci Master, Prove Multiple e Staffette Master, Campionati Italiani Master di Corsa Campestre (Cross), Mezza Maratona, Maratona, Marcia, 10km su Strada, Corsa in Montagna/Trail ({y1} and {y2}).\n"
-                f"- Spain (RFEA - country='ES'): Campeonato de España Máster Short Track / Pista Cubierta (Indoor), Campeonato de España Máster de Aire Libre (Outdoor), Lanzamientos Largos Master, Pentatlón de Lanzamientos, Pruebas Combinadas, Campo a Través (Cross), Milla en Ruta, 10.000m, Ruta (5k/10k/Media Maratón/Maratón), Trail/Montaña ({y1} and {y2}).\n"
-                f"- Portugal (FPAtletismo / ANAV - country='PT'): Campeonatos Nacionais de Veteranos de Pista Curta (Indoor), Campeonatos Nacionais de Veteranos de Pista ao Ar Livre (Outdoor), Pentatlo de Lançamentos, Corta-Mato (Cross), Marcha em Estrada, Estrada 10km/Meia Maratona ({y1} and {y2})."
+                f"List all confirmed {y1}, {y2}, {y3}, and {y4} (both completed {y1} archive events and all announced future editions) national 35+ Masters (Master / Veteranos) championships from the official national federation calendars of Italy, Spain, and Portugal:\n"
+                f"- Italy (FIDAL - country='IT'): Campionati Italiani Master Indoor e Lanci Invernali (Ancona), Pista Master (Outdoor), Pentathlon dei Lanci, Prove Multiple e Staffette, Corsa Campestre (Cross), Mezza Maratona, Maratona, Marcia, 10km, Montagna/Trail ({y1}, {y2}, {y3}+).\n"
+                f"- Spain (RFEA - country='ES'): Campeonato de España Máster Short Track / Pista Cubierta (Indoor), Aire Libre (Outdoor), Lanzamientos Largos, Pentatlón de Lanzamientos, Pruebas Combinadas, Campo a Través, Milla, 10.000m, Ruta, Trail/Montaña ({y1}, {y2}, {y3}+).\n"
+                f"- Portugal (FPAtletismo / ANAV - country='PT'): Campeonatos Nacionais de Veteranos de Pista Curta (Indoor), Ar Livre (Outdoor), Pentatlo de Lançamentos, Corta-Mato, Marcha, Estrada ({y1}, {y2}, {y3}+)."
             ),
             (
-                f"5. Balkanlar ve Orta Avrupa (Polonya, Çekya, Macaristan, Yunanistan, Romanya, Bulgaristan, Hırvatistan, Sırbistan, Slovenya) {y1}-{y2} Ulusal Takvimleri",
+                f"5. Balkanlar ve Orta Avrupa (Polonya, Çekya, Macaristan, Yunanistan, Romanya, Bulgaristan, Hırvatistan, Sırbistan, Slovenya) ({y1}-{y4}) Ulusal Takvimleri",
                 {"PL", "CZ", "SK", "HU", "GR", "RO", "BG", "RS", "HR", "SI", "AL"},
                 [
                     "https://www.pma.org.pl/",
@@ -337,23 +329,17 @@ class AutonomousDiscoveryParser(BaseParser):
                     "https://fra.ro/",
                 ],
                 [
-                    f"Halowe Mistrzostwa Polski Masters Mistrzostwa Polski w Lekkiej Atletyce Masters {y1} {y2} Torun pma",
-                    f"Halové MČR veteránů Mistrovství ČR veteránů na dráze {y1} {y2} Majstrovstvá SR veteránov {y1} {y2}",
-                    f"Szenior Atlétikai Magyar Bajnokság {y1} {y2} fedettpályás szabadtéri",
-                    f"Campionatul National de Atletism Masters {y1} {y2} Bucuresti Panhellenic Masters Athletics Championships {y1} {y2}",
-                    f"Prvenstvo Hrvatske za veterane {y1} {y2} Prvenstvo Slovenije za veterane {y1} {y2} Bulgaria Serbia Masters Athletics {y1} {y2}",
+                    f"Halowe Mistrzostwa Polski Masters Mistrzostwa Polski w Lekkiej Atletyce Masters {y1} {y2} {y3} Torun pma",
+                    f"Halové MČR veteránů Mistrovství ČR veteránů na dráze {y1} {y2} {y3} Majstrovstvá SR veteránov",
+                    f"Szenior Atlétikai Magyar Bajnokság {y1} {y2} {y3} fedettpályás szabadtéri",
+                    f"Campionatul National de Atletism Masters {y1} {y2} {y3} Bucuresti Panhellenic Masters Athletics Championships",
+                    f"Prvenstvo Hrvatske za veterane {y1} {y2} {y3} Prvenstvo Slovenije za veterane Bulgaria Serbia Masters Athletics",
                 ],
-                f"List all confirmed {y1} AND {y2} national 35+ Masters (Masters / Veteránů / Veteránov / Szenior / Veterane) championships from the official calendars of Central Europe and the Balkans (include both {y1} and {y2} editions):\n"
-                f"- Poland (PMA - country='PL'): Halowe Mistrzostwa Polski Masters w Lekkiej Atletyce (Toruń Indoor {y1} & {y2}), Mistrzostwa Polski w Lekkiej Atletyce Masters (Outdoor {y1} & {y2}), Mistrzostwa Polski Masters w Rzutach & Wielobojach ({y1} & {y2}).\n"
-                f"- Czechia (ČAS - country='CZ'): Halové MČR veteránů ({y1} & {y2} Indoor), Mistrovství ČR veteránů na dráze ({y1} & {y2} Outdoor).\n"
-                f"- Slovakia (SAZ - country='SK'): Halové majstrovstvá SR veteránov & Majstrovstvá SR veteránov na dráhe ({y1} & {y2}).\n"
-                f"- Hungary (MASZ - country='HU'): Fedettpályás Szenior Atlétikai Magyar Bajnokság (Indoor {y1} & {y2}) & Szenior Atlétikai Magyar Bajnokság (Outdoor {y1} & {y2}).\n"
-                f"- Greece (SEGAS/OEBA - country='GR'): Panhellenic Masters Indoor & Outdoor Athletics Championships ({y1} & {y2}).\n"
-                f"- Romania (FRA - country='RO'): Campionatul Național de Atletism Masters de Sală (Indoor {y1} & {y2}, București) & Campionatul Național de Atletism Masters în Aer Liber (Outdoor {y1} & {y2}, București).\n"
-                f"- Bulgaria (BFLA - country='BG'), Serbia (SAS - country='RS'), Croatia (HAS/HAVU - country='HR': Dvoransko prvenstvo Hrvatske za veterane & Prvenstvo Hrvatske za veterane na otvorenom {y1} & {y2}), Slovenia (AZS/ZAVS - country='SI': Prvenstvo Slovenije v atletiki za veterane {y1} & {y2}), Albania (FSHA - country='AL')."
+                f"List all confirmed {y1}, {y2}, {y3}, and {y4} (both completed {y1} archive events and all announced future editions) national 35+ Masters (Masters / Veteránů / Veteránov / Szenior / Veterane) championships from the official calendars of Central Europe and the Balkans:\n"
+                f"- Poland (PMA - country='PL'), Czechia (ČAS - country='CZ'), Slovakia (SAZ - country='SK'), Hungary (MASZ - country='HU'), Greece (SEGAS/OEBA - country='GR'), Romania (FRA - country='RO'), Bulgaria (BFLA - country='BG'), Serbia (SAS - country='RS'), Croatia (HAS/HAVU - country='HR'), Slovenia (AZS/ZAVS - country='SI'), Albania (FSHA - country='AL') Indoor & Outdoor Masters Championships ({y1}, {y2}, {y3}+)."
             ),
             (
-                f"6. İskandinavya (Finlandiya, İsveç, Norveç, Danimarka) ve Baltık (Estonya, Letonya, Litvanya) {y1}-{y2} Ulusal Takvimleri",
+                f"6. İskandinavya (Finlandiya, İsveç, Norveç, Danimarka) ve Baltık (Estonya, Letonya, Litvanya) ({y1}-{y4}) Ulusal Takvimleri",
                 {"FI", "SE", "NO", "DK", "EE", "LV", "LT"},
                 [
                     "https://www.saul.fi/kilpailut/kilpailukalenteri/",
@@ -364,18 +350,14 @@ class AutonomousDiscoveryParser(BaseParser):
                     "https://athletics.lv/lv/kalendars",
                 ],
                 [
-                    f"SAUL SM-hallit SM-yleisurheilu SM-maastot SM-puolimaraton SM-moniottelut {y1} {y2}",
-                    f"ISM veteraner SM veteraner friidrott {y1} {y2} Sverige",
-                    f"NM veteraner friidrett {y1} {y2} DM Masters atletik {y1} {y2} Nordic Masters Championships {y1} {y2}",
-                    f"Baltic Masters Athletics Championships {y1} {y2} Eesti meistrivõistlused veteranidele Latvijas čempionāts veterāniem",
+                    f"SAUL SM-hallit SM-yleisurheilu SM-maastot SM-puolimaraton SM-moniottelut {y1} {y2} {y3}",
+                    f"ISM veteraner SM veteraner friidrott {y1} {y2} {y3} Sverige",
+                    f"NM veteraner friidrett {y1} {y2} {y3} DM Masters atletik Nordic Masters Championships",
+                    f"Baltic Masters Athletics Championships {y1} {y2} {y3} Eesti meistrivõistlused veteranidele Latvijas čempionāts veterāniem",
                 ],
-                f"List all confirmed {y1} AND {y2} national and regional 35+ Masters (SAUL / Veteraner / Masters) championships from the official calendars of the Nordic and Baltic countries (include both {y1} and {y2} editions):\n"
-                f"- Nordic & Baltic Regional: Nordic Masters Championships Indoor & Outdoor ({y1} & {y2}), Baltic Open Masters Athletics Championships ({y1} & {y2}).\n"
-                f"- Finland (SAUL - country='FI'): SAUL SM-hallit (Indoor {y1} & {y2}), SAUL SM-yleisurheilu (Outdoor {y1} & {y2}), SAUL SM-moniottelut, SAUL SM-maastot (Cross), SAUL SM-puolimaraton, SAUL SM-maantiekymppi, SAUL SM-viestit ({y1} & {y2}).\n"
-                f"- Sweden (SFIF - country='SE'): ISM Veteraner (Indoor {y1} & {y2}), SM Veteraner (Outdoor {y1} & {y2}), SM Kastmångkamp Veteraner ({y1} & {y2}).\n"
-                f"- Norway (NFIF - country='NO'): NM Innendørs Veteraner (Indoor {y1} & {y2}) & NM Hovedmesterskap Veteraner (Outdoor {y1} & {y2}).\n"
-                f"- Denmark (DAF - country='DK'): DM Masters Indendørs (Indoor {y1} & {y2}) & DM Masters Udendørs (Outdoor {y1} & {y2}).\n"
-                f"- Baltic States: Estonia (EKJL - country='EE': Estonian Masters Indoor & Outdoor Championships {y1} & {y2}), Latvia (LVS - country='LV': Latvian Masters Indoor & Outdoor Championships {y1} & {y2}), Lithuania (LLAF - country='LT': Lithuanian Masters Championships {y1} & {y2})."
+                f"List all confirmed {y1}, {y2}, {y3}, and {y4} (both completed {y1} archive events and all announced future editions) national and regional 35+ Masters (SAUL / Veteraner / Masters) championships from the official calendars of the Nordic and Baltic countries:\n"
+                f"- Nordic & Baltic Regional: Nordic Masters Championships Indoor & Outdoor, Baltic Open Masters Athletics Championships ({y1}, {y2}, {y3}+).\n"
+                f"- Finland (SAUL - country='FI'), Sweden (SFIF - country='SE'), Norway (NFIF - country='NO'), Denmark (DAF - country='DK'), Estonia (EKJL - country='EE'), Latvia (LVS - country='LV'), Lithuania (LLAF - country='LT') Indoor & Outdoor Masters Championships ({y1}, {y2}, {y3}+)."
             ),
         ]
 
@@ -428,6 +410,10 @@ class AutonomousDiscoveryParser(BaseParser):
             e_date = str(data.get("end_date", s_date)).strip()[:10]
             city = str(data.get("city", "")).strip()
             if not title or not s_date:
+                continue
+            # Başlığında "kansai" geçmeyen bir Masters Games kaydında eski hatadan dolayı Kansai/JP kalmışsa AI'a bunu gönderme
+            t_low = title.lower()
+            if ("masters games" in t_low or "wmg" in t_low) and "kansai" not in t_low and ("kansai" in city.lower() or c_code == "JP"):
                 continue
             if is_intl_batch and scope in {"world", "europe", "balkan", "ema_league"}:
                 lines.append(f"- {title} | {s_date}..{e_date} | {city} ({c_code}) | scope={scope}")
@@ -766,8 +752,7 @@ class AutonomousDiscoveryParser(BaseParser):
                     continue
                 if not re.match(r"^20\d{2}-\d{2}-\d{2}$", start_date):
                     continue
-                is_masters_games = any(k in title.lower() for k in ("masters games", "wmg"))
-                if int(start_date[:4]) < (2025 if is_masters_games else min_year):
+                if int(start_date[:4]) < 2020:
                     continue
                 if not re.match(r"^20\d{2}-\d{2}-\d{2}$", end_date) or end_date < start_date:
                     end_date = start_date
@@ -792,6 +777,12 @@ class AutonomousDiscoveryParser(BaseParser):
 
                 title_low = title.lower()
                 city_low = raw_city.lower()
+                # Başlığında "kansai" geçmeyen bir Masters Games için yanlışlıkla Kansai/JP atanmışsa temizle, gerçek ülkeyi başlıktan bul
+                if ("masters games" in title_low or "wmg" in title_low) and "kansai" not in title_low and ("kansai" in city_low or raw_country in ("JP", "JPN")):
+                    raw_city = ""
+                    raw_country = ""
+                    raw_cname = ""
+                    city_low = ""
                 if ("world" in title_low or "wma" in title_low or "wmra" in title_low) and "mountain" in title_low and start_date.startswith("2027"):
                     raw_city = "Klosters"
                     raw_country = "CH"
@@ -840,10 +831,13 @@ class AutonomousDiscoveryParser(BaseParser):
                 elif default_regulations_url:
                     reg_url = default_regulations_url
 
-                # Doğrudan OpenTrack, LADV, resmi PDF veya resmi CNAM alt sayfalarından gelen kayıtların güven puanı = 3
+                # Doğrudan OpenTrack, LADV, World Masters Sport, resmi PDF veya resmi CNAM alt sayfalarından gelen kayıtların güven puanı = 3
                 trust_level = default_trust_level
-                if reg_url or any(d in web_url.lower() for d in ("opentrack.run", "ladv.de/ausschreibung", "masters.athle.fr/asp.net/espaces.html")):
+                if reg_url or any(d in web_url.lower() for d in ("opentrack.run", "ladv.de/ausschreibung", "masters.athle.fr/asp.net/espaces.html", "worldmasterssport.com")):
                     trust_level = 3
+
+                today_iso = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                comp_status = "completed" if end_date < today_iso else "scheduled"
 
                 comp_id = generate_competition_id(title, start_date, country, city)
 
@@ -860,7 +854,7 @@ class AutonomousDiscoveryParser(BaseParser):
                     website_url=web_url,
                     regulations_url=reg_url,
                     trust_level=trust_level,
-                    status="scheduled",
+                    status=comp_status,
                     created_at=datetime.now(timezone.utc).isoformat(),
                 )
                 comp.content_hash = compute_content_hash(comp)

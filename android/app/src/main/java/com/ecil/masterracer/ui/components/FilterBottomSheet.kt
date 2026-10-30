@@ -124,24 +124,24 @@ fun FilterBottomSheet(
             Spacer(modifier = Modifier.height(12.dp))
 
             // 2. YARIŞMA DURUMU
-            SectionHeader(title = "Yarışma Durumu")
+            SectionHeader(title = "Yarışma Görünümü")
             Spacer(modifier = Modifier.height(6.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 CompactChip(
-                    selected = !hideCompleted,
-                    onClick = { if (hideCompleted) onToggleHideCompleted() },
-                    label = "Tümünü Göster",
+                    selected = hideCompleted,
+                    onClick = { if (!hideCompleted) onToggleHideCompleted() },
+                    label = "Yaklaşan Yarışlar",
                     modifier = Modifier.weight(1f)
                 )
 
                 CompactChip(
-                    selected = hideCompleted,
-                    onClick = { if (!hideCompleted) onToggleHideCompleted() },
-                    label = "Tamamlananları Gizle",
-                    selectedColor = Color(0xFFE11D48),
+                    selected = !hideCompleted,
+                    onClick = { if (hideCompleted) onToggleHideCompleted() },
+                    label = "Arşiv (Tamamlananlar)",
+                    selectedColor = Color(0xFF475569),
                     modifier = Modifier.weight(1f)
                 )
             }

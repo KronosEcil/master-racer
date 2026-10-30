@@ -106,7 +106,13 @@ def _detect_discipline_subtype(title_norm: str) -> str:
         return "ACIK-SAHA-PART-2"
     if "non-stadia" in title_norm or "emacns" in title_norm:
         return "NON-STADIA"
-    if any(w in title_norm for w in ["world-masters-games", "open-masters-games", "european-masters-games", "masters-games", "wmg"]):
+    if any(w in title_norm for w in ["world-masters-games", "open-masters-games", "european-masters-games", "pan-american-masters-games", "asia-pacific-masters-games", "masters-games", "wmg", "wwmg"]):
+        if "winter" in title_norm or "wwmg" in title_norm:
+            return "WINTER-WMG"
+        if "pan-american" in title_norm:
+            return "PANAM-WMG"
+        if "asia-pacific" in title_norm:
+            return "APMG-WMG"
         return "WMG"
     if any(w in title_norm for w in ["cross", "kros", "veldloop", "terrang", "terreng", "maasto", "campo-a-traves", "corta-mato", "campestre", "przelaj", "krosu", "kross"]):
         return "CROSS-RELAY" if any(r in title_norm for r in ["relay", "relais", "staffel", "stafett", "relevos", "staffette"]) else "CROSS"
@@ -165,10 +171,10 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
     year = date_part[:4] if len(date_part) >= 4 else "2026"
     subtype = _detect_discipline_subtype(title_norm)
 
-    if subtype == "WMG":
+    if subtype in ("WMG", "WINTER-WMG", "PANAM-WMG", "APMG-WMG"):
         if "european" in title_norm or "como" in title_norm or "como" in city_core or (year == "2027" and country_part == "IT"):
             return f"EUROPE-{year}-WMG"
-        return f"WORLD-{year}-WMG"
+        return f"WORLD-{year}-{subtype}"
 
     if any(w in title_norm for w in ["world-masters", "wma-", "-wma", "wmg", "dunya-master"]):
         return f"WORLD-{year}-{subtype}"
@@ -334,12 +340,22 @@ def evaluate_change(existing: Optional[dict], incoming: Competition) -> Tuple[st
 
     ex_start = existing.get("start_date", "")
     ex_end = existing.get("end_date", "")
-    ex_city = extract_primary_city_slug(existing.get("city", ""), existing.get("country_name", ""))
+    raw_ex_city = str(existing.get("city", "") or "")
+    raw_ex_country = str(existing.get("country", "") or "").upper()
+    title_low = (incoming.title or "").lower()
+
+    # Eski kayıtta "kansai" olmayan bir Masters Games için yanlışlıkla Kansai/JP kalmışsa bunu koruma
+    is_stale_kansai = (
+        ("kansai" in raw_ex_city.lower() or raw_ex_country == "JP")
+        and ("masters games" in title_low or "wmg" in title_low)
+        and "kansai" not in title_low
+    )
+    ex_city = "" if is_stale_kansai else extract_primary_city_slug(raw_ex_city, existing.get("country_name", ""))
     in_city = extract_primary_city_slug(incoming.city, incoming.country_name)
 
     # Eğer veritabanındaki kayıt daha yüksek güven seviyesine sahipse (örn. trust_level=3 Resmi PDF/API/OpenTrack),
     # daha düşük güvenli bir kaynak (trust_level=1 veya 2) tarih veya konumu ezemez.
-    if ex_trust > in_trust:
+    if ex_trust > in_trust and not is_stale_kansai:
         if ex_start:
             incoming.start_date = ex_start
             incoming.end_date = ex_end or ex_start

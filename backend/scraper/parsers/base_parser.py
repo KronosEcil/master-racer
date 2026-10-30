@@ -122,37 +122,37 @@ class BaseParser(abc.ABC):
         if def_upper in iso_map:
             return iso_map[def_upper]
 
-        if any(k in title_lower for k in ["yeni zelanda", "new zealand"]):
+        if any(k in title_lower for k in ["yeni zelanda", "new zealand", "auckland"]):
             return "NZ", "Yeni Zelanda", "🇳🇿"
-        if any(k in title_lower for k in ["avustralya", "australia", "australian", "perth"]):
+        if any(k in title_lower for k in ["avustralya", "australia", "australian", "perth", "sydney", "melbourne", "brisbane"]):
             return "AU", "Avustralya", "🇦🇺"
         if any(k in title_lower for k in ["abu dhabi", "united arab emirates", "birleşik arap emirlikleri", "uae"]):
             return "AE", "Birleşik Arap Emirlikleri", "🇦🇪"
         if any(k in title_lower for k in ["tayvan", "taiwan", "taipei"]):
             return "TW", "Tayvan", "🇹🇼"
-        if any(k in title_lower for k in ["romanya", "romania", "romanian"]):
+        if any(k in title_lower for k in ["romanya", "romania", "romanian", "bucuresti", "bükreş", "craiova"]):
             return "RO", "Romanya", "🇷🇴"
-        if any(k in title_lower for k in ["türkiye", "turkey", "turkish", "taf"]):
+        if any(k in title_lower for k in ["türkiye", "turkey", "turkish", "taf", "istanbul", "ankara", "izmir"]):
             return "TR", "Türkiye", "🇹🇷"
         if any(k in title_lower for k in ["almanya", "germany", "german", "deutschland", "deutsche", "dlv", "ladv"]):
             return "DE", "Almanya", "🇩🇪"
-        if any(k in title_lower for k in ["fransa", "france", "french", "ffa"]):
+        if any(k in title_lower for k in ["fransa", "france", "french", "ffa", "miramas", "épinal", "epinal", "saint-brieuc"]):
             return "FR", "Fransa", "🇫🇷"
         if any(k in title_lower for k in ["yunanistan", "greece", "greek", "hellas", "segas"]):
             return "GR", "Yunanistan", "🇬🇷"
-        if any(k in title_lower for k in ["italya", "italy", "italian", "italia", "fidal"]):
+        if any(k in title_lower for k in ["italya", "italy", "italian", "italia", "fidal", "como", "lombardia", "torino", "catania", "ancona", "meduno"]):
             return "IT", "İtalya", "🇮🇹"
-        if any(k in title_lower for k in ["polonya", "poland", "polish", "polska", "pzla"]):
+        if any(k in title_lower for k in ["polonya", "poland", "polish", "polska", "pzla", "torun", "toruń"]):
             return "PL", "Polonya", "🇵🇱"
-        if any(k in title_lower for k in ["ispanya", "spain", "spanish", "españa", "rfea"]):
+        if any(k in title_lower for k in ["ispanya", "spain", "spanish", "españa", "rfea", "murcia", "ojós", "ojos"]):
             return "ES", "İspanya", "🇪🇸"
-        if any(k in title_lower for k in ["finlandiya", "finland", "finnish", "saul"]):
+        if any(k in title_lower for k in ["finlandiya", "finland", "finnish", "saul", "lahti", "jyväskylä", "jyvaskyla", "tampere", "helsinki"]):
             return "FI", "Finlandiya", "🇫🇮"
-        if any(k in title_lower for k in ["isviçre", "switzerland", "swiss", "schweiz"]):
+        if any(k in title_lower for k in ["isviçre", "switzerland", "swiss", "schweiz", "klosters", "lucerne", "luzern"]):
             return "CH", "İsviçre", "🇨🇭"
-        if any(k in title_lower for k in ["ingiltere", "birleşik krallık", "great britain", "british", "bmaf", "scotland", "england", "wales"]):
+        if any(k in title_lower for k in ["ingiltere", "birleşik krallık", "great britain", "british", "bmaf", "scotland", "england", "wales", "glasgow"]):
             return "GB", "Birleşik Krallık", "🇬🇧"
-        if any(k in title_lower for k in ["irlanda", "ireland", "irish", "imaa"]):
+        if any(k in title_lower for k in ["irlanda", "ireland", "irish", "imaa", "galway", "athlone", "tullamore"]):
             return "IE", "İrlanda", "🇮🇪"
         if any(k in title_lower for k in ["slovenya", "slovenia", "slovenian"]):
             return "SI", "Slovenya", "🇸🇮"
@@ -160,16 +160,22 @@ class BaseParser(abc.ABC):
             return "AL", "Arnavutluk", "🇦🇱"
         if any(k in title_lower for k in ["çekya", "czech"]):
             return "CZ", "Çekya", "🇨🇿"
-        if any(k in title_lower for k in ["portekiz", "portugal", "portuguese", "fpatletismo", "anav"]):
+        if any(k in title_lower for k in ["portekiz", "portugal", "portuguese", "fpatletismo", "anav", "porto", "lisboa"]):
             return "PT", "Portekiz", "🇵🇹"
         if any(k in title_lower for k in ["norveç", "norway", "norwegian"]):
             return "NO", "Norveç", "🇳🇴"
-        if any(k in title_lower for k in ["danimarka", "denmark", "danish", "dansk"]):
+        if any(k in title_lower for k in ["danimarka", "denmark", "danish", "dansk", "aarhus"]):
             return "DK", "Danimarka", "🇩🇰"
         if any(k in title_lower for k in ["izlanda", "iceland", "icelandic"]):
             return "IS", "İzlanda", "🇮🇸"
-        if any(k in title_lower for k in ["güney kore", "south korea", "korea"]):
+        if any(k in title_lower for k in ["güney kore", "south korea", "korea", "daegu", "jeonbuk"]):
             return "KR", "Güney Kore", "🇰🇷"
+        if any(k in title_lower for k in ["abd", "united states", "usa", "gainesville", "cleveland"]):
+            return "US", "ABD", "🇺🇸"
+        if any(k in title_lower for k in ["kanada", "canada", "vancouver", "toronto", "edmonton"]):
+            return "CA", "Kanada", "🇨🇦"
+        if any(k in title_lower for k in ["malezya", "malaysia", "penang"]):
+            return "MY", "Malezya", "🇲🇾"
         if any(k in title_lower for k in ["japonya", "japan", "japanese", "kansai"]):
             return "JP", "Japonya", "🇯🇵"
         if any(k in title_lower for k in ["letonya", "latvia", "latvian"]):
@@ -178,7 +184,7 @@ class BaseParser(abc.ABC):
             return "LT", "Litvanya", "🇱🇹"
         if any(k in title_lower for k in ["hırvatistan", "croatia", "croatian"]):
             return "HR", "Hırvatistan", "🇭🇷"
-        if any(k in title_lower for k in ["avusturya", "austria", "austrian", "ölv", "oelv"]):
+        if any(k in title_lower for k in ["avusturya", "austria", "austrian", "ölv", "oelv", "innsbruck"]):
             return "AT", "Avusturya", "🇦🇹"
         if any(k in title_lower for k in ["belçika", "belgium", "belgian"]):
             return "BE", "Belçika", "🇧🇪"

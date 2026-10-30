@@ -77,13 +77,15 @@ data class Competition(
     }
 
     /**
-     * Bugün ile başlangıç tarihi arasındaki gün farkını hesaplar.
+     * Bugün ile yarışma tarihi arasındaki gün farkını hesaplar.
+     * Çok günlü bir yarışma devam ediyorsa 0 döndürür; bitiş tarihi geçmişse negatif değer döndürür.
      */
     fun getDaysRemaining(): Long {
         if (start_date.isBlank()) return 0
         return try {
             val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            val targetDate = sdf.parse(start_date) ?: return 0
+            val startDateParsed = sdf.parse(start_date) ?: return 0
+            val endDateParsed = if (end_date.isNotBlank()) sdf.parse(end_date) ?: startDateParsed else startDateParsed
             val today = Calendar.getInstance().apply {
                 set(Calendar.HOUR_OF_DAY, 0)
                 set(Calendar.MINUTE, 0)
@@ -91,11 +93,23 @@ data class Competition(
                 set(Calendar.MILLISECOND, 0)
             }.time
 
-            val diffMillis = targetDate.time - today.time
-            TimeUnit.MILLISECONDS.toDays(diffMillis)
+            if (today.time in startDateParsed.time..endDateParsed.time) {
+                0L
+            } else if (today.time > endDateParsed.time) {
+                TimeUnit.MILLISECONDS.toDays(endDateParsed.time - today.time)
+            } else {
+                TimeUnit.MILLISECONDS.toDays(startDateParsed.time - today.time)
+            }
         } catch (e: Exception) {
             0
         }
+    }
+
+    /**
+     * Yarışmanın tamamlanıp arşiv statüsüne geçip geçmediğini döndürür.
+     */
+    fun isCompleted(): Boolean {
+        return getDaysRemaining() < 0 || status.equals("completed", ignoreCase = true)
     }
 
     /**
@@ -191,7 +205,11 @@ data class Competition(
         val cNameLower = country_name.lowercase()
         val cUpper = country.trim().uppercase()
 
-        val normalized = normalizeToIso2(cUpper)
+        val isStaleKansai = (titleLower.contains("masters games") || titleLower.contains("wmg")) &&
+            !titleLower.contains("kansai") &&
+            (cUpper == "JP" || cUpper == "JPN" || cityLower.contains("kansai"))
+
+        val normalized = if (isStaleKansai) "" else normalizeToIso2(cUpper)
         if (normalized.length == 2 && normalized != "INT" && normalized != "EU") {
             return normalized
         }
@@ -203,27 +221,29 @@ data class Competition(
         }
 
         val resolvedFromText = when {
-            cNameLower.contains("yeni zelanda") || cNameLower.contains("new zealand") || cityLower.contains("auckland") || cityLower.contains("wellington") || cityLower.contains("christchurch") -> "NZ"
-            cNameLower.contains("avustralya") || cNameLower.contains("australia") || cityLower.contains("sydney") || cityLower.contains("melbourne") || cityLower.contains("brisbane") || cityLower.contains("perth") -> "AU"
+            cNameLower.contains("yeni zelanda") || cNameLower.contains("new zealand") || cityLower.contains("auckland") || titleLower.contains("auckland") || cityLower.contains("wellington") || cityLower.contains("christchurch") -> "NZ"
+            cNameLower.contains("avustralya") || cNameLower.contains("australia") || cityLower.contains("sydney") || cityLower.contains("melbourne") || cityLower.contains("brisbane") || cityLower.contains("perth") || titleLower.contains("perth") || titleLower.contains("sydney") -> "AU"
+            cNameLower.contains("birleşik arap") || cityLower.contains("abu dhabi") || titleLower.contains("abu dhabi") -> "AE"
+            cNameLower.contains("tayvan") || cNameLower.contains("taiwan") || cityLower.contains("taipei") || titleLower.contains("taipei") -> "TW"
             cNameLower.contains("isviçre") || cNameLower.contains("switz") || cityLower.contains("lucerne") || cityLower.contains("luzern") || cityLower.contains("klosters") || cityLower.contains("zurich") || cityLower.contains("zürich") -> "CH"
             cNameLower.contains("portekiz") || cNameLower.contains("portugal") || cityLower.contains("lisboa") || cityLower.contains("lizbon") || cityLower.contains("porto") || titleLower.contains("portug") -> "PT"
             cNameLower.contains("çek") || cNameLower.contains("czech") || cityLower.contains("janske") || cityLower.contains("prag") -> "CZ"
             cNameLower.contains("sloven") || cityLower.contains("domzale") || cityLower.contains("novo mesto") || cityLower.contains("ljubljana") -> "SI"
             cNameLower.contains("norve") || cNameLower.contains("norway") || cityLower.contains("oslo") -> "NO"
             cNameLower.contains("ispan") || cNameLower.contains("spain") || cityLower.contains("madrid") || cityLower.contains("barcelona") || cityLower.contains("murcia") || cityLower.contains("ojós") || cityLower.contains("ojos") -> "ES"
-            cNameLower.contains("ital") || cityLower.contains("catania") || cityLower.contains("roma") -> "IT"
+            cNameLower.contains("ital") || cityLower.contains("catania") || cityLower.contains("roma") || cityLower.contains("como") || titleLower.contains("como") || titleLower.contains("lombardia") || titleLower.contains("torino") -> "IT"
             cNameLower.contains("alman") || cNameLower.contains("german") || cityLower.contains("berlin") || cityLower.contains("münchen") -> "DE"
             cNameLower.contains("türk") || cNameLower.contains("turk") || cityLower.contains("izmir") || cityLower.contains("istanbul") -> "TR"
             cNameLower.contains("hırvat") || cNameLower.contains("croat") || cityLower.contains("zagreb") -> "HR"
-            cNameLower.contains("finland") || cityLower.contains("jyvaskyla") || cityLower.contains("jyväskylä") || cityLower.contains("tampere") -> "FI"
+            cNameLower.contains("finland") || cityLower.contains("jyvaskyla") || cityLower.contains("jyväskylä") || cityLower.contains("tampere") || cityLower.contains("lahti") || titleLower.contains("lahti") || titleLower.contains("tampere") -> "FI"
             cNameLower.contains("irlanda") || cNameLower.contains("ireland") || cityLower.contains("galway") || cityLower.contains("dublin") -> "IE"
-            cNameLower.contains("fransa") || cNameLower.contains("france") || cityLower.contains("paris") -> "FR"
+            cNameLower.contains("fransa") || cNameLower.contains("france") || cityLower.contains("paris") || titleLower.contains("nice") -> "FR"
             cNameLower.contains("romanya") || cNameLower.contains("romania") || cityLower.contains("craiova") || cityLower.contains("bükreş") || cityLower.contains("bucuresti") -> "RO"
             cNameLower.contains("polonya") || cNameLower.contains("poland") || cityLower.contains("torun") || cityLower.contains("toruń") -> "PL"
             cNameLower.contains("isveç") || cNameLower.contains("sweden") || cityLower.contains("gothenburg") || cityLower.contains("göteborg") -> "SE"
             cNameLower.contains("hollanda") || cNameLower.contains("netherland") || cityLower.contains("amsterdam") -> "NL"
             cNameLower.contains("yunan") || cNameLower.contains("greece") || cityLower.contains("atina") || cityLower.contains("athens") -> "GR"
-            cNameLower.contains("avusturya") || cNameLower.contains("austria") || cityLower.contains("wien") || cityLower.contains("viyana") -> "AT"
+            cNameLower.contains("avusturya") || cNameLower.contains("austria") || cityLower.contains("wien") || cityLower.contains("viyana") || titleLower.contains("innsbruck") -> "AT"
             cNameLower.contains("belçika") || cNameLower.contains("belcika") || cNameLower.contains("belgium") || cityLower.contains("brussel") || cityLower.contains("brüksel") -> "BE"
             cNameLower.contains("danimarka") || cNameLower.contains("denmark") || cityLower.contains("kopenhag") || cityLower.contains("aarhus") -> "DK"
             cNameLower.contains("macar") || cNameLower.contains("hungar") || cityLower.contains("budapest") -> "HU"
@@ -231,17 +251,10 @@ data class Competition(
             cNameLower.contains("eston") || cityLower.contains("tallinn") -> "EE"
             cNameLower.contains("leton") || cNameLower.contains("latvi") || cityLower.contains("riga") -> "LV"
             cNameLower.contains("litvan") || cNameLower.contains("lithuan") || cityLower.contains("vilnius") -> "LT"
-            cNameLower.contains("kanada") || cNameLower.contains("canada") -> "CA"
-            cNameLower.contains("güney kore") || cNameLower.contains("korea") || cityLower.contains("daegu") || cityLower.contains("seoul") -> "KR"
+            cNameLower.contains("kanada") || cNameLower.contains("canada") || titleLower.contains("vancouver") -> "CA"
+            cNameLower.contains("güney kore") || cNameLower.contains("korea") || cityLower.contains("daegu") || cityLower.contains("seoul") || titleLower.contains("jeonbuk") -> "KR"
+            titleLower.contains("cleveland") -> "US"
             else -> ""
-        }
-        if (resolvedFromText.isNotEmpty() && (cUpper == "EU" || cUpper == "INT" || cUpper.isBlank() || cityLower.contains("luzern") || cityLower.contains("klosters"))) {
-            return resolvedFromText
-        }
-
-        val normalized = normalizeToIso2(cUpper)
-        if (normalized.isNotEmpty() && normalized != "INT" && normalized != "EU") {
-            return normalized
         }
         return if (resolvedFromText.isNotEmpty()) resolvedFromText else normalized.ifBlank { "TR" }
     }
@@ -342,7 +355,20 @@ data class Competition(
      */
     fun getDisplayLocation(): String {
         val cName = getDisplayCountryName()
-        val rawCity = city.trim()
+        val titleLower = title.lowercase()
+        val isStaleKansai = (titleLower.contains("masters games") || titleLower.contains("wmg")) &&
+            !titleLower.contains("kansai") &&
+            city.lowercase().contains("kansai")
+
+        val rawCity = if (isStaleKansai) {
+            title
+                .replace(Regex("(?i)(winter\\s+)?world\\s+masters\\s+games"), "")
+                .replace(Regex("(?i)(open|european|pan\\s+american|asia\\s+pacific)\\s+masters\\s+games"), "")
+                .replace(Regex("\\b20\\d{2}\\b"), "")
+                .trim()
+        } else {
+            city.trim()
+        }
         val invalidCities = setOf(
             "", "not specified", "unspecified", "tbd", "tbc", "tba", "n/a", "na", "none", "null", "unknown", "belirlenecek"
         )

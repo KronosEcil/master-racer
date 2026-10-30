@@ -186,6 +186,14 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
 
                 if canon_id != doc_id or is_same_date_generic_dup:
                     try:
+                        # Geçmiş/arşiv yarışmalarının kaybolmaması için: eğer yeni kanonik ID taramada veya
+                        # veritabanında yoksa, eski kaydı silmeden önce yeni kanonik ID'ye taşı.
+                        if not is_same_date_generic_dup and canon_id not in scraped_ids and canon_id not in existing_comps:
+                            migrated_data = dict(doc_data)
+                            migrated_data["id"] = canon_id
+                            db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(canon_id).set(migrated_data, merge=True)
+                            existing_comps[canon_id] = migrated_data
+                            logger.info(f"📦 [ARŞİV KAYDI TAŞINDI] {title} ({doc_id} -> {canon_id})")
                         db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()
                         existing_comps.pop(doc_id, None)
                         logger.info(f"🗑️ [MÜKERRER/ESKİ ID TEMİZLENDİ] {title} (Eski ID: {doc_id} -> Yeni: {canon_id})")
@@ -319,6 +327,49 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
             logger.info(f"✅ [ALAN TEMİZLİĞİ TAMAMLANDI] {cleaned_docs} kayıttan gereksiz alanlar silindi.")
         except Exception as e:
             logger.error(f"Eski alan temizleme hatası: {e}")
+
+    # 5. GEÇMİŞ YARIŞMALAR ARŞİVİ KORUMASI & TARİHİ GEÇENLERİ 'completed' OLARAK İŞARETLEME
+    if db and not dry_run:
+        today_iso = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        archived_updates = 0
+        try:
+            col_ref = db.collection(ScraperConfig.FIRESTORE_COLLECTION)
+            for doc in col_ref.stream():
+                d = doc.to_dict() or {}
+                e_date = str(d.get("end_date") or d.get("start_date") or "")[:10]
+                t_str = str(d.get("title", "")).strip()
+                t_low = t_str.lower()
+                c_str = str(d.get("city", "")).strip()
+                country_str = str(d.get("country", "")).strip().upper()
+                doc_updates = {}
+
+                # Tarihi geçmiş yarışmaları silmeden kalıcı arşiv ('completed') statüsüne geçir
+                if e_date and e_date < today_iso and d.get("status") != "completed":
+                    doc_updates["status"] = "completed"
+                    doc_updates["is_new"] = False
+
+                # Başlığında "kansai" geçmeyen bir Masters Games kaydında eski hatadan Kansai/JP kalmışsa başlıktan gerçek ülkesini/şehrini bul
+                if ("masters games" in t_low or "wmg" in t_low) and "kansai" not in t_low and ("kansai" in c_str.lower() or country_str == "JP"):
+                    det_c, det_cname, _ = ai_parser.detect_country(t_str, "INT", "Uluslararası")
+                    if det_c not in ("INT", "JP"):
+                        doc_updates["country"] = det_c
+                        doc_updates["country_name"] = det_cname
+                        # Başlıktaki şehir adını çıkar (örn. "World Masters Games Perth 2029" -> "Perth")
+                        cleaned_title = t_str
+                        for rm in ("Winter World Masters Games", "World Masters Games", "Open Masters Games", "European Masters Games", "Lake"):
+                            cleaned_title = cleaned_title.replace(rm, "").replace(rm.lower(), "")
+                        city_tokens = [tok for tok in cleaned_title.split() if not tok.isdigit() and len(tok) >= 3]
+                        doc_updates["city"] = " ".join(city_tokens).strip() or det_cname
+                        doc_updates["location_changed"] = False
+                        doc_updates["old_location"] = None
+
+                if doc_updates:
+                    col_ref.document(doc.id).update(doc_updates)
+                    archived_updates += 1
+            if archived_updates:
+                logger.info(f"📚 [ARŞİV & KONUM GÜNCELLEMESİ] {archived_updates} yarışma kaydı arşiv/konum açısından güncellendi.")
+        except Exception as e:
+            logger.warning(f"Arşiv statü güncelleme uyarısı: {e}")
 
     total_in_db = len(set(existing_comps.keys()) | scraped_ids)
     logger.info("=== Tarama Özeti ===")
