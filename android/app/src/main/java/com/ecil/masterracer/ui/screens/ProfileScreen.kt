@@ -27,7 +27,10 @@ import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkRemove
+import androidx.compose.material.icons.filled.Cake
+import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EmojiEvents
@@ -84,13 +87,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ecil.masterracer.data.model.Competition
+import com.ecil.masterracer.ui.components.CategoryTargetBottomSheet
 import com.ecil.masterracer.ui.components.CountdownBadge
+import com.ecil.masterracer.ui.components.WmaCalculatorBottomSheet
 import com.ecil.masterracer.ui.theme.BluePrimary
 import com.ecil.masterracer.ui.theme.CrimsonAccent
 import com.ecil.masterracer.ui.viewmodel.CompetitionViewModel
 import com.ecil.masterracer.util.AthleteRecord
 import com.ecil.masterracer.util.EventFormatType
 import com.ecil.masterracer.util.MasterAthleticsHelper
+import com.ecil.masterracer.util.WmaAgeGradingHelper
+import com.ecil.masterracer.util.WmaEvaluationResult
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -120,8 +127,14 @@ fun ProfileScreen(
     val tabs = listOf("Takibimdekiler", "Derecelerim", "Geçmişim")
 
     val category = viewModel.calculateCategory(athleteGender, athleteBirthYear)
+    val (nextCategory, yearsUntilNext) = MasterAthleticsHelper.calculateNextCategory(athleteGender, athleteBirthYear)
     val isFemale = athleteGender.equals("F", ignoreCase = true)
     val categoryBadgeColor = if (isFemale) Color(0xFFEC4899) else Color(0xFF2563EB)
+
+    var showWmaCalculatorSheet by remember { mutableStateOf(false) }
+    var showCategoryTargetSheet by remember { mutableStateOf(false) }
+    val wmaSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val categorySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Scaffold(
         topBar = {
@@ -255,6 +268,85 @@ fun ProfileScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Kategori Değişimi & Yaş Günü Projeksiyonu Kartı
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .clickable { showCategoryTargetSheet = true },
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFF8B5CF6).copy(alpha = 0.10f)
+                ),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF8B5CF6).copy(alpha = 0.35f))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(Color(0xFF8B5CF6).copy(alpha = 0.2f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Cake,
+                                contentDescription = null,
+                                tint = Color(0xFF8B5CF6),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "Sonraki Kategori: $nextCategory",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Surface(
+                                    color = Color(0xFF8B5CF6),
+                                    shape = RoundedCornerShape(4.dp)
+                                ) {
+                                    Text(
+                                        text = "$yearsUntilNext Yıl",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = Color.White,
+                                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Açık Saha & Salon Rekor Hedefleri ➔",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFF8B5CF6)
+                            )
+                        }
+                    }
+
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = "Detay",
+                        tint = Color(0xFF8B5CF6),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             // Sekmeler
@@ -298,6 +390,9 @@ fun ProfileScreen(
                         // 2. DERECELERİM (Canlı PB / SB Listesi)
                         ProfileRecordsSection(
                             records = athleteRecords,
+                            athleteGender = athleteGender,
+                            athleteBirthYear = athleteBirthYear,
+                            onOpenWmaCalculator = { showWmaCalculatorSheet = true },
                             onAddNewRecord = {
                                 editingRecord = null
                                 recordPresetCompTitle = ""
@@ -375,6 +470,40 @@ fun ProfileScreen(
                 showAddRecordDialog = false
                 editingRecord = null
             }
+        )
+    }
+
+    // WMA Yaş Faktörü & Performans Hesaplayıcı Penceresi
+    if (showWmaCalculatorSheet) {
+        WmaCalculatorBottomSheet(
+            sheetState = wmaSheetState,
+            initialGender = athleteGender,
+            initialBirthYear = athleteBirthYear,
+            onDismiss = { showWmaCalculatorSheet = false },
+            onSaveToProfile = { evName, resStr, numVal, cat ->
+                val newRec = AthleteRecord(
+                    eventName = evName,
+                    category = cat,
+                    result = resStr,
+                    year = Calendar.getInstance().get(Calendar.YEAR),
+                    competitionTitle = "Bireysel / WMA Kayıt",
+                    numericValue = numVal
+                )
+                viewModel.saveAthleteRecord(newRec)
+            }
+        )
+    }
+
+    // Kategori Hedef ve Açık/Salon Rekor Projeksiyon Penceresi
+    if (showCategoryTargetSheet) {
+        CategoryTargetBottomSheet(
+            sheetState = categorySheetState,
+            currentCategory = category,
+            nextCategory = nextCategory,
+            athleteGender = athleteGender,
+            athleteBirthYear = athleteBirthYear,
+            athleteRecords = athleteRecords,
+            onDismiss = { showCategoryTargetSheet = false }
         )
     }
 }
@@ -553,6 +682,9 @@ private fun ProfileTrackedRacesSection(
 @Composable
 private fun ProfileRecordsSection(
     records: List<AthleteRecord>,
+    athleteGender: String,
+    athleteBirthYear: Int,
+    onOpenWmaCalculator: () -> Unit,
     onAddNewRecord: () -> Unit,
     onEditRecord: (AthleteRecord) -> Unit,
     onDeleteRecord: (String) -> Unit
@@ -560,6 +692,64 @@ private fun ProfileRecordsSection(
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
     Column(modifier = Modifier.fillMaxWidth()) {
+        // WMA Yaş Faktörü Hesaplayıcı Butonu
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onOpenWmaCalculator() },
+            shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = BluePrimary.copy(alpha = 0.08f)
+            ),
+            border = androidx.compose.foundation.BorderStroke(1.dp, BluePrimary.copy(alpha = 0.25f))
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .background(BluePrimary.copy(alpha = 0.15f), RoundedCornerShape(10.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Calculate,
+                            contentDescription = null,
+                            tint = BluePrimary,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = "WMA Yaş Faktörü & Performans Hesaplayıcı",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = BluePrimary
+                        )
+                        Text(
+                            text = "Açık Yaş Elit dengi ve dünya klasman yüzdesi hesapla",
+                            fontSize = 10.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
+                        )
+                    }
+                }
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    tint = BluePrimary,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -675,6 +865,23 @@ private fun ProfileRecordsSection(
                                 val isPersonalBest = (rec.id == bestRecord?.id)
                                 val isSeasonBest = (rec.id == currentYearBest?.id && rec.year == currentYear)
 
+                                val wmaResult = remember(rec.numericValue, eventName, categoryName) {
+                                    if (rec.numericValue > 0.0) {
+                                        val eventConfig = WmaAgeGradingHelper.findEventConfig(eventName)
+                                        if (eventConfig != null) {
+                                            val recordAge = if (categoryName.length >= 3) {
+                                                categoryName.substring(1).toIntOrNull() ?: 40
+                                            } else 40
+                                            WmaAgeGradingHelper.evaluatePerformance(
+                                                gender = athleteGender,
+                                                age = recordAge,
+                                                eventKey = eventConfig.key,
+                                                numericValue = rec.numericValue
+                                            )
+                                        } else null
+                                    } else null
+                                }
+
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -782,15 +989,40 @@ private fun ProfileRecordsSection(
                                                         )
                                                     }
                                                 }
+
+                                                // WMA Yaş Yüzdesi Rozeti
+                                                wmaResult?.let { wma ->
+                                                    Spacer(modifier = Modifier.width(4.dp))
+                                                    Surface(
+                                                        color = Color(wma.badgeColorHex).copy(alpha = 0.15f),
+                                                        shape = RoundedCornerShape(4.dp)
+                                                    ) {
+                                                        Text(
+                                                            text = String.format(java.util.Locale.US, "%%%05.1f WMA", wma.scorePercentage),
+                                                            fontSize = 9.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            color = Color(wma.badgeColorHex),
+                                                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                                        )
+                                                    }
+                                                }
                                             }
 
-                                            if (rec.competitionTitle.isNotBlank()) {
-                                                Text(
-                                                    text = "${rec.year} • ${rec.competitionTitle}",
-                                                    fontSize = 11.sp,
-                                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                                )
+                                            val subtitleText = buildString {
+                                                if (rec.competitionTitle.isNotBlank()) {
+                                                    append("${rec.year} • ${rec.competitionTitle}")
+                                                } else {
+                                                    append("${rec.year}")
+                                                }
+                                                if (wmaResult != null) {
+                                                    append(" • Açık Yaş: ${wmaResult.formattedEquivalent}")
+                                                }
                                             }
+                                            Text(
+                                                text = subtitleText,
+                                                fontSize = 11.sp,
+                                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                            )
                                         }
                                     }
 

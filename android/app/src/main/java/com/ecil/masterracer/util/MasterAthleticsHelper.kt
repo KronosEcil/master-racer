@@ -91,6 +91,24 @@ object MasterAthleticsHelper {
     }
 
     /**
+     * Bir sonraki yaş kategorisini ve geçişe kalan yılı hesaplar.
+     */
+    fun calculateNextCategory(
+        gender: String,
+        birthYear: Int,
+        targetYear: Int = Calendar.getInstance().get(Calendar.YEAR)
+    ): Pair<String, Int> {
+        val isFemale = gender.equals("F", ignoreCase = true) ||
+                gender.equals("W", ignoreCase = true) ||
+                gender.equals("K", ignoreCase = true)
+        val prefix = if (isFemale) "F" else "M"
+        val currentAge = if (birthYear in 1910..targetYear) targetYear - birthYear else 35
+        val nextAge = if (currentAge < 35) 35 else ((currentAge / 5) + 1) * 5
+        val yearsLeft = nextAge - currentAge
+        return Pair("$prefix$nextAge", yearsLeft)
+    }
+
+    /**
      * WMA kurallarına göre sporcunun cinsiyetine ve yaşına uygun atletizm branşları.
      * Yaş ilerledikçe engelli mesafeleri ve atma ağırlıkları WMA kurallarına göre otomatik değişir:
      *
