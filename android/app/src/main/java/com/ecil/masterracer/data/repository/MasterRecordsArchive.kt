@@ -1,14 +1,15 @@
-﻿package com.ecil.masterracer.data.repository
+package com.ecil.masterracer.data.repository
 
 import androidx.annotation.Keep
 
 enum class TrackType(val displayName: String, val badge: String) {
-    OUTDOOR("Açık Saha (Outdoor)", "☀️ Açık"),
-    INDOOR("Salon (Indoor / BAMACI)", "🏟️ Salon")
+    OUTDOOR("Açık Saha", "☀️ Açık"),
+    INDOOR("Salon", "🏟️ Salon")
 }
 
 enum class RecordLevel(val code: String, val title: String) {
     NMR("NMR", "Türkiye Rekoru"),
+    BCR("BŞR", "Balkan Şampiyona Rekoru"),
     BMR("BMR", "Balkan Rekoru"),
     EMR("EMR", "Avrupa Rekoru"),
     WMR("WMR", "Dünya Rekoru")
@@ -32,7 +33,7 @@ data class BenchmarkRecord(
 
 object MasterRecordsArchive {
 
-    val RECORDS: List<BenchmarkRecord> = listOf(
+    val TURKISH_RECORDS: List<BenchmarkRecord> = listOf(
         BenchmarkRecord("100 Metre", "W35", TrackType.OUTDOOR, RecordLevel.NMR, "12.03", "Aksel GÜRCAN DEMİRTAŞ(+1.8)", "TUR", 2012, "Ankara", "16.06.2012", "", false),
         BenchmarkRecord("100 Metre", "W40", TrackType.OUTDOOR, RecordLevel.NMR, "12.03", "Aksel GÜRCAN DEMİRTAŞ(+0.7)", "TUR", 2013, "İzmir", "01.06.2013", "", false),
         BenchmarkRecord("100 Metre", "W45", TrackType.OUTDOOR, RecordLevel.NMR, "13.97", "Çiğdem ÇEMBERCİ (+1.8)", "TUR", 2023, "İzmir", "20.05.2023", "", false),
@@ -889,11 +890,16 @@ object MasterRecordsArchive {
         BenchmarkRecord("4x200m Bayrak MIX", "M55", TrackType.INDOOR, RecordLevel.NMR, "1:54.10", "Hülya Figen KARADAĞ (05.05.1968)(56) • FatmaANTER (30.04.1965)(59) • Uğur GÜMÜŞ (09.09.1969)(55) • Nurettin MEMUR (25.01.1970)(55)", "TUR", 2025, "İstanbul", "16.02.2025", "🇹🇷 Millî Takım Kadrosu", false),
     )
 
-    fun getRecords(eventName: String? = null, category: String? = null, trackType: TrackType? = null): List<BenchmarkRecord> {
+    val RECORDS: List<BenchmarkRecord> by lazy {
+        TURKISH_RECORDS + BalkanRecordsArchive.RECORDS
+    }
+
+    fun getRecords(eventName: String? = null, category: String? = null, trackType: TrackType? = null, recordLevel: RecordLevel? = null): List<BenchmarkRecord> {
         return RECORDS.filter { record ->
             (eventName == null || record.eventName.contains(eventName, ignoreCase = true) || eventName.contains(record.eventName, ignoreCase = true)) &&
             (category == null || record.category.equals(category, ignoreCase = true)) &&
-            (trackType == null || record.trackType == trackType)
+            (trackType == null || record.trackType == trackType) &&
+            (recordLevel == null || record.recordLevel == recordLevel)
         }
     }
 

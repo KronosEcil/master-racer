@@ -88,6 +88,7 @@ fun CategoryTargetBottomSheet(
     var selectedCategoryView by remember { mutableStateOf(nextCategory) } // Varsayılan olarak bir sonraki kategori hedefleri
     var selectedEvent by remember { mutableStateOf("100 Metre") }
     var eventDropdownExpanded by remember { mutableStateOf(false) }
+    var selectedRecordLevel by remember { mutableStateOf<RecordLevel?>(null) }
 
     val trackType = if (selectedTrackTabIndex == 0) TrackType.OUTDOOR else TrackType.INDOOR
 
@@ -106,11 +107,22 @@ fun CategoryTargetBottomSheet(
         selectedEvent = availableEvents.firstOrNull() ?: "100 Metre"
     }
 
-    val recordsForEvent = MasterRecordsArchive.getRecords(
-        eventName = selectedEvent,
-        category = selectedCategoryView,
-        trackType = trackType
-    )
+    val recordsForEvent = remember(selectedEvent, selectedCategoryView, trackType, selectedRecordLevel) {
+        MasterRecordsArchive.getRecords(
+            eventName = selectedEvent,
+            category = selectedCategoryView,
+            trackType = trackType,
+            recordLevel = selectedRecordLevel
+        ).sortedBy { record ->
+            when (record.recordLevel) {
+                RecordLevel.NMR -> 0
+                RecordLevel.BCR -> 1
+                RecordLevel.BMR -> 2
+                RecordLevel.EMR -> 3
+                RecordLevel.WMR -> 4
+            }
+        }
+    }
 
     // Kullanıcının bu branştaki PB'sini bul
     val userPb = athleteRecords.filter {
@@ -258,7 +270,7 @@ fun CategoryTargetBottomSheet(
                     onClick = { selectedTrackTabIndex = 0 },
                     text = {
                         Text(
-                            text = "☀️ Açık Saha (Outdoor)",
+                            text = "☀️ Açık Saha",
                             fontSize = 12.sp,
                             fontWeight = if (selectedTrackTabIndex == 0) FontWeight.Bold else FontWeight.Medium
                         )
@@ -269,7 +281,7 @@ fun CategoryTargetBottomSheet(
                     onClick = { selectedTrackTabIndex = 1 },
                     text = {
                         Text(
-                            text = "🏟️ Salon (Indoor / BAMACI)",
+                            text = "🏟️ Salon",
                             fontSize = 12.sp,
                             fontWeight = if (selectedTrackTabIndex == 1) FontWeight.Bold else FontWeight.Medium
                         )
@@ -391,7 +403,42 @@ fun CategoryTargetBottomSheet(
                 Spacer(modifier = Modifier.height(12.dp))
             }
 
-            // REKOR LİSTESİ (NMR, BMR, EMR)
+            // Rekor Düzeyi Filtre Hapları (Tümü, NMR, BŞR, BMR)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                val levels = listOf<Pair<RecordLevel?, String>>(
+                    null to "Tümü",
+                    RecordLevel.NMR to "🇹🇷 Türkiye",
+                    RecordLevel.BCR to "🏆 Şampiyona",
+                    RecordLevel.BMR to "⚡ Balkan"
+                )
+                levels.forEach { (lvl, title) ->
+                    val isSelected = selectedRecordLevel == lvl
+                    Surface(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { selectedRecordLevel = lvl },
+                        shape = RoundedCornerShape(8.dp),
+                        color = if (isSelected) BluePrimary else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    ) {
+                        Text(
+                            text = title,
+                            fontSize = 10.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(vertical = 6.dp, horizontal = 2.dp),
+                            maxLines = 1
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // REKOR LİSTESİ (NMR, BCR, BMR, EMR)
             if (recordsForEvent.isEmpty()) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -438,9 +485,11 @@ fun CategoryTargetBottomSheet(
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "• NMR: Türkiye Atletizm Federasyonu (TAF) Masterlar Tescilli Rekorları\n" +
-                               "• BMR: Balkan Masters Athletics (BAMA) Şampiyona Rekorları\n" +
-                               "• EMR: European Masters Athletics (EMA) Avrupa Rekorları",
+                        text = "• NMR: Türkiye Atletizm Federasyonu (TAF) Masterlar Rekorları\n" +
+                               "• BŞR: Balkan Masters Athletics (BAMA) Şampiyona Rekorları\n" +
+                               "• BMR: Balkan Masters Athletics (BAMA) Tüm Zamanlar Balkan Rekorları\n" +
+                               "• EMR: European Masters Athletics (EMA) Avrupa Rekorları\n" +
+                               "• WMR: World Masters Athletics (WMA) Dünya Rekorları",
                         fontSize = 10.sp,
                         lineHeight = 14.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -457,7 +506,8 @@ fun CategoryTargetBottomSheet(
 private fun RecordRowCard(record: BenchmarkRecord) {
     val (badgeBg, badgeText) = when (record.recordLevel) {
         RecordLevel.NMR -> Pair(Color(0xFFDC2626), "NMR (Türkiye Rekoru)")
-        RecordLevel.BMR -> Pair(Color(0xFF2563EB), "BMR (Balkan Rekoru)")
+        RecordLevel.BCR -> Pair(Color(0xFF2563EB), "BŞR (Balkan Şampiyona Rekoru)")
+        RecordLevel.BMR -> Pair(Color(0xFF0D9488), "BMR (Balkan Rekoru)")
         RecordLevel.EMR -> Pair(Color(0xFFD97706), "EMR (Avrupa Rekoru)")
         RecordLevel.WMR -> Pair(Color(0xFF7C3AED), "WMR (Dünya Rekoru)")
     }
