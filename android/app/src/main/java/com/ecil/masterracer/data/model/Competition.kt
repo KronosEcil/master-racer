@@ -113,6 +113,182 @@ data class Competition(
     }
 
     /**
+     * Ekranda gösterilecek Türkçe yarışma başlığı.
+     * İngilizce, Almanca, Fransızca, İtalyanca ve İspanyolca resmi yarışma başlıklarını
+     * standart, akıcı Türkçe şampiyona terminolojisine çevirir.
+     */
+    fun getDisplayTitle(): String {
+        var t = title.trim()
+        if (t.isBlank()) return ""
+
+        // Zaten Türkçe olan başlıklar (Türkiye, Balkan vb.)
+        val lower = t.lowercase()
+        if (lower.contains("türkiye master") || lower.contains("balkan master") || lower.contains("şampiyona") || lower.contains("kupa")) {
+            // Şehir isimleri veya ufak düzeltmeler
+            return t
+        }
+
+        // Dünya Masterlar Oyunları (World Masters Games)
+        if (lower.contains("winter world masters games")) {
+            val cityYear = t.replace(Regex("(?i)winter\\s+world\\s+masters\\s+games"), "").trim()
+            return "Kış Dünya Masterlar Oyunları ${translateCityInTitle(cityYear)}".trim()
+        }
+        if (lower.contains("world masters games")) {
+            val cityYear = t.replace(Regex("(?i)world\\s+masters\\s+games"), "").trim()
+            return "Dünya Masterlar Oyunları ${translateCityInTitle(cityYear)}".trim()
+        }
+        if (lower.contains("european masters games")) {
+            val cityYear = t.replace(Regex("(?i)european\\s+masters\\s+games"), "").trim()
+            return "Avrupa Masterlar Oyunları ${translateCityInTitle(cityYear)}".trim()
+        }
+        if (lower.contains("pan-american masters games") || lower.contains("americas masters games")) {
+            val cityYear = t.replace(Regex("(?i)(pan-american|americas)\\s+masters\\s+games"), "").trim()
+            return "Pan-Amerikan Masterlar Oyunları ${translateCityInTitle(cityYear)}".trim()
+        }
+        if (lower.contains("asia-pacific masters games")) {
+            val cityYear = t.replace(Regex("(?i)asia-pacific\\s+masters\\s+games"), "").trim()
+            return "Asya-Pasifik Masterlar Oyunları ${translateCityInTitle(cityYear)}".trim()
+        }
+
+        // WMA Dünya Masterlar Atletizm Şampiyonaları
+        if (lower.contains("world masters athletics championships indoor") || lower.contains("wma indoor")) {
+            val rest = t.replace(Regex("(?i)(world\\s+masters\\s+athletics\\s+championships\\s+indoor|wma\\s+indoor)"), "").trim()
+            return "Dünya Masterlar Salon Atletizm Şampiyonası ${translateCityInTitle(rest)}".trim()
+        }
+        if (lower.contains("world masters athletics championships")) {
+            val rest = t.replace(Regex("(?i)world\\s+masters\\s+athletics\\s+championships(\\s+stadia)?"), "").trim()
+            return "Dünya Masterlar Açık Saha Atletizm Şampiyonası ${translateCityInTitle(rest)}".trim()
+        }
+
+        // EMA Avrupa Masterlar Atletizm Şampiyonaları
+        if (lower.contains("european masters athletics championships indoor") || lower.contains("emaci")) {
+            val rest = t.replace(Regex("(?i)(european\\s+masters\\s+athletics\\s+championships\\s+indoor|emaci)"), "").trim()
+            return "Avrupa Masterlar Salon Atletizm Şampiyonası ${translateCityInTitle(rest)}".trim()
+        }
+        if (lower.contains("european masters athletics championships non-stadia") || lower.contains("emacns")) {
+            val rest = t.replace(Regex("(?i)(european\\s+masters\\s+athletics\\s+championships\\s+non-stadia|emacns)"), "").trim()
+            return "Avrupa Masterlar Yol ve Kros Şampiyonası (Non-Stadia) ${translateCityInTitle(rest)}".trim()
+        }
+        if (lower.contains("european masters marathon")) {
+            val rest = t.replace(Regex("(?i)european\\s+masters\\s+marathon\\s+championships?"), "").trim()
+            return "Avrupa Masterlar Maraton Şampiyonası ${translateCityInTitle(rest)}".trim()
+        }
+        if (lower.contains("european masters athletics championships") || lower.contains("emacs")) {
+            val rest = t.replace(Regex("(?i)(european\\s+masters\\s+athletics\\s+championships(\\s+stadia)?|emacs)"), "").trim()
+            return "Avrupa Masterlar Açık Saha Atletizm Şampiyonası ${translateCityInTitle(rest)}".trim()
+        }
+
+        // BAMA Balkan Masterlar Şampiyonaları
+        if (lower.contains("balkan masters athletics indoor") || lower.contains("bamaci")) {
+            val rest = t.replace(Regex("(?i)(balkan\\s+masters\\s+athletics\\s+(indoor\\s+)?championships?\\s+indoor|bamaci)"), "").trim()
+            return "Balkan Masterlar Salon Atletizm Şampiyonası ${translateCityInTitle(rest)}".trim()
+        }
+        if (lower.contains("balkan masters athletics championships") || lower.contains("bamacs")) {
+            val rest = t.replace(Regex("(?i)(balkan\\s+masters\\s+athletics\\s+championships(\\s+stadia)?|bamacs)"), "").trim()
+            return "Balkan Masterlar Açık Saha Atletizm Şampiyonası ${translateCityInTitle(rest)}".trim()
+        }
+
+        // Birleşik Krallık (BMAF)
+        if (lower.contains("bmaf") || lower.contains("british masters")) {
+            if (lower.contains("indoor")) {
+                val rest = t.replace(Regex("(?i)bmaf\\s+british\\s+masters\\s+indoor\\s+(track\\s+&\\s+field\\s+)?championships?"), "").trim()
+                return "Birleşik Krallık Masterlar Salon Atletizm Şampiyonası ${rest}".trim()
+            } else {
+                val rest = t.replace(Regex("(?i)bmaf\\s+british\\s+masters\\s+(track\\s+&\\s+field\\s+)?championships?"), "").trim()
+                return "Birleşik Krallık Masterlar Açık Saha Atletizm Şampiyonası ${rest}".trim()
+            }
+        }
+
+        // Fransa (FFA)
+        if (lower.contains("championnats de france masters") || lower.contains("championnat de france masters")) {
+            if (lower.contains("salle")) {
+                val rest = t.replace(Regex("(?i)championnats?\\s+de\\s+france\\s+masters\\s+en\\s+salle"), "").trim()
+                return "Fransa Masterlar Salon Atletizm Şampiyonası ${rest}".trim()
+            } else {
+                val rest = t.replace(Regex("(?i)championnats?\\s+de\\s+france\\s+masters(\\s+sur\\s+piste)?"), "").trim()
+                return "Fransa Masterlar Açık Saha Atletizm Şampiyonası ${rest}".trim()
+            }
+        }
+
+        // Almanya (DLV)
+        if (lower.contains("deutsche hallenmeisterschaften masters") || (lower.contains("deutsche") && lower.contains("halle") && lower.contains("master"))) {
+            val rest = t.replace(Regex("(?i)deutsche\\s+hallenmeisterschaften\\s+masters"), "").trim()
+            return "Almanya Masterlar Salon Atletizm Şampiyonası ${rest}".trim()
+        }
+        if (lower.contains("deutsche masters-meisterschaften") || lower.contains("deutsche meisterschaften masters")) {
+            val rest = t.replace(Regex("(?i)deutsche\\s+(masters-)?meisterschaften(\\s+masters)?"), "").trim()
+            return "Almanya Masterlar Açık Saha Atletizm Şampiyonası ${rest}".trim()
+        }
+
+        // İtalya (FIDAL)
+        if (lower.contains("campionati italiani") && lower.contains("master")) {
+            if (lower.contains("indoor")) {
+                val rest = t.replace(Regex("(?i)campionati\\s+italiani(\\s+individuali)?\\s+master\\s+indoor"), "").trim()
+                return "İtalya Masterlar Salon Atletizm Şampiyonası ${rest}".trim()
+            } else {
+                val rest = t.replace(Regex("(?i)campionati\\s+italiani(\\s+individuali)?(\\s+su\\s+pista)?\\s+master"), "").trim()
+                return "İtalya Masterlar Açık Saha Atletizm Şampiyonası ${rest}".trim()
+            }
+        }
+
+        // İspanya (RFEA)
+        if (lower.contains("campeonato de españa") && lower.contains("m\u00e1ster")) {
+            if (lower.contains("short track") || lower.contains("pista cubierta")) {
+                val rest = t.replace(Regex("(?i)campeonato\\s+de\\s+espa\u00f1a\\s+m\u00e1ster\\s+(short\\s+track|pista\\s+cubierta)"), "").trim()
+                return "İspanya Masterlar Salon Atletizm Şampiyonası ${rest}".trim()
+            } else {
+                val rest = t.replace(Regex("(?i)campeonato\\s+de\\s+espa\u00f1a\\s+m\u00e1ster(\\s+aire\\s+libre)?"), "").trim()
+                return "İspanya Masterlar Açık Saha Atletizm Şampiyonası ${rest}".trim()
+            }
+        }
+
+        // Genel şablon çevirileri (Kelime bazlı zenginleştirme)
+        var result = t
+            .replace(Regex("(?i)\\bIndoor Track & Field Championships?\\b"), "Salon Atletizm Şampiyonası")
+            .replace(Regex("(?i)\\bTrack & Field Championships?\\b"), "Açık Saha Atletizm Şampiyonası")
+            .replace(Regex("(?i)\\bIndoor Championships?\\b"), "Salon Şampiyonası")
+            .replace(Regex("(?i)\\bAthletics Championships?\\b"), "Atletizm Şampiyonası")
+            .replace(Regex("(?i)\\bNational Championships?\\b"), "Ulusal Şampiyonası")
+            .replace(Regex("(?i)\\bMasters Championships?\\b"), "Masterlar Şampiyonası")
+            .replace(Regex("(?i)\\bMasters Games\\b"), "Masterlar Oyunları")
+            .replace(Regex("(?i)\\bCross Country\\b"), "Kros")
+            .replace(Regex("(?i)\\bRoad Running\\b"), "Yol Koşusu")
+            .replace(Regex("(?i)\\bHalf Marathon\\b"), "Yarı Maraton")
+            .replace(Regex("(?i)\\bMarathon\\b"), "Maraton")
+            .replace(Regex("(?i)\\bTrail Running\\b"), "Patika Koşusu")
+            .replace(Regex("(?i)\\bMountain Running\\b"), "Dağ Koşusu")
+            .replace(Regex("(?i)\\bRace Walking\\b"), "Yürüyüş")
+            .replace(Regex("(?i)\\b1st\\b"), "1.")
+            .replace(Regex("(?i)\\b2nd\\b"), "2.")
+            .replace(Regex("(?i)\\b3rd\\b"), "3.")
+            .replace(Regex("(?i)\\b(\\d+)th\\b"), "$1.")
+
+        return translateCityInTitle(result)
+    }
+
+    private fun translateCityInTitle(text: String): String {
+        return text
+            .replace(Regex("(?i)\\bRome\\b"), "Roma")
+            .replace(Regex("(?i)\\bAthens\\b"), "Atina")
+            .replace(Regex("(?i)\\bVienna\\b"), "Viyana")
+            .replace(Regex("(?i)\\bMunich\\b"), "Münih")
+            .replace(Regex("(?i)\\bBrussels\\b"), "Brüksel")
+            .replace(Regex("(?i)\\bCopenhagen\\b"), "Kopenhag")
+            .replace(Regex("(?i)\\bWarsaw\\b"), "Varşova")
+            .replace(Regex("(?i)\\bBucharest\\b"), "Bükreş")
+            .replace(Regex("(?i)\\bBelgrade\\b"), "Belgrad")
+            .replace(Regex("(?i)\\bThessaloniki\\b"), "Selanik")
+            .replace(Regex("(?i)\\bSofia\\b"), "Sofya")
+            .replace(Regex("(?i)\\bGothenburg\\b"), "Göteborg")
+            .replace(Regex("(?i)\\bBudapest\\b"), "Budapeşte")
+            .replace(Regex("(?i)\\bGeneva\\b"), "Cenevre")
+            .replace(Regex("(?i)\\bLondon\\b"), "Londra")
+            .replace(Regex("(?i)\\bLisbon\\b"), "Lizbon")
+            .replace(Regex("(?i)\\bPrague\\b"), "Prag")
+            .replace(Regex("(?i)\\bSydney\\b"), "Sidney")
+    }
+
+    /**
      * Tarih aralığını kullanıcı dostu formata dönüştürür.
      */
     fun getFormattedDate(): String {

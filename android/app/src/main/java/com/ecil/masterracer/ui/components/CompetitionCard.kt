@@ -161,7 +161,7 @@ fun CompetitionCard(
 
             // Yarışma Başlığı
             Text(
-                text = competition.title,
+                text = competition.getDisplayTitle(),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,

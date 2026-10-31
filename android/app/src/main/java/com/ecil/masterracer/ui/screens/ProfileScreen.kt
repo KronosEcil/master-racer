@@ -324,7 +324,7 @@ fun ProfileScreen(
                             onRemoveFromCompleted = { viewModel.toggleCompletedRace(it.id) },
                             onAddRecordForCompetition = { comp ->
                                 editingRecord = null
-                                recordPresetCompTitle = comp.title
+                                recordPresetCompTitle = comp.getDisplayTitle()
                                 val year = comp.start_date.take(4).toIntOrNull() ?: Calendar.getInstance().get(Calendar.YEAR)
                                 recordPresetYear = year
                                 isFixedCompetition = true
@@ -464,7 +464,7 @@ private fun ProfileTrackedRacesSection(
                             Spacer(modifier = Modifier.width(10.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = comp.title,
+                                    text = comp.getDisplayTitle(),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface,
@@ -886,7 +886,10 @@ private fun ProfileCompletedHistorySection(
             }
         } else {
             completedCompetitions.forEach { comp ->
-                val compRecords = records.filter { it.competitionTitle.equals(comp.title, ignoreCase = true) }
+                val compRecords = records.filter {
+                    it.competitionTitle.equals(comp.title, ignoreCase = true) ||
+                        it.competitionTitle.equals(comp.getDisplayTitle(), ignoreCase = true)
+                }
 
                 Card(
                     modifier = Modifier
@@ -907,7 +910,7 @@ private fun ProfileCompletedHistorySection(
                             Spacer(modifier = Modifier.width(10.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = comp.title,
+                                    text = comp.getDisplayTitle(),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface,
@@ -1259,9 +1262,9 @@ private fun RecordEntryBottomSheet(
                             )
                             allCompetitions.take(40).forEach { comp ->
                                 DropdownMenuItem(
-                                    text = { Text("${comp.getCountryFlag()} ${comp.title} (${comp.start_date.take(4)})", fontSize = 13.sp) },
+                                    text = { Text("${comp.getCountryFlag()} ${comp.getDisplayTitle()} (${comp.start_date.take(4)})", fontSize = 13.sp) },
                                     onClick = {
-                                        selectedCompTitle = comp.title
+                                        selectedCompTitle = comp.getDisplayTitle()
                                         comp.start_date.take(4).toIntOrNull()?.let { yearInput = it.toString() }
                                         isCompDropdownExpanded = false
                                     }

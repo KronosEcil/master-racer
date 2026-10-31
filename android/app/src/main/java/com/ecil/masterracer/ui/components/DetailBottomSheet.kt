@@ -105,7 +105,7 @@ fun DetailBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = competition.title,
+                text = competition.getDisplayTitle(),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF0F172A),
