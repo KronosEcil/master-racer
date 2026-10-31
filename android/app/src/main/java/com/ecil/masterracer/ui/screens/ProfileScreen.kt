@@ -86,10 +86,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.activity.compose.BackHandler
 import com.ecil.masterracer.data.model.Competition
 import com.ecil.masterracer.ui.components.CategoryTargetBottomSheet
 import com.ecil.masterracer.ui.components.CountdownBadge
 import com.ecil.masterracer.ui.components.WmaCalculatorBottomSheet
+import com.ecil.masterracer.ui.screens.MasterRecordsScreen
 import com.ecil.masterracer.ui.theme.BluePrimary
 import com.ecil.masterracer.ui.theme.CrimsonAccent
 import com.ecil.masterracer.ui.viewmodel.CompetitionViewModel
@@ -132,9 +134,19 @@ fun ProfileScreen(
     val categoryBadgeColor = if (isFemale) Color(0xFFEC4899) else Color(0xFF2563EB)
 
     var showWmaCalculatorSheet by remember { mutableStateOf(false) }
-    var showCategoryTargetSheet by remember { mutableStateOf(false) }
+    var showRecordsScreen by remember { mutableStateOf(false) }
     val wmaSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val categorySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    if (showRecordsScreen) {
+        BackHandler { showRecordsScreen = false }
+        MasterRecordsScreen(
+            athleteGender = athleteGender,
+            athleteCategory = category,
+            athleteRecords = athleteRecords,
+            onBack = { showRecordsScreen = false }
+        )
+        return
+    }
 
     Scaffold(
         topBar = {
@@ -275,7 +287,7 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .clickable { showCategoryTargetSheet = true },
+                    .clickable { showRecordsScreen = true },
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color(0xFF8B5CF6).copy(alpha = 0.10f)
@@ -330,7 +342,7 @@ fun ProfileScreen(
                             }
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "Açık Saha & Salon Rekor Hedefleri ➔",
+                                text = "Resmi Rekorlar Arşivi (Tüm Kategoriler) ➔",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFF8B5CF6)
@@ -494,18 +506,7 @@ fun ProfileScreen(
         )
     }
 
-    // Kategori Hedef ve Açık/Salon Rekor Projeksiyon Penceresi
-    if (showCategoryTargetSheet) {
-        CategoryTargetBottomSheet(
-            sheetState = categorySheetState,
-            currentCategory = category,
-            nextCategory = nextCategory,
-            athleteGender = athleteGender,
-            athleteBirthYear = athleteBirthYear,
-            athleteRecords = athleteRecords,
-            onDismiss = { showCategoryTargetSheet = false }
-        )
-    }
+
 }
 
 // -------------------------------------------------------------

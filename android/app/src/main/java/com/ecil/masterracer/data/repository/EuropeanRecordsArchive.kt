@@ -624,6 +624,19 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("2000m Engelli", "M75", TrackType.OUTDOOR, RecordLevel.EMR, "8:29.26", "Jose Vicente Rioseco Lopez", "ESP", 2019, "Sagunto, Spain", "28 June 2019", "National Masters Championships", false),
         BenchmarkRecord("2000m Engelli", "M80", TrackType.OUTDOOR, RecordLevel.EMR, "10:36.12", "Rogert Godart", "FRA", 2025, "Madeira, Portugal", "11 October 2025", "European Masters Championships", false),
         BenchmarkRecord("2000m Engelli", "M85", TrackType.OUTDOOR, RecordLevel.EMR, "13:12.99", "Guntis Linde", "LAT", 2017, "Aarhus, Denmark", "31 July 2017", "European Masters Championships", false),
+        BenchmarkRecord("110m Engelli", "M35", TrackType.OUTDOOR, RecordLevel.EMR, "13.11", "Colin Jackson", "GBR", 2002, "Munich, Germany", "10 August 2002", "Rüzgar: +0.4 m/s • European Championships", false),
+        BenchmarkRecord("110m Engelli", "M40", TrackType.OUTDOOR, RecordLevel.EMR, "14.05", "Jan Schindzielorz", "GER", 2020, "Regensburg, Germany", "26 July 2020", "Rüzgar: +1.8 m/s • Sparkassen-Gala", true),
+        BenchmarkRecord("110m Engelli", "M40", TrackType.OUTDOOR, RecordLevel.EMR, "14.01", "Vincent Clarico", "FRA", 2006, "Elancourt, France", "21 June 2006", "Rüzgar: +0.5 m/s • 3° Meeting d'Elancourt", true),
+        BenchmarkRecord("110m Engelli", "M45", TrackType.OUTDOOR, RecordLevel.EMR, "14.26", "Jan Schindzielorz", "GER", 2023, "Mönchengladbach, Germany", "13 August 2023", "Rüzgar: +0.3 m/s • Germany Masters Championships", false),
+        BenchmarkRecord("100m Engelli", "M50", TrackType.OUTDOOR, RecordLevel.EMR, "13.49", "Joe Appiah", "GBR", 2022, "London, United Kingdom", "11 June 2022", "Rüzgar: +1.3 m/s", false),
+        BenchmarkRecord("100m Engelli", "M55", TrackType.OUTDOOR, RecordLevel.EMR, "13.75", "Joe Appiah", "GBR", 2026, "Stratford, United Kingdom", "9 August 2026", "Rüzgar: +1.2 m/s • Stratford Speed GP4", false),
+        BenchmarkRecord("100m Engelli", "M60", TrackType.OUTDOOR, RecordLevel.EMR, "14.73", "Barrie Marsden", "GBR", 2026, "Woking, Great Britain", "31 May 2026", "Rüzgar: -0.1 m/s • EMA London Masters International", false),
+        BenchmarkRecord("100m Engelli", "M65", TrackType.OUTDOOR, RecordLevel.EMR, "15.47", "Rolf Geese", "GER", 2009, "Lahti, Finland", "7 August 2009", "Rüzgar: +0.3 m/s • World Masters Championships", false),
+        BenchmarkRecord("80m Engelli", "M70", TrackType.OUTDOOR, RecordLevel.EMR, "12.96", "Arno Hamaekers", "GER", 2010, "Limburgerhof, Germany", "17 June 2010", "Rüzgar: +1.1 m/s", false),
+        BenchmarkRecord("80m Engelli", "M75", TrackType.OUTDOOR, RecordLevel.EMR, "14.20", "Guido Müller", "GER", 2015, "Lyon, France", "15 August 2015", "Rüzgar: +1.2 m/s • World Masters Athletics Championships", false),
+        BenchmarkRecord("80m Engelli", "M80", TrackType.OUTDOOR, RecordLevel.EMR, "14.93", "Anthony Bowman", "GBR", 2016, "Birmingham, United Kingdom", "30 July 2016", "Rüzgar: +0.7 m/s • BMAF Multiple Events Championships", false),
+        BenchmarkRecord("80m Engelli", "M85", TrackType.OUTDOOR, RecordLevel.EMR, "17.33", "Anthony Bowman", "GBR", 2021, "Stretford, United Kingdom", "8 June 2021", "Rüzgar: -0.1 m/s • Trafford Sprints Grand Prix", false),
+        BenchmarkRecord("80m Engelli", "M90", TrackType.OUTDOOR, RecordLevel.EMR, "27.04", "Ilmari Koppinen", "FIN", 2009, "Lahti, Finland", "7 August 2009", "Rüzgar: +0.7 m/s • World Masters Athletics Championships", false),
         BenchmarkRecord("300m Engelli", "M60", TrackType.OUTDOOR, RecordLevel.EMR, "42.31", "Guido Müller", "GER", 1999, "Gateshead, United Kingdom", "1 August 1999", "WAVA Championships", false),
         BenchmarkRecord("300m Engelli", "M65", TrackType.OUTDOOR, RecordLevel.EMR, "43.88", "Guido Müller", "GER", 2004, "Aarhus, Denmark", "25 July 2004", "European Masters Championships", false),
         BenchmarkRecord("300m Engelli", "M70", TrackType.OUTDOOR, RecordLevel.EMR, "45.24", "Guido Müller", "GER", 2009, "Vaterstetten, Germany", "10 July 2009", "Germany Masters Championships", false),
@@ -632,6 +645,9 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("400m Engelli", "M40", TrackType.OUTDOOR, RecordLevel.EMR, "50.55", "Aramis Diaz", "ITA", 2015, "Geneve, Switzerland", "6 June 2015", "Meeting EAP", false),
         BenchmarkRecord("400m Engelli", "M45", TrackType.OUTDOOR, RecordLevel.EMR, "53.57", "Aramis Diaz", "ITA", 2020, "Roma, Italy", "5 September 2020", "Meeting 'Caccia al Minimo' 2", false),
         BenchmarkRecord("400m Engelli", "M50", TrackType.OUTDOOR, RecordLevel.EMR, "55.99", "Toine van Beckhoven", "NED", 2023, "Eindhoven, Netherlands", "21 May 2023", "Competitie Poule 4", false),
+    )
+
+    private fun getPart12(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("400m Engelli", "M55", TrackType.OUTDOOR, RecordLevel.EMR, "57.49", "Toine van Beckhoven", "NED", 2026, "Tilburg, Netherlands", "25 May 2026", "Synchroon TMeeting", false),
         BenchmarkRecord("200m Engelli", "M80", TrackType.OUTDOOR, RecordLevel.EMR, "36.06", "John McDermott", "IRL", 2024, "Gothenburg, Sweden", "17 August 2024", "Rüzgar: +1.4 m/s • World Masters Athletics Championships", false),
         BenchmarkRecord("200m Engelli", "M85", TrackType.OUTDOOR, RecordLevel.EMR, "43.22", "Anthony Bowman", "GBR", 2021, "Nuneaton, United Kingdom", "6 June 2021", "Rüzgar: -0.4 m/s • Midland Masters Championships", false),
@@ -645,9 +661,6 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("Yüksek Atlama", "M60", TrackType.OUTDOOR, RecordLevel.EMR, "1.82", "Rüdiger Weber", "GER", 2024, "Erding, Germany", "16 June 2024", "German Masters Championships", false),
         BenchmarkRecord("Yüksek Atlama", "M65", TrackType.OUTDOOR, RecordLevel.EMR, "1.68", "Manfred Ziegler", "GER", 2025, "Vohenstrauss, Germany", "31 May 2025", "Kreismeisterschaften U14 open", true),
         BenchmarkRecord("Yüksek Atlama", "M65", TrackType.OUTDOOR, RecordLevel.EMR, "1.73 i", "Oleg Fedorko", "UKR", 2020, "Kyiv, Ukraine", "9 February 2020", "Ukrainia National Masters indoor Championships", true),
-    )
-
-    private fun getPart12(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Yüksek Atlama", "M70", TrackType.OUTDOOR, RecordLevel.EMR, "1.60", "Dušan Prezelj", "SLO", 2020, "Ptuj, Slovenia", "22 July 2020", "Masters Meet", false),
         BenchmarkRecord("Yüksek Atlama", "M75", TrackType.OUTDOOR, RecordLevel.EMR, "1.49", "Carl-Erik Särndal", "SWE", 2013, "Lund, Sweden", "17 September 2013", "Sydsvenska Ungdomsspelen", true),
         BenchmarkRecord("Yüksek Atlama", "M75", TrackType.OUTDOOR, RecordLevel.EMR, "1.53 i", "Dušan Prezelj", "SLO", 2024, "Zagreb, Croatia", "2 March 2024", "Croatian Masters Open Indoor Championships", true),
@@ -685,6 +698,9 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("Uzun Atlama", "M70", TrackType.OUTDOOR, RecordLevel.EMR, "5.22 i", "Vladimir Popov", "RUS", 2004, "Moscow, Russia", "20 March 2004", "Russian Masters Championships indoor", true),
         BenchmarkRecord("Uzun Atlama", "M75", TrackType.OUTDOOR, RecordLevel.EMR, "4.81", "Olle Borg", "SWE", 2024, "Arvika, Sweden", "11 September 2024", "Rüzgar: ±0.0 m/s • Klubbtävling veteraner", false),
         BenchmarkRecord("Uzun Atlama", "M80", TrackType.OUTDOOR, RecordLevel.EMR, "4.45", "Eberhard Linke", "GER", 2024, "Kreuztal, Germany", "30 May 2024", "Rüzgar: -0.1 m/s • FLVW Team Finale Senior/Seniorinnen", false),
+    )
+
+    private fun getPart13(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Uzun Atlama", "M85", TrackType.OUTDOOR, RecordLevel.EMR, "3.77", "Gudmund Skrivervik", "NOR", 2006, "Poznań, Poland", "23 July 2006", "Rüzgar: +1.6 m/s • European Masters Championships", false),
         BenchmarkRecord("Uzun Atlama", "M90", TrackType.OUTDOOR, RecordLevel.EMR, "3.06", "Vittorio Colò", "ITA", 2002, "Potsdam, Germany", "22 August 2002", "Rüzgar: -0.4 m/s • European Masters Championships", true),
         BenchmarkRecord("Uzun Atlama", "M90", TrackType.OUTDOOR, RecordLevel.EMR, "3.07 i", "Aatos Sainio", "FIN", 2016, "Tampere, Finland", "29 January 2016", "", true),
@@ -698,9 +714,6 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("Üçadım Atlama", "M60", TrackType.OUTDOOR, RecordLevel.EMR, "12.82", "Wolfgang Knabe", "GER", 2021, "Garbsen, Germany", "10 July 2021", "Rüzgar: +0.2 m/s • NLV Jumps Cup", false),
         BenchmarkRecord("Üçadım Atlama", "M65", TrackType.OUTDOOR, RecordLevel.EMR, "12.16", "Wolfgang Knabe", "GER", 2025, "Gotha, Germany", "23 August 2025", "Rüzgar: +1.1 m/s • German Masters Championships", false),
         BenchmarkRecord("Üçadım Atlama", "M70", TrackType.OUTDOOR, RecordLevel.EMR, "10.77", "Arne Tefre", "NOR", 2025, "Madeira, Portugal", "19 October 2025", "Rüzgar: +1.0 m/s • European Masters Championships", true),
-    )
-
-    private fun getPart13(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Üçadım Atlama", "M70", TrackType.OUTDOOR, RecordLevel.EMR, "10.88 i", "Pertti Ahomäki", "FIN", 2016, "Ancona, Italy", "2 April 2016", "European Masters Championships indoor", true),
         BenchmarkRecord("Üçadım Atlama", "M75", TrackType.OUTDOOR, RecordLevel.EMR, "10.12", "Olle Borg", "SWE", 2024, "Arvika, Sweden", "12 September 2024", "Rüzgar: +1.6 m/s • Klubbtävling veteraner", false),
         BenchmarkRecord("Üçadım Atlama", "M80", TrackType.OUTDOOR, RecordLevel.EMR, "9.29", "Eberhard Linke", "GER", 2024, "Erding, Germany", "15 June 2024", "Rüzgar: -0.1 m/s • German Masters Championships", false),
@@ -708,6 +721,7 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("Üçadım Atlama", "M90", TrackType.OUTDOOR, RecordLevel.EMR, "7.10", "Aatos Saino", "FIN", 2015, "Kangasala, Finland", "22 July 2015", "Rüzgar: +0.6 m/s • Bruunon Games", false),
         BenchmarkRecord("Üçadım Atlama", "M95", TrackType.OUTDOOR, RecordLevel.EMR, "5.23", "Emmerich Zensch", "AUT", 2015, "Lyon, France", "9 August 2015", "Rüzgar: +1.1 m/s • World Masters Championships", true),
         BenchmarkRecord("Üçadım Atlama", "M95", TrackType.OUTDOOR, RecordLevel.EMR, "5.31 i", "Emmerich Zensch", "AUT", 2015, "Toruń, Poland", "27 March 2015", "European Masters Championships indoor", true),
+        BenchmarkRecord("Üçadım Atlama", "M100", TrackType.OUTDOOR, RecordLevel.EMR, "3.54", "Giuseppe Ottaviani", "ITA", 2016, "Urbino, Italy", "30 May 2016", "Rüzgar: +0.3 m/s • Masters Meet", false),
         BenchmarkRecord("Gülle Atma", "M35", TrackType.OUTDOOR, RecordLevel.EMR, "21.35", "Aleksandr Baryshnikov", "RUS", 1984, "Sochi, Russia", "10 June 1984", "Znamensky Memorial", false),
         BenchmarkRecord("Gülle Atma", "M40", TrackType.OUTDOOR, RecordLevel.EMR, "20.44", "Ivan Ivančić", "YUG", 1980, "Beograd, Serbia", "5 July 1980", "", false),
         BenchmarkRecord("Gülle Atma", "M45", TrackType.OUTDOOR, RecordLevel.EMR, "20.77", "Ivan Ivančić", "YUG", 1983, "Koblenz, Germany", "31 August 1983", "Rot Weiss meeting", false),
@@ -737,6 +751,9 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("Disk Atma", "M75", TrackType.OUTDOOR, RecordLevel.EMR, "49.21", "Carmelo Rado", "ITA", 2008, "Besana in Brianza, Italy", "5 October 2008", "Regional Masters Championships", false),
         BenchmarkRecord("Disk Atma", "M80", TrackType.OUTDOOR, RecordLevel.EMR, "41.13", "Östen Edlund", "SWE", 2016, "Tingstade, Sweden", "21 June 2016", "Throws Pentathlon Masters", false),
         BenchmarkRecord("Disk Atma", "M85", TrackType.OUTDOOR, RecordLevel.EMR, "35.92", "Carmelo Rado", "ITA", 2019, "Caorle, Italy", "13 September 2019", "European Masters Championships", false),
+    )
+
+    private fun getPart14(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Disk Atma", "M90", TrackType.OUTDOOR, RecordLevel.EMR, "28.08", "Östen Edlund", "SWE", 2025, "Madeira, Portugal", "17 October 2025", "European Masters Championships", false),
         BenchmarkRecord("Disk Atma", "M95", TrackType.OUTDOOR, RecordLevel.EMR, "17.62", "Giuseppe Ottaviani", "ITA", 2011, "San Benedetto del Tronto, Italy", "21 May 2011", "17° Adriatic Grand Prix Meeting", false),
         BenchmarkRecord("Disk Atma", "M100", TrackType.OUTDOOR, RecordLevel.EMR, "10.27", "Giuseppe Ottaviani", "ITA", 2016, "Montecassiano, Italy", "18 June 2016", "Regional Masters Clubs Championships", false),
@@ -751,9 +768,6 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("Çekiç Atma", "M65", TrackType.OUTDOOR, RecordLevel.EMR, "60.65", "Arild Busterud", "NOR", 2013, "Tønsberg, Norway", "23 July 2013", "Throws Meet", false),
         BenchmarkRecord("Çekiç Atma", "M70", TrackType.OUTDOOR, RecordLevel.EMR, "56.72", "Arild Busterud", "NOR", 2018, "Málaga, Spain", "15 September 2018", "World Masters Championships", true),
         BenchmarkRecord("Çekiç Atma", "M70", TrackType.OUTDOOR, RecordLevel.EMR, "57.42", "Arild Busterud", "NOR", 2019, "Løten, Norway", "18 May 2019", "", true),
-    )
-
-    private fun getPart14(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Çekiç Atma", "M75", TrackType.OUTDOOR, RecordLevel.EMR, "52.22", "Arild Busterud", "NOR", 2023, "Tønsberg, Norway", "29 April 2023", "Throws Pentathlon", false),
         BenchmarkRecord("Çekiç Atma", "M80", TrackType.OUTDOOR, RecordLevel.EMR, "50.96", "Heimo Viertbauer", "AUT", 2024, "Moosach, Germany", "29 September 2024", "Moosach Throws series", false),
         BenchmarkRecord("Çekiç Atma", "M85", TrackType.OUTDOOR, RecordLevel.EMR, "43.17", "Walter Krifka", "AUT", 2022, "Linz, Austria", "18 June 2022", "Voest Weight Pentathlon", false),
@@ -790,6 +804,9 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("Ağırlık Atma", "M75", TrackType.OUTDOOR, RecordLevel.EMR, "20.99 i", "Arild Busterud", "NOR", 2023, "Toruń, Poland", "26 March 2023", "World Masters Championships", true),
         BenchmarkRecord("Ağırlık Atma", "M80", TrackType.OUTDOOR, RecordLevel.EMR, "20.01", "Jerzy Jablowski", "POL", 2025, "Warsaw, Poland", "24 August 2025", "I Blekitny Miting Rzutowy Masters", false),
         BenchmarkRecord("Ağırlık Atma", "M85", TrackType.OUTDOOR, RecordLevel.EMR, "16.65", "Carmelo Rado", "ITA", 2018, "Ancona, Italy", "15 September 2018", "Regional Throws Pentathlon Championships", true),
+    )
+
+    private fun getPart15(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Ağırlık Atma", "M85", TrackType.OUTDOOR, RecordLevel.EMR, "17.14", "Walter Krifka", "AUT", 2022, "Tampere, Finland", "2 July 2022", "World Masters Championships", true),
         BenchmarkRecord("Ağırlık Atma", "M90", TrackType.OUTDOOR, RecordLevel.EMR, "12.13", "Östen Edlund", "SWE", 2025, "Tingstäde, Sweden", "13 June 2025", "Throws Pentathlon", false),
         BenchmarkRecord("Ağırlık Atma", "M95", TrackType.OUTDOOR, RecordLevel.EMR, "7.61", "Lauri Helle", "FIN", 2020, "Helsinki, Finland", "13 July 2020", "Throws competition (hammer and weight throw)", false),
@@ -804,9 +821,6 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("5000m Pist Yürüyüşü", "M40", TrackType.OUTDOOR, RecordLevel.EMR, "18:57.13", "Yohann Diniz", "FRA", 2018, "Reims, France", "20 May 2018", "Championnat de France des clubs", false),
         BenchmarkRecord("5000m Pist Yürüyüşü", "M45", TrackType.OUTDOOR, RecordLevel.EMR, "19:52.98", "Joao Vieira", "POR", 2021, "Guimarães, Portugal", "3 July 2021", "National Teams Championship", false),
         BenchmarkRecord("5000m Pist Yürüyüşü", "M50", TrackType.OUTDOOR, RecordLevel.EMR, "21:42.20", "Gilles Sahuc", "FRA", 2013, "Oyonnax, France", "29 June 2013", "", true),
-    )
-
-    private fun getPart15(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("5000m Pist Yürüyüşü", "M50", TrackType.OUTDOOR, RecordLevel.EMR, "21:35.62", "Normund Ivzans", "LAT", 2022, "Jēkabpils, Latvia", "30 April 2022", "Meeting Open Jēkabpils", true),
         BenchmarkRecord("5000m Pist Yürüyüşü", "M55", TrackType.OUTDOOR, RecordLevel.EMR, "22:27.93", "Fabio Ruzzier", "SLO", 2009, "Zara, Croatia", "23 August 2009", "", false),
         BenchmarkRecord("5000m Pist Yürüyüşü", "M60", TrackType.OUTDOOR, RecordLevel.EMR, "23:04.61", "Graziano Morotti", "ITA", 2011, "Orvieto, Italy", "24 September 2011", "Italian Clubs Championships", false),
@@ -843,6 +857,9 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("20 km Yürüyüş", "M50", TrackType.OUTDOOR, RecordLevel.EMR, "1h30:01", "Jorge Costa", "POR", 2011, "Rio Maior, Portugal", "9 April 2011", "Grande Premio Internacional en March", false),
         BenchmarkRecord("20 km Yürüyüş", "M55", TrackType.OUTDOOR, RecordLevel.EMR, "1h33:38", "Graziano Morotti", "ITA", 2006, "Lugano, Switzerland", "2 April 2006", "Gran Premio di Lugano", false),
         BenchmarkRecord("20 km Yürüyüş", "M60", TrackType.OUTDOOR, RecordLevel.EMR, "1h37:46", "Gerhard Weidner", "GER", 1993, "Selze-Letter, Germany", "28 March 1993", "", false),
+    )
+
+    private fun getPart16(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("20 km Yürüyüş", "M65", TrackType.OUTDOOR, RecordLevel.EMR, "1h43:34", "Gerhard Weidner", "GER", 1998, "Naumburg, Germany", "23 May 1998", "Internazional walking competition", false),
         BenchmarkRecord("20 km Yürüyüş", "M70", TrackType.OUTDOOR, RecordLevel.EMR, "1h52:47", "Arthur Thomson", "GBR", 2008, "Colchester, United Kingdom", "6 April 2008", "UKA/RWA Championships", false),
         BenchmarkRecord("20 km Yürüyüş", "M75", TrackType.OUTDOOR, RecordLevel.EMR, "1h56:19", "James Grimwade", "GBR", 1987, "Melbourne, Australia", "29 November 1987", "World Masters Athletics Championships", false),
@@ -857,9 +874,6 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("4x100m Bayrak", "M60", TrackType.OUTDOOR, RecordLevel.EMR, "48.16", "Giancarlo D'Oro, • Gianni Becatti, • Alberto Zanelli, • Paolo Mazzocconi", "ITA", 2025, "Modena, Italy", "21 September 2025", "Meeting CUS UniMORE", false),
         BenchmarkRecord("4x100m Bayrak", "M65", TrackType.OUTDOOR, RecordLevel.EMR, "49.22", "Pat Logan, • John Wright, • Ricardo Huskisson, • Andy Hunter", "GBR", 2025, "Madeira, Portugal", "18 October 2025", "European Masters Championships", false),
         BenchmarkRecord("4x100m Bayrak", "M70", TrackType.OUTDOOR, RecordLevel.EMR, "53.03", "Horst Schrader, • Bruno Kimmel, • Rudolf Böckl, • Karl-Heinz Neumann", "GER", 2005, "San Sebastián, Spain", "3 September 2005", "World Masters Athletics Championships", false),
-    )
-
-    private fun getPart16(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("4x100m Bayrak", "M75", TrackType.OUTDOOR, RecordLevel.EMR, "55.44", "Hermann Beckering, • Klaus Dieter Lange, • Karl Schmid, • Guido Müller", "GER", 2014, "İzmir, Turkey", "31 August 2014", "European Masters Athletics Championships", false),
         BenchmarkRecord("4x100m Bayrak", "M80", TrackType.OUTDOOR, RecordLevel.EMR, "61.83", "Horst Albrecht, • Gerhard Herbst, • Kurt Schumacher, • Rudolf Breder", "GER", 2004, "Aarhus, Denmark", "1 August 2004", "European Masters Athletics Championships", false),
         BenchmarkRecord("4x100m Bayrak", "M85", TrackType.OUTDOOR, RecordLevel.EMR, "1:08.78", "Gerhard Adams, • Klaus Dieter Lange, • Karl Schmid, • Willi Klaus", "GER", 2024, "Gothenburg, Sweden", "17 August 2024", "World Masters Athletics Championships", false),
@@ -896,6 +910,9 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("100 Metre", "W60", TrackType.OUTDOOR, RecordLevel.EMR, "13.05", "Nicole Alexis", "FRA", 2022, "Montgeron, France", "11 June 2022", "Rüzgar: +1.0 m/s • Championnats d'ïle-de-France Senior", true),
         BenchmarkRecord("100 Metre", "W65", TrackType.OUTDOOR, RecordLevel.EMR, "13.73", "Nicole Alexis", "FRA", 2025, "Niort, France", "4 June 2025", "Rüzgar: +0.7 m/s • Meeting de Niort", false),
         BenchmarkRecord("100 Metre", "W70", TrackType.OUTDOOR, RecordLevel.EMR, "14.73", "Ingrid Meier", "GER", 2017, "Zittau, Germany", "30 June 2017", "Rüzgar: +1.4 m/s • German Masters Championships", false),
+    )
+
+    private fun getPart17(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("100 Metre", "W75", TrackType.OUTDOOR, RecordLevel.EMR, "15.87", "Barbro Boback", "SWE", 2019, "Huddinge, Sweden", "16 August 2019", "Rüzgar: +1.1 m/s • Sweden Masters Championships", true),
         BenchmarkRecord("100 Metre", "W75", TrackType.OUTDOOR, RecordLevel.EMR, "15.84", "Moira West", "GBR", 2024, "Derby, United Kingdom", "27 July 2024", "Rüzgar: ±0.0 m/s • BMAF Masters Championships", true),
         BenchmarkRecord("100 Metre", "W80", TrackType.OUTDOOR, RecordLevel.EMR, "16.31", "Barbro Boback", "SWE", 2024, "Karlstad, Sweden", "2 August 2024", "Rüzgar: +1.3 m/s • Swedish Masters Championships", false),
@@ -910,9 +927,6 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("200 Metre", "W60", TrackType.OUTDOOR, RecordLevel.EMR, "27.30", "Iris Opitz", "GER", 2026, "Mönchengladbach, Germany", "19 July 2026", "Rüzgar: +1.8 m/s • Germany Masters Championships", false),
         BenchmarkRecord("200 Metre", "W65", TrackType.OUTDOOR, RecordLevel.EMR, "29.17", "Nicole Alexis", "FRA", 2025, "Saintes, France", "8 May 2025", "Rüzgar: +1.4 m/s • Meeting de Saintes", false),
         BenchmarkRecord("200 Metre", "W70", TrackType.OUTDOOR, RecordLevel.EMR, "31.30", "Ingrid Meier", "GER", 2017, "Zittau, Germany", "2 July 2017", "Rüzgar: +0.7 m/s • Germany Masters Championships", false),
-    )
-
-    private fun getPart17(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("200 Metre", "W75", TrackType.OUTDOOR, RecordLevel.EMR, "33.50", "Michelle Peroni-Edoh", "FRA", 2023, "Pescara, Italy", "24 September 2023", "Rüzgar: +0.2 m/s • European Masters Championships", true),
         BenchmarkRecord("200 Metre", "W75", TrackType.OUTDOOR, RecordLevel.EMR, "33.30", "Moira West", "GBR", 2024, "Derby, United Kingdom", "28 July 2024", "Rüzgar: +0.8 m/s • BMAF Masters Championships", true),
         BenchmarkRecord("200 Metre", "W80", TrackType.OUTDOOR, RecordLevel.EMR, "35.26", "Barbro Boback", "SWE", 2024, "Karlstad, Sweden", "3 August 2024", "Rüzgar: -0.8 m/s • Swedish Masters Championships", false),
@@ -949,6 +963,9 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("800 Metre", "W85", TrackType.OUTDOOR, RecordLevel.EMR, "3:36.14", "Yolande Marchal", "FRA", 2025, "Cannes, France", "30 May 2025", "Championnats Départementaux", false),
         BenchmarkRecord("800 Metre", "W90", TrackType.OUTDOOR, RecordLevel.EMR, "5:01.35", "Melitta Czerwenka-Nagel", "GER", 2020, "Pfungstadt, Germany", "30 September 2020", "Pfungstädter Abendsportfest", false),
         BenchmarkRecord("1500 Metre", "W35", TrackType.OUTDOOR, RecordLevel.EMR, "3:57.73", "Maricica Puica", "ROU", 1985, "Brussels, Belgium", "30 August 1985", "Memorial Van Damme", false),
+    )
+
+    private fun getPart18(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("1500 Metre", "W40", TrackType.OUTDOOR, RecordLevel.EMR, "3:59.78", "Yekaterina Podkopayeva", "RUS", 1994, "Nice, France", "18 July 1994", "Nikaia Meeting Grand Prix", false),
         BenchmarkRecord("1500 Metre", "W45", TrackType.OUTDOOR, RecordLevel.EMR, "4:05.44", "Yekaterina Podkopayeva", "RUS", 1998, "Moscow, Russia", "3 August 1998", "Russian Championships", false),
         BenchmarkRecord("1500 Metre", "W50", TrackType.OUTDOOR, RecordLevel.EMR, "4:35.40", "Nicole Weijling-Dissel", "NED", 2017, "Utrecht, Netherlands", "11 August 2017", "Utrecht Four Track meeting", false),
@@ -963,9 +980,6 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("1500 Metre", "W80", TrackType.OUTDOOR, RecordLevel.EMR, "7:09.59", "Yolande Marchal", "FRA", 2020, "Chalon-sur-Saône, France", "11 October 2020", "France Masters Championships", true),
         BenchmarkRecord("1500 Metre", "W80", TrackType.OUTDOOR, RecordLevel.EMR, "6:58.30 i", "Yolande Marchal", "FRA", 2020, "Miramas, France", "12 January 2020", "Pré Régionaux Individuels en salle", true),
         BenchmarkRecord("1500 Metre", "W85", TrackType.OUTDOOR, RecordLevel.EMR, "8:50.42", "Melitta Czerwenka-Nagel", "GER", 2015, "Lyon, France", "14 August 2015", "World Masters Championships", true),
-    )
-
-    private fun getPart18(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("1500 Metre", "W85", TrackType.OUTDOOR, RecordLevel.EMR, "7:37.27 i", "Yolande Marchal", "FRA", 2025, "Miramas, France", "7 March 2025", "France Masters Indoor Championships", true),
         BenchmarkRecord("1500 Metre", "W90", TrackType.OUTDOOR, RecordLevel.EMR, "11:38.34 i", "Melitta Czerwenka-Nagel", "GER", 2022, "Braga, Portugal", "26 February 2022", "European Masters Championships indoor", false),
         BenchmarkRecord("3000 Metre", "W35", TrackType.OUTDOOR, RecordLevel.EMR, "8:27.83", "Maricica Puica", "ROU", 1985, "Rome, Italy", "7 September 1985", "Golden Gala", false),
@@ -1002,6 +1016,9 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("10.000 Metre", "W60", TrackType.OUTDOOR, RecordLevel.EMR, "39:07.46", "Fiona Matheson", "GBR", 2021, "Greenock, United Kingdom", "8 August 2021", "Scottish Masters 10000m Track Championships", false),
         BenchmarkRecord("10.000 Metre", "W65", TrackType.OUTDOOR, RecordLevel.EMR, "41:40.27", "Angela Copson", "GBR", 2012, "Oxford, United Kingdom", "5 August 2012", "BMAF Championships 10000m", true),
         BenchmarkRecord("10.000 Metre", "W65", TrackType.OUTDOOR, RecordLevel.EMR, "40:21.88", "Maryse Le Gallo", "FRA", 2025, "Pacé, France", "24 May 2025", "Championnats de France du 10 000 m", true),
+    )
+
+    private fun getPart19(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("10.000 Metre", "W70", TrackType.OUTDOOR, RecordLevel.EMR, "44:25.14", "Angela Copson", "GBR", 2017, "Aarhus, Denmark", "28 July 2017", "European Masters Athletics Championships", false),
         BenchmarkRecord("10.000 Metre", "W75", TrackType.OUTDOOR, RecordLevel.EMR, "45:59.81", "Sarah Roberts", "GBR", 2025, "Horspath, United Kingdom", "24 May 2025", "BMAF 10000m Champs", false),
         BenchmarkRecord("10.000 Metre", "W80", TrackType.OUTDOOR, RecordLevel.EMR, "55:26.46", "Denise Leclerc", "FRA", 2013, "Porto Alegre, Brazil", "21 October 2013", "World Masters Athletics Championships", false),
@@ -1016,9 +1033,6 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("Yarı Maraton", "W70", TrackType.OUTDOOR, RecordLevel.EMR, "1:36:14 (1:36:13c)", "Jeannine Liebrand", "NED", 2024, "Dordrecht, Netherlands", "3 November 2024", "Mulder Van Mill Half Marathon", false),
         BenchmarkRecord("Yarı Maraton", "W75", TrackType.OUTDOOR, RecordLevel.EMR, "1:47:37 (1:47:20c)", "Heide Bock", "GER", 2017, "Kandel, Germany", "12 March 2017", "Bienwald Marathon", false),
         BenchmarkRecord("Yarı Maraton", "W80", TrackType.OUTDOOR, RecordLevel.EMR, "2:07:17", "Odette Maisongrosse", "FRA", 2016, "Oloron, France", "5 June 2016", "Semi Marathon Oloron", true),
-    )
-
-    private fun getPart19(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Yarı Maraton", "W80", TrackType.OUTDOOR, RecordLevel.EMR, "2:02:07", "Franca Maria Monasterolo", "ITA", 2023, "Turin, Italy", "5 November 2023", "Turin Marathon", true),
         BenchmarkRecord("Yarı Maraton", "W85", TrackType.OUTDOOR, RecordLevel.EMR, "3:07:48", "Zdenka Kirsch", "GER", 2015, "Grosseto, Italy", "17 May 2015", "European Masters Championships Non Stadia", false),
         BenchmarkRecord("Maraton", "W35", TrackType.OUTDOOR, RecordLevel.EMR, "2:19:19", "Irina Mikitenko", "GER", 2008, "Berlin, Germany", "28 September 2008", "Berlin Marathon", false),
@@ -1032,6 +1046,7 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("Maraton", "W75", TrackType.OUTDOOR, RecordLevel.EMR, "3:41:55 (3:39:51c)", "Vera Nystad", "NOR", 2021, "Jølster, Norway", "3 July 2021", "Norwegian Masters Marathon Championships", false),
         BenchmarkRecord("Maraton", "W80", TrackType.OUTDOOR, RecordLevel.EMR, "4:59:15 (4:52:55c)", "Franca Maria Monasterolo", "ITA", 2023, "Florence, Italy", "26 November 2023", "Florence Marathon", false),
         BenchmarkRecord("Maraton", "W85", TrackType.OUTDOOR, RecordLevel.EMR, "6:28.04 (6:03.32c)", "Helga Kuendig", "SUI", 2013, "Berlin, Germany", "29 September 2013", "Berlin Marathon", false),
+        BenchmarkRecord("Maraton", "W90", TrackType.OUTDOOR, RecordLevel.EMR, "11:34.00", "Jenny Wood-Allen", "GBR", 1911, "London, United Kingdom", "21 November 1911", "London Marathon", false),
         BenchmarkRecord("2000m Engelli", "W35", TrackType.OUTDOOR, RecordLevel.EMR, "6:26.36", "Ophélie Claude-Boxberger", "FRA", 2025, "Pliezhausen, Germany", "18 May 2025", "Internationales Läufermeeting", false),
         BenchmarkRecord("2000m Engelli", "W40", TrackType.OUTDOOR, RecordLevel.EMR, "7:00.02", "Danuta Woszczek", "POL", 2019, "Jesolo, Italy", "12 September 2019", "European Masters Championships", true),
         BenchmarkRecord("2000m Engelli", "W40", TrackType.OUTDOOR, RecordLevel.EMR, "6:50.00", "Clarisse Pinho Cruz", "POR", 2020, "Braga, Portugal", "1 July 2020", "", true),
@@ -1054,6 +1069,9 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("80m Engelli", "W50", TrackType.OUTDOOR, RecordLevel.EMR, "12.08", "Christine Müller", "SUI", 2009, "Vaterstetten, Germany", "10 July 2009", "Rüzgar: +2.0 m/s • Germany Masters Championships", false),
         BenchmarkRecord("80m Engelli", "W55", TrackType.OUTDOOR, RecordLevel.EMR, "12.31", "Helgi Lamp", "EST", 1999, "Haapsalu, Estonia", "17 July 1999", "Rüzgar: +0.8 m/s", false),
         BenchmarkRecord("80m Engelli", "W60", TrackType.OUTDOOR, RecordLevel.EMR, "12.90", "Jane Horder", "GBR", 2017, "Aarhus, Denmark", "2 August 2017", "Rüzgar: -0.1 m/s • European Masters Championships", false),
+    )
+
+    private fun getPart20(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("80m Engelli", "W65", TrackType.OUTDOOR, RecordLevel.EMR, "13.22", "Jane Horder", "GBR", 2022, "Derby, United Kingdom", "11 June 2022", "Rüzgar: +1.8 m/s • British Masters Championships", true),
         BenchmarkRecord("80m Engelli", "W65", TrackType.OUTDOOR, RecordLevel.EMR, "13.11", "Jane Horder", "GBR", 2023, "Nuneaton, United Kingdom", "11 June 2023", "Rüzgar: ±0.0 m/s • Midland Masters Championships", true),
         BenchmarkRecord("80m Engelli", "W70", TrackType.OUTDOOR, RecordLevel.EMR, "15.58", "Carole Filer", "GBR", 2026, "Derby, United Kingdom", "11 September 2026", "Rüzgar: -0.3 m/s • British Masters Championships", true),
@@ -1069,9 +1087,6 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("400m Engelli", "W40", TrackType.OUTDOOR, RecordLevel.EMR, "57.59", "Elisabeth Slettum", "NOR", 2026, "Smederevo, Serbia", "2 September 2026", "Continental Tour", true),
         BenchmarkRecord("400m Engelli", "W45", TrackType.OUTDOOR, RecordLevel.EMR, "61.28", "Barbara Gähling", "GER", 2014, "Moers, Germany", "1 May 2014", "Regional Championships", true),
         BenchmarkRecord("400m Engelli", "W45", TrackType.OUTDOOR, RecordLevel.EMR, "61.40", "Barbara Gähling", "GER", 2011, "Cologne, Germany", "2 June 2011", "", true),
-    )
-
-    private fun getPart20(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("300m Engelli", "W50", TrackType.OUTDOOR, RecordLevel.EMR, "44.90", "Barbara Gähling", "GER", 2015, "Lyon, France", "12 August 2015", "World Masters Championships", false),
         BenchmarkRecord("300m Engelli", "W55", TrackType.OUTDOOR, RecordLevel.EMR, "46.74", "Barbara Gähling", "GER", 2022, "Cologne, Germany", "8 May 2022", "Hurdles/Sprints meeting", false),
         BenchmarkRecord("300m Engelli", "W60", TrackType.OUTDOOR, RecordLevel.EMR, "46.64", "Barbara Gähling", "GER", 2026, "Mönchengladbach, Germany", "17 July 2026", "German Masters Championships", false),
@@ -1107,6 +1122,9 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("Sırıkla Atlama", "W55", TrackType.OUTDOOR, RecordLevel.EMR, "3.30 i", "Irie Hill", "GBR", 2024, "Toruń, Poland", "20 March 2024", "European Masters Indoor Championships", true),
         BenchmarkRecord("Sırıkla Atlama", "W60", TrackType.OUTDOOR, RecordLevel.EMR, "2.88", "Brigitte van de Kamp", "NED", 2023, "Harderwijk, Netherlands", "30 June 2023", "Dutch Masters Championships", true),
         BenchmarkRecord("Sırıkla Atlama", "W60", TrackType.OUTDOOR, RecordLevel.EMR, "2.91 i", "Susan Yeomans", "GBR", 2015, "Lee Valley, United Kingdom", "7 March 2015", "BMAF Championships indoor", true),
+    )
+
+    private fun getPart21(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Sırıkla Atlama", "W65", TrackType.OUTDOOR, RecordLevel.EMR, "2.85", "Brigitte van de Kamp", "NED", 2025, "Madeira, Portugal", "18 October 2025", "European Masters Championships", false),
         BenchmarkRecord("Sırıkla Atlama", "W70", TrackType.OUTDOOR, RecordLevel.EMR, "2.40", "Ute Ritte", "GER", 2022, "Horn-Bad Meinberg, Germany", "4 June 2022", "Horner Stabhochsprung", true),
         BenchmarkRecord("Sırıkla Atlama", "W70", TrackType.OUTDOOR, RecordLevel.EMR, "2.41", "Ute Ritte", "GER", 2022, "Dortmund, Germany", "11 June 2022", "Sparkassen Jump’n’Run Meeting", true),
@@ -1122,9 +1140,6 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("Uzun Atlama", "W55", TrackType.OUTDOOR, RecordLevel.EMR, "5.46", "Renata Novosel", "CRO", 2023, "Varaždin, Croatia", "8 July 2023", "Rüzgar: -1.5 m/s • Croatian Masters Championships", false),
         BenchmarkRecord("Uzun Atlama", "W60", TrackType.OUTDOOR, RecordLevel.EMR, "5.07", "Petra Bajeat", "FRA", 2026, "Epinal, France", "13 June 2026", "Rüzgar: +1.3 m/s • France Masters Championships", false),
         BenchmarkRecord("Uzun Atlama", "W65", TrackType.OUTDOOR, RecordLevel.EMR, "4.64", "Christiane Schmalbruch", "GER", 2002, "Potsdam, Germany", "16 August 2002", "Rüzgar: +0.8 m/s • European Masters Championships", false),
-    )
-
-    private fun getPart21(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Uzun Atlama", "W70", TrackType.OUTDOOR, RecordLevel.EMR, "4.16", "Christiane Schmalbruch", "GER", 2007, "Riccione, Italy", "14 September 2007", "Rüzgar: +0.9 m/s • World Masters Championships", false),
         BenchmarkRecord("Uzun Atlama", "W75", TrackType.OUTDOOR, RecordLevel.EMR, "3.77", "Paula Schneiderhahn", "GER", 1997, "Nieder-Olm, Germany", "4 October 1997", "Rüzgar: +0.1 m/s", false),
         BenchmarkRecord("Uzun Atlama", "W80", TrackType.OUTDOOR, RecordLevel.EMR, "3.45", "Christiane Schmalbruch", "GER", 2017, "Rostock, Germany", "10 June 2017", "Rüzgar: +1.6 m/s • Landesmeisterschaften Open", true),
@@ -1160,6 +1175,9 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("Gülle Atma", "W35", TrackType.OUTDOOR, RecordLevel.EMR, "21.46", "Larisa Peleshenko", "RUS", 2000, "Moscow Russia", "26 August 2000", "Memorial Kuts", true),
         BenchmarkRecord("Gülle Atma", "W35", TrackType.OUTDOOR, RecordLevel.EMR, "21.47 i", "Helena Fibingerová", "CZE", 1985, "Jablonec nad Nisou Czechoslovakia", "9 February 1985", "National Championships indoor", true),
         BenchmarkRecord("Gülle Atma", "W40", TrackType.OUTDOOR, RecordLevel.EMR, "19.05", "Antonina Ivanova", "URS", 1973, "Orel Soviet Union", "23 August 1973", "", true),
+    )
+
+    private fun getPart22(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Gülle Atma", "W40", TrackType.OUTDOOR, RecordLevel.EMR, "19.16 i", "Antonina Ivanova", "URS", 1974, "Moscow Soviet Union", "24 February 1974", "", true),
         BenchmarkRecord("Gülle Atma", "W45", TrackType.OUTDOOR, RecordLevel.EMR, "16.95", "Zdeňka Šilhavá", "CZE", 1999, "Ostrava Czech Republic", "26 June 1999", "National Championships", false),
         BenchmarkRecord("Gülle Atma", "W50", TrackType.OUTDOOR, RecordLevel.EMR, "15.15", "Alexandra Marghieva", "MDA", 2009, "Lahti Finland", "4 August 2009", "World Masters Championships", true),
@@ -1175,9 +1193,6 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("Gülle Atma", "W75", TrackType.OUTDOOR, RecordLevel.EMR, "12.29", "Marianne Maier", "AUT", 2020, "Götzis, Austria", "5 September 2020", "Internationale VLV Masters Stadionmeisterschaften", true),
         BenchmarkRecord("Gülle Atma", "W80", TrackType.OUTDOOR, RecordLevel.EMR, "10.67", "Marianne Maier", "AUT", 2024, "Höchst, Austria", "8 June 2024", "Internationale Meeting Open", true),
         BenchmarkRecord("Gülle Atma", "W80", TrackType.OUTDOOR, RecordLevel.EMR, "10.84 i", "Marianne Maier", "AUT", 2025, "Dornbirn, Austria", "22 February 2025", "International VLV Hallen-Masters Meisterschaften", true),
-    )
-
-    private fun getPart22(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Gülle Atma", "W85", TrackType.OUTDOOR, RecordLevel.EMR, "9.42", "Evaun B. Williams", "GBR", 2024, "Gothenburg, Sweden", "17 August 2024", "World Masters Championships", false),
         BenchmarkRecord("Gülle Atma", "W90", TrackType.OUTDOOR, RecordLevel.EMR, "6.25", "Rosa Pedersen", "DEN", 2020, "Greve, Denmark", "23 August 2020", "DM Masters", true),
         BenchmarkRecord("Gülle Atma", "W90", TrackType.OUTDOOR, RecordLevel.EMR, "6.82", "Nora Kutti", "EST", 2013, "Vändra, Estonia", "15 June 2013", "", true),
@@ -1213,6 +1228,9 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("Çekiç Atma", "W60", TrackType.OUTDOOR, RecordLevel.EMR, "47.38", "Gonny Mik", "NED", 2026, "Vught, Netherlands", "5 June 2026", "Netherlands National Masters Championships", false),
         BenchmarkRecord("Çekiç Atma", "W65", TrackType.OUTDOOR, RecordLevel.EMR, "44.38", "Jutta Schäfer", "GER", 1997, "Schweinfurt, Germany", "17 August 1997", "Germany Masters Championships", false),
         BenchmarkRecord("Çekiç Atma", "W70", TrackType.OUTDOOR, RecordLevel.EMR, "39.24", "Eva Nohl", "GER", 2019, "Effeltrich, Germany", "3 October 2019", "Pantel Rasenkraftsport Dreikampf", false),
+    )
+
+    private fun getPart23(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Çekiç Atma", "W75", TrackType.OUTDOOR, RecordLevel.EMR, "40.83", "Eva Nohl", "GER", 2024, "Essingen, Germany", "20 July 2024", "throws pentathlon", false),
         BenchmarkRecord("Çekiç Atma", "W80", TrackType.OUTDOOR, RecordLevel.EMR, "37.85", "Evaun B. Williams", "GBR", 2018, "Málaga, Spain", "12 September 2018", "World Masters Championships", true),
         BenchmarkRecord("Çekiç Atma", "W80", TrackType.OUTDOOR, RecordLevel.EMR, "31.10 3kg", "Evaun B. Williams", "GBR", 2018, "Lee Valley, United Kingdom", "2 July 2018", "SCVAC – Vets League", true),
@@ -1226,11 +1244,13 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("Cirit Atma", "W45", TrackType.OUTDOOR, RecordLevel.EMR, "55.69", "Indrė Jakubaitytė", "LTU", 2022, "Klaipėda, Lithuania", "12 June 2022", "Azuolas Masters Cup", true),
         BenchmarkRecord("Cirit Atma", "W50", TrackType.OUTDOOR, RecordLevel.EMR, "47.53", "Felicia Ureche", "ESP", 2018, "Madrid, Spain", "24 March 2018", "European Masters Championships indoor", false),
         BenchmarkRecord("Cirit Atma", "W55", TrackType.OUTDOOR, RecordLevel.EMR, "44.44", "Natasa Bezjak", "SLO", 2002, "Potsdam, Germany", "21 August 2002", "European Masters Championships", false),
+        BenchmarkRecord("Cirit Atma", "W60", TrackType.OUTDOOR, RecordLevel.EMR, "41.14", "Genowefa Patla", "POL", 2023, "Toruń, Poland", "29 March 2023", "World Masters Championships", true),
+        BenchmarkRecord("Cirit Atma", "W60", TrackType.OUTDOOR, RecordLevel.EMR, "41.28", "Gertraud Schönauer", "AUT", 1997, "Dasing, Germany", "12 July 1997", "World Masters Championships", true),
+        BenchmarkRecord("Cirit Atma", "W65", TrackType.OUTDOOR, RecordLevel.EMR, "33.39", "Anne Kristine Jensen", "DEN", 2019, "Caorle, Italy", "12 September 2019", "European Masters Championships", true),
+        BenchmarkRecord("Cirit Atma", "W65", TrackType.OUTDOOR, RecordLevel.EMR, "38.07", "Evaun B. Williams", "GBR", 2006, "Poznań, Poland", "27 July 2006", "European Masters Championships", true),
+        BenchmarkRecord("Cirit Atma", "W70", TrackType.OUTDOOR, RecordLevel.EMR, "34.83", "Vanda Srbová Marušová", "CZE", 2024, "Kladno, Czech Republic", "22 May 2024", "Kladno hází a Kladenské Memoriály", false),
         BenchmarkRecord("Cirit Atma", "W75", TrackType.OUTDOOR, RecordLevel.EMR, "29.92", "Evaun B. Williams", "GBR", 2013, "Porto Alegre, Brazil", "22 October 2013", "World Masters Championships", false),
         BenchmarkRecord("Cirit Atma", "W80", TrackType.OUTDOOR, RecordLevel.EMR, "27.51", "Evaun B. Williams", "GBR", 2019, "Toruń, Poland", "27 March 2019", "World Masters Championships indoor", true),
-    )
-
-    private fun getPart23(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Cirit Atma", "W80", TrackType.OUTDOOR, RecordLevel.EMR, "22.85 (500g)", "Evaun B. Williams", "GBR", 2018, "Stevenage, United Kingdom", "11 June 2018", "", true),
         BenchmarkRecord("Cirit Atma", "W85", TrackType.OUTDOOR, RecordLevel.EMR, "24.78", "Evaun B. Williams", "GBR", 2024, "Gothenburg, Sweden", "19 August 2024", "World Masters Championships", false),
         BenchmarkRecord("Cirit Atma", "W90", TrackType.OUTDOOR, RecordLevel.EMR, "15.32", "Rosa Pedersen", "DEN", 2020, "Greve, Denmark", "22 August 2020", "DM Masters", false),
@@ -1261,6 +1281,9 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("4x100m Bayrak", "W50", TrackType.OUTDOOR, RecordLevel.EMR, "50.83", "Agnese Claudia Rossi, • Cristina Sanulli, • Michela Borscia, • Denise Caroline Neumann", "ITA", 2023, "Pescara, Italy", "25 September 2023", "European Masters Championships", false),
         BenchmarkRecord("4x100m Bayrak", "W55", TrackType.OUTDOOR, RecordLevel.EMR, "53.84", "Juliet Sidney, • Diane Wright, • Stefanie Dornbusch, • Christine Harrison", "GBR", 2025, "Madeira, Portugal", "18 October 2025", "European Masters Championships", false),
         BenchmarkRecord("4x100m Bayrak", "W60", TrackType.OUTDOOR, RecordLevel.EMR, "55.77", "Erika Drecoll, • Gerti Reichert, • Elfriede Hofmann, • Brunhilde Hoffman", "GER", 2000, "Jyväskylä, Finland", "9 July 2000", "European Masters Championships", false),
+    )
+
+    private fun getPart24(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("4x100m Bayrak", "W65", TrackType.OUTDOOR, RecordLevel.EMR, "60.31", "Petra Zörner, • Rita Buchholz, • Gertrude Reismann, • Ingrid Meier", "GER", 2015, "Lyon, France", "16 August 2015", "World Masters Championships", false),
         BenchmarkRecord("4x100m Bayrak", "W70", TrackType.OUTDOOR, RecordLevel.EMR, "64.28", "Karin Förster, • Petra Zörner, • Karin Stump, • Ingrid Meier", "GER", 2017, "Aarhus, Denmark", "5 August 2017", "European Masters Championships", false),
         BenchmarkRecord("4x100m Bayrak", "W75", TrackType.OUTDOOR, RecordLevel.EMR, "1:11.56", "Kathleen Stewart, • Sally Hine, • Sarah Roberts, • Emily McMahon", "GER", 2025, "Madeira, Portugal", "18 October 2025", "European Masters Championships", false),
@@ -1274,6 +1297,7 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("4x400m Bayrak", "W65", TrackType.OUTDOOR, RecordLevel.EMR, "5:00.12", "Caroline Marler, • Rosalind Tabor, • Joylyn Saunders-Mullins, • Caroline Powell", "GBR", 2019, "Caorle, Italy", "15 September 2019", "European Masters Athletics Championships", false),
         BenchmarkRecord("4x400m Bayrak", "W70", TrackType.OUTDOOR, RecordLevel.EMR, "5:53.62", "Hermine Staubermann, • Erika Sauer, • Viktoria Zickert, • Hannelore Venn", "GER", 2012, "Zittau, Germany", "25 August 2012", "European Masters Athletics Championships", false),
         BenchmarkRecord("4x400m Bayrak", "W75", TrackType.OUTDOOR, RecordLevel.EMR, "7:25.65", "Kathleen Stewart, • Betty Stracey, • Anne Martin, • Dorothy Fraser", "GBR", 2016, "Perth, Australia", "6 November 2016", "World Masters Athletics Championships", false),
+        BenchmarkRecord("4x800m Bayrak", "W70", TrackType.OUTDOOR, RecordLevel.EMR, "14:55.88", "Ursula Lammet, • Reintraut Rattay, • Hermi Staubermann, • Lydia Ritter", "GER", 2024, "Essen-Stoppenberg, Germany", "27.09.13", "", false),
         BenchmarkRecord("5000m Pist Yürüyüşü", "W35", TrackType.OUTDOOR, RecordLevel.EMR, "20:12.41", "Elisabetta Perrone", "ITA", 2003, "Rieti, Italy", "2 August 2003", "Italian Championships", false),
         BenchmarkRecord("5000m Pist Yürüyüşü", "W40", TrackType.OUTDOOR, RecordLevel.EMR, "22:45.93", "Rossella Giordano", "ITA", 2013, "Milan, Italy", "24 April 2013", "Walk & Middle Distance Night", false),
         BenchmarkRecord("5000m Pist Yürüyüşü", "W45", TrackType.OUTDOOR, RecordLevel.EMR, "23:32.47", "Maria Josè Poves Novella", "ESP", 2023, "Pamplona, Spain", "15 July 2023", "Campeonato de España de Federaciones Autonómicas", true),
@@ -1281,9 +1305,6 @@ object EuropeanRecordsArchive {
         BenchmarkRecord("5000m Pist Yürüyüşü", "W50", TrackType.OUTDOOR, RecordLevel.EMR, "23:46.2 h", "Siw Ibanez Karlström", "SWE", 2011, "Kalmar, Sweden", "30 July 2011", "Swedish Championships", false),
         BenchmarkRecord("5000m Pist Yürüyüşü", "W55", TrackType.OUTDOOR, RecordLevel.EMR, "23:57.58", "Siw Ibanez Karlström", "SWE", 2012, "Gothenburg, Sweden", "1 September 2012", "Walk Match SWE vs FIN", false),
         BenchmarkRecord("5000m Pist Yürüyüşü", "W60", TrackType.OUTDOOR, RecordLevel.EMR, "25:41.20", "Siw Ibanez Karlström", "SWE", 2018, "Eskilstuna, Sweden", "25 August 2018", "Swedish Championships", false),
-    )
-
-    private fun getPart24(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("5000m Pist Yürüyüşü", "W65", TrackType.OUTDOOR, RecordLevel.EMR, "28:25.8 h", "Heidi Maeder", "SUI", 2009, "Lausanne, Switzerland", "26 September 2009", "", true),
         BenchmarkRecord("5000m Pist Yürüyüşü", "W65", TrackType.OUTDOOR, RecordLevel.EMR, "27:42.31", "Marie-Astrid Monmessin", "FRA", 2021, "Remiremont, France", "9 July 2021", "Meeting des trois grands", true),
         BenchmarkRecord("5000m Pist Yürüyüşü", "W70", TrackType.OUTDOOR, RecordLevel.EMR, "29:16.0 h", "Britta Tibbling", "SWE", 1989, "San Diego, United States", "21 July 1989", "USATF Masters Championships", false),
@@ -1306,7 +1327,7 @@ object EuropeanRecordsArchive {
     )
 
     val RECORDS: List<BenchmarkRecord> by lazy {
-        val list = ArrayList<BenchmarkRecord>(1219)
+        val list = ArrayList<BenchmarkRecord>(1240)
         list.addAll(getPart0())
         list.addAll(getPart1())
         list.addAll(getPart2())

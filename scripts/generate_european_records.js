@@ -339,8 +339,10 @@ function parseOutdoorWikipedia() {
                 }
             }
 
-            let ageGroup = cells[colMap.ageGroup] ? cells[colMap.ageGroup].text.replace(/\s+/g, '').toUpperCase() : '';
-            if (!/^[MWX]\d+$/i.test(ageGroup)) continue;
+            const rawAgeText = cells[colMap.ageGroup] ? cells[colMap.ageGroup].text : '';
+            const agMatch = rawAgeText.match(/\b([MWX]\s*\d+)\b/i);
+            if (!agMatch) continue;
+            const ageGroup = agMatch[1].replace(/\s+/g, '').toUpperCase();
 
             let rawMark = cells[colMap.record] ? cells[colMap.record].text : '';
             if (!rawMark) continue;
