@@ -119,20 +119,29 @@ fun MasterRecordsScreen(
     // Seçilen branş
     var selectedEvent by remember { mutableStateOf("100 Metre") }
 
-    val availableEvents = remember(trackType) {
-        MasterRecordsArchive.getAvailableEvents(trackType).ifEmpty {
-            if (trackType == TrackType.OUTDOOR) {
-                listOf("100 Metre", "200 Metre", "400 Metre", "800 Metre", "1500 Metre", "5000 Metre", "10.000 Metre", "110m Engelli", "Uzun Atlama", "Gülle Atma")
-            } else {
-                listOf("60 Metre", "200 Metre", "400 Metre", "60m Engelli", "Uzun Atlama", "Gülle Atma")
-            }
+    // Seçilen yaş kategorisine, cinsiyete ve piste göre geçerli branşlar
+    val availableEvents = remember(trackType, selectedCategory) {
+        MasterRecordsArchive.getAvailableEvents(trackType, selectedCategory).ifEmpty {
+            MasterRecordsArchive.getAvailableEvents(trackType)
         }
     }
 
-    // Pist değiştiğinde seçili branş yoksa varsayılana geç
-    LaunchedEffect(trackType, availableEvents) {
-        if (selectedEvent !in availableEvents) {
-            selectedEvent = availableEvents.firstOrNull() ?: if (trackType == TrackType.OUTDOOR) "100 Metre" else "60 Metre"
+    // Yaş kategorisi, cinsiyet veya pist değiştiğinde seçili branş bu kategoride yoksa en uygun branşa geç
+    LaunchedEffect(trackType, selectedCategory, availableEvents) {
+        if (selectedEvent !in availableEvents && availableEvents.isNotEmpty()) {
+            val replacement: String = (if (selectedEvent.contains("Engelli", ignoreCase = true)) {
+                // Engelli branşı seçiliydi; bu kategorideki geçerli engelliyi bul (ör. Kadınlar için 100m/80m Engelli, M70 için 80m/300m Engelli)
+                availableEvents.firstOrNull { it.contains("Engelli", ignoreCase = true) }
+            } else if (selectedEvent.contains("Bayrak", ignoreCase = true)) {
+                availableEvents.firstOrNull { it.contains("Bayrak", ignoreCase = true) }
+            } else if (selectedEvent.contains("Yürüyüş", ignoreCase = true)) {
+                availableEvents.firstOrNull { it.contains("Yürüyüş", ignoreCase = true) }
+            } else {
+                null
+            }) ?: availableEvents.firstOrNull { it == "100 Metre" || it == "60 Metre" }
+              ?: availableEvents.firstOrNull()
+              ?: "100 Metre"
+            selectedEvent = replacement
         }
     }
 

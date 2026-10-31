@@ -92,19 +92,26 @@ fun CategoryTargetBottomSheet(
 
     val trackType = if (selectedTrackTabIndex == 0) TrackType.OUTDOOR else TrackType.INDOOR
 
-    val availableEvents = remember(trackType) {
-        MasterRecordsArchive.getAvailableEvents(trackType).ifEmpty {
-            if (trackType == TrackType.OUTDOOR) {
-                listOf("100 Metre", "200 Metre", "400 Metre", "800 Metre", "1500 Metre", "5000 Metre", "10.000 Metre", "Uzun Atlama", "Gülle Atma")
-            } else {
-                listOf("60 Metre", "200 Metre", "400 Metre", "Uzun Atlama")
-            }
+    val availableEvents = remember(trackType, selectedCategoryView) {
+        MasterRecordsArchive.getAvailableEvents(trackType, selectedCategoryView).ifEmpty {
+            MasterRecordsArchive.getAvailableEvents(trackType)
         }
     }
 
-    // Seçili branş geçerli sekmede yoksa ilkini seç
-    if (selectedEvent !in availableEvents) {
-        selectedEvent = availableEvents.firstOrNull() ?: "100 Metre"
+    // Seçili branş geçerli kategoride yoksa en uygun olanı seç
+    if (selectedEvent !in availableEvents && availableEvents.isNotEmpty()) {
+        val replacement: String = (if (selectedEvent.contains("Engelli", ignoreCase = true)) {
+            availableEvents.firstOrNull { it.contains("Engelli", ignoreCase = true) }
+        } else if (selectedEvent.contains("Bayrak", ignoreCase = true)) {
+            availableEvents.firstOrNull { it.contains("Bayrak", ignoreCase = true) }
+        } else if (selectedEvent.contains("Yürüyüş", ignoreCase = true)) {
+            availableEvents.firstOrNull { it.contains("Yürüyüş", ignoreCase = true) }
+        } else {
+            null
+        }) ?: availableEvents.firstOrNull { it == "100 Metre" || it == "60 Metre" }
+          ?: availableEvents.firstOrNull()
+          ?: "100 Metre"
+        selectedEvent = replacement
     }
 
     val recordsForEvent = remember(selectedEvent, selectedCategoryView, trackType, selectedRecordLevel) {
