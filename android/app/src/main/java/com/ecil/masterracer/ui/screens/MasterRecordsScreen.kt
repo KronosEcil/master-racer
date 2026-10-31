@@ -166,7 +166,7 @@ fun MasterRecordsScreen(
     // Kullanıcının bu branştaki PB derecesi (varsa)
     val userPb = remember(selectedEvent, athleteRecords) {
         athleteRecords.filter {
-            it.eventName.contains(selectedEvent, ignoreCase = true) || selectedEvent.contains(it.eventName, ignoreCase = true)
+            MasterRecordsArchive.isEventMatch(it.eventName, selectedEvent)
         }.let { list ->
             val isField = selectedEvent.contains("Atlama") || selectedEvent.contains("Atma")
             if (isField) list.maxByOrNull { it.numericValue }

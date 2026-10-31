@@ -133,7 +133,7 @@ fun CategoryTargetBottomSheet(
 
     // Kullanıcının bu branştaki PB'sini bul
     val userPb = athleteRecords.filter {
-        it.eventName.contains(selectedEvent, ignoreCase = true) || selectedEvent.contains(it.eventName, ignoreCase = true)
+        MasterRecordsArchive.isEventMatch(it.eventName, selectedEvent)
     }.let { list ->
         val isField = selectedEvent.contains("Atlama") || selectedEvent.contains("Atma")
         if (isField) list.maxByOrNull { it.numericValue }
