@@ -213,29 +213,41 @@ fun CompetitionCard(
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            // Konum Satırı (Değişiklik varsa özel vurgu ve etiket ile)
+            // Konum Satırı (Google Maps Bağlantılı: Stadyum & Şehir)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = if (competition.location_changed) {
-                    Modifier
-                        .fillMaxWidth()
-                        .background(Color(0xFFFFEDD5), shape = RoundedCornerShape(6.dp))
-                        .padding(horizontal = 6.dp, vertical = 3.dp)
-                } else Modifier
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (competition.location_changed) {
+                            Modifier
+                                .background(Color(0xFFFFEDD5), shape = RoundedCornerShape(6.dp))
+                                .padding(horizontal = 6.dp, vertical = 3.dp)
+                        } else Modifier
+                    )
             ) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = null,
-                    tint = if (competition.location_changed) Color(0xFFEA580C) else Color(0xFFE11D48),
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = competition.getDisplayLocation(),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = if (competition.location_changed) FontWeight.Bold else FontWeight.Normal,
-                    color = if (competition.location_changed) Color(0xFF9A3412) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .clickable { competition.openInGoogleMaps(context) }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "Haritada Göster",
+                        tint = if (competition.location_changed) Color(0xFFEA580C) else Color(0xFFE11D48),
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = competition.getVenueAndCity(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = if (competition.location_changed) FontWeight.Bold else FontWeight.Medium,
+                        color = if (competition.location_changed) Color(0xFF9A3412) else MaterialTheme.colorScheme.primary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
                 if (competition.location_changed) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Box(

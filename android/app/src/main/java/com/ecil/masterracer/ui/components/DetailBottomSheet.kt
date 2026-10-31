@@ -43,6 +43,9 @@ import com.ecil.masterracer.ui.theme.BluePrimary
 import com.ecil.masterracer.util.CalendarHelper
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.Surface
 import androidx.compose.material.icons.filled.BookmarkAdd
 import androidx.compose.material.icons.filled.BookmarkAdded
 import androidx.compose.material.icons.filled.CheckCircle
@@ -143,22 +146,44 @@ fun DetailBottomSheet(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Konum / Şehir
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = null,
-                            tint = Color(0xFFE11D48),
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column {
-                            Text(text = "Yarışma Yeri", fontSize = 11.sp, color = Color(0xFF64748B))
+                    // Konum / Stadyum / Şehir & Google Maps Butonu
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { competition.openInGoogleMaps(context) }
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                            Icon(
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = "Haritada Aç",
+                                tint = Color(0xFFE11D48),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(text = "Yarışma Yeri & Stadyum", fontSize = 11.sp, color = Color(0xFF64748B))
+                                Text(
+                                    text = competition.getVenueAndCity(),
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = BluePrimary
+                                )
+                            }
+                        }
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = BluePrimary.copy(alpha = 0.1f)
+                        ) {
                             Text(
-                                text = competition.getDisplayLocation(),
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF0F172A)
+                                text = "Haritada Aç ↗",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = BluePrimary,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                             )
                         }
                     }

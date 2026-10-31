@@ -27,6 +27,9 @@ data class Competition(
     @get:PropertyName("city") @set:PropertyName("city")
     var city: String = "",
 
+    @get:PropertyName("venue") @set:PropertyName("venue")
+    var venue: String = "",
+
     @get:PropertyName("start_date") @set:PropertyName("start_date")
     var start_date: String = "", // Format: YYYY-MM-DD
 
@@ -557,6 +560,78 @@ data class Competition(
             rawCity
         }
         return if (cCity.isNotBlank()) "$cCity, $cName" else cName
+    }
+
+    /**
+     * Kartta ve detay sayfasında gösterilecek Stadyum & Şehir metni (Örn: "Atatürk Stadyumu, İzmir" veya "İzmir").
+     * Ülke bilgisi en üstte bayrakla yer aldığından bu alanda doğrudan stadyum ve şehir öne çıkarılır.
+     */
+    fun getVenueAndCity(): String {
+        val rawCity = city.trim()
+        val rawVenue = venue.trim()
+        val cName = getDisplayCountryName()
+
+        val invalidSet = setOf("", "not specified", "unspecified", "tbd", "tbc", "tba", "n/a", "na", "none", "null", "unknown", "belirlenecek")
+        val cleanCity = if (rawCity.lowercase() in invalidSet || rawCity.equals(cName, ignoreCase = true)) "" else rawCity
+        val cleanVenue = if (rawVenue.lowercase() in invalidSet) "" else rawVenue
+
+        return when {
+            cleanVenue.isNotBlank() && cleanCity.isNotBlank() -> "$cleanVenue, $cleanCity"
+            cleanVenue.isNotBlank() -> cleanVenue
+            cleanCity.isNotBlank() -> cleanCity
+            else -> cName
+        }
+    }
+
+    /**
+     * Google Maps üzerinde doğrudan harita araması yapmak için sorgu dizesi oluşturur.
+     */
+    fun getGoogleMapsSearchQuery(): String {
+        val queryParts = mutableListOf<String>()
+        if (venue.isNotBlank()) queryParts.add(venue.trim())
+        if (city.isNotBlank()) queryParts.add(city.trim())
+        val cName = getDisplayCountryName()
+        if (cName.isNotBlank() && !cName.equals("Uluslararası", ignoreCase = true) && !cName.equals("Avrupa", ignoreCase = true)) {
+            queryParts.add(cName)
+        }
+        return if (queryParts.isNotEmpty()) queryParts.joinToString(", ") else title
+    }
+
+    /**
+     * Google Maps Intent / Web Bağlantısını açar.
+     */
+    fun openInGoogleMaps(context: android.content.Context) {
+        val query = getGoogleMapsSearchQuery()
+        try {
+            val encodedQuery = java.net.URLEncoder.encode(query, "UTF-8")
+            val mapsIntentUri = android.net.Uri.parse("geo:0,0?q=$encodedQuery")
+            val mapIntent = android.content.Intent(android.content.Intent.ACTION_VIEW, mapsIntentUri).apply {
+                setPackage("com.google.android.apps.maps")
+                addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            if (mapIntent.resolveActivity(context.packageManager) != null) {
+                context.startActivity(mapIntent)
+            } else {
+                val webIntent = android.content.Intent(
+                    android.content.Intent.ACTION_VIEW,
+                    android.net.Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedQuery")
+                ).apply {
+                    addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(webIntent)
+            }
+        } catch (e: Exception) {
+            try {
+                val encodedQuery = java.net.URLEncoder.encode(query, "UTF-8")
+                val fallbackIntent = android.content.Intent(
+                    android.content.Intent.ACTION_VIEW,
+                    android.net.Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedQuery")
+                ).apply {
+                    addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(fallbackIntent)
+            } catch (_: Exception) {}
+        }
     }
 
     /**
