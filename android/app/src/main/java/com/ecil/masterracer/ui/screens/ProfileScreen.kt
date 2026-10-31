@@ -142,6 +142,7 @@ fun ProfileScreen(
         MasterRecordsScreen(
             athleteGender = athleteGender,
             athleteCategory = category,
+            athleteBirthYear = athleteBirthYear,
             athleteRecords = athleteRecords,
             onBack = { showRecordsScreen = false }
         )

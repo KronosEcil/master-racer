@@ -1,5 +1,11 @@
 package com.ecil.masterracer.ui.screens
 
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import com.ecil.masterracer.ui.screens.MasterRecordsScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -73,6 +79,14 @@ fun HomeScreen(
     var showFilterSheet by remember { mutableStateOf(false) }
     var showSettingsSheet by remember { mutableStateOf(false) }
     var showProfileScreen by remember { mutableStateOf(false) }
+    var showRecordsScreen by remember { mutableStateOf(false) }
+
+    val athleteGender by viewModel.athleteGender.collectAsState()
+    val athleteBirthYear by viewModel.athleteBirthYear.collectAsState()
+    val athleteRecords by viewModel.athleteRecords.collectAsState()
+    val athleteCategory = remember(athleteGender, athleteBirthYear) {
+        viewModel.calculateCategory(athleteGender, athleteBirthYear)
+    }
 
     val filterSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val detailSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -85,7 +99,16 @@ fun HomeScreen(
         uiState.allCompetitions.filter { completedRaceIds.contains(it.id) }
     }
 
-    if (showProfileScreen) {
+    if (showRecordsScreen) {
+        BackHandler { showRecordsScreen = false }
+        MasterRecordsScreen(
+            athleteGender = athleteGender,
+            athleteCategory = athleteCategory,
+            athleteBirthYear = athleteBirthYear,
+            athleteRecords = athleteRecords,
+            onBack = { showRecordsScreen = false }
+        )
+    } else if (showProfileScreen) {
         BackHandler { showProfileScreen = false }
         ProfileScreen(
             viewModel = viewModel,

@@ -14,16 +14,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.DirectionsRun
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -64,6 +59,7 @@ import com.ecil.masterracer.data.repository.TrackType
 import com.ecil.masterracer.ui.theme.BluePrimary
 import com.ecil.masterracer.ui.theme.CrimsonAccent
 import com.ecil.masterracer.util.AthleteRecord
+import java.util.Calendar
 
 private val MALE_CATEGORIES = listOf(
     "M35", "M40", "M45", "M50", "M55", "M60", "M65", "M70", "M75", "M80", "M85", "M90", "M95", "M100", "M105"
@@ -82,6 +78,7 @@ private val MIXED_CATEGORIES = listOf(
 fun MasterRecordsScreen(
     athleteGender: String,
     athleteCategory: String,
+    athleteBirthYear: Int = 1990,
     athleteRecords: List<AthleteRecord>,
     onBack: () -> Unit
 ) {
@@ -90,7 +87,7 @@ fun MasterRecordsScreen(
 
     // Cinsiyet seçimi ("M", "W", "X")
     var selectedGenderPrefix by remember(athleteGender, athleteCategory) {
-        val initialPrefix = if (athleteCategory.startsWith("W", ignoreCase = true) || athleteGender.contains("Kadın", ignoreCase = true)) "W" else "M"
+        val initialPrefix = if (athleteCategory.startsWith("W", ignoreCase = true) || athleteGender.contains("Kadın", ignoreCase = true) || athleteGender.equals("F", ignoreCase = true)) "W" else "M"
         mutableStateOf(initialPrefix)
     }
 
@@ -108,17 +105,19 @@ fun MasterRecordsScreen(
         mutableStateOf(initial)
     }
 
-    // Cinsiyet değiştiğinde kategori o listeden seçili kalsın
+    // Cinsiyet grubu değiştiğinde geçerli kategoriyi güncelle
     LaunchedEffect(currentCategoryList) {
         if (!currentCategoryList.contains(selectedCategory)) {
             selectedCategory = currentCategoryList.first()
         }
     }
 
+    // Açılır Menü State'leri
+    var categoryDropdownExpanded by remember { mutableStateOf(false) }
+    var eventDropdownExpanded by remember { mutableStateOf(false) }
+
     // Seçilen branş
     var selectedEvent by remember { mutableStateOf("100 Metre") }
-    var eventDropdownExpanded by remember { mutableStateOf(false) }
-    var selectedRecordLevel by remember { mutableStateOf<RecordLevel?>(null) }
 
     val availableEvents = remember(trackType) {
         MasterRecordsArchive.getAvailableEvents(trackType).ifEmpty {
@@ -137,12 +136,13 @@ fun MasterRecordsScreen(
         }
     }
 
-    val recordsForEvent = remember(selectedEvent, selectedCategory, trackType, selectedRecordLevel) {
+    // Filtreleme (Kullanıcı talebi: Ayrı seviye filtrelemesine ihtiyaç yok, tüm seviyeler birlikte gösterilir)
+    val recordsForEvent = remember(selectedEvent, selectedCategory, trackType) {
         MasterRecordsArchive.getRecords(
             eventName = selectedEvent,
             category = selectedCategory,
             trackType = trackType,
-            recordLevel = selectedRecordLevel
+            recordLevel = null
         ).sortedBy { record ->
             when (record.recordLevel) {
                 RecordLevel.NMR -> 0
@@ -165,7 +165,21 @@ fun MasterRecordsScreen(
         }
     }
 
-    val categoryListState = rememberLazyListState()
+    // PB'nin yapıldığı yaş kategorisini belirleme
+    val userPbCategory = remember(userPb, athleteGender, athleteBirthYear) {
+        userPb?.let { pb ->
+            if (pb.category.isNotBlank()) {
+                pb.category
+            } else if (athleteBirthYear in 1910..Calendar.getInstance().get(Calendar.YEAR) && pb.year > 0) {
+                val ageAtRecord = pb.year - athleteBirthYear
+                val prefix = if (athleteGender.contains("Kadın", ignoreCase = true) || athleteGender.equals("F", ignoreCase = true)) "W" else "M"
+                val bracket = (ageAtRecord / 5) * 5
+                "$prefix$bracket"
+            } else {
+                athleteCategory
+            }
+        } ?: athleteCategory
+    }
 
     Scaffold(
         topBar = {
@@ -173,7 +187,7 @@ fun MasterRecordsScreen(
                 title = {
                     Column {
                         Text(
-                            text = "Resmi Rekorlar Arşivi",
+                            text = "Resmi Master Rekorları",
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -207,7 +221,7 @@ fun MasterRecordsScreen(
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(2.dp))
 
                 // 1. AÇIK SAHA / SALON SEKMESİ
                 TabRow(
@@ -241,178 +255,207 @@ fun MasterRecordsScreen(
                 }
             }
 
-            // 2. CİNSİYET VE YAŞ KATEGORİSİ SEÇİCİ
+            // 2. KATEGORİ VE BRANŞ SEÇİCİ (DROPDOWN MENÜLER)
             item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
-                    )
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "YAŞ KATEGORİSİ",
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 0.8.sp,
-                                color = BluePrimary
-                            )
-
-                            // Cinsiyet Segmenti (Erkek / Kadın / Karma)
-                            Row(
-                                modifier = Modifier
-                                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f), RoundedCornerShape(8.dp))
-                                    .padding(2.dp),
-                                horizontalArrangement = Arrangement.spacedBy(2.dp)
-                            ) {
-                                val genders = listOf("M" to "Erkek", "W" to "Kadın", "X" to "Karma")
-                                genders.forEach { (prefix, title) ->
-                                    val isSelected = selectedGenderPrefix == prefix
-                                    Surface(
-                                        modifier = Modifier.clickable { selectedGenderPrefix = prefix },
-                                        shape = RoundedCornerShape(6.dp),
-                                        color = if (isSelected) BluePrimary else Color.Transparent
-                                    ) {
-                                        Text(
-                                            text = title,
-                                            fontSize = 10.sp,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
-                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        // Yatay Kaydırılabilir Tüm Yaş Kategorileri (M35, M40, M45... vs.)
-                        LazyRow(
-                            state = categoryListState,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            items(currentCategoryList) { cat ->
-                                val isSelected = selectedCategory == cat
-                                val isUserCat = cat.equals(athleteCategory, ignoreCase = true)
-                                Surface(
-                                    modifier = Modifier.clickable { selectedCategory = cat },
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = if (isSelected) {
-                                        Color(0xFF8B5CF6)
-                                    } else if (isUserCat) {
-                                        BluePrimary.copy(alpha = 0.15f)
-                                    } else {
-                                        MaterialTheme.colorScheme.surface
-                                    },
-                                    border = if (isUserCat && !isSelected) {
-                                        androidx.compose.foundation.BorderStroke(1.dp, BluePrimary)
-                                    } else null
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = cat,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface
-                                        )
-                                        if (isUserCat && !isSelected) {
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(6.dp)
-                                                    .background(BluePrimary, CircleShape)
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // 3. BRANŞ SEÇİMİ (DROPDOWN)
-            item {
-                ExposedDropdownMenuBox(
-                    expanded = eventDropdownExpanded,
-                    onExpandedChange = { eventDropdownExpanded = !eventDropdownExpanded }
-                ) {
-                    OutlinedTextField(
-                        value = selectedEvent,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Branş Seçiniz", fontSize = 12.sp) },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = eventDropdownExpanded) },
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    // Cinsiyet Segmenti (Erkek / Kadın / Karma)
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor(),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = BluePrimary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                        )
-                    )
-
-                    ExposedDropdownMenu(
-                        expanded = eventDropdownExpanded,
-                        onDismissRequest = { eventDropdownExpanded = false }
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f), RoundedCornerShape(10.dp))
+                            .padding(4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        availableEvents.forEach { ev ->
-                            DropdownMenuItem(
-                                text = { Text(text = ev, fontSize = 13.sp) },
-                                onClick = {
-                                    selectedEvent = ev
-                                    eventDropdownExpanded = false
+                        val genders = listOf("M" to "👨 Erkek (M)", "W" to "👩 Kadın (W)", "X" to "🤝 Karma (X)")
+                        genders.forEach { (prefix, title) ->
+                            val isSelected = selectedGenderPrefix == prefix
+                            Surface(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { selectedGenderPrefix = prefix },
+                                shape = RoundedCornerShape(8.dp),
+                                color = if (isSelected) BluePrimary else Color.Transparent
+                            ) {
+                                Text(
+                                    text = title,
+                                    fontSize = 11.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(vertical = 7.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    // Yan Yana Açılır Menüler: Yaş Kategorisi & Branş
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        // Yaş Kategorisi Seçmeli Dropdown
+                        Box(modifier = Modifier.weight(1f)) {
+                            ExposedDropdownMenuBox(
+                                expanded = categoryDropdownExpanded,
+                                onExpandedChange = { categoryDropdownExpanded = !categoryDropdownExpanded }
+                            ) {
+                                OutlinedTextField(
+                                    value = selectedCategory,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text("Yaş Kategorisi", fontSize = 11.sp) },
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryDropdownExpanded) },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .menuAnchor(),
+                                    shape = RoundedCornerShape(10.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = BluePrimary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                                    )
+                                )
+
+                                ExposedDropdownMenu(
+                                    expanded = categoryDropdownExpanded,
+                                    onDismissRequest = { categoryDropdownExpanded = false }
+                                ) {
+                                    currentCategoryList.forEach { cat ->
+                                        val isUserCat = cat.equals(athleteCategory, ignoreCase = true)
+                                        DropdownMenuItem(
+                                            text = {
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(
+                                                        text = cat,
+                                                        fontSize = 13.sp,
+                                                        fontWeight = if (cat == selectedCategory) FontWeight.Bold else FontWeight.Normal
+                                                    )
+                                                    if (isUserCat) {
+                                                        Text(
+                                                            text = "(Kategorin)",
+                                                            fontSize = 10.sp,
+                                                            color = BluePrimary,
+                                                            fontWeight = FontWeight.SemiBold
+                                                        )
+                                                    }
+                                                }
+                                            },
+                                            onClick = {
+                                                selectedCategory = cat
+                                                categoryDropdownExpanded = false
+                                            }
+                                        )
+                                    }
                                 }
-                            )
+                            }
+                        }
+
+                        // Branş Seçmeli Dropdown
+                        Box(modifier = Modifier.weight(1.3f)) {
+                            ExposedDropdownMenuBox(
+                                expanded = eventDropdownExpanded,
+                                onExpandedChange = { eventDropdownExpanded = !eventDropdownExpanded }
+                            ) {
+                                OutlinedTextField(
+                                    value = selectedEvent,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text("Branş", fontSize = 11.sp) },
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = eventDropdownExpanded) },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .menuAnchor(),
+                                    shape = RoundedCornerShape(10.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = BluePrimary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                                    )
+                                )
+
+                                ExposedDropdownMenu(
+                                    expanded = eventDropdownExpanded,
+                                    onDismissRequest = { eventDropdownExpanded = false }
+                                ) {
+                                    availableEvents.forEach { ev ->
+                                        DropdownMenuItem(
+                                            text = { Text(text = ev, fontSize = 13.sp) },
+                                            onClick = {
+                                                selectedEvent = ev
+                                                eventDropdownExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
 
-            // 4. KULLANICININ BU BRANŞTAKİ PB'Sİ (VARSA)
+            // 3. KULLANICININ BU BRANŞTAKİ PB'Sİ (YAŞ KATEGORİSİ BİLGİSİ İLE BİRLİKTE)
             userPb?.let { pb ->
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = CrimsonAccent.copy(alpha = 0.08f)
-                        )
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, CrimsonAccent.copy(alpha = 0.25f))
                     ) {
                         Row(
-                            modifier = Modifier.padding(12.dp),
+                            modifier = Modifier.padding(14.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.DirectionsRun,
                                 contentDescription = null,
                                 tint = CrimsonAccent,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(24.dp)
                             )
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Column {
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "SENİN EN İYİ DERECEN (PB)",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = CrimsonAccent,
+                                        letterSpacing = 0.6.sp
+                                    )
+                                    Surface(
+                                        color = CrimsonAccent.copy(alpha = 0.15f),
+                                        shape = RoundedCornerShape(6.dp)
+                                    ) {
+                                        Text(
+                                            text = "$userPbCategory Kategorisi",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.ExtraBold,
+                                            color = CrimsonAccent,
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(2.dp))
                                 Text(
-                                    text = "Senin En İyi Derecen (PB): ${pb.result}",
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    text = pb.result,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Black,
                                     color = CrimsonAccent
                                 )
+                                Spacer(modifier = Modifier.height(2.dp))
                                 Text(
                                     text = "${pb.competitionTitle.ifBlank { "Kayıtlı Yarış" }} (${pb.year})",
                                     fontSize = 11.sp,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                                 )
                             }
                         }
@@ -420,43 +463,7 @@ fun MasterRecordsScreen(
                 }
             }
 
-            // 5. REKOR DÜZEYİ FİLTRE HAPLARI (Tümü, Türkiye, Şampiyona, Balkan, Avrupa)
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    val levels = listOf<Pair<RecordLevel?, String>>(
-                        null to "Tümü",
-                        RecordLevel.NMR to "🇹🇷 Türkiye",
-                        RecordLevel.BCR to "🏆 Şampiyona",
-                        RecordLevel.BMR to "⚡ Balkan",
-                        RecordLevel.EMR to "🇪🇺 Avrupa"
-                    )
-                    levels.forEach { (lvl, title) ->
-                        val isSelected = selectedRecordLevel == lvl
-                        Surface(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { selectedRecordLevel = lvl },
-                            shape = RoundedCornerShape(8.dp),
-                            color = if (isSelected) BluePrimary else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
-                        ) {
-                            Text(
-                                text = title,
-                                fontSize = 9.5.sp,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.padding(vertical = 7.dp, horizontal = 1.dp),
-                                maxLines = 1
-                            )
-                        }
-                    }
-                }
-            }
-
-            // 6. REKOR LİSTESİ
+            // 4. REKOR LİSTESİ (TÜM SEVİYELER SIRAYLA LİSTELENİR)
             if (recordsForEvent.isEmpty()) {
                 item {
                     Card(
@@ -487,7 +494,7 @@ fun MasterRecordsScreen(
                 }
             }
 
-            // 7. RESMİ KAYNAK BİLGİ NOTU
+            // 5. RESMİ KAYNAK BİLGİ NOTU
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
