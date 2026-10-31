@@ -189,6 +189,14 @@ fun HomeScreen(
                     }
                 },
                 actions = {
+                    // Resmi Rekorlar Arşivi butonu
+                    IconButton(onClick = { showRecordsScreen = true }) {
+                        Icon(
+                            imageVector = Icons.Default.EmojiEvents,
+                            contentDescription = "Resmi Master Rekorları",
+                            tint = Color(0xFFFBBF24)
+                        )
+                    }
                     // Yenile butonu
                     IconButton(onClick = { viewModel.refreshData() }) {
                         Icon(
@@ -239,6 +247,85 @@ fun HomeScreen(
                 activeFilterCount = uiState.activeFilterCount,
                 onFilterClick = { showFilterSheet = true }
             )
+
+            // Resmi Master Rekorları Hızlı Erişim Kartı
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 6.dp)
+                    .clickable { showRecordsScreen = true },
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFF8B5CF6).copy(alpha = 0.10f)
+                ),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF8B5CF6).copy(alpha = 0.25f))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(
+                                    brush = Brush.linearGradient(
+                                        colors = listOf(Color(0xFFF59E0B), Color(0xFFD97706))
+                                    ),
+                                    shape = CircleShape
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.EmojiEvents,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "Resmi Master Rekorları",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Surface(
+                                    color = Color(0xFF8B5CF6).copy(alpha = 0.15f),
+                                    shape = RoundedCornerShape(4.dp)
+                                ) {
+                                    Text(
+                                        text = "TR • BLK • AVR",
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = Color(0xFF8B5CF6),
+                                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Tüm yaş kategorileri ve branş dereceleri ➔",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
+                            )
+                        }
+                    }
+
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = "Aç",
+                        tint = Color(0xFF8B5CF6),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
 
             // Liste Başlığı & Sayım
             Row(
