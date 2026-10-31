@@ -42,9 +42,15 @@ flowchart TD
 
 ### 2. 🎂 Kategori Değişimi & Yaş Günü Projeksiyonu
 - Master atletizmde 5'er yıllık yaş kategorileri (35, 40, 45, 50, ...) yeni bir kategoriye girildiğinde sporcuya büyük bir rekabet avantajı sağlar.
+- **Açık Saha & Salon Rekor Ayrımı:**
+  - Atletizmde rekorlar **Açık Saha (Outdoor)** ve **Salon (Indoor / Short Track)** olarak kesinlikle iki ayrı kategoride tutulur.
+  - Rekor kaynakları:
+    - **Türkiye Rekorları (NMR):** TAF Masterlar resmi tescilli rekor listeleri (taf.org.tr Açık Saha & Salon PDF/XLS).
+    - **Balkan Rekorları (BMR):** Balkan Masters Athletics (BAMA) resmi BAMACS (Açık Saha) ve BAMACI (Salon) rekor listeleri.
+    - **Avrupa (EMR) & Dünya (WMR):** EMA ve WMA resmi rekor veri tabanı.
 - **Geliştirme:**
   - Sporcunun profilinde bir sonraki yaş kategorisine kaç gün/ay kaldığını gösteren geri sayım sayacı.
-  - Yeni kategoriye geçildiğinde ilgili kategorinin güncel Türkiye, Balkan ve Avrupa rekorlarını listeleyen motivasyon paneli.
+  - Yeni kategoriye geçildiğinde o yaş grubunun güncel Türkiye (Açık & Salon), Balkan (Açık & Salon) ve Avrupa rekorlarını listeleyen çift sekmeli motivasyon paneli.
 
 ---
 
@@ -72,8 +78,9 @@ flowchart TD
 
 ### 5. 🌤️ Canlı Hava Durumu & Rüzgar Tahmini (Wind Forecast)
 - Atletizmde rüzgar hızı (`+2.0 m/s` üzeri rüzgarlarda rekorlar resmi sayılmaz) ve hava sıcaklığı koşu/atlama performansını doğrudan etkiler.
-- **Geliştirme:**
-  - Yarışmaya 7-10 gün kala Open-Meteo veya Weather API üzerinden stadyum konumuna özel hava durumu tahmini.
+- **Geliştirme & Akıllı Zaman Kısıtlaması:**
+  - **Yalnızca Gelecek Yarışmalarda Gösterim:** Tamamlanmış veya tarihi geçmiş (`isCompleted() == true` veya `daysRemaining < 0`) yarışmalarda hava durumu kartı tamamen gizlenir.
+  - **Gelişmiş Tahmin:** Gelecek yarışmalarda yarış gününe ait hava durumu (veya uzun vadeli mevsimsel norm ve sıcaklık projeksiyonu) stadyum koordinatlarına göre Open-Meteo API üzerinden çekilir.
   - Sıcaklık, nem oranı, rüzgar hızı (m/s cinsinden) ve rüzgar yönü gösterimi.
 
 ---
