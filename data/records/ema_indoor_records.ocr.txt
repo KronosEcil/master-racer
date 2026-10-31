@@ -1,0 +1,463 @@
+60 metres
+Age Group Mark Name and Country Born Meet Place Meet Date
+M35 6.51 Linford Christie, GBR 02-04-1960 Sindelfingen, GER 01-03-1997
+M40 6.69 Dwain Chambers, GBR 05-04-1978 London, GBR 16-02-2019
+M45 6.81 Dwain Chambers, GBR 05-04-1978 London, GBR 07-01-2024 WR
+M50 7.04 Mario Longo, ITA 21-08-1964 Ancona, ITA 30-03-2016 EMC WR
+M55 7.36 Massimiliano Catalano, ITA 25-07-1969 Ancona, ITA 07-03-2026
+M60 7.49 Mario Longo, ITA 21-08-1964 Ancona, ITA 01-03-2025 WR
+M65 7.81 Vladimir Vybostok, SVK 06-07-1942 Jyvaskyla, FIN 04-04-2012 WMA
+M70 8.09 Glyn Sutton, GBR 03-05-1945 Ancona, ITA 30-03-2016 EMC
+M75 8.56 Hartmut Kraemer, GER 19-03-1942 Madrid, ESP 21-03-2018 EMC
+M75 8.56 Livio Bugiardini, ITA 19-09-1948 Ancona, ITA 28-01-2024
+M80 8.98 Eberhard Linke, GER 03-01-1944 Dortmund, GER 02-03-2024
+M85 9.78 Giuseppe Marabotti, ITA 11-11-1915 Bordeaux, FRA 10-03-2001 EMC
+M90 10.91 Vittorio Colo', ITA 09-11-1911 Torino, ITA 02-02-2002 WR
+M95 13.72 Konstantinos Chatziemmanouil, GRE 25-01-1929 Torun, POL 20-03-2024 EMC WR
+M100 17.52 Giuseppe Ottaviani, ITA 20-05-1916 Ancona, ITA 20-05-2016 WR
+W35 7.17 Irina Khabarova, RUS 18-03-1966 Omsk, RUS 24-12-2005
+W40 7.17 Merlene Ottey, SLO 10-05-1960 Linz, AUT 07-03-2003 WR
+W45 7.30 Merlene Ottey, SLO 10-05-1960 Leipzig, GER 09-02-2007 WR
+W50 8.10 Sandrine Hennart, BEL 12-12-1972 Louvain La Neuve, BEL 24-02-2024
+W50 8.09 Adina Gheorghiu, ROM 04-01-1975 Dublin, IRL 19-01-2025
+W55 8.01 Nicole Alexis, FRA 09-01-1960 Torun, POL 25-03-2015 EMC WR
+W60 7.97 Christine Harrison-Bloomfield, GBR 12-02-1968 London, GBR 07-03-2026 WR
+W65 8.64 Nicole Alexis, FRA 09-01-1960 Nantes, FRA 28-02-2026 WR
+W70 9.22 Helen Godsell, GBR 01-02-1954 Torun, POL 20-03-2024
+W75 9.87 Moira West, GBR 26-04-1949 London, GBR 22-02-2026
+W80 10.55 Barbro Boback, SWE 15-05-1944 Hvam, NOR 14-02-2025
+W85 12.48 Emma Mazzenga, ITA 01-08-1933 Torun, POL 27-03-2019
+W90 13.91 Emma Mazzenga, ITA 01-08-1933 Torun, POL 20-03-2024 WR
+W95 18.30 Elena Pagu, ROU 26-07-1926 Ancona, ITA 24-09-2021
+
+200 metres
+Age Group Mark Name and Country Born Meet Place Meet Date
+M35 20.59 Douglas Turner, GBR 02-12-1966 Birmingham, GBR 17-02-2002 WR
+M40 21.48 Alexander Kosenkow, GER 14-03-1977 Leipzig, GER 10-02-2018 WR
+M45 22.18 Alexander Kosenkow, GER 14-03-1977 Dortmund, GER 08-02-2025 WR
+M45 22.18 Jochen Gippert, GER 25-01-1977 Dortmund, GER 08-02-2025 WR
+M50 23.22 Stephen Peters, GBR 05-07-1953 Sindelfingen, GER 11-03-2004 WMA
+M55 23.87 Darren Scott, GBR 07-03-1969 Manchester, GBR 09-03-2025
+M60 24.28 John Wright, GBR 15-06-1959 Torun, POL 31-03-2023 WMA WR
+M65 25.25 John Wright, GBR 15-06-1959 Sheffield, GBR 04-01-2026
+M70 26.87 Guido Mueller, GER 22-12-1938 Sindelfingen, GER 13-02-2010
+M75 27.87 Guido Mueller, GER 22-12-1938 Erfurt, GER 01-03-2014
+M80 29.71 Friedhelm Adorf, GER 25-09-1943 Gainesville, USA 27-03-2025 WMA
+M80 29.71 Friedhelm Adorf, GER 25-09-1943 Dortmund, GER 03-03-2024
+M85 34.42 Ugo Sansonetti, ITA 10-01-1919 Sindelfingen, GER 10-03-2004 WMA
+M90 40.19 Herbert Mueller, GER 12-11-1929 Dusseldorf, GER 09-02-2020
+M95 50.40 Konstantinos Chatziemmanouil, GRE 25-01-1929 Torun, POL 22-03-2024 EMC WR
+M100 2:15.90 Giuseppe Ottaviani, ITA 20-05-1916 Ancona, ITA 20-05-2016
+W35 23.04 Sandra Myers, ESP 09-01-1961 Torino, ITA 17-02-1996
+W40 23.93 Merlene Ottey, SLO 10-05-1960 Wien, AUT 28-01-2003 WR
+W45 25.44 Maryvonne Icarre, FRA 07-12-1965 Eaubonne, FRA 09-01-2011
+W50 25.94 Maryvonne Icarre, FRA 07-12-1965 Ancona, ITA 01-04-2016 EMC WR
+W55 26.13 Nicole Alexis, FRA 09-01-1960 Torun, POL 27-03-2015 EMC WR
+W60 27.34 Nicole Alexis, FRA 09-01-1960 Torun, POL 31-03-2023 WMA WR
+W65 29.41 Nicole Alexis, FRA 09-01-1960 Nogent sur Oise, FRA 12-01-2025
+W70 31.17 Helen Godsell, GBR 01-02-1954 Torun, POL 22-03-2024 EMC WR
+W75 33.76 Michelle Peroni-Edoh, FRA 07-08-1947 Miramas, FRA 03-03-2023
+W80 36.93 Rietje Dijkman, NED 21-06-1939 Braga, POR 26-02-2022
+W85 41.16 Kathleen Stewart, GBR 07-08-1939 London, GBR 22-02-2025
+W90 51.08 Emma Mazzenga, ITA 01-08-1933 Padova, ITA 10-03-2024 WR
+
+400 metres
+Age Group Mark Name and Country Born Meet Place Meet Date
+M35 46.62 Liemarvin Bonevacia, NED 05-04-1989 Apeldoorn, NED 22-02-2026 WR
+M40 48.83 Ricardo Menendez Gonzales, ESP 26-08-1978 Braga, POR 22-02-2022 EMC WR
+M45 49.45 Ricardo Menendez Gonzales, ESP 26-08-1978 Antequera, ESP 01-03-2025 WR
+M50 50.30 Anders Logg, SWE 07-01-1976 Sätra, SWE 27-02-2026 WR
+M55 54.04 Claudio Fausti, ITA 05-02-1967 Torun, POL 28-03-2023 WMA
+M55 52.89 Juan Luis Lopez Anaya, ESP 12-05-1970 Antequera, ESP 28-12-2025
+M60 55.35 Roland Groeger, GER 07-08-1964 Gainesville, USA 30-03-2025 WMA WR
+M65 55.44 John Wright, GBR 15-06-1959 Sheffield, GBR 08-03-2026 WR
+M70 59.48 Guido Mueller, GER 22-12-1938 Furth, GER 30-01-2010
+M75 1:03.12 Guido Mueller, GER 22-12-1938 Furth, GER 02-03-2014 WR
+M80 1:11.08 John Mac Dermott, IRL 12-03-1944 Torun, POL 19-03-2024 EMC
+M85 1:17.69 Jean Louis Esnault, FRA 19-01-1940 Gainesville, USA 30-03-2025 WMA WR
+M90 1:41.08 Herbert Mueller, GER 12-11-1929 Dusseldorf, GER 09-02-2020
+M95 2:17.37 Konstantinos Chatziemmanouil, GRE 25-01-1929 Torun, POL 19-03-2024 EMC WR
+W35 51.87 Marika Popowicz-Drapala, POL 28-04-1988 Torun, POL 18-02-2024 WR
+W40 54.63 Aneta Lemiesz, POL 17-01-1981 Spala, POL 05-02-2022 WR
+W45 57.22 Annette Quaid, IRL 28-10-1977 Athlone, IRL 29-01-2023
+W50 58.64 Helen Hermundstad, SWE 16-06-1973 Gainesville, USA 30-03-2025 WMA WR
+W55 1:01.12 Esther Colas Roman, ESP 07-05-1967 Madrid, ESP 15-03-2025 WR
+W60 1:03.50 Barbara Gaehling, GER 20-01-1965 Dusseldorf, GER 07-03-2026
+W65 1:06.94 Edel Maguire, IRL 03-07-1959 Gainesville, USA 30-03-2025 WMA WR
+W70 1:13.81 Caroline Powell, GBR 21-12-1953 Torun, POL 19-03-2024 EMC
+W75 1:17.03 Michelle Peroni-Edoh, FRA 07-08-1947 Miramas, FRA 04-03-2023 WR
+W80 1:30.37 Kathleen Stewart, GBR 07-08-1939 London, GBR 07-03-2020 WR
+W85 1:38.38 Yolande Marchal, FRA 10-09-1939 Miramas, FRA 07-03-2025 WR
+W90 2:06.34 Emma Mazzenga, ITA 01-08-1933 Torun, POL 19-03-2024 EMC WR
+
+800 metres
+Age Group Mark Name and Country Born Meet Place Meet Date
+M35 1:48.92 Nico Motchebon, GER 13-11-1969 Stuttgart, GER 29-01-2005
+M40 1:50.92 Anthony Whiteman, GBR 13-11-1971 Sheffield, GBR 08-02-2014
+M45 1:52.96 Anthony Whiteman, GBR 13-11-1971 Sheffield, GBR 11-02-2017 WR
+M50 1:58.80 Kojo Kyereme, GBR 23-12-1974 London, GBR 12-02-2025 WR
+M55 2:02.45 Shane Healy, IRL 05-10-1968 Abbotstown, IRL 27-01-2024
+M60 2:05.13 Andrew Ridley, GBR 24-07-1964 London, GBR 07-03-2026 WR
+M65 2:15.30 Paul Forbes, GBR 20-11-1956 Glasgow, GBR 18-12-2021 WR
+M70 2:23.33 Joe Gough, IRL 10-01-1953 Abbotstown, IRL 11-03-2023
+M75 2:33.11 Cees Stolwijk, NED 10-01-1950 Apeldoorn, NED 02-02-2025
+M80 2:43.67 Jose Vicente Rioseco Lopez, ESP 30-04-1941 Ancona, ITA 25-09-2021 WR
+M85 2:59.58 Jean Louis Esnault, FRA 19-01-1940 Miramas, FRA 08-03-2025 WR
+M90 4:13.39 Herbert Mueller, GER 12-11-1929 Erfurt, GER 29-02-2020
+M95 5:42.52 Antonio Nacca, ITA 16-12-1923 Ancona, ITA 24-02-2019 WR
+W35 1:58.37 Helena Fuchsova, CZE 03-06-1965 Lievin, FRA 25-02-2001 WR
+W40 2:01.59 Yekaterina Podkopayeva, RUS 11-06-1952 Grenoble, FRA 06-02-1994 WR
+W45 2:12.24 Alejandra Galvez Miras, ESP 19-08-1977 Ourense, ESP 11-02-2023 WR
+W50 2:16.73 Eva Trost, GER 30-01-1968 Munich, GER 10-02-2018 WR
+W55 2:20.10 Anne Gilshinan, IRL 06-04-1964 Athlone, IRL 08-03-2020 WR
+W60 2:26.07 Anne Gilshinan, IRL 06-04-1964 Dublin, IRL 11-02-2026
+W65 2:40.34 Inmaculada Ruiz Teran, ESP 14-12-1960 San Sebastian, ESP 17-01-2026 WR
+W70 2:52.17 Alison Bourgeois, SUI 30-04-1953 Torun, POL 21-03-2024 EMC
+W75 2:57.32 Sarah Roberts, GBR 06-10-1949 London, GBR 23-02-2025 WR
+W80 3:18.74 Yolande Marchal, FRA 10-09-1939 Miramas, FRA 11-01-2020
+W85 3:46.56 Yolande Marchal, FRA 10-09-1939 Miramas, FRA 09-03-2025 WR
+W90 5:27.80 Melitta Czerwenka-Nagel, GER 30-04-1930 Braga, POR 23-02-2022 WR
+
+1500 metres
+Age Group Mark Name and Country Born Meet Place Meet Date
+M35 3:36.34 Raphael Pallitsch, AUT 18-12-1989 Metz, FRA 08-02-2025
+M40 3:44.12 Anthony Whiteman, GBR 13-11-1971 London, GBR 03-03-2012
+M45 3:54.94 Anthony Whiteman, GBR 13-11-1971 Sheffield, GBR 07-02-2017 WR
+M50 4:01.76 Shane Healy, IRL 05-10-1968 Dublin, IRL 01-03-2020 WR
+M55 4:16.69 Guy Bracken, GBR 17-12-1961 Glasgow, GBR 05-03-2017 WMA
+M60 4:20.32 Robert McHarg, GBR 12-01-1964 London, GBR 23-02-2025 WR
+M65 4:43.01 Cees Stolwijk, NED 10-01-1950 Apeldoorn, NED 14-02-2015 WR
+M70 4:53.53 Cees Stolwijk, NED 10-01-1950 Apeldoorn, NED 01-02-2020 WR
+M75 5:15.98 Cees Stolwijk, NED 10-01-1950 Apeldoorn, NED 09-02-2025 WR
+M80 5:33.33 Jose Vicente Rioseco Lopez, ESP 30-04-1941 Ancona, ITA 24-09-2021 WR
+M85 6:08.47 Jean Louis Esnault, FRA 19-01-1940 Gainesville, USA 29-03-2025 WMA WR
+M90 8:33.37 Antonio Nacca, ITA 16-12-1923 Ancona, ITA 08-03-2014
+M95 10:55.85 Antonio Nacca, ITA 16-12-1923 Ancona, ITA 23-02-2019 WR
+W35 4:03.61 Violeta Szekely, ROU 23-03-1965 Stockholm, SWE 15-02-2001
+W40 4:05.19 Yekaterina Podkopayeva, RUS 11-06-1952 Paris, FRA 09-03-1997 WR
+W45 4:28.13 Corinne Debaets, BEL 02-12-1963 Gent, BEL 22-02-2009 WR
+W50 4:40.07 Clare Elms, GBR 26-12-1963 London, GBR 08-03-2014 WR
+W55 4:43.59 Anne Gilshinan, IRL 06-04-1964 Abbottstown, IRL 19-01-2022 WR
+W60 4:58.80 Anne Gilshinan, IRL 06-04-1964 Abbottstown, IRL 28-02-2026 WR
+W65 5:21.3h Karin Wahlstedt, SWE 13-04-1960 Bollnas, SWE 15-03-2026 WR
+W70 5:49.12 Angela Copson, GBR 20-04-1947 London, GBR 10-03-2018 WR
+W75 5:58.15 Sarah Roberts, GBR 06-10-1949 London, GBR 23-02-2025 WR
+W80 6:58.30 Yolande Marchal, FRA 10-09-1939 Miramas, FRA 12-01-2020
+W85 7:37.27 Yolande Marchal, FRA 10-09-1939 Miramas, FRA 07-03-2025 WR
+W90 11:38.34 Melitta Czerwenka-Nagel, GER 30-04-1930 Braga, POR 26-02-2022 WR
+
+3000 metres
+Age Group Mark Name and Country Born Meet Place Meet Date
+M35 7:40.68 Dieter Baumann, GER 09-02-1965 Stuttgart, GER 03-02-2002
+M40 8:01.44 Vyacheslav Shabunin, RUS 27-09-1969 Moskva, RUS 07-02-2010
+M45 8:22.54 Davide Raineri, ITA 21-05-1973 Padova, ITA 31-01-2021 WR
+M50 8:37.73 Juan Antonio Cuadrillero Barranco, ESP 06-10-1971 Ourense, ESP 26-11-2021 WR
+M55 8:47.71 Shane Healy, IRL 05-10-1968 Abbotstown, IRL 06-01-2024 WR
+M60 9:31.40 Hakan Eriksson, SWE 20-08-1961 Vasteras, SWE 25-02-2022 WR
+M65 9:57.18 Alastair George Walker, GBR 25-05-1956 Glasgow, GBR 29-01-2023 WR
+M70 10:38.15 Luciano Moser, ITA 28-01-1953 Padova, ITA 05-03-2023 WR
+M75 11:00.81 Cees Stolwijk, NED 10-01-1950 Apeldoorn, NED 08-02-2025 WR
+M80 12:56.90 Klemens Wittig, GER 11-08-1937 Dusseldorf, GER 14-01-2018
+M85 13:39.24 Jean Louis Esnault, FRA 19-01-1940 Gainesville, USA 25-03-2025 WMA WR
+M90 17:48.30 Colin Spivey, GBR 24-09-1934 Sheffield, GBR 26-01-2025 WR
+M95 22:52.15 Antonio Nacca, ITA 16-12-1923 Ancona, ITA 22-02-2019 WR
+W35 8:39.81 Helen Clitheroe, GBR 02-01-1974 Birmingham, GBR 19-02-2011
+W40 8:58.20 Nuria Fernandez, ESP 16-08-1976 Belgrade, SRB 03-03-2017 WR
+W45 9:11.67 Nicole Leveque, FRA 27-01-1951 Paris Bercy, FRA 11-02-1996 WR
+W50 9:56.39 Fiona Matheson, GBR 25-04-1961 Glasgow, GBR 28-12-2011 WR
+W55 10:13.40 Clare Elms, GBR 26-12-1963 London, GBR 10-03-2019 WR
+W60 10:37.53 Clare Elms, GBR 26-12-1963 Cardiff, GBR 24-01-2026 WR
+W65 11:49.53 Angela Copson, GBR 20-04-1947 San Sebastian, ESP 19-03-2013 EMC
+W70 12:37.45 Angela Copson, GBR 20-04-1947 London, GBR 11-03-2018
+W75 12:28.82 Sarah Roberts, GBR 06-10-1949 Gainesville, USA 26-03-2025 WR
+W80 15:52.13 Denise Leclerc, FRA 10-10-1933 Eaubonne, FRA 23-02-2014 WR
+W85 18:38.76 Melitta Czerwenka-Nagel, GER 30-04-1930 Erfurt, GER 13-02-2016 WR
+
+60m Hurdles
+Age Group Mark Name and Country Born Meet Place Meet Date
+M35 7.40 Colin Jackson, GBR 18-02-1967 Wien, AUT 02-03-2002 WR
+M40 7.74 Petr Svoboda, CZE 10-10-1984 Wien, AUT 07-03-2026 WR
+M40 7.85 Vincent Clarico, FRA 08-01-1966 Linz, AUT 19-03-2006 WMA WR
+M45 7.91 Mensah Elliott, GBR 29-08-1976 London, GBR 13-03-2022 WR
+M50 8.23 Joe Appiah, GBR 26-10-1970 London, GBR 28-01-2023 WR
+M55 8.39 Joe Appiah, GBR 26-10-1970 London, GBR 24-01-2026 WR
+M60 8.89 Barrie Marsden, GBR 11-06-1964 London, GBR 14-03-2026
+M65 9.30 Wieslaw Musial, POL 20-10-1957 Spala, POL 21-12-2024
+M70 9.76 Rolf Geese, GER 19-02-1944 Erfurt, GER 02-03-2014
+M75 10.32 Rolf Geese, GER 19-02-1944 Erfurt, GER 01-03-2020
+M80 10.86 Anthony Bowman, GBR 02-09-1935 London, GBR 12-03-2016 WR
+M85 12.95 Anthony Bowman, GBR 02-09-1935 London, GBR 05-03-2022 EMC WR
+M90 17.56 Ilmari Koppinen, FIN 08-01-1918 Tampere, FIN 10-02-2008
+W35 8.02 Patricia Girard, FRA 08-04-1968 Madrid, ESP 05-03-2005
+W40 8.64 Monica Pellegrinelli, SUI 14-05-1965 Helsinki, FIN 25-03-2007
+W45 8.70 Jennifer Schmelter Gartmann, GER 04-04-1976 Ludwigshafen, GER 10-02-2024 WR
+W50 9.26 Christine Muller, SUI 22-07-1958 Ancona, ITA 28-03-2009 EMC WR
+W55 9.64 Petra Bajeat, FRA 06-03-1966 Nantes, FRA 19-12-2021
+W60 9.73 Petra Bajeat, FRA 06-03-1966 Eaubonne, FRA 14-03-2026
+W65 9.98 Jane Horder, GBR 18-01-1957 Loughborough, GBR 04-02-2023 WR
+W70 11.37 Asta Larsson, SWE 23-10-1931 Lund, SWE 02-02-2002 WR
+W75 12.34 Emily McMahon, GBR 25-04-1950 London, GBR 07-03-2026 WR
+W80 20.56 Kirsti Vitanen, FIN 21-08-1942 Jyvaskyla, FIN 25-02-2023
+
+High Jump
+Age Group Mark Name and Country Born Meet Place Meet Date
+M35 2.30 Dragutin Topic, SRB 12-03-1971 Novi Sad, SRB 07-02-2008 WR
+M40 2.10 Dalton Grant, GBR 05-04-1966 Banska Bystrica, SLO 05-02-2008 WR
+M45 2.00 Marco Segatel, ITA 23-03-1962 Aosta, ITA 02-03-2008
+M50 2.00 Thomas Zacharias, GER 02-01-1947 Birmingham, GBR 02-03-1997 EMC WR
+M55 1.87 Marco Segatel, ITA 23-03-1962 Madrid, ESP 19-03-2018 EMC
+M60 1.81 Rudiger Weber, GER 19-06-1963 Dortmund, GER 03-03-2024 WR
+M65 1.73 Oleg Fedorko, UKR 31-10-1954 Kiev, UKR 08-02-2020
+M65 1.69 Marco Claudio Mastrolorenzi, ITA 27-12-1960 Ancona, ITA 07-03-2026 WR
+M70 1.59 Carl-Erik Sarndal, SWE 17-07-1937 Ancona, ITA 27-03-2009 EMC WR
+M75 1.53 Dusan Prezelj, SLO 25-01-1949 Zagreb, CRO 02-03-2024 WR
+M80 1.40 Carl-Erik Sarndal, SWE 17-07-1937 Malmo, SWE 02-03-2019 WR
+M85 1.27 Carl-Erik Sarndal, SWE 17-07-1937 Torun, POL 26-03-2023 WMA WR
+M90 1.07 Emmerich Zensch, AUT 20-12-1919 Kamloops, CAN 06-03-2010 WMA WR
+M95 0.95 Emmerich Zensch, AUT 20-12-1919 Ancona, ITA 01-04-2016 EMC
+W35 2.02 Anna Chicherova, RUS 22-07-1982 Moscow, RUS 15-02-2019 WR
+W40 1.94 Venelina Veneva-Mateeva, BUL 13-06-1974 Dobrich, BUL 15-02-2015 WR
+W45 1.65 Julia Machin, GBR 26-03-1970 London, GBR 01-03-2020
+W50 1.60 Petra Bajeat, FRA 06-03-1966 Torun, POL 29-03-2019 WMA WR
+W55 1.55 Wendy Laing, GBR 29-12-1962 Madrid, ESP 21-03-2018 EMC
+W55 1.58 Julia Machin, GBR 26-03-1970 London, GBR 14-03-2026 WR
+W60 1.51 Barbara Gaehling, GER 20-01-1965 Dusseldorf, GER 07-03-2026 WR
+W65 1.44 Frauke Viebahn, GER 26-11-1959 Dusseldorf, GER 07-03-2026 WR
+W70 1.32 Weia Reinboud, NED 11-03-1950 Apeldoorn, NED 12-02-2022 WR
+W75 1.24 Rietje Dijkman, NED 21-06-1939 Apeldoorn, NED 13-02-2016
+W80 1.17 Rietje Dijkman, NED 21-09-1939 Braga, POR 26-02-2022
+W85 0.90 Giulia Perugini, ITA 09-11-1926 Ancona, ITA 11-02-2022 WMA
+
+Pole Vault
+Age Group Mark Name and Country Born Meet Place Meet Date
+M35 5.91 Renaud Lavillenie, FRA 18-09-1986 Clermont Ferrand, FRA 28-02-2025 WR
+M40 5.23 Oscar Jansson, SWE 22-07-1975 Vaxjo, SWE 26-02-2017
+M45 5.15 Oscar Jansson, SWE 22-07-1975 Goteborg, SWE 07-01-2023 WR
+M50 4.80 Jonas Asplund, SWE 14-02-1973 Satra, SWE 14-02-2026
+M55 4.51 Wolfgang Ritte, GER 07-01-1953 Alsfeld, GER 07-02-2010
+M60 4.16 Wolfgang Ritte, GER 07-01-1953 Ludwigshafen, GER 31-01-2015 WR
+M65 3.96 Wolfgang Ritte, GER 07-01-1953 Madrid, ESP 20-03-2018 EMC WR
+M70 3.56 Wolfgang Ritte, GER 07-01-1953 Torun, POL 31-03-2023 WR
+M75 3.02 Valdis Cela, LAT 01-02-1948 Torun, POL 31-03-2023 WMA
+M80 2.56 Lars Wennblom, SWE 28-10-1934 Boras, SWE 06-03-2015
+M85 2.10 Juhan Tennasilm, EST 25-02-1940 Tartu, EST 17-01-2026
+M85 2.10 Galdino Rossi, ITA 22-08-1938 Casalmaggiore, ITA 01-02-2026
+M90 1.60 Emmerich Zensch, AUT 20-12-1919 Kamloops, CAN 05-03-2010 WMA
+M90 1.60 Ahti Pajunen, FIN 03-12-1909 Heinola, FIN 06-02-2000
+W35 4.80 Tina Sutej, SLO 07-11-1988 Metz, FRA 08-02-2026
+W40 4.05 Doris Auer, AUT 10-05-1971 Wien, AUT 21-01-2012 WR
+W45 3.72 Elisabete Ribeiro Tavares, FRA 07-03-1980 Eaubonne, FRA 01-02-2026 WR
+W50 3.51 Irie Hill, GBR 16-01-1969 Torun, POL 30-03-2019 WMA WR
+W55 3.30 Irie Hill, GBR 16-01-1969 Torun, POL 20-03-2024 EMC WR
+W60 2.91 Susan Yeomans, GBR 16-03-1953 London, GBR 07-03-2015
+W65 2.80 Brigitte Van De Kamp, NED 15-06-1960 Assendelft, NED 13-12-2025
+W70 2.40 Ute Elisabeth Ritte, GER 21-03-1952 Paderbon, GER 04-03-2023
+W75 1.85 Kirsti Viitanen, FIN 21-08-1942 Turku, FIN 25-01-2018
+W80 1.50 Kirsti Viitanen, FIN 21-08-1942 Torun, POL 01-04-2023 WMA
+
+Long Jump
+Age Group Mark Name and Country Born Meet Place Meet Date
+M35 8.23 Kafetien Gomis, FRA 23-03-1980 Aubiere, FRA 28-02-2016 WR
+M40 7.59 Mattias Sunneborn, SWE 27-09-1970 Stockholm, SWE 03-02-2013 WR
+M45 6.97 Rainer Wenk, GER 08-03-1960 Eskilstuna, SWE 12-03-2005 EMC
+M45 7.02 Marc Julia Bonmati, ESP 27-09-1978 Antequera, ESP 07-03-2026
+M50 6.75 Gianni Becatti, ITA 27-08-1963 Ancona, ITA 28-02-2015 WR
+M55 6.34 Stig Backlund, FIN 27-10-1939 Oulu, FIN 19-03-1995 WR
+M60 5.93 Adrian Neagu, ROU 15-06-1953 Budapest, HUN 29-03-2014 WMA WR
+M65 5.48 Klemens Grissmer, GER 12-11-1951 Daegu, KOR 24-03-2017 WMA WR
+M70 5.22 Vladimir Popov, RUS 09-07-1932 Moscow, RUS 20-03-2004 EMC WR
+M75 4.70 Wolfgang Reuter, GER 12-08-1929 Eskilstuna, SWE 11-03-2005 EMC WR
+M80 4.39 Eberhard Linke, GER 03-01-1944 Dortmund, GER 02-03-2024 WR
+M85 3.69 Juhan Tennasilm, EST 25-02-1940 Tartu, EST 08-03-2025 WR
+M90 2.96 Vittorio Colo', ITA 09-11-1911 San Sebastian, ESP 07-03-2003 EMC
+M95 2.05 Emmerich Zensch, AUT 20-12-1919 Torun, POL 24-03-2015 EMC WR
+M100 1.16 Giuseppe Ottaviani, ITA 20-05-1916 Ancona, ITA 25-02-2017 WR
+W35 6.86 Heike Drechsler, GER 16-12-1964 Gent, BEL 27-02-2000 WR
+W40 6.64 Tatyana Ter-Mesrobian, RUS 12-05-1968 S.Petersburg, RUS 05-01-2010 WR
+W45 5.73 Magdalena Hristova, BUL 25-02-1977 Torun, POL 27-03-2023 WMA
+W50 5.73 Sandrine Hennart, BEL 12-12-1972 Louvain-la-Neuve, BEL 25-01-2026 WR
+W55 5.29 Renata Novosel, CRO 28-11-1967 Zagreb, CRO 04-03-2023 WR
+W60 4.81 Petra Bajeat, FRA 06-03-1966 Eaubonne, FRA 14-03-2026 WR
+W65 4.36 Ingrid Meier, GER 01-04-1947 Jyvaskyla, FIN 06-04-2012 WMA WR
+W70 3.95 Christiane Schmalbruch, GER 08-01-1937 Hamburg, GER 17-02-2008
+W75 3.71 Christiane Schmalbruch, GER 08-01-1937 Budapest, HUN 27-03-2014 WMA
+W80 3.49 Rietje Dijkman, NED 21-06-1939 Braga, POR 22-02-2022 EMC
+W85 2.01 Senni Sopanen, FIN 11-09-1927 Budapest, HUN 27-03-2014 WMA
+W90 2.23 Rosa Pedersen, DEN 25-02-1930 Randers, DEN 05-02-2022 WR
+W95 0.95 Senni Sopanen, FIN 11-09-1927 Salo, FIN 01-02-2025
+
+Triple Jump
+Age Group Mark Name and Country Born Meet Place Meet Date
+M35 17.44 Jonathan Edwards, GBR 10-05-1966 Birmingham, GBR 21-02-2003 WR
+M40 17.13 Fabrizio Donato, ITA 14-08-1976 Belgrade, SRB 05-03-2017 WR
+M45 14.70 Wolfgang Knabe, GER 12-07-1959 Hannover, GER 29-01-2005
+M50 14.11 Wolfgang Knabe, GER 12-07-1959 Hannover, GER 23-01-2010 WR
+M55 13.49 Wolfgang Knabe, GER 12-07-1959 Erfurt, GER 28-02-2015
+M60 12.53 Stig Backlund, FIN 27-10-1939 Porvoo, FIN 13-11-1999 WR
+M65 11.93 Klemens Grissmer, GER 12-11-1951 Madrid, ESP 21-03-2018 EMC WR
+M70 10.88 Pertti Ahomaki, FIN 26-02-1946 Ancona, ITA 02-04-2016 EMC WR
+M75 10.05 Giuliano Costantini, ITA 17-07-1949 Ancona, ITA 28-02-2025 WR
+M80 8.66 Eberhard Linke, GER 03-01-1944 Frankfurt, GER 01-03-2025 WR
+M85 7.78 Lothar Fischer, GER 15-03-1936 Ludwigshafen, GER 05-02-2022 WR
+M90 6.52 Vittorio Colo', ITA 09-11-1911 San Sebastian, ESP 08-03-2003 EMC WR
+M95 5.31 Emmerich Zensch, AUT 20-12-1919 Torun, POL 27-03-2015 EMC WR
+M100 3.27 Giuseppe Ottaviani, ITA 20-05-1916 Ancona, ITA 20-05-2016 WR
+W35 14.82 Yamile Aldama, GBR 14-08-1972 Istanbul, TUR 10-03-2012 WR
+W40 13.95 Yamile Aldama, GBR 14-08-1972 Gothenburg, SWE 03-03-2013 WR
+W45 12.41 Muriel Glovil, FRA 07-07-1968 Nantes, FRA 16-03-2014 WR
+W50 11.69 Andrea Szirbucz, HUN 07-05-1972 Torun, POL 30-03-2023 WMA WR
+W55 10.96 Annika Sandstrom, SWE 25-02-1968 Torun, POL 30-03-2023 WMA
+W60 10.27 Alicia Hernandez Martinez, ESP 20-02-1961 Barcelona, ESP 28-02-2021
+W65 9.65 Petra Herrmann, GER 02-09-1959 Dusseldorf, GER 07-03-2026
+W70 7.99 Asta Larsson, SWE 23-10-1931 San Sebastian, ESP 09-03-2003 EMC
+W75 7.87 Christiane Schmalbruch, GER 08-01-1937 Budapest, HUN 29-03-2014 WMA
+W80 7.57 Rietje Dijkman, NED 21-06-1939 Braga, POR 23-02-2022 EMC
+W85 4.26 Senni Sopanen, FIN 11-09-1927 Budapest, HUN 29-03-2014 WMA
+W95 2.29 Senni Sopanen, FIN 11-09-1927 Tampere, FIN 23-02-2025
+
+Shot Put
+Age Group Mark Name and Country Born Meet Place Meet Date
+M35 21.06 Asmir Kolasinac, SRB 15-10-1984 Beograd, SRB 07-03-2022 WR
+M40 19.88 Asmir Kolasinac, SRB 15-10-1984 Beograd, SRB 22-01-2025
+M45 20.40 Ivan Ivancic, SRB 06-12-1937 Budapest, HUN 20-02-1983 WR
+M50 18.15 Andy Dittmar, GER 05-07-1974 Frankfurt, GER 01-03-2025 WR
+M55 16.02 Patrick Chala, FRA 08-02-1948 Eaubonne, FRA 02-02-2008 WR
+M60 16.80 Patrick Chala, FRA 08-02-1948 Ancona, ITA 27-03-2009 EMC WR
+M65 15.69 Kurt Goldschmidt, GER 09-03-1943 Hamburg, GER 15-02-2009
+M70 15.08 Karl-Heinz Marg, GER 22-05-1938 Dusseldorf, GER 28-02-2009 EMC
+M75 14.48 Karl-Heinz Marg, GER 20-05-1938 Budapest, HUN 26-03-2014 WMA WR
+M80 13.68 Leo Saarinen, FIN 27-06-1929 Jyvaskyla, FIN 20-03-2010 WR
+M85 12.50 Osten Edlund, SWE 26-11-1934 Satra, SWE 11-01-2020 WR
+M90 10.48 Osten Edlund, SWE 26-11-1934 Sollentuna, SWE 01-03-2025 WR
+M95 6.85 Ilmari Saunamaki, FIN 20-01-1917 Tampere, FIN 18-03-2012
+M100 4.43 Giuseppe Ottaviani, ITA 20-05-1916 Ancona, ITA 20-05-2016 WR
+M105 2.66 Ilmari Koppinen, FIN 08-01-1918 Salohalli, FIN 20-01-2024 WR
+W35 21.47 Helena Fibingerova, CZE 13-07-1949 Jablonec, CZE 09-02-1985 WR
+W40 19.16 Antonina Ivanova, RUS 25-12-1932 Moskva, RUS 24-02-1974 WR
+W45 16.49 Zdenka Silhava, CZE 15-06-1954 Praha, CZE 13-02-2000 WR
+W50 15.17 Alexandra Marghieva, MDA 27-09-1959 Gent, BEL 19-03-2011 EMC WR
+W55 14.53 Mihaela Loghin, ROU 01-06-1952 Gent, BEL 18-03-2011 EMC WR
+W60 13.70 Mihaela Loghin, ROU 01-06-1952 Torun, POL 23-03-2015 EMC WR
+W65 12.18 Mihaela Loghin, ROU 01-06-1952 Torun, POL 25-03-2019 WMA WR
+W70 10.82 Evaun Williams, GBR 19-12-1937 Clermont Ferrand, FRA 18-03-2008 WMA WR
+W75 11.39 Anne Chatrine Ruhlow, GER 30-09-1936 Erfurt, GER 03-03-2012 WR
+W80 10.44 Susanne Wissinger, GER 07-02-1934 Erfurt, GER 01-03-2014 WR
+W85 8.62 Evaun Williams, GBR 19-12-1937 London, GBR 18-02-2024 WR
+W90 5.87 Rosa Pedersen, DEN 25-02-1930 Randers, DEN 05-02-2022 WR
+W95 3.87 Senni Sopanen, FIN 11-09-1927 Salo, FIN 08-01-2023
+
+Weight Throw
+Age Group Mark Name and Country Born Meet Place Meet Date
+M35 21.10 Szymon Ziolkowski, POL 01-07-1976 Bydgoszcz, POL 31-01-2014
+M40 18.93 Robert Alneroth, SWE 05-06-1984 Vasteras, SWE 18-01-2026
+M45 18.10 Mariusz Walczak, POL 27-02-1971 Torun, POL 27-03-2019
+M50 23.75 Mariusz Walczak, POL 27-02-1971 Torun, POL 13-03-2021 WR
+M55 19.15 Lech Kowalski, POL 17-01-1961 Torun, POL 28-03-2019 WMA
+M60 20.95 Witold Lipowski, POL 08-10-1956 Torun, POL 24-03-2019 WMA
+M65 19.12 Hans Rocken, GER 19-11-1940 Warendorf, GER 21-12-2006
+M70 19.74 Gerard Guyot, FRA 15-11-1944 Torun, POL 24-03-2019 WMA
+M75 20.99 Arild Busterud, NOR 26-01-1948 Torun, POL 26-03-2023 WMA WR
+M80 17.51 Osten Edlund, SWE 26-11-1934 Huddinge, SWE 29-11-2014 WR
+M85 15.75 Osten Edlund, SWE 26-11-1934 Sollentuna, SWE 18-12-2019 WR
+M90 11.57 Osten Edlund, SWE 26-11-1934 Sollentuna, SWE 30-01-2025 WR
+M95 7.19 Lauri Helle, FIN 01-05-1925 Tampere, FIN 22-02-2020
+W35 17.79 Anna Soderberg, SWE 11-06-1973 Goteborg, SWE 06-02-2010
+W40 15.74 Kirsi Koro, FIN 22-06-1976 Tampere, FIN 17-02-2018
+W45 15.51 Gonny Mik, NED 23-03-1965 Budapest, HUN 28-03-2014 WMA
+W50 17.19 Gonny Mik, NED 23-03-1965 Sittard, NED 20-02-2016 WR
+W55 16.36 Mireille Tonizzo-Kosmala, LUX 10-10-1968 Sittard, NED 28-01-2024 WR
+W60 16.70 Inge Faldager, DEN 08-01-1948 Clermont Ferrand, FRA 18-03-2008 WMA
+W65 15.11 Inge Faldager, DEN 08-01-1948 Budapest, HUN 29-03-2014 WMA
+W70 15.10 Annie Van Anholt, NED 22-02-1947 Sittard, NED 27-01-2019
+W75 14.34 Gudrun Mellmann, GER 16-11-1941 Daegu, KOR 24-03-2017 WMA WR
+W80 12.75 Evaun Williams, GBR 19-12-1937 Torun, POL 26-03-2019 WMA WR
+W85 8.72 Hilja Bakhoff, EST 23-12-1926 Jyvaskyla, FIN 05-04-2012 WMA WR
+
+Pentathlon
+Age Group Mark Name and Country Born Meet Place Meet Date
+M35 4057 Oscar Gonzalez, ESP 08-08-1976 Budapest, HUN 25-03-2014 WMA WR
+M40 4361 Mattias Sunneborn, SWE 27-09-1970 San Sebastian, ESP 22-03-2013 EMC WR
+M45 4260 Oscar Gonzalez Garrido, ESP 08-08-1976 Antequera, ESP 05-03-2023 WR
+M50 4341 Jose Antonio Urena Vano, ESP 20-01-1967 Madrid, ESP 23-03-2018 EMC WR
+M55 4503 Mattias Sunneborn, SWE 27-09-1970 Sollentuna, SWE 31-01-2026 WR
+M60 4216 Rolf Geese, GER 19-02-1944 Sindelfingen, GER 10-03-2004 WMA WR
+M65 4360 Klemens Grissmer, GER 12-11-1951 Daegu, KOR 24-03-2017 WMA WR
+M70 4241 Valdis Cela, LAT 01-02-1948 Madrid, ESP 23-03-2018 EMC WR
+M75 4009 Rolf Geese, GER 19-02-1944 Torun, POL 27-03-2019 WMA WR
+M80 3854 Willi Klaus, GER 06-11-1938 Torun, POL 27-03-2019 WMA WR
+M85 3664 Willi Klaus, GER 06-11-1938 Torun, POL 21-03-2024 EMC WR
+W35 4796 Sabine Braun, GER 18-06-1961 Lisboa, POR 09-03-2001 WR
+W40 4295 Sonia Del Prete, FRA 07-02-1970 Gent, BEL 17-03-2011 EMC WR
+W45 4480 Barbara Gaehling, GER 20-01-1965 Gent, BEL 17-03-2011 EMC WR
+W50 4590 Petra Bajeat, FRA 06-03-1966 Torun, POL 29-03-2019 WMA WR
+W55 4458 Barbara Gaehling, GER 20-01-1965 Torun, POL 22-03-2024 EMC
+W60 4373 Maria Rosa Escribano Checa, ESP 29-12-1958 Barcelona, ESP 28-02-2021 WR
+W65 4262 Maria Rosa Escribano Checa, ESP 29-12-1958 Sabadell, ESP 04-02-2024 WR
+W70 4047 Riet Jonkers, NED 04-10-1943 Budapest, HUN 25-03-2014 WMA WR
+W75 4084 Riet Jonkers-Slegers, NED 04-10-1943 Torun, POL 29-03-2019 WMA
+W80 1903 Varpu Holmberg, FIN 22-09-1941 Torun, POL 31-03-2023 WMA
+
+3000m Track Walk
+Age Group Mark Name and Country Born Meet Place Meet Date
+M35 10:44.00 Christopher Linke, GER 24-10-1988 Erfurt, GER 03-02-2024 WR
+M40 11:47.40 Josè Ignacio Aledo Romera, ESP 14-10-1979 Valencia, ESP 18-02-2023
+M45 11:47.46 Josè Ignacio Aledo Romera, ESP 14-10-1979 Valencia, ESP 02-02-2025 WR
+M50 12:38.88 Gilles Sahuc, FRA 23-05-1962 Budapest, HUN 26-03-2014 WMA
+M55 13:16.03 Graziano Morotti, ITA 15-01-1951 Ancona, ITA 28-02-2009
+M60 13:37.96 Graziano Morotti, ITA 15-01-1951 Gent, BEL 17-03-2011 EMC WR
+M65 14:23.80 Ian Richards, GBR 12-04-1948 Budapest, HUN 26-03-2014 WMA
+M70 15:19.64 Ian Richards, GBR 12-04-1948 Torun, POL 25-03-2019 WR
+M75 16:29.62 Arthur Thomson, GBR 22-04-1936 Enfield, GBR 11-03-2012 WR
+M80 17:41.4 James Grimwade, GBR 17-05-1912 Cosford, GBR 20-03-1993 WR
+M85 20:44.34 Romolo Pelliccia, ITA 19-09-1936 Ancona, ITA 09-03-2023 WR
+M90 24:33.58 Viljo Hyvola, FIN 03-01-1929 Torun, POL 25-03-2019 WMA
+M95 35:53.5 Ilmari Koppinen, FIN 08-01-1918 Turku, FIN 11-02-2013 WR
+W35 12:23.46 Maria Jose Poves Novella, ESP 16-03-1978 Zaragoza, ESP 09-03-2014 WR
+W40 12:33.1 Olena Veremiychuk, UKR 13-10-1959 Kyiv, UKR 26-02-2000 WR
+W45 13:39.13 Rosetta La Delfa, ITA 14-07-1977 Ancona, ITA 22-02-2025
+W50 14:18.0 Siw Karlstrom, SWE 09-07-1957 Uddevalla, SWE 10-03-2012 WR
+W55 15:06.18 Maria A Silva Fernandes, POR 26-03-1952 Pombal, POR 23-02-2008
+W60 15:39.97 Marie Astrid Monmessin, FRA 05-02-1956 Nogent Sur Oise, FRA 19-02-2016 WR
+W65 16:52.97 Marie Astrid Monmessin, FRA 05-02-1956 Lyon, FRA 01-03-2024 WR
+W70 17:09.83 Janine Vignat, FRA 22-01-1955 Miramas, FRA 07-03-2025 WR
+W75 20:02.27 Antonina Tyshko, UKR 16-09-1947 Torun, POL 28-03-2023 WMA WR
+W80 21:34.4 Aina Engberg, SWE 02-02-1923 Vasteras, SWE 21-02-2004 WR
+W85 23:30.8 Aina Engberg, SWE 02-02-1923 Huddinge, SWE 16-03-2008 WR
+W90 27:25.90 Elena Pagu, ROU 25-07-1926 Torun, POL 26-03-2019 WR
+
+4x200m Bayrak
+Age Group Mark Name and Country Meet Place Meet Date
+M35 1:29.74 GREAT BRITAIN (Ossai T. • Collins L. • Bolan-Ashworth T. • Beardsell R.) Torun, POL 28-03-2015 EMC WR
+M40 1:30.97 GREAT BRITAIN (Bradley D. • Rund B. • Beardsell R. • Ossai T.) Torun, POL 30-03-2019 WMA WR
+M45 1:33.83 SWEDEN (Ramirez A. • Sunneborn M. • Wallin P. • Wallgren F.) Norkoeping, SWE 04-03-2017 WR
+M50 1:35.35 ITALY (Comper W. • Fausti C. • Barontini R. • De Feo A.) Madrid, ESP 24-03-2018 EMC
+M55 1:39.22 GERMANY (Buetcher M. • Lachmann B. • Ewert K. • Groeger R.) Dortmund, GER 08-02-2025
+M60 1:43.66 GREAT BRITAIN (Wright J. • Logan P. • Vassiliou M. • Ilo P.) Torun, POL 01-04-2023 WMA
+M65 1:49.61 POLAND (Zduniak K. • Klosiwi S. • Musial W. • Orlowski W.) Torun, POL 01-04-2023 WMA
+M70 1:54.14 GREAT BRITAIN (Franklyn W. • Hinds D. • Essex A. • Barrett S.) Torun, POL 01-04-2023 WMA
+M75 2:00.58 GERMANY (Beckering H. • Hufnagel H. • Nehren A. • Mueller G.) Budapest, HUN 30-03-2014 WMA WR
+M80 2:16.76 GERMANY (Mueller L. • Linke G. • Geier H. • Hufnagel H.) Erfurt, GER 05-03-2017
+M85 2:53.24 ITALY (Marchioni R. • Veronesi S. • Vecchi G. • Paderno F.) Padova, ITA 05-02-2023 WR
+M90 3:25.47 ITALY (Corvetti A. • Vanda V. • Marchioni R. • Paderno F.) Padova, ITA 07-02-2026 WR
+W35 1:42.53 POLAND (Gasowska M. • Balcerzak J. • Lemiesz A. • Grot A.) Torun, POL 30-03-2019 WMA WR
+W40 1:44.34 GERMANY (Moritz A. • Heindrich • Grissmer • Gorling) Sindelfingen, GER 14-03-2004 WMA WR
+W45 1:46.38 GERMANY (Berend K. • Kauerhof P. • Grissmer • Schulz) Clermont Ferrand, FRA 22-03-2008 WMA WR
+W50 1:50.40 GERMANY (Berend K. • Joerg H. • Koegst A. • Burzlaff B.) Ancona, ITA 03-04-2016 EMC WR
+W55 1:55.90 GREAT BRITAIN (Trimble J. • Filer C. • McClelland A. • Horder J.) Budapest, HUN 30-03-2014 WMA WR
+W60 2:00.37 GREAT BRITAIN (Godsell H. • Filer C. • Horder J. • Powell C.) Madrid, ESP 24-03-2018 EMC WR
+W65 2:09.74 GERMANY (Foerster K. • Schommler B. • Kraehe W. • Meier I.) Budapest, HUN 30-03-2014 WMA WR
+W70 2:15.34 GREAT BRITAIN (Godsell H. • Nelson A. • Saunders-Mullins J. • Powell C.) Torun, POL 23-03-2024 EMC WR
+W75 2:50.72 GERMANY (Ritter L. • Eriksen A • Glatzki H • Venn H.) Torun, POL 30-03-2019 WMA WR
+W80 3:36.96 GREAT BRITAIN (Stewart K. • Hornsey I. • Stracey B. • Fraser D.) Torun, POL 01-04-2023 WMA
+
+4x200m MIX Bayrak
+Age Group Mark Name and Country Meet Place Meet Date
+X35 1:38.30 GERMANY (Durr R. • Schone E. • Trogisch F. • Frerich B.) Gainesville, USA 30-03-2025 WMA
+X40 1:43.12 FRANCE (Derbier J. • Loisel A. • Tall B. • Couffe A.) Gainesville, USA 30-03-2025 WMA
+X45 1:45.53 SWEDEN (Forsell M. • Logg A. • Tholen E. • Logg A.) Gainesville, USA 30-03-2025 WMA
+X50 1:40.48 SWEDEN (Hermundstad H. • Akervall J. • Logg A. • Sunneborn M.) Göteborg, SWE 10-01-2026
+X55 1:59.02 GERMANY (Mader A. • Stedefeld M. • Teutloff G. • Groeger R.) Gainesville, USA 30-03-2025 WMA
+X60 1:55.86 GREAT BRITAIN (Hicken J. • Mitchell V. • Grabsky P. • Odele W.) Gainesville, USA 30-03-2025 WMA
+X65 2:00.93 SWEDEN (Ottoson C. • Tolfes G. • Cocke M. • Pilgard I.) Göteborg, SWE 10-01-2026
+X70 2:12.67 GERMANY (Von Maltzahn H. • Ertl M. • Adorf F. • Koenig R.) Gainesville, USA 30-03-2025 WMA
+X75 2:58.31 FINLAND (Maksimainen M. • Pihlaja H. • Silkosuo H. • Tupala T.) Gainesville, USA 30-03-2025 WMA

@@ -403,16 +403,17 @@ fun CategoryTargetBottomSheet(
                 Spacer(modifier = Modifier.height(12.dp))
             }
 
-            // Rekor Düzeyi Filtre Hapları (Tümü, NMR, BŞR, BMR)
+            // Rekor Düzeyi Filtre Hapları (Tümü, NMR, BŞR, BMR, EMR)
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 val levels = listOf<Pair<RecordLevel?, String>>(
                     null to "Tümü",
                     RecordLevel.NMR to "🇹🇷 Türkiye",
                     RecordLevel.BCR to "🏆 Şampiyona",
-                    RecordLevel.BMR to "⚡ Balkan"
+                    RecordLevel.BMR to "⚡ Balkan",
+                    RecordLevel.EMR to "🇪🇺 Avrupa"
                 )
                 levels.forEach { (lvl, title) ->
                     val isSelected = selectedRecordLevel == lvl
@@ -425,11 +426,11 @@ fun CategoryTargetBottomSheet(
                     ) {
                         Text(
                             text = title,
-                            fontSize = 10.sp,
+                            fontSize = 9.5.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                             color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(vertical = 6.dp, horizontal = 2.dp),
+                            modifier = Modifier.padding(vertical = 6.dp, horizontal = 1.dp),
                             maxLines = 1
                         )
                     }
