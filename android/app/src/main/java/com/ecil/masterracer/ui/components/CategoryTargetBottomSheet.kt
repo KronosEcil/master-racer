@@ -91,15 +91,19 @@ fun CategoryTargetBottomSheet(
 
     val trackType = if (selectedTrackTabIndex == 0) TrackType.OUTDOOR else TrackType.INDOOR
 
-    val availableEvents = if (trackType == TrackType.OUTDOOR) {
-        listOf("100 Metre", "200 Metre", "400 Metre", "800 Metre", "1500 Metre", "5000 Metre", "10.000 Metre", "Uzun Atlama", "Gülle Atma")
-    } else {
-        listOf("60 Metre", "200 Metre", "400 Metre", "Uzun Atlama")
+    val availableEvents = remember(trackType) {
+        MasterRecordsArchive.getAvailableEvents(trackType).ifEmpty {
+            if (trackType == TrackType.OUTDOOR) {
+                listOf("100 Metre", "200 Metre", "400 Metre", "800 Metre", "1500 Metre", "5000 Metre", "10.000 Metre", "Uzun Atlama", "Gülle Atma")
+            } else {
+                listOf("60 Metre", "200 Metre", "400 Metre", "Uzun Atlama")
+            }
+        }
     }
 
     // Seçili branş geçerli sekmede yoksa ilkini seç
     if (selectedEvent !in availableEvents) {
-        selectedEvent = availableEvents.first()
+        selectedEvent = availableEvents.firstOrNull() ?: "100 Metre"
     }
 
     val recordsForEvent = MasterRecordsArchive.getRecords(
@@ -471,21 +475,43 @@ private fun RecordRowCard(record: BenchmarkRecord) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Surface(
-                    color = badgeBg,
-                    shape = RoundedCornerShape(5.dp)
-                ) {
-                    Text(
-                        text = badgeText,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        color = badgeBg,
+                        shape = RoundedCornerShape(5.dp)
+                    ) {
+                        Text(
+                            text = badgeText,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+
+                    if (record.isShared) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Surface(
+                            color = Color(0xFF8B5CF6).copy(alpha = 0.15f),
+                            shape = RoundedCornerShape(5.dp)
+                        ) {
+                            Text(
+                                text = "🤝 Ortak Rekor",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF8B5CF6),
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
                 }
 
+                val dateVenueYear = buildString {
+                    if (record.year > 0) append(record.year)
+                    if (record.country.isNotBlank()) append(" • ${record.country}")
+                }
                 Text(
-                    text = "${record.year} • ${record.country}",
+                    text = dateVenueYear,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -499,21 +525,36 @@ private fun RecordRowCard(record: BenchmarkRecord) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = record.athleteName,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    if (record.venue.isNotBlank()) {
+                    val locationDetails = listOfNotNull(
+                        record.venue.takeIf { it.isNotBlank() },
+                        record.date.takeIf { it.isNotBlank() }
+                    ).joinToString(" • ")
+                    if (locationDetails.isNotBlank()) {
                         Text(
-                            text = record.venue,
+                            text = locationDetails,
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         )
                     }
+                    if (record.note.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(3.dp))
+                        Text(
+                            text = record.note,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = if (record.isShared) Color(0xFF8B5CF6) else BluePrimary
+                        )
+                    }
                 }
+
+                Spacer(modifier = Modifier.width(8.dp))
 
                 Text(
                     text = record.mark,
