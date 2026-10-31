@@ -196,7 +196,7 @@ function parseFile(filePath, trackTypeStr, recordLevelStr) {
 
 const dir = 'data/records';
 
-const allBalkanRecords = [
+const rawBalkanRecords = [
     ...parseFile(path.join(dir, 'bamaci_indoor_men.ocr.txt'), 'TrackType.INDOOR', 'RecordLevel.BCR'),
     ...parseFile(path.join(dir, 'bamaci_indoor_women.ocr.txt'), 'TrackType.INDOOR', 'RecordLevel.BCR'),
     ...parseFile(path.join(dir, 'bamacs_outdoor_men.ocr.txt'), 'TrackType.OUTDOOR', 'RecordLevel.BCR'),
@@ -207,7 +207,35 @@ const allBalkanRecords = [
     ...parseFile(path.join(dir, 'balkan_alltime_outdoor_women.ocr.txt'), 'TrackType.OUTDOOR', 'RecordLevel.BMR'),
 ];
 
+// Deduplicate exact identicals (e.g. mixed relays present in both men and women PDFs)
+const uniqueRecords = [];
+const seenSig = new Set();
+for (const r of rawBalkanRecords) {
+    const sig = `${r.eventName}###${r.category}###${r.trackType}###${r.recordLevel}###${r.mark}###${r.athleteName}###${r.date}`;
+    if (!seenSig.has(sig)) {
+        seenSig.add(sig);
+        uniqueRecords.push(r);
+    }
+}
+
+// Calculate isShared for multiple/shared records within the same event, category, trackType and recordLevel
+const groupCount = {};
+for (const r of uniqueRecords) {
+    const key = `${r.eventName}|${r.category}|${r.trackType}|${r.recordLevel}`;
+    groupCount[key] = (groupCount[key] || 0) + 1;
+}
+
+const allBalkanRecords = uniqueRecords.map(r => {
+    const key = `${r.eventName}|${r.category}|${r.trackType}|${r.recordLevel}`;
+    return {
+        ...r,
+        isShared: (groupCount[key] > 1)
+    };
+});
+
 console.log('Total Balkan Records to output:', allBalkanRecords.length);
+const sharedCount = allBalkanRecords.filter(r => r.isShared).length;
+console.log('Shared records count in Balkan:', sharedCount);
 
 // Chunk into groups of 50 functions to completely avoid JVM 64KB method/clinit limit
 const CHUNK_SIZE = 50;

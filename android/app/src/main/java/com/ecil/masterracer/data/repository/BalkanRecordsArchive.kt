@@ -147,15 +147,15 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Sırıkla Atlama", "M55", TrackType.INDOOR, RecordLevel.BCR, "3.70", "Iztok DIMITRIJEVIČ", "SLO", 2020, "Beograd, SRB", "08.03.2020", "", false),
         BenchmarkRecord("Sırıkla Atlama", "M60", TrackType.INDOOR, RecordLevel.BCR, "2.50", "Igor ŠTRK", "CRO", 2022, "Novo Mesto,SLO", "13.03.2022", "", false),
         BenchmarkRecord("Sırıkla Atlama", "M65", TrackType.INDOOR, RecordLevel.BCR, "2.30", "Mirko BIZ JAK", "SLO", 2018, "Belgrade, SRB", "11.03.2018", "", false),
-        BenchmarkRecord("Sırıkla Atlama", "M70", TrackType.INDOOR, RecordLevel.BCR, "2.00", "Aurel BERBECE", "ROU", 2016, "Bucharest, ROU", "13.03.2016", "", false),
-        BenchmarkRecord("Sırıkla Atlama", "M70", TrackType.INDOOR, RecordLevel.BCR, "2.00", "Yilmaz ERGUNES", "TUR", 2019, "Istanbul, TUR", "02.03.2019", "", false),
+        BenchmarkRecord("Sırıkla Atlama", "M70", TrackType.INDOOR, RecordLevel.BCR, "2.00", "Aurel BERBECE", "ROU", 2016, "Bucharest, ROU", "13.03.2016", "", true),
+        BenchmarkRecord("Sırıkla Atlama", "M70", TrackType.INDOOR, RecordLevel.BCR, "2.00", "Yilmaz ERGUNES", "TUR", 2019, "Istanbul, TUR", "02.03.2019", "", true),
         BenchmarkRecord("Sırıkla Atlama", "M75", TrackType.INDOOR, RecordLevel.BCR, "1.80", "Yilmaz ERGUNES", "TUR", 2023, "Istanbul, TUR", "19.03.2023", "", false),
         BenchmarkRecord("Gülle Atma", "M35", TrackType.INDOOR, RecordLevel.BCR, "14.95", "Galin KOSTADINOV", "BUL", 2019, "Istanbul, TUR", "02.03.2019", "", false),
         BenchmarkRecord("Gülle Atma", "M40", TrackType.INDOOR, RecordLevel.BCR, "16.25", "Dubravko BRDOVČAK", "CRO", 2020, "Beograd, SRB", "08.03.2020", "", false),
         BenchmarkRecord("Gülle Atma", "M45", TrackType.INDOOR, RecordLevel.BCR, "14.11", "Imbraim FANARTZIS", "GRE", 2016, "Bucharest, ROU", "13.03.2016", "", false),
         BenchmarkRecord("Gülle Atma", "M50", TrackType.INDOOR, RecordLevel.BCR, "14.25", "Toni BALEV", "BUL", 2015, "Istanbul, TUR", "21.02.2015", "", false),
-        BenchmarkRecord("Gülle Atma", "M55", TrackType.INDOOR, RecordLevel.BCR, "14.69", "Tanasije KUJUNDŽIĆ MNG 01.06.1960 08.03.2020 Beograd,", "SRB", 2024, "", "", "", false),
-        BenchmarkRecord("Gülle Atma", "M55", TrackType.INDOOR, RecordLevel.BCR, "14.69", "Slobodan MILADINOVIC", "SRB", 2016, "Bucharest, ROU", "13.03.2016", "", false),
+        BenchmarkRecord("Gülle Atma", "M55", TrackType.INDOOR, RecordLevel.BCR, "14.69", "Tanasije KUJUNDŽIĆ MNG 01.06.1960 08.03.2020 Beograd,", "SRB", 2024, "", "", "", true),
+        BenchmarkRecord("Gülle Atma", "M55", TrackType.INDOOR, RecordLevel.BCR, "14.69", "Slobodan MILADINOVIC", "SRB", 2016, "Bucharest, ROU", "13.03.2016", "", true),
         BenchmarkRecord("Gülle Atma", "M60", TrackType.INDOOR, RecordLevel.BCR, "14.25", "Slobodan MILADINOVIC", "SRB", 2020, "Belgrade, SRB", "08.03.2020", "", false),
         BenchmarkRecord("Gülle Atma", "M65", TrackType.INDOOR, RecordLevel.BCR, "13.32", "Miro PRSTEC", "SLO", 2023, "Istanbul, TUR", "19.03.2023", "", false),
         BenchmarkRecord("Gülle Atma", "M70", TrackType.INDOOR, RecordLevel.BCR, "13.61", "Stipo KNEZ", "CRO", 2019, "Istanbul, TUR", "02.03.2019", "", false),
@@ -217,8 +217,8 @@ object BalkanRecordsArchive {
         BenchmarkRecord("60 Metre", "W35", TrackType.INDOOR, RecordLevel.BCR, "8.53", "Aggeliki LAMPROGOU", "GRE", 2020, "Beograd, SRB", "07.03.2020", "", false),
         BenchmarkRecord("60 Metre", "W40", TrackType.INDOOR, RecordLevel.BCR, "7.92", "Florina MARIN", "ROU", 2015, "Istanbul, TUR", "21.02.2015", "", false),
         BenchmarkRecord("60 Metre", "W45", TrackType.INDOOR, RecordLevel.BCR, "8.21", "Vyara PARVANOVA", "BUL", 2022, "Novo Mesto, SLO", "12.03.2022", "", false),
-        BenchmarkRecord("60 Metre", "W50", TrackType.INDOOR, RecordLevel.BCR, "8.54", "Maria MOURATIDU", "GRE", 2020, "Beograd, SRB", "07.03.2020", "", false),
-        BenchmarkRecord("60 Metre", "W50", TrackType.INDOOR, RecordLevel.BCR, "8.54", "Renata NOVOSEL", "CRO", 2019, "Istanbul, TUR", "02.03.2019", "", false),
+        BenchmarkRecord("60 Metre", "W50", TrackType.INDOOR, RecordLevel.BCR, "8.54", "Maria MOURATIDU", "GRE", 2020, "Beograd, SRB", "07.03.2020", "", true),
+        BenchmarkRecord("60 Metre", "W50", TrackType.INDOOR, RecordLevel.BCR, "8.54", "Renata NOVOSEL", "CRO", 2019, "Istanbul, TUR", "02.03.2019", "", true),
     )
 
     private fun getPart4(): List<BenchmarkRecord> = listOf(
@@ -321,8 +321,8 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Üçadım Atlama", "W80", TrackType.INDOOR, RecordLevel.BCR, "4.21", "Mira PUHAR", "SLO", 2019, "Istanbul, TUR", "02.03.2019", "", false),
         BenchmarkRecord("Yüksek Atlama", "W35", TrackType.INDOOR, RecordLevel.BCR, "1.33", "Katja KOCJAN", "SLO", 2022, "Novo Mesto, SLO", "12.03.2022", "", false),
         BenchmarkRecord("Yüksek Atlama", "W40", TrackType.INDOOR, RecordLevel.BCR, "1.58", "Snezana KOCIC", "SRB", 2018, "Belgrade, SRB", "10.03.2018", "", false),
-        BenchmarkRecord("Yüksek Atlama", "W45", TrackType.INDOOR, RecordLevel.BCR, "1.51", "Aycan KURTCAN", "TUR", 2016, "Bucharest, ROU", "12.03.2016", "", false),
-        BenchmarkRecord("Yüksek Atlama", "W45", TrackType.INDOOR, RecordLevel.BCR, "1.51", "Irena VLAHINIĆ", "CRO", 2022, "Novo Mesto, SLO", "12.03.2022", "", false),
+        BenchmarkRecord("Yüksek Atlama", "W45", TrackType.INDOOR, RecordLevel.BCR, "1.51", "Aycan KURTCAN", "TUR", 2016, "Bucharest, ROU", "12.03.2016", "", true),
+        BenchmarkRecord("Yüksek Atlama", "W45", TrackType.INDOOR, RecordLevel.BCR, "1.51", "Irena VLAHINIĆ", "CRO", 2022, "Novo Mesto, SLO", "12.03.2022", "", true),
         BenchmarkRecord("Yüksek Atlama", "W50", TrackType.INDOOR, RecordLevel.BCR, "1.51", "Aycan KURTCAN", "TUR", 2022, "Novo Mesto, SLO", "12.03.2022", "", false),
         BenchmarkRecord("Yüksek Atlama", "W55", TrackType.INDOOR, RecordLevel.BCR, "0.96", "Konstantina PARLAMANI", "GRE", 2020, "Belgrade, SRB", "07.03.2020", "", false),
     )
@@ -560,8 +560,8 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Üçadım Atlama", "M85", TrackType.OUTDOOR, RecordLevel.BCR, "6.44", "Ioannis BELLOS", "GRE", 2023, "Izmir, TUR w", "03.09.2023", "TUR w +2.2", false),
         BenchmarkRecord("Yüksek Atlama", "M35", TrackType.OUTDOOR, RecordLevel.BCR, "1.93", "Ivan BOYCHEV", "BUL", 1994, "Sofia, BUL", "17.09.1994", "", false),
         BenchmarkRecord("Yüksek Atlama", "M40", TrackType.OUTDOOR, RecordLevel.BCR, "1.92", "Matjaz SPAROVEC", "SLO", 2016, "Novi Sad, SRB", "24.09.2016", "", false),
-        BenchmarkRecord("Yüksek Atlama", "M45", TrackType.OUTDOOR, RecordLevel.BCR, "1.75", "Vassilis ANDREADIS", "GRE", 2000, "Katerini, GRE", "09.09.2000", "", false),
-        BenchmarkRecord("Yüksek Atlama", "M45", TrackType.OUTDOOR, RecordLevel.BCR, "1.75", "Aca STANKOVIC", "SRB", 2013, "Zagreb, CRO", "07.09.2013", "", false),
+        BenchmarkRecord("Yüksek Atlama", "M45", TrackType.OUTDOOR, RecordLevel.BCR, "1.75", "Vassilis ANDREADIS", "GRE", 2000, "Katerini, GRE", "09.09.2000", "", true),
+        BenchmarkRecord("Yüksek Atlama", "M45", TrackType.OUTDOOR, RecordLevel.BCR, "1.75", "Aca STANKOVIC", "SRB", 2013, "Zagreb, CRO", "07.09.2013", "", true),
         BenchmarkRecord("Yüksek Atlama", "M50", TrackType.OUTDOOR, RecordLevel.BCR, "1.85", "Yiorgos FARMAKIS", "GRE", 2015, "Thessaloniki, GRE", "19.09.2015", "", false),
         BenchmarkRecord("Yüksek Atlama", "M55", TrackType.OUTDOOR, RecordLevel.BCR, "1.69", "KIROV Konstantin", "BUL", 2024, "Bar, MNE", "27.09.2024", "", false),
         BenchmarkRecord("Yüksek Atlama", "M60", TrackType.OUTDOOR, RecordLevel.BCR, "1.66", "Dusan PREZELJ", "SLO", 2013, "Zagreb, CRO", "07.09.2013", "", false),
@@ -575,9 +575,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Sırıkla Atlama", "M40", TrackType.OUTDOOR, RecordLevel.BCR, "4.40", "Michalis APOSTOLOU", "GRE", 1996, "Athens, GRE", "29.09.1996", "", false),
         BenchmarkRecord("Sırıkla Atlama", "M45", TrackType.OUTDOOR, RecordLevel.BCR, "4.07", "Zoran ASKOVIC", "SRB", 2013, "Zagreb, CRO", "06.09.2013", "", false),
         BenchmarkRecord("Sırıkla Atlama", "M50", TrackType.OUTDOOR, RecordLevel.BCR, "3.80", "Aca STANKOVIC", "SRB", 2018, "Celje, SLO", "21.09.2018", "", false),
-        BenchmarkRecord("Sırıkla Atlama", "M55", TrackType.OUTDOOR, RecordLevel.BCR, "3.40", "Kazim KURTYILMAZ", "TUR", 2002, "Istanbul, TUR", "08.09.2002", "", false),
-        BenchmarkRecord("Sırıkla Atlama", "M55", TrackType.OUTDOOR, RecordLevel.BCR, "3.40", "STANKOVIC Aca", "SRB", 2024, "Bar, MNE", "27.09.2024", "", false),
-        BenchmarkRecord("Sırıkla Atlama", "M55", TrackType.OUTDOOR, RecordLevel.BCR, "3.40", "Andrej BERGANT", "SLO", 2025, "Varaždin,CRO", "29.08.2025", "", false),
+        BenchmarkRecord("Sırıkla Atlama", "M55", TrackType.OUTDOOR, RecordLevel.BCR, "3.40", "Kazim KURTYILMAZ", "TUR", 2002, "Istanbul, TUR", "08.09.2002", "", true),
+        BenchmarkRecord("Sırıkla Atlama", "M55", TrackType.OUTDOOR, RecordLevel.BCR, "3.40", "STANKOVIC Aca", "SRB", 2024, "Bar, MNE", "27.09.2024", "", true),
+        BenchmarkRecord("Sırıkla Atlama", "M55", TrackType.OUTDOOR, RecordLevel.BCR, "3.40", "Andrej BERGANT", "SLO", 2025, "Varaždin,CRO", "29.08.2025", "", true),
         BenchmarkRecord("Sırıkla Atlama", "M60", TrackType.OUTDOOR, RecordLevel.BCR, "3.20", "Ioan CUJBA", "ROU", 2006, "Athens, GRE", "24.09.2006", "", false),
         BenchmarkRecord("Sırıkla Atlama", "M65", TrackType.OUTDOOR, RecordLevel.BCR, "3.00", "Hikmet KANDEYDI", "TUR", 2000, "Katerini, GRE", "10.09.2000", "", false),
         BenchmarkRecord("Sırıkla Atlama", "M70", TrackType.OUTDOOR, RecordLevel.BCR, "2.80", "Nebojsa BESARA", "SRB", 2014, "Bucharest, ROU", "19.09.2014", "", false),
@@ -688,7 +688,7 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Balkan Bayrak (8-4-2-100m)", "M70", TrackType.OUTDOOR, RecordLevel.BCR, "5:10.72", "Hadzi Fazli, Unay, Ozkan, Kacar", "TUR", 2025, "Varaždin,CRO", "31.08.2025", "", false),
         BenchmarkRecord("Balkan Bayrak (8-4-2-100m)", "M75", TrackType.OUTDOOR, RecordLevel.BCR, "5:38.95", "L. Soklic, M. Rant, I. Rajk, M. Sluga", "SLO", 2013, "Zagreb, CRO", "08.09.2013", "", false),
         BenchmarkRecord("Balkan Bayrak (8-4-2-100m)", "M80", TrackType.OUTDOOR, RecordLevel.BCR, "7:03.85", "V. Lupu, P. Ambrus, I. Hecico, P. Bologa", "ROU", 2018, "Celje, SLO", "23.09.2018", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X35", TrackType.OUTDOOR, RecordLevel.BCR, "48.31", "Bobos-Dragusin, Moraru, Bobos, Andonii", "ROU", 2025, "Varaždin,CRO", "30.08.2025", "", false),
+        BenchmarkRecord("4x100m Bayrak", "X35", TrackType.OUTDOOR, RecordLevel.BCR, "48.31", "Bobos-Dragusin, Moraru, Bobos, Andonii", "ROU", 2025, "Varaždin,CRO", "30.08.2025", "", true),
         BenchmarkRecord("4x100m Bayrak", "X40", TrackType.OUTDOOR, RecordLevel.BCR, "52.06", "Hristova, Angelova, Petrov, Bozukov", "BUL", 2025, "Varaždin,CRO", "30.08.2025", "", false),
         BenchmarkRecord("4x100m Bayrak", "X45", TrackType.OUTDOOR, RecordLevel.BCR, "54.77", "Ciocan, Szekely, Gavanescu, Amuza", "ROU", 2025, "Varaždin,CRO", "30.08.2025", "", false),
         BenchmarkRecord("4x100m Bayrak", "X50", TrackType.OUTDOOR, RecordLevel.BCR, "52.94", "Mouratidu, Daftsou, Tsiolis, Kokkos", "GRE", 2025, "Varaždin,CRO", "30.08.2025", "", false),
@@ -889,10 +889,10 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Cirit Atma", "W50", TrackType.OUTDOOR, RecordLevel.BCR, "38.52", "Olga COGALNICEANU", "MDA", 2014, "Bucharest, ROU", "20.09.2014", "", false),
         BenchmarkRecord("Cirit Atma", "W55", TrackType.OUTDOOR, RecordLevel.BCR, "37.77", "Margareta ANTON", "ROU", 2016, "Novi Sad, SRB", "24.09.2016", "", false),
         BenchmarkRecord("Cirit Atma", "W60", TrackType.OUTDOOR, RecordLevel.BCR, "30.29", "COGĂLNICEANU Olga", "MDA", 2024, "Bar, MNE", "27.09.2024", "", false),
-        BenchmarkRecord("Cirit Atma", "W65", TrackType.OUTDOOR, RecordLevel.BCR, "24.40", "Zvezdana KRZIC", "SLO", 2014, "Bucharest, ROU", "20.09.2014", "", false),
-        BenchmarkRecord("Cirit Atma", "W65", TrackType.OUTDOOR, RecordLevel.BCR, "20.91", "Ivanka IVANOVA", "BUL", 2016, "Novi Sad, SRB", "24.09.2016", "", false),
-        BenchmarkRecord("Cirit Atma", "W70", TrackType.OUTDOOR, RecordLevel.BCR, "19.21", "Magdalini ROULIDOU", "GRE", 2022, "Thessaloniki, GRE", "25.09.2022", "", false),
-        BenchmarkRecord("Cirit Atma", "W70", TrackType.OUTDOOR, RecordLevel.BCR, "20.62", "ROILIDOU-TSITSOULA Magda", "GRE", 2024, "Bar, MNE", "27.09.2024", "", false),
+        BenchmarkRecord("Cirit Atma", "W65", TrackType.OUTDOOR, RecordLevel.BCR, "24.40", "Zvezdana KRZIC", "SLO", 2014, "Bucharest, ROU", "20.09.2014", "", true),
+        BenchmarkRecord("Cirit Atma", "W65", TrackType.OUTDOOR, RecordLevel.BCR, "20.91", "Ivanka IVANOVA", "BUL", 2016, "Novi Sad, SRB", "24.09.2016", "", true),
+        BenchmarkRecord("Cirit Atma", "W70", TrackType.OUTDOOR, RecordLevel.BCR, "19.21", "Magdalini ROULIDOU", "GRE", 2022, "Thessaloniki, GRE", "25.09.2022", "", true),
+        BenchmarkRecord("Cirit Atma", "W70", TrackType.OUTDOOR, RecordLevel.BCR, "20.62", "ROILIDOU-TSITSOULA Magda", "GRE", 2024, "Bar, MNE", "27.09.2024", "", true),
         BenchmarkRecord("Cirit Atma", "W75", TrackType.OUTDOOR, RecordLevel.BCR, "18.83", "Angela MINCULESCU", "ROU", 2013, "Zagreb, CRO", "07.09.2013", "", false),
         BenchmarkRecord("Cirit Atma", "W80", TrackType.OUTDOOR, RecordLevel.BCR, "16.70", "Angela MINCULESCU", "ROU", 2015, "Thessaloniki, GRE", "19.09.2015", "", false),
         BenchmarkRecord("Çekiç Atma", "W35", TrackType.OUTDOOR, RecordLevel.BCR, "42.30", "Yianna PANAVOGLOU", "GRE", 2015, "Thessaloniki, GRE", "18.09.2015", "", false),
@@ -937,14 +937,7 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Balkan Bayrak (8-4-2-100m)", "W55", TrackType.OUTDOOR, RecordLevel.BCR, "5:13.03", "P.Bors, Beres, Eremia, Szabo", "ROU", 2024, "Bar, MNE", "29.09.2024", "", false),
         BenchmarkRecord("Balkan Bayrak (8-4-2-100m)", "W60", TrackType.OUTDOOR, RecordLevel.BCR, "5:39.77", "Pall, Pacrita, Pop, Prodan", "ROU", 2015, "Thessaloniki, GRE", "19.09.2015", "", false),
         BenchmarkRecord("Balkan Bayrak (8-4-2-100m)", "W65", TrackType.OUTDOOR, RecordLevel.BCR, "6:02.07", "Pall, Pop, Ene, Prodan", "ROU", 2016, "Novi Sad,", "25.09.2016", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X35", TrackType.OUTDOOR, RecordLevel.BCR, "48.31", "Bobos, Moraru, Bobos, Andonii", "ROU", 2025, "Varaždin,CRO", "30.08.2025", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X40", TrackType.OUTDOOR, RecordLevel.BCR, "52.06", "Hristova, Angelova, Petrov, Bozukov", "BUL", 2025, "Varaždin,CRO", "30.08.2025", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X45", TrackType.OUTDOOR, RecordLevel.BCR, "54.77", "Ciocan, Szekely, Gavanescu, Amuza", "ROU", 2025, "Varaždin,CRO", "30.08.2025", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X50", TrackType.OUTDOOR, RecordLevel.BCR, "52.94", "Mouratidu, Daftsou, Tsiolis, Kokkos", "GRE", 2025, "Varaždin,CRO", "30.08.2025", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X55", TrackType.OUTDOOR, RecordLevel.BCR, "55.59", "Lacković, Novosel, Samac, Zetić", "CRO", 2025, "Varaždin,CRO", "30.08.2025", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X60", TrackType.OUTDOOR, RecordLevel.BCR, "66.09", "Nikolova, Ancheva, Hristov, Chilikov", "BUL", 2025, "Varaždin,CRO", "30.08.2025", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X65", TrackType.OUTDOOR, RecordLevel.BCR, "96.70", "Ploumi, Vainia, Mpertsimas, Spitalas", "GRE", 2025, "Varaždin,CRO", "30.08.2025", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X70", TrackType.OUTDOOR, RecordLevel.BCR, "70.15", "Eremia, Grigorescu, Grigorescu, Neagu", "ROU", 2025, "Varaždin,CRO", "30.08.2025", "", false),
+        BenchmarkRecord("4x100m Bayrak", "X35", TrackType.OUTDOOR, RecordLevel.BCR, "48.31", "Bobos, Moraru, Bobos, Andonii", "ROU", 2025, "Varaždin,CRO", "30.08.2025", "", true),
         BenchmarkRecord("60 Metre", "M35", TrackType.INDOOR, RecordLevel.BMR, "6.69", "Alexandras TERZIAN", "GRE", 2003, "Athens, GRE Greek", "16.02.2003", "", false),
         BenchmarkRecord("60 Metre", "M40", TrackType.INDOOR, RecordLevel.BMR, "7.09", "Arben MAKAJ", "ALB", 2008, "Clermont Ferrand, FRA WMACI", "18.03.2008", "", false),
         BenchmarkRecord("60 Metre", "M45", TrackType.INDOOR, RecordLevel.BMR, "7.28", "Zhivko ZHELEV", "BUL", 2018, "Madrid, ESP EMACI", "21.03.2018", "", false),
@@ -961,9 +954,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("200 Metre", "M35", TrackType.INDOOR, RecordLevel.BMR, "21.37", "Panagiotis TRIVIZAS", "GRE", 2023, "Athens, GRE Greek", "19.02.2023", "", false),
         BenchmarkRecord("200 Metre", "M40", TrackType.INDOOR, RecordLevel.BMR, "23.48", "Sofoklis KYRIAZAKOS", "GRE", 2017, "Athens, GRE Greek", "19.02.2017", "", false),
         BenchmarkRecord("200 Metre", "M45", TrackType.INDOOR, RecordLevel.BMR, "23.82", "Lucian GHITOC", "ROU", 2025, "Gainesville, USA WMACI", "26.03.2025", "", false),
-    )
-
-    private fun getPart18(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("200 Metre", "M50", TrackType.INDOOR, RecordLevel.BMR, "24.08", "Marios CHRISTOFOURIDIS", "GRE", 2019, "Istanbul, TUR BAMACI", "03.03.2019", "", false),
         BenchmarkRecord("200 Metre", "M55", TrackType.INDOOR, RecordLevel.BMR, "25.08", "Ugur GUMUS", "TUR", 2025, "Ankara,TUR Masterel", "25.01.2025", "", false),
         BenchmarkRecord("200 Metre", "M60", TrackType.INDOOR, RecordLevel.BMR, "25.38", "Guner GUNGOR", "TUR", 2019, "Torun, POL WMACI", "29.03.2019", "", false),
@@ -971,6 +961,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("200 Metre", "M70", TrackType.INDOOR, RecordLevel.BMR, "30.52", "Grudi GRUDEV", "BUL", 2015, "Istanbul, TUR BAMACI", "22.02.2015", "", false),
         BenchmarkRecord("200 Metre", "M75", TrackType.INDOOR, RecordLevel.BMR, "32.96", "Serafettin CETINALP", "TUR", 2016, "Bucharest, ROU BAMACI", "13.03.2016", "", false),
         BenchmarkRecord("200 Metre", "M80", TrackType.INDOOR, RecordLevel.BMR, "35.52", "Chrysanthos BILIOURIS", "GRE", 1997, "Birmingham, ENG EMACI", "01.03.1997", "", false),
+    )
+
+    private fun getPart18(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("200 Metre", "M85", TrackType.INDOOR, RecordLevel.BMR, "41.85", "Kostas CHATZIEMMANOUIL", "GRE", 2014, "Budapest, HUN WMACI", "29.03.2014", "", false),
         BenchmarkRecord("200 Metre", "M90", TrackType.INDOOR, RecordLevel.BMR, "48.33", "Kostas CHATZIEMMANOUIL", "GRE", 2019, "Torun, POL WMACI", "29.03.2019", "", false),
         BenchmarkRecord("200 Metre", "M95", TrackType.INDOOR, RecordLevel.BMR, "50.40", "Kostas CHATZIEMMANOUIL", "GRE", 2024, "Torun, POL EMACI", "23.03.2024", "", false),
@@ -1014,9 +1007,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("1500 Metre", "M90", TrackType.INDOOR, RecordLevel.BMR, "15:02.64", "Safter KARTOGLU", "TUR", 2017, "Istanbul, TUR Turkish", "11.03.2017", "", false),
         BenchmarkRecord("3000 Metre", "M35", TrackType.INDOOR, RecordLevel.BMR, "8:07.22", "Spyros ANDRIOPOULOS", "GRE", 1997, "Athens, GRE Greek", "15.02.1997", "", false),
         BenchmarkRecord("3000 Metre", "M40", TrackType.INDOOR, RecordLevel.BMR, "8:34.81", "Primož KOBE", "SLO", 2023, "Novo Mesto,SLO International", "15.01.2023", "", false),
-    )
-
-    private fun getPart19(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("3000 Metre", "M45", TrackType.INDOOR, RecordLevel.BMR, "9:08.78", "Marjan KREMPL", "SLO", 2001, "Bordeaux, FRA EMACI", "08.03.2001", "", false),
         BenchmarkRecord("3000 Metre", "M50", TrackType.INDOOR, RecordLevel.BMR, "9:30.51", "Marjan KREMPL", "SLO", 2006, "Linz, AUT WMACI", "15.03.2006", "", false),
         BenchmarkRecord("3000 Metre", "M55", TrackType.INDOOR, RecordLevel.BMR, "9:46.11", "Milan KOTNIK", "SLO", 2005, "Linz, AUT International", "13.02.2005", "", false),
@@ -1024,6 +1014,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("3000 Metre", "M65", TrackType.INDOOR, RecordLevel.BMR, "10:38.38", "Boyan LEFTEROV", "BUL", 2023, "Istanbul, TUR BAMACI", "19.03.2023", "", false),
         BenchmarkRecord("3000 Metre", "M70", TrackType.INDOOR, RecordLevel.BMR, "10:56.3", "Boyan LEFTEROV", "BUL", 2024, "Dobrich,BUL Bulgarian", "17.03.2024", "", false),
         BenchmarkRecord("3000 Metre", "M75", TrackType.INDOOR, RecordLevel.BMR, "12:32.1", "Panayiotis GAKIS", "GRE", 1994, "Athens, GRE Greek", "05.02.1994", "", false),
+    )
+
+    private fun getPart19(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("3000 Metre", "M80", TrackType.INDOOR, RecordLevel.BMR, "13:10.0", "Panayiotis GAKIS", "GRE", 1995, "Athens, GRE Greek", "05.02.1995", "", false),
         BenchmarkRecord("3000 Metre", "M85", TrackType.INDOOR, RecordLevel.BMR, "15:33.58", "Dennis Wright", "SLO", 2024, "Zagreb,CRO Slovenian", "02.03.2024", "", false),
         BenchmarkRecord("3000 Metre", "M90", TrackType.INDOOR, RecordLevel.BMR, "24:33.94", "Panayiotis DOUSSIS", "GRE", 2024, "Torun,POL EMACI", "18.03.2024", "", false),
@@ -1040,8 +1033,8 @@ object BalkanRecordsArchive {
         BenchmarkRecord("3000m Pist Yürüyüşü", "M85", TrackType.INDOOR, RecordLevel.BMR, "23:03.49", "Panayiotis DOUSSIS", "GRE", 2019, "Istanbul, TUR BAMACI", "03.03.2019", "", false),
         BenchmarkRecord("3000m Pist Yürüyüşü", "M90", TrackType.INDOOR, RecordLevel.BMR, "34:58.07", "Mirko KOPUNOVIĆ", "SRB", 2020, "Beograd, SRB Serbian", "08.02.2020", "", false),
         BenchmarkRecord("60m Engelli", "M35", TrackType.INDOOR, RecordLevel.BMR, "7.76", "Konstantinos DOUVALIDIS", "GRE", 2024, "Pireaus,GRE Greek", "18.02.2024", "", false),
-        BenchmarkRecord("60m Engelli", "M40", TrackType.INDOOR, RecordLevel.BMR, "8.56", "Ioannis KERASIDIS", "GRE", 2008, "Clermont Ferrand, FRA WMACI", "20.03.2008", "", false),
-        BenchmarkRecord("60m Engelli", "M40", TrackType.INDOOR, RecordLevel.BMR, "8.56", "Michalis MALATIDIS", "GRE", 1986, "Athens, GRE Greek", "08.02.1986", "", false),
+        BenchmarkRecord("60m Engelli", "M40", TrackType.INDOOR, RecordLevel.BMR, "8.56", "Ioannis KERASIDIS", "GRE", 2008, "Clermont Ferrand, FRA WMACI", "20.03.2008", "", true),
+        BenchmarkRecord("60m Engelli", "M40", TrackType.INDOOR, RecordLevel.BMR, "8.56", "Michalis MALATIDIS", "GRE", 1986, "Athens, GRE Greek", "08.02.1986", "", true),
         BenchmarkRecord("60m Engelli", "M45", TrackType.INDOOR, RecordLevel.BMR, "8.4", "Michalis MALATIDIS", "GRE", 1991, "Athens, GRE Greek", "02.02.1991", "", false),
         BenchmarkRecord("60m Engelli", "M50", TrackType.INDOOR, RecordLevel.BMR, "8.6", "Michalis MALATIDIS", "GRE", 1996, "Athens, GRE Greek", "04.02.1996", "", false),
         BenchmarkRecord("60m Engelli", "M55", TrackType.INDOOR, RecordLevel.BMR, "9.14", "Marko BOŽIČEK", "SLO", 2017, "Daegu, KOR World", "24.03.2017", "", false),
@@ -1059,17 +1052,14 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Uzun Atlama", "M60", TrackType.INDOOR, RecordLevel.BMR, "5.93", "Adrian NEAGU", "ROU", 2014, "Budapest, HUN WMACI", "25.03.2014", "", false),
         BenchmarkRecord("Uzun Atlama", "M65", TrackType.INDOOR, RecordLevel.BMR, "5.34", "Adrian NEAGU", "ROU", 2019, "Torun, POL WMACI", "24.03.2019", "", false),
         BenchmarkRecord("Uzun Atlama", "M70", TrackType.INDOOR, RecordLevel.BMR, "4.66", "Adrian NEAGU", "ROU", 2025, "Gainesville, USA WMACI", "30.03.2025", "", false),
-        BenchmarkRecord("Uzun Atlama", "M75", TrackType.INDOOR, RecordLevel.BMR, "4.06", "Dimitris OMIRIDIS", "GRE", 2020, "Piraeus, GRE Masters", "23.02.2020", "", false),
-        BenchmarkRecord("Uzun Atlama", "M75", TrackType.INDOOR, RecordLevel.BMR, "4.06", "Ioannis BELLOS", "GRE", 2012, "Jyvaskyla, FIN WMACI", "04.04.2012", "", false),
+        BenchmarkRecord("Uzun Atlama", "M75", TrackType.INDOOR, RecordLevel.BMR, "4.06", "Dimitris OMIRIDIS", "GRE", 2020, "Piraeus, GRE Masters", "23.02.2020", "", true),
+        BenchmarkRecord("Uzun Atlama", "M75", TrackType.INDOOR, RecordLevel.BMR, "4.06", "Ioannis BELLOS", "GRE", 2012, "Jyvaskyla, FIN WMACI", "04.04.2012", "", true),
         BenchmarkRecord("Uzun Atlama", "M80", TrackType.INDOOR, RecordLevel.BMR, "3.37", "Cvetko KITIC", "SRB", 2018, "Belgrade, SRB BAMACI", "10.03.2018", "", false),
-        BenchmarkRecord("Uzun Atlama", "M85", TrackType.INDOOR, RecordLevel.BMR, "3.27", "Ioannis BELLOS", "GRE", 2023, "Athens, GRE Masters", "04.02.2023", "", false),
-        BenchmarkRecord("Uzun Atlama", "M85", TrackType.INDOOR, RecordLevel.BMR, "2.68", "Miro Rant", "SLO", 2017, "Rijeka, CRO Croatian", "04.03.2017", "", false),
-        BenchmarkRecord("Uzun Atlama", "M90", TrackType.INDOOR, RecordLevel.BMR, "1.91", "Kostas CHATZEMMANOUIL", "GRE", 2020, "Belgrade, SRB BAMACI", "08.03.2020", "", false),
-        BenchmarkRecord("Uzun Atlama", "M90", TrackType.INDOOR, RecordLevel.BMR, "1.91", "Panagiotis DOUSSIS", "GRE", 2024, "Torun,POL EMACI", "19.03.2024", "", false),
+        BenchmarkRecord("Uzun Atlama", "M85", TrackType.INDOOR, RecordLevel.BMR, "3.27", "Ioannis BELLOS", "GRE", 2023, "Athens, GRE Masters", "04.02.2023", "", true),
+        BenchmarkRecord("Uzun Atlama", "M85", TrackType.INDOOR, RecordLevel.BMR, "2.68", "Miro Rant", "SLO", 2017, "Rijeka, CRO Croatian", "04.03.2017", "", true),
+        BenchmarkRecord("Uzun Atlama", "M90", TrackType.INDOOR, RecordLevel.BMR, "1.91", "Kostas CHATZEMMANOUIL", "GRE", 2020, "Belgrade, SRB BAMACI", "08.03.2020", "", true),
+        BenchmarkRecord("Uzun Atlama", "M90", TrackType.INDOOR, RecordLevel.BMR, "1.91", "Panagiotis DOUSSIS", "GRE", 2024, "Torun,POL EMACI", "19.03.2024", "", true),
         BenchmarkRecord("Uzun Atlama", "M95", TrackType.INDOOR, RecordLevel.BMR, "1.63", "Kostas CHATZEMMANOUIL", "GRE", 2024, "Torun, POL EMACI", "19.03.2024", "", false),
-    )
-
-    private fun getPart20(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Üçadım Atlama", "M35", TrackType.INDOOR, RecordLevel.BMR, "16.69", "Momchil KARAILIEV", "BUL", 2018, "Sofia, BUL Bulgarian", "04.02.2018", "", false),
         BenchmarkRecord("Üçadım Atlama", "M40", TrackType.INDOOR, RecordLevel.BMR, "16.52", "Dimitrios TSIAMIS", "GRE", 2023, "Athens, GRE Greek", "19.02.2023", "", false),
         BenchmarkRecord("Üçadım Atlama", "M45", TrackType.INDOOR, RecordLevel.BMR, "13.25", "Odysseas SKAMANTZOURAS", "GRE", 2013, "San Sebastian, ESP EMACI", "24.03.2013", "", false),
@@ -1077,6 +1067,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Üçadım Atlama", "M55", TrackType.INDOOR, RecordLevel.BMR, "11.91", "Vladimiros DEKAILO", "GRE", 2012, "Jyvaskyla, FIN WMACI", "08.04.2012", "", false),
         BenchmarkRecord("Üçadım Atlama", "M60", TrackType.INDOOR, RecordLevel.BMR, "11.38", "Vladimiros DEKAILO", "GRE", 2018, "Madrid, ESP EMACI", "21.03.2018", "", false),
         BenchmarkRecord("Üçadım Atlama", "M65", TrackType.INDOOR, RecordLevel.BMR, "10.91", "Vladimiros DEKAILO", "GRE", 2022, "Athens, GRE Greek", "20.02.2022", "", false),
+    )
+
+    private fun getPart20(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Üçadım Atlama", "M70", TrackType.INDOOR, RecordLevel.BMR, "9.68", "Chrysochos PANTELIS", "GRE", 2024, "Torun,POL EMACI", "23.02.2024", "", false),
         BenchmarkRecord("Üçadım Atlama", "M75", TrackType.INDOOR, RecordLevel.BMR, "8.93", "Marcel GRIGORESCU", "ROU", 2025, "Gainesville, USA WMACI", "29.03.2025", "", false),
         BenchmarkRecord("Üçadım Atlama", "M80", TrackType.INDOOR, RecordLevel.BMR, "8.09", "Hasan Tahsin BUYUKDOGAN", "TUR", 2006, "Linz, AUT WMACI", "20.03.2006", "", false),
@@ -1091,8 +1084,8 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Yüksek Atlama", "M70", TrackType.INDOOR, RecordLevel.BMR, "1.56", "Dušan PREZELJ", "SLO", 2019, "Istanbul, TUR BAMACI", "02.03.2019", "", false),
         BenchmarkRecord("Yüksek Atlama", "M75", TrackType.INDOOR, RecordLevel.BMR, "1.53", "Dušan PREZELJ", "SLO", 2024, "Zagreb,CRO Slovenian", "02.03.2024", "", false),
         BenchmarkRecord("Yüksek Atlama", "M80", TrackType.INDOOR, RecordLevel.BMR, "1.26", "Valentin MOLJK", "SLO", 2020, "Novo Mesto,SLO Slovenian", "15.2.2020", "", false),
-        BenchmarkRecord("Yüksek Atlama", "M85", TrackType.INDOOR, RecordLevel.BMR, "1.14", "Ioannis BELLOS", "GRE", 2023, "Athens,GRE Masters", "04.02.2023", "", false),
-        BenchmarkRecord("Yüksek Atlama", "M85", TrackType.INDOOR, RecordLevel.BMR, "1.14", "Marko SLUGA", "SLO", 2022, "Novo Mesto,SLO BAMACI", "12.02.2022", "", false),
+        BenchmarkRecord("Yüksek Atlama", "M85", TrackType.INDOOR, RecordLevel.BMR, "1.14", "Ioannis BELLOS", "GRE", 2023, "Athens,GRE Masters", "04.02.2023", "", true),
+        BenchmarkRecord("Yüksek Atlama", "M85", TrackType.INDOOR, RecordLevel.BMR, "1.14", "Marko SLUGA", "SLO", 2022, "Novo Mesto,SLO BAMACI", "12.02.2022", "", true),
         BenchmarkRecord("Sırıkla Atlama", "M35", TrackType.INDOOR, RecordLevel.BMR, "5.70", "Iliyan EFREMOV", "BUL", 2007, "Athens, GRE Balkan", "21.02.2007", "", false),
         BenchmarkRecord("Sırıkla Atlama", "M40", TrackType.INDOOR, RecordLevel.BMR, "4.80", "Andrey FEDOTOV", "MDA", 2011, "Chisinau, MDA Moldovan", "06.02.2011", "", false),
         BenchmarkRecord("Sırıkla Atlama", "M45", TrackType.INDOOR, RecordLevel.BMR, "4.70", "Andrey FEDOTOV", "MDA", 2015, "Chisinau, MDA Moldovan", "08.02.2015", "", false),
@@ -1120,9 +1113,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Ağırlık Atma", "M40", TrackType.INDOOR, RecordLevel.BMR, "13.63", "Dejan LISINAC", "SRB", 2011, "Gent, BEL European", "19.03.2011", "", false),
         BenchmarkRecord("Ağırlık Atma", "M45", TrackType.INDOOR, RecordLevel.BMR, "14.35", "Joze PIRNAT", "SLO", 2016, "Ancona, ITA European", "30.03.2016", "", false),
         BenchmarkRecord("Ağırlık Atma", "M50", TrackType.INDOOR, RecordLevel.BMR, "20.01", "Vassilis MAGGANAS", "GRE", 2008, "Clermont Ferrand, FRA World", "22.03.2008", "", false),
-    )
-
-    private fun getPart21(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Ağırlık Atma", "M55", TrackType.INDOOR, RecordLevel.BMR, "19.23", "Vassilis MAGGANAS", "GRE", 2011, "Gent, BEL European", "19.03.2011", "", false),
         BenchmarkRecord("Ağırlık Atma", "M60", TrackType.INDOOR, RecordLevel.BMR, "20.68", "Vassilis MAGGANAS", "GRE", 2016, "Athens, GRE Greek", "20.03.2016", "", false),
         BenchmarkRecord("Ağırlık Atma", "M65", TrackType.INDOOR, RecordLevel.BMR, "9.61", "Panayiotis MANOLOPOULOS", "GRE", 2017, "Athens, GRE Greek", "26.02.2017", "", false),
@@ -1130,6 +1120,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Pentatlon", "M35", TrackType.INDOOR, RecordLevel.BMR, "3082", "Augustin IANCU", "ROU", 2008, "Clermont Ferrand, FRA WMACI", "17.03.2008", "", false),
         BenchmarkRecord("Pentatlon", "M40", TrackType.INDOOR, RecordLevel.BMR, "3557", "Nikos ARVANITIS", "GRE", 2008, "Clermont Ferrand, FRA WMACI", "17.03.2008", "", false),
         BenchmarkRecord("Pentatlon", "M45", TrackType.INDOOR, RecordLevel.BMR, "3362", "Slaven ZIMBREK", "CRO", 2011, "Gent, BEL EMACI", "16.03.2011", "", false),
+    )
+
+    private fun getPart21(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Pentatlon", "M50", TrackType.INDOOR, RecordLevel.BMR, "3602", "Vassilis ANDREADIS", "GRE", 2006, "Linz, AUT EMACI", "19.03.2006", "", false),
         BenchmarkRecord("Pentatlon", "M55", TrackType.INDOOR, RecordLevel.BMR, "3575", "Vassilis ANDREADIS", "GRE", 2011, "Gent, BEL EMACI", "16.03.2011", "", false),
         BenchmarkRecord("Pentatlon", "M60", TrackType.INDOOR, RecordLevel.BMR, "3625", "Hasan KASAP", "TUR", 2018, "Madrid, ESP EMACI", "23.03.2018", "", false),
@@ -1149,8 +1142,8 @@ object BalkanRecordsArchive {
         BenchmarkRecord("60 Metre", "W35", TrackType.INDOOR, RecordLevel.BMR, "7.23", "Maria TSONI", "GRE", 1998, "Athens, GRE Greek", "01.02.1998", "", false),
         BenchmarkRecord("60 Metre", "W40", TrackType.INDOOR, RecordLevel.BMR, "7.17", "Merlene OTTEY", "SLO", 2003, "Linz, AUT International", "07.03.2003", "", false),
         BenchmarkRecord("60 Metre", "W45", TrackType.INDOOR, RecordLevel.BMR, "7.30", "Merlene OTTEY", "SLO", 2007, "Leipzig, GER International", "09.02.2007", "", false),
-        BenchmarkRecord("60 Metre", "W50", TrackType.INDOOR, RecordLevel.BMR, "8.09", "Adina GHEORGHIU", "ROU", 2025, "Dublin, IRL National", "19.01.2025", "", false),
-        BenchmarkRecord("60 Metre", "W50", TrackType.INDOOR, RecordLevel.BMR, "8.15", "Adina GHEORGHIU", "ROU", 2025, "Gainesville, USA WMACI", "24.03.2025", "", false),
+        BenchmarkRecord("60 Metre", "W50", TrackType.INDOOR, RecordLevel.BMR, "8.09", "Adina GHEORGHIU", "ROU", 2025, "Dublin, IRL National", "19.01.2025", "", true),
+        BenchmarkRecord("60 Metre", "W50", TrackType.INDOOR, RecordLevel.BMR, "8.15", "Adina GHEORGHIU", "ROU", 2025, "Gainesville, USA WMACI", "24.03.2025", "", true),
         BenchmarkRecord("60 Metre", "W55", TrackType.INDOOR, RecordLevel.BMR, "8.24", "Renata NOVOSEL", "CRO", 2023, "Zagreb,CRO Croatian", "04.03.2023", "", false),
         BenchmarkRecord("60 Metre", "W60", TrackType.INDOOR, RecordLevel.BMR, "9.2", "Yukselen KABADAYI", "TUR", 2000, "Athens, GRE Greek", "13.01.2000", "", false),
         BenchmarkRecord("60 Metre", "W65", TrackType.INDOOR, RecordLevel.BMR, "9.70", "Sibel TERCAN", "TUR", 2025, "Istanbul, TUR Turkish", "15.02.2025", "", false),
@@ -1173,9 +1166,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("200 Metre", "W85", TrackType.INDOOR, RecordLevel.BMR, "53.83", "Maria ENE", "ROU", 2024, "Bucharest, ROU Romanian", "02.03.2024", "", false),
         BenchmarkRecord("200 Metre", "W90", TrackType.INDOOR, RecordLevel.BMR, "1:43.91", "Veronica NEGREANU", "ROU", 2023, "Bucharest, ROU Romanian", "05.03.2023", "", false),
         BenchmarkRecord("400 Metre", "W35", TrackType.INDOOR, RecordLevel.BMR, "55.29", "Andrianna FERRA", "GRE", 2023, "Istanbul, TUR EMACI", "02.03.2023", "", false),
-    )
-
-    private fun getPart22(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("400 Metre", "W40", TrackType.INDOOR, RecordLevel.BMR, "59.23", "Anastasia THOMAIDOU", "GRE", 2018, "Athens, GRE Greek", "10.02.2018", "", false),
         BenchmarkRecord("400 Metre", "W45", TrackType.INDOOR, RecordLevel.BMR, "59.23", "Anastasia THOMAIDOU", "GRE", 2024, "Athens,GRE Greek", "17.02.2024", "", false),
         BenchmarkRecord("400 Metre", "W50", TrackType.INDOOR, RecordLevel.BMR, "1.07.95", "Zvonka BLATNIK", "SLO", 2012, "Jyvaskyla, FIN WMACI", "05.04.2012", "", false),
@@ -1183,6 +1173,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("400 Metre", "W60", TrackType.INDOOR, RecordLevel.BMR, "1:18.31", "Zvonka BLATNIK", "SLO", 2022, "Novo Mesto,SLO BAMACI", "12.03.2022", "", false),
         BenchmarkRecord("400 Metre", "W65", TrackType.INDOOR, RecordLevel.BMR, "1:25.02", "Coculeana OLTEAN", "ROU", 2022, "Bucharest, ROU Romanian", "05.03.2022", "", false),
         BenchmarkRecord("400 Metre", "W70", TrackType.INDOOR, RecordLevel.BMR, "1:35.82", "Jozica ROGELJ", "SLO", 2019, "Istanbul, TUR BAMACI", "02.03.2019", "", false),
+    )
+
+    private fun getPart22(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("400 Metre", "W75", TrackType.INDOOR, RecordLevel.BMR, "1:38.89", "Maria ENE", "ROU", 2016, "Bucharest, ROU BAMACI", "12.03.2016", "", false),
         BenchmarkRecord("400 Metre", "W80", TrackType.INDOOR, RecordLevel.BMR, "1:42.50", "Maria ENE", "ROU", 2019, "Istanbul, TUR BAMACI", "02.03.2019", "", false),
         BenchmarkRecord("400 Metre", "W85", TrackType.INDOOR, RecordLevel.BMR, "2:06.70", "Maria ENE", "ROU", 2024, "Bucharest, ROU Romanian", "02.03.2024", "", false),
@@ -1226,9 +1219,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("3000m Pist Yürüyüşü", "W60", TrackType.INDOOR, RecordLevel.BMR, "19:47.7", "Monica MOISSIDOU", "GRE", 1998, "Athens, GRE", "18.01.1998", "", false),
         BenchmarkRecord("3000m Pist Yürüyüşü", "W65", TrackType.INDOOR, RecordLevel.BMR, "21:55.62", "Emilia GUSAT", "ROU", 2008, "Clermont Ferrand, FRA WMACI", "17.03.2008", "", false),
         BenchmarkRecord("3000m Pist Yürüyüşü", "W70", TrackType.INDOOR, RecordLevel.BMR, "23:11.47", "Emilia GUSAT", "ROU", 2014, "Budapest, HUN WMACI", "26.03.2014", "", false),
-    )
-
-    private fun getPart23(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("3000m Pist Yürüyüşü", "W75", TrackType.INDOOR, RecordLevel.BMR, "24:55.39", "Mira PUHAR", "SLO", 2015, "Istanbul, TUR Balkan", "22.02.2015", "", false),
         BenchmarkRecord("3000m Pist Yürüyüşü", "W80", TrackType.INDOOR, RecordLevel.BMR, "25:34.76", "Elena PAGU", "ROU", 2009, "Ancona, ITA EMACI", "27.03.2009", "", false),
         BenchmarkRecord("3000m Pist Yürüyüşü", "W85", TrackType.INDOOR, RecordLevel.BMR, "25:57.05", "Elena PAGU", "ROU", 2016, "Bucharest, ROU BAMACI", "12.03.2016", "", false),
@@ -1236,11 +1226,14 @@ object BalkanRecordsArchive {
         BenchmarkRecord("60m Engelli", "W35", TrackType.INDOOR, RecordLevel.BMR, "8.05", "Liliana NASTASE", "ROU", 1997, "Bucharest, ROU Romanian", "28.02.1997", "", false),
         BenchmarkRecord("60m Engelli", "W40", TrackType.INDOOR, RecordLevel.BMR, "8.95", "Florina MARIN", "ROU", 2015, "Bucharest, ROU Romanian", "08.03.2015", "", false),
         BenchmarkRecord("60m Engelli", "W45", TrackType.INDOOR, RecordLevel.BMR, "8.96", "Magdalena HRISTOVA", "BUL", 2023, "Torun, POL WMACI", "01.04.2023", "", false),
+    )
+
+    private fun getPart23(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("60m Engelli", "W50", TrackType.INDOOR, RecordLevel.BMR, "9.54", "Florina MARIN", "ROU", 2025, "Bucharest, ROU Romanian", "02.03.2025", "", false),
         BenchmarkRecord("60m Engelli", "W55", TrackType.INDOOR, RecordLevel.BMR, "10.20", "Hulya Figen KARADAG", "TUR", 2024, "Torun, POL EMACI", "23.03.2024", "", false),
         BenchmarkRecord("60m Engelli", "W60", TrackType.INDOOR, RecordLevel.BMR, "12.54", "Kamuran SONMEZ", "TUR", 2019, "Istanbul,TUR BAMACI", "03.03.2019", "", false),
-        BenchmarkRecord("60m Engelli", "W65", TrackType.INDOOR, RecordLevel.BMR, "12.59", "Kamuran SONMEZ", "TUR", 2023, "Istanbul,TUR BAMACI", "19.03.2023", "", false),
-        BenchmarkRecord("60m Engelli", "W65", TrackType.INDOOR, RecordLevel.BMR, "14.25", "Eleni GOUZIA", "GRE", 2011, "Gent, BEL EMACI", "17.03.2011", "", false),
+        BenchmarkRecord("60m Engelli", "W65", TrackType.INDOOR, RecordLevel.BMR, "12.59", "Kamuran SONMEZ", "TUR", 2023, "Istanbul,TUR BAMACI", "19.03.2023", "", true),
+        BenchmarkRecord("60m Engelli", "W65", TrackType.INDOOR, RecordLevel.BMR, "14.25", "Eleni GOUZIA", "GRE", 2011, "Gent, BEL EMACI", "17.03.2011", "", true),
         BenchmarkRecord("60m Engelli", "W70", TrackType.INDOOR, RecordLevel.BMR, "14.40", "Eleni GOUZIA", "GRE", 2015, "Torun, POL EMACI", "27.03.2015", "", false),
         BenchmarkRecord("Uzun Atlama", "W35", TrackType.INDOOR, RecordLevel.BMR, "6.45", "Mirela DULGHERU", "ROU", 2001, "Bucharest, ROU Romanian", "25.02.2001", "", false),
         BenchmarkRecord("Uzun Atlama", "W40", TrackType.INDOOR, RecordLevel.BMR, "5.72", "Florina MARIN", "ROU", 2016, "Bucharest, ROU Romanian", "06.03.2016", "", false),
@@ -1263,8 +1256,8 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Üçadım Atlama", "W80", TrackType.INDOOR, RecordLevel.BMR, "4.21", "Mira PUHAR", "SLO", 2019, "Istanbul, TUR BAMACI", "02.03.2019", "", false),
         BenchmarkRecord("Yüksek Atlama", "W35", TrackType.INDOOR, RecordLevel.BMR, "1.97", "Venelina VENEVA", "BUL", 2011, "Bucharest, ROU International", "18.02.2011", "", false),
         BenchmarkRecord("Yüksek Atlama", "W40", TrackType.INDOOR, RecordLevel.BMR, "1.94", "Venelina VENEVA", "BUL", 2015, "Dobrich, BUL Bulgarian", "15.02.2015", "", false),
-        BenchmarkRecord("Yüksek Atlama", "W45", TrackType.INDOOR, RecordLevel.BMR, "1.57", "Desa GRAJZL CALASAN", "SLO", 2016, "Ancona, ITA EMACI", "01.04.2016", "", false),
-        BenchmarkRecord("Yüksek Atlama", "W45", TrackType.INDOOR, RecordLevel.BMR, "1.57", "Aycan KURTCAN", "TUR", 2018, "Madrid, ESP EMACI", "21.03.2018", "", false),
+        BenchmarkRecord("Yüksek Atlama", "W45", TrackType.INDOOR, RecordLevel.BMR, "1.57", "Desa GRAJZL CALASAN", "SLO", 2016, "Ancona, ITA EMACI", "01.04.2016", "", true),
+        BenchmarkRecord("Yüksek Atlama", "W45", TrackType.INDOOR, RecordLevel.BMR, "1.57", "Aycan KURTCAN", "TUR", 2018, "Madrid, ESP EMACI", "21.03.2018", "", true),
         BenchmarkRecord("Yüksek Atlama", "W50", TrackType.INDOOR, RecordLevel.BMR, "1.52", "Aycan KURTCAN", "TUR", 2022, "Braga,POR EMACI", "27.02.2022", "", false),
         BenchmarkRecord("Yüksek Atlama", "W55", TrackType.INDOOR, RecordLevel.BMR, "1.40", "Aycan KURTCAN", "TUR", 2025, "Gainesville,USA WMACI", "29.03.2025", "", false),
         BenchmarkRecord("Yüksek Atlama", "W60", TrackType.INDOOR, RecordLevel.BMR, "1.30", "Stanka PREZELJ", "SLO", 2016, "Celje, SLO Slovenian", "27.02.2016", "", false),
@@ -1279,9 +1272,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Sırıkla Atlama", "W55", TrackType.INDOOR, RecordLevel.BMR, "2.30", "Daniela MILITARU", "ROU", 2018, "Bucharest, ROU Romanian", "15.12.2018", "", false),
         BenchmarkRecord("Gülle Atma", "W35", TrackType.INDOOR, RecordLevel.BMR, "20.78", "Ivanka HRISTOVA", "BUL", 1976, "Sofia, BUL Bulgarian", "14.02.1976", "", false),
         BenchmarkRecord("Gülle Atma", "W40", TrackType.INDOOR, RecordLevel.BMR, "13.90", "Gorana TEŠANOVIC", "BIH", 2018, "Zagreb, CRO Croatian", "24.02.2018", "", false),
-    )
-
-    private fun getPart24(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Gülle Atma", "W45", TrackType.INDOOR, RecordLevel.BMR, "13.55", "Alexandra MARGHIEVA", "MDA", 2009, "Ancona, ITA European", "28.03.2009", "", false),
         BenchmarkRecord("Gülle Atma", "W50", TrackType.INDOOR, RecordLevel.BMR, "15.17", "Alexandra MARGHIEVA", "MDA", 2011, "Gent, BEL European", "19.03.2011", "", false),
         BenchmarkRecord("Gülle Atma", "W55", TrackType.INDOOR, RecordLevel.BMR, "14.53", "Mihaela LOGHIN", "ROU", 2011, "Gent, BEL European", "18.03.2011", "", false),
@@ -1289,6 +1279,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Gülle Atma", "W65", TrackType.INDOOR, RecordLevel.BMR, "12.94", "Mihaela LOGHIN", "ROU", 2018, "Belgrade, SRB Balkan", "11.03.2018", "", false),
         BenchmarkRecord("Gülle Atma", "W70", TrackType.INDOOR, RecordLevel.BMR, "10.49", "Magdalini ROULIDU", "GRE", 2023, "Torun, POL WMACI", "27.03.2023", "", false),
         BenchmarkRecord("Gülle Atma", "W75", TrackType.INDOOR, RecordLevel.BMR, "9.37", "Marjeta ČAD", "SLO", 2024, "Beograd,SRB BAMO", "08.03.2024", "", false),
+    )
+
+    private fun getPart24(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Gülle Atma", "W80", TrackType.INDOOR, RecordLevel.BMR, "6.69", "Angela MINCULESCU", "ROU", 2016, "Bucharest, ROU Balkan", "13.03.2016", "", false),
         BenchmarkRecord("Gülle Atma", "W85", TrackType.INDOOR, RecordLevel.BMR, "4.67", "Fota STAMATIA", "GRE", 2020, "Athens, GRE Masters", "23.02.2020", "", false),
         BenchmarkRecord("Gülle Atma", "W90", TrackType.INDOOR, RecordLevel.BMR, "3.32", "Fota STAMATIA", "GRE", 2024, "Pireus, GRE Masters", "10.02.2024", "", false),
@@ -1314,9 +1307,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("4x200m Bayrak", "W60", TrackType.INDOOR, RecordLevel.BMR, "2:49.24", "N. Cakmak, A. Yildiz, Y. Sevil, K. Sonmez", "TUR", 2018, "Belgrade, SRB", "10.03.2018", "", false),
         BenchmarkRecord("100 Metre", "M35", TrackType.OUTDOOR, RecordLevel.BMR, "10.34", "Alexandras TERZIAN", "GRE", 2003, "Rethymno, GRE International", "06.07.2003", "", false),
         BenchmarkRecord("100 Metre", "M40", TrackType.OUTDOOR, RecordLevel.BMR, "10.87", "Arben MAKAJ", "ALB", 2008, "Donnas, ITA International", "01.06.2008", "", false),
-        BenchmarkRecord("100 Metre", "M45", TrackType.OUTDOOR, RecordLevel.BMR, "11.0", "Leonidas Pallis", "GRE", 2024, "", "", "", false),
-        BenchmarkRecord("100 Metre", "M45", TrackType.OUTDOOR, RecordLevel.BMR, "11.52", "Nikos GIANNADAKIS", "GRE", 2025, "Drama,GRE International", "31.05.2025", "", false),
-        BenchmarkRecord("100 Metre", "M45", TrackType.OUTDOOR, RecordLevel.BMR, "11.52", "Antonis KATANTONAKIS", "GRE", 2025, "Ostrava, CZECH", "24.06.2025", "", false),
+        BenchmarkRecord("100 Metre", "M45", TrackType.OUTDOOR, RecordLevel.BMR, "11.0", "Leonidas Pallis", "GRE", 2024, "", "", "", true),
+        BenchmarkRecord("100 Metre", "M45", TrackType.OUTDOOR, RecordLevel.BMR, "11.52", "Nikos GIANNADAKIS", "GRE", 2025, "Drama,GRE International", "31.05.2025", "", true),
+        BenchmarkRecord("100 Metre", "M45", TrackType.OUTDOOR, RecordLevel.BMR, "11.52", "Antonis KATANTONAKIS", "GRE", 2025, "Ostrava, CZECH", "24.06.2025", "", true),
         BenchmarkRecord("100 Metre", "M50", TrackType.OUTDOOR, RecordLevel.BMR, "11.62", "Marios CHRISTOFORIDIS", "GRE", 2018, "Alexandropouli, GRE Greek", "23.06.2018", "", false),
         BenchmarkRecord("100 Metre", "M55", TrackType.OUTDOOR, RecordLevel.BMR, "11.90", "Gojko BANJEVIC", "MNE", 2008, "Bar, MNE Balkan", "04.10.2008", "", false),
         BenchmarkRecord("100 Metre", "M60", TrackType.OUTDOOR, RecordLevel.BMR, "12.27", "Gojko BANJEVIC", "MNE", 2014, "Izmir, TUR EMACS", "24.08.2014", "", false),
@@ -1332,9 +1325,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("200 Metre", "M40", TrackType.OUTDOOR, RecordLevel.BMR, "22.17", "Vasile BOBOS", "ROU", 2025, "Varaždin, CRO BAMACS", "30.08.2025", "BAMACS w 0.8", false),
         BenchmarkRecord("200 Metre", "M45", TrackType.OUTDOOR, RecordLevel.BMR, "23.16", "Antonis KATANTONAKIS", "GRE", 2025, "Pardubice, CZECH", "31.05.2025", "meeting w 0.3", false),
         BenchmarkRecord("200 Metre", "M50", TrackType.OUTDOOR, RecordLevel.BMR, "24.00", "Marios CHRISTOFORIDIS", "GRE", 2018, "Alexandropouli, GRE Greek", "24.06.2018", "", false),
-    )
-
-    private fun getPart25(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("200 Metre", "M55", TrackType.OUTDOOR, RecordLevel.BMR, "24.52", "Gojko BANJEVIC", "MNE", 2009, "Izmir, TUR BAMACS", "27.09.2009", "", false),
         BenchmarkRecord("200 Metre", "M60", TrackType.OUTDOOR, RecordLevel.BMR, "25.50", "Güner GUNGÖR", "TUR", 2018, "Izmir, TUR International", "02.09.2018", "", false),
         BenchmarkRecord("200 Metre", "M65", TrackType.OUTDOOR, RecordLevel.BMR, "27.20", "Albert SOBA", "SLO", 2024, "Bar, MNE BAMACS", "29.09.2024", "BAMACS w +1.3", false),
@@ -1342,6 +1332,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("200 Metre", "M75", TrackType.OUTDOOR, RecordLevel.BMR, "31.9", "Kosmas KASAPAKALIS", "GRE", 2011, "Alexandroupolis, GRE Greek", "19.06.2011", "", false),
         BenchmarkRecord("200 Metre", "M80", TrackType.OUTDOOR, RecordLevel.BMR, "33.34", "Kosmas KASAPAKALIS", "GRE", 2014, "Izmir, TUR EMACS", "30.08.2014", "", false),
         BenchmarkRecord("200 Metre", "M85", TrackType.OUTDOOR, RecordLevel.BMR, "41.23", "Kostas CHATZIEMMANOUIL", "GRE", 2014, "Izmir, TUR EMACS", "30.08.2014", "", false),
+    )
+
+    private fun getPart25(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("200 Metre", "M90", TrackType.OUTDOOR, RecordLevel.BMR, "49.51", "Kostas CHATZIEMMANOUIL", "GRE", 2019, "Venice, ITA EMACS", "12.09.2019", "", false),
         BenchmarkRecord("200 Metre", "M95", TrackType.OUTDOOR, RecordLevel.BMR, "56.74", "Kostas CHATZIEMMANOUIL", "GRE", 2025, "Athens, GRE Papanastasia", "06.07.2025", "", false),
         BenchmarkRecord("400 Metre", "M35", TrackType.OUTDOOR, RecordLevel.BMR, "46.25", "Yavuz CAN", "TUR", 2022, "Erzurum, TUR Int.", "04.06.2022", "", false),
@@ -1385,9 +1378,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("5000 Metre", "M35", TrackType.OUTDOOR, RecordLevel.BMR, "13:54.77", "Spyros ANDRIOPOULOS", "GRE", 1998, "Athens, GRE Greek", "18.07.1998", "", false),
         BenchmarkRecord("5000 Metre", "M40", TrackType.OUTDOOR, RecordLevel.BMR, "14:42.57", "Marijan KREMPL", "SLO", 1997, "Nova Gorica, SLO Slovenian", "22.06.1997", "", false),
         BenchmarkRecord("5000 Metre", "M45", TrackType.OUTDOOR, RecordLevel.BMR, "15:35.07", "Drago PARIPOVIC", "CRO", 2005, "Zagreb, CRO Croatian", "30.07.2005", "", false),
-    )
-
-    private fun getPart26(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("5000 Metre", "M50", TrackType.OUTDOOR, RecordLevel.BMR, "16:18.06", "Milan KOTNIK", "SLO", 2000, "Jyvaskyla, FIN European", "12.07.2000", "", false),
         BenchmarkRecord("5000 Metre", "M55", TrackType.OUTDOOR, RecordLevel.BMR, "17:11.18", "Victor Florin BRATU", "ROU", 2024, "Bucharest, ROU Romanian", "08.09.2024", "", false),
         BenchmarkRecord("5000 Metre", "M60", TrackType.OUTDOOR, RecordLevel.BMR, "17:45.46", "Marijan KREMPL", "SLO", 2015, "Maribor, SLO Slovenian", "21.06.2015", "", false),
@@ -1395,11 +1385,14 @@ object BalkanRecordsArchive {
         BenchmarkRecord("5000 Metre", "M70", TrackType.OUTDOOR, RecordLevel.BMR, "19:24.81", "Bojan LEFTEROV", "BUL", 2024, "Gothenburg, SWE World", "14.08.2024", "", false),
         BenchmarkRecord("5000 Metre", "M75", TrackType.OUTDOOR, RecordLevel.BMR, "20:42.20", "Panayiotis GAKIS", "GRE", 1915, "1993 Athens,", "15.08.1915", "", false),
         BenchmarkRecord("5000 Metre", "M80", TrackType.OUTDOOR, RecordLevel.BMR, "25:10.0", "Panayiotis GAKIS", "GRE", 1995, "Athens, GRE Greek", "25.06.1995", "", false),
+    )
+
+    private fun getPart26(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("5000 Metre", "M85", TrackType.OUTDOOR, RecordLevel.BMR, "28:14.12", "Denis WRAIGHT", "SLO", 2024, "Celje, SLO 11th", "25.05.2024", "", false),
         BenchmarkRecord("5000 Metre", "M90", TrackType.OUTDOOR, RecordLevel.BMR, "31:41.60", "Panagiotis DOUSIS", "GRE", 2024, "Athens, GRE Papanastasia", "07.07.2024", "", false),
         BenchmarkRecord("10.000 Metre", "M35", TrackType.OUTDOOR, RecordLevel.BMR, "29:19.75", "Spyros ANDRIOPOULOS", "GRE", 1998, "Athens, GRE Greek", "17.07.1998", "", false),
-        BenchmarkRecord("10.000 Metre", "M40", TrackType.OUTDOOR, RecordLevel.BMR, "30:13.17", "Primože KOBE", "SLO", 2022, "Pace, FRA International", "28.05.2022", "", false),
-        BenchmarkRecord("10.000 Metre", "M40", TrackType.OUTDOOR, RecordLevel.BMR, "30:23.09", "Roman KEJZAR", "SLO", 2007, "Velenje, SLO Slovenian", "31.03.2007", "", false),
+        BenchmarkRecord("10.000 Metre", "M40", TrackType.OUTDOOR, RecordLevel.BMR, "30:13.17", "Primože KOBE", "SLO", 2022, "Pace, FRA International", "28.05.2022", "", true),
+        BenchmarkRecord("10.000 Metre", "M40", TrackType.OUTDOOR, RecordLevel.BMR, "30:23.09", "Roman KEJZAR", "SLO", 2007, "Velenje, SLO Slovenian", "31.03.2007", "", true),
         BenchmarkRecord("10.000 Metre", "M45", TrackType.OUTDOOR, RecordLevel.BMR, "31:33.3", "Drago PARIPOVIC", "CRO", 2006, "Zagreb, CRO Croatian", "01.04.2006", "", false),
         BenchmarkRecord("10.000 Metre", "M50", TrackType.OUTDOOR, RecordLevel.BMR, "34:06.08", "Petar SVET", "SLO", 2000, "Slovenska Bistrica, SLOSlovenian", "13.05.2000", "", false),
         BenchmarkRecord("10.000 Metre", "M55", TrackType.OUTDOOR, RecordLevel.BMR, "34:33.00", "Alexios KONTARATOS", "GRE", 2021, "Athens, GRE International", "12.12.2021", "", false),
@@ -1438,9 +1431,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("100m Engelli", "M50", TrackType.OUTDOOR, RecordLevel.BMR, "14.40", "Rok KOCJANCIC", "SLO", 2024, "Bar, MNE BAMACS", "28.09.2024", "BAMACS w 0.0", false),
         BenchmarkRecord("100m Engelli", "M55", TrackType.OUTDOOR, RecordLevel.BMR, "14.96", "Marko BOZICEK", "SLO", 2017, "Celje, SLO Slovenian", "25.06.2017", "", false),
         BenchmarkRecord("100m Engelli", "M60", TrackType.OUTDOOR, RecordLevel.BMR, "15.61", "Albert SOBA", "SLO", 2020, "Maribor,SLO Slovenian", "20.09.2020", "", false),
-    )
-
-    private fun getPart27(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("100m Engelli", "M65", TrackType.OUTDOOR, RecordLevel.BMR, "16.40", "Albert SOBA", "SLO", 2024, "Bar, MNE BAMACS", "28.09.2024", "BAMACS w -0.2", false),
         BenchmarkRecord("80m Engelli", "M70", TrackType.OUTDOOR, RecordLevel.BMR, "13.86", "Ioannis BELLOS", "GRE", 2006, "Athens, GRE BAMACS", "24.09.2006", "", false),
         BenchmarkRecord("80m Engelli", "M75", TrackType.OUTDOOR, RecordLevel.BMR, "15.01", "Hikmet KANDEYDI", "TUR", 2008, "Ljubljana, SLO European", "01.08.2008", "", false),
@@ -1448,6 +1438,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("80m Engelli", "M85", TrackType.OUTDOOR, RecordLevel.BMR, "27.71", "Petru AMBRUS", "ROU", 2024, "Bar, MNE BAMACS", "28.09.2024", "BAMACS w 0.0", false),
         BenchmarkRecord("400m Engelli", "M35", TrackType.OUTDOOR, RecordLevel.BMR, "48.27", "Escobar Yasmani COPELLO", "TUR", 2022, "Oran,ALG Mediteranean", "02.07.2022", "", false),
         BenchmarkRecord("400m Engelli", "M40", TrackType.OUTDOOR, RecordLevel.BMR, "55.71", "Darko JURICIC", "CRO", 2011, "Domzale, SLO BAMACS", "02.09.2011", "", false),
+    )
+
+    private fun getPart27(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("400m Engelli", "M45", TrackType.OUTDOOR, RecordLevel.BMR, "59.34", "Rok KOCJANCIC", "SLO", 2022, "Velenje, SLO Slovenian", "25.06.2022", "", false),
         BenchmarkRecord("400m Engelli", "M50", TrackType.OUTDOOR, RecordLevel.BMR, "60.86", "Rok KOCJANCIC", "SLO", 2024, "Bar, MNE BAMACS", "27.09.2024", "", false),
         BenchmarkRecord("400m Engelli", "M55", TrackType.OUTDOOR, RecordLevel.BMR, "62.24", "Marko BOZICEK", "SLO", 2017, "Aarhus, DEN EMACS", "30.07.2017", "", false),
@@ -1491,9 +1484,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("10.000m Pist Yürüyüşü", "M80", TrackType.OUTDOOR, RecordLevel.BMR, "1:16:37", "Mihai GUJBA", "ROU", 2003, "Pitesti, ROU Romanian", "06.09.2003", "", false),
         BenchmarkRecord("20.000m Pist Yürüyüşü", "M35", TrackType.OUTDOOR, RecordLevel.BMR, "1:21:43", "Costica BALAN", "ROU", 2000, "Eisenhuttenstandt, GER European", "17.06.2000", "", false),
         BenchmarkRecord("20.000m Pist Yürüyüşü", "M40", TrackType.OUTDOOR, RecordLevel.BMR, "1:21:51", "Costica BALAN", "ROU", 2004, "Resita, ROU Balkan", "03.04.2004", "", false),
-    )
-
-    private fun getPart28(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("20.000m Pist Yürüyüşü", "M45", TrackType.OUTDOOR, RecordLevel.BMR, "1:30:23", "Christos KARAGEORGOS", "GRE", 2000, "Athens, GRE Greek", "28.05.2000", "", false),
         BenchmarkRecord("20.000m Pist Yürüyüşü", "M50", TrackType.OUTDOOR, RecordLevel.BMR, "1:33:03", "Christos KARAGEORGOS", "GRE", 2003, "Athens, GRE Greek", "16.03.2003", "", false),
         BenchmarkRecord("20.000m Pist Yürüyüşü", "M55", TrackType.OUTDOOR, RecordLevel.BMR, "1:38:53", "Fabio RUZZIER", "SLO", 2008, "Paris, FRA International", "13.04.2008", "", false),
@@ -1501,6 +1491,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("20.000m Pist Yürüyüşü", "M65", TrackType.OUTDOOR, RecordLevel.BMR, "2:02:44", "Fabio RUZZIER", "SLO", 2018, "Zagreb, CRO International", "03.11.2018", "", false),
         BenchmarkRecord("20.000m Pist Yürüyüşü", "M70", TrackType.OUTDOOR, RecordLevel.BMR, "2:10.09", "Fabio RUZZIER", "SLO", 2023, "Pescara,ITA EMACS", "30.09.2023", "", false),
         BenchmarkRecord("20.000m Pist Yürüyüşü", "M80", TrackType.OUTDOOR, RecordLevel.BMR, "2:51:11", "Emil ZEMLJAK", "CRO", 1979, "Hannover, GER WMACS", "31.07.1979", "", false),
+    )
+
+    private fun getPart28(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Uzun Atlama", "M35", TrackType.OUTDOOR, RecordLevel.BMR, "8.09", "Sinisa ERGOTIC", "CRO", 2004, "Dolenjske Toplice, Slo International", "13.06.2004", "", false),
         BenchmarkRecord("Uzun Atlama", "M40", TrackType.OUTDOOR, RecordLevel.BMR, "7.38", "Dimitris TSIAMIS", "GRE", 2024, "Ag.Kosmas, GRE Seniors", "27.04.2024", "", false),
         BenchmarkRecord("Uzun Atlama", "M45", TrackType.OUTDOOR, RecordLevel.BMR, "6.69", "Bogdan TUDOR", "ROU", 2017, "Bucharest, ROU Romanian", "01.07.2017", "", false),
@@ -1544,9 +1537,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Sırıkla Atlama", "M55", TrackType.OUTDOOR, RecordLevel.BMR, "3.83", "Boško TRIŠOVIĆ", "CRO", 2022, "Karlovac, CRO Croatian", "26.06.2022", "", false),
         BenchmarkRecord("Sırıkla Atlama", "M60", TrackType.OUTDOOR, RecordLevel.BMR, "3.40", "Ion CUJBA", "ROU", 2004, "Bucharest, ROU Romanian", "23.05.2004", "", false),
         BenchmarkRecord("Sırıkla Atlama", "M65", TrackType.OUTDOOR, RecordLevel.BMR, "3.10", "Rigas EFSTATHIADIS", "GRE", 1995, "Athens, GRE Greek", "25.06.1995", "", false),
-    )
-
-    private fun getPart29(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Sırıkla Atlama", "M70", TrackType.OUTDOOR, RecordLevel.BMR, "2.96", "Hikmet KANDEYDI", "TUR", 2005, "Izmir, TUR Turkish", "18.09.2005", "", false),
         BenchmarkRecord("Sırıkla Atlama", "M75", TrackType.OUTDOOR, RecordLevel.BMR, "2.60", "Hikmet KANDEYDI", "TUR", 2009, "Izmir, TUR Turkish", "16.08.2009", "", false),
         BenchmarkRecord("Sırıkla Atlama", "M80", TrackType.OUTDOOR, RecordLevel.BMR, "2.30", "Hikmet KANDEYDI", "TUR", 2012, "Izmir, TUR BAMACS", "21.09.2012", "", false),
@@ -1554,6 +1544,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Gülle Atma", "M40", TrackType.OUTDOOR, RecordLevel.BMR, "20.44", "Ivan IVANCIC", "YUG", 1980, "Belgrade, SRB Serbian", "05.07.1980", "", false),
         BenchmarkRecord("Gülle Atma", "M45", TrackType.OUTDOOR, RecordLevel.BMR, "20.77", "Ivan IVANCIC", "YUG", 1983, "Koblenz, GER International", "31.08.1983", "", false),
         BenchmarkRecord("Gülle Atma", "M50", TrackType.OUTDOOR, RecordLevel.BMR, "16.51", "Vassilis MAGGANAS", "GRE", 2004, "Athens, GRE Greek", "20.06.2004", "", false),
+    )
+
+    private fun getPart29(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Gülle Atma", "M55", TrackType.OUTDOOR, RecordLevel.BMR, "15.44", "Vassilis MAGGANAS", "GRE", 2010, "Athens, GRE Greek", "29.05.2010", "", false),
         BenchmarkRecord("Gülle Atma", "M60", TrackType.OUTDOOR, RecordLevel.BMR, "15.72", "Tanasije KUJUNDŽIĆ", "MNE", 2022, "Thessaloniki, GRE BAMACS", "25.09.2022", "", false),
         BenchmarkRecord("Gülle Atma", "M65", TrackType.OUTDOOR, RecordLevel.BMR, "14.01", "Milutin JEGDIC", "SRB", 2009, "Novi Sad, SRB Serbian", "27.05.2009", "", false),
@@ -1597,9 +1590,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Çekiç Atma", "M65", TrackType.OUTDOOR, RecordLevel.BMR, "54.80", "Vassilis MAGGANAS", "GRE", 2019, "Athens, GRE Masters", "30.06.2019", "", false),
         BenchmarkRecord("Çekiç Atma", "M70", TrackType.OUTDOOR, RecordLevel.BMR, "48.93", "Vassilis MAGGANAS", "GRE", 2024, "Thiva, GRE Greek", "05.07.2024", "", false),
         BenchmarkRecord("Çekiç Atma", "M75", TrackType.OUTDOOR, RecordLevel.BMR, "46.02", "Adi VIDMAJER", "SLO", 2017, "Celje, SLO Slovenian", "24.05.2017", "", false),
-    )
-
-    private fun getPart30(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Çekiç Atma", "M80", TrackType.OUTDOOR, RecordLevel.BMR, "34.40", "Petar PANAYOTOV", "BUL", 2016, "Bucharest, ROU BAMACS", "12.03.2016", "", false),
         BenchmarkRecord("Çekiç Atma", "M85", TrackType.OUTDOOR, RecordLevel.BMR, "28.01", "Ante TESIJA", "CRO", 2000, "Varazdin, CRO Croatian", "15.07.2000", "", false),
         BenchmarkRecord("Çekiç Atma", "M90", TrackType.OUTDOOR, RecordLevel.BMR, "20.19", "Marko SLUGA", "SLO", 2025, "Ptuj, SLO Birthday", "22.07.2025", "", false),
@@ -1607,6 +1597,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Ağırlık Atma", "M40", TrackType.OUTDOOR, RecordLevel.BMR, "18.66", "Vassilis MAGGANAS", "GRE", 1994, "Athens, GRE European", "11.06.1994", "", false),
         BenchmarkRecord("Ağırlık Atma", "M45", TrackType.OUTDOOR, RecordLevel.BMR, "18.92", "Vassilis MAGGANAS", "GRE", 2001, "Brisbane, AUS World", "06.07.2001", "", false),
         BenchmarkRecord("Ağırlık Atma", "M50", TrackType.OUTDOOR, RecordLevel.BMR, "22.82", "Vassilis MAGGANAS", "GRE", 2004, "Athens, GRE Greek", "20.06.2004", "", false),
+    )
+
+    private fun getPart30(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Ağırlık Atma", "M55", TrackType.OUTDOOR, RecordLevel.BMR, "20.21", "Vassilis MAGGANAS", "GRE", 2009, "Lahti, FIN World", "29.07.2009", "", false),
         BenchmarkRecord("Ağırlık Atma", "M60", TrackType.OUTDOOR, RecordLevel.BMR, "23.12", "Vassilis MAGGANAS", "GRE", 2014, "Athens, GRE Greek", "24.05.2014", "", false),
         BenchmarkRecord("Ağırlık Atma", "M65", TrackType.OUTDOOR, RecordLevel.BMR, "20.00", "Vassilis MAGGANAS", "GRE", 2019, "Karditsa, GRE Greek", "15.06.2019", "", false),
@@ -1650,9 +1643,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("4x100m Bayrak", "M35", TrackType.OUTDOOR, RecordLevel.BMR, "44.57", "N. Dumitrache, R. Tanase, S. R. Dragut, S. A. Nisu", "ROU", 2013, "Zagreb, CRO", "07.09.2013", "", false),
         BenchmarkRecord("4x100m Bayrak", "M40", TrackType.OUTDOOR, RecordLevel.BMR, "46.69", "R. Arabaci, B. Bogatepe, C. Kucukbayraktar, N. Memur", "TUR", 2014, "Izmir, TUR", "31.08.2014", "", false),
         BenchmarkRecord("4x100m Bayrak", "M45", TrackType.OUTDOOR, RecordLevel.BMR, "46.85", "B. Himelrajh, M. Perper, M. Bozicek, A. Soba", "SLO", 2008, "Ljubljana, SLO", "03.08.2008", "", false),
-    )
-
-    private fun getPart31(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("4x100m Bayrak", "M50", TrackType.OUTDOOR, RecordLevel.BMR, "48.43", "J.Terglav, R.Kocjančič, B.Himelrajh, B.Eržen", "SLO", 2025, "Zalaegerszeg, HUN", "09.08.2025", "", false),
         BenchmarkRecord("4x100m Bayrak", "M55", TrackType.OUTDOOR, RecordLevel.BMR, "50.33", "F. Ozisikyilmaz, A. Kara, A. Akgul, G. Gungor", "TUR", 2014, "Izmir, TUR", "31.08.2014", "", false),
         BenchmarkRecord("4x100m Bayrak", "M60", TrackType.OUTDOOR, RecordLevel.BMR, "52.26", "Božiček, Šoba, Arčon, Himelrajh", "SLO", 2025, "Varaždin, CRO", "29.08.2025", "", false),
@@ -1660,6 +1650,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("4x100m Bayrak", "M70", TrackType.OUTDOOR, RecordLevel.BMR, "1:02.83", "P.Charalampidis, P.Xrysochos, D.Omiridis, I.Lyratzakis", "GRE", 2022, "Thessaloniki, GRE", "23.09.2022", "", false),
         BenchmarkRecord("4x100m Bayrak", "M75", TrackType.OUTDOOR, RecordLevel.BMR, "1:13.66", "V. Iamandi, P. Ambrus, C. Scafa, I. Szabo", "ROU", 2014, "Bucharest, ROU", "19.09.2014", "", false),
         BenchmarkRecord("4x100m Bayrak", "M80", TrackType.OUTDOOR, RecordLevel.BMR, "1:10.61", "I. Szabo, P. Ambrus, I. Hecko, P. Bologa", "ROU", 2018, "Celje, SLO", "21.09.2018", "", false),
+    )
+
+    private fun getPart31(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("4x400m Bayrak", "M35", TrackType.OUTDOOR, RecordLevel.BMR, "3:22.52", "C.Andonii, D.Halapcuc, L.Ghitoc, V.Bobos", "ROU", 2023, "Pescara,ITA EMACS", "01.10.2023", "", false),
         BenchmarkRecord("4x400m Bayrak", "M40", TrackType.OUTDOOR, RecordLevel.BMR, "3:49.77", "C. Sorin, G. Romascanu, C. Nedelcu, A. Bratu", "ROU", 2018, "Algeciras, ESP", "23.09.2018", "", false),
         BenchmarkRecord("4x400m Bayrak", "M45", TrackType.OUTDOOR, RecordLevel.BMR, "3:52.79", "N.Marić, Z. Solar, I. Macev, M. Trivunovic", "SRB", 2006, "Athens, GRE", "24.09.2006", "", false),
@@ -1703,9 +1696,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("100 Metre", "W95", TrackType.OUTDOOR, RecordLevel.BMR, "30.17", "Elena PAGU", "ROU", 2021, "Bucharest, ROU Romanian", "29.08.2021", "championship w -0.6", false),
         BenchmarkRecord("200 Metre", "W35", TrackType.OUTDOOR, RecordLevel.BMR, "22.45", "Ivet LALOVA COLLIO", "BUL", 2019, "Pravets, BUL International", "03.09.2019", "", false),
         BenchmarkRecord("200 Metre", "W40", TrackType.OUTDOOR, RecordLevel.BMR, "22.72", "Merlene OTTEY", "SLO", 2004, "Athens, GRE Olympic", "23.08.2004", "", false),
-    )
-
-    private fun getPart32(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("200 Metre", "W45", TrackType.OUTDOOR, RecordLevel.BMR, "23.82", "Merlene OTTEY", "SLO", 2006, "Banska Bystrica, SVK International", "27.08.2006", "", false),
         BenchmarkRecord("200 Metre", "W50", TrackType.OUTDOOR, RecordLevel.BMR, "24.33", "Merlene OTTEY", "SLO", 2010, "Velenje, SLO Slovenian", "18.07.2010", "", false),
         BenchmarkRecord("200 Metre", "W55", TrackType.OUTDOOR, RecordLevel.BMR, "28.03", "Renata NOVOSEL", "CRO", 2023, "Celje, SLO Slovenian", "25.06.2023", "masters w -1.5", false),
@@ -1713,6 +1703,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("200 Metre", "W65", TrackType.OUTDOOR, RecordLevel.BMR, "34.96", "Rositsa STAMENOVA", "BUL", 2022, "Thessaloniki,GRE BAMACS", "25.09.2022", "BAMACS w -0,4", false),
         BenchmarkRecord("200 Metre", "W70", TrackType.OUTDOOR, RecordLevel.BMR, "33.18", "Rositsa STAMENOVA", "BUL", 2025, "Madeira,POR EMACS", "16.10.2025", "EMACS w +1.0", false),
         BenchmarkRecord("200 Metre", "W75", TrackType.OUTDOOR, RecordLevel.BMR, "43.38", "Maria ENE", "ROU", 2015, "Thessaloniki,GRE BAMACS", "19.09.2015", "", false),
+    )
+
+    private fun getPart32(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("200 Metre", "W80", TrackType.OUTDOOR, RecordLevel.BMR, "45.01", "Maria ENE", "ROU", 2019, "Bucharest,ROU BAMACS", "22.09.2019", "", false),
         BenchmarkRecord("200 Metre", "W85", TrackType.OUTDOOR, RecordLevel.BMR, "54.22", "Smaragda MANDYLA", "GRE", 2025, "Varaždin, CRO BAMACS", "30.08.2025", "BAMACS w +1.3", false),
         BenchmarkRecord("200 Metre", "W90", TrackType.OUTDOOR, RecordLevel.BMR, "91.99", "Veronica NEGREANU", "ROU", 2021, "Bucharest,ROU Romanian", "29.08.2021", "champ. w +1.0", false),
@@ -1756,9 +1749,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("5000 Metre", "W50", TrackType.OUTDOOR, RecordLevel.BMR, "19:38.95", "Jana KOTAR ILIJAŠ", "SLO", 2020, "Maribor, SLO Slovenian", "20.09.2020", "", false),
         BenchmarkRecord("5000 Metre", "W55", TrackType.OUTDOOR, RecordLevel.BMR, "20:01.62", "Eleni STEFANIDAKI", "GRE", 2025, "Ag. Kosmas, GRE Segas", "18.05.2025", "", false),
         BenchmarkRecord("5000 Metre", "W60", TrackType.OUTDOOR, RecordLevel.BMR, "21:41.98", "Ioana NICA", "ROU", 2019, "Bucharest, ROU BAMACS", "21.09.2019", "", false),
-    )
-
-    private fun getPart33(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("5000 Metre", "W65", TrackType.OUTDOOR, RecordLevel.BMR, "23:22.4", "Stavroula PAPAVASILIOU", "GRE", 2020, "Thessaloniki, GRE Greek", "11.10.2020", "", false),
         BenchmarkRecord("5000 Metre", "W70", TrackType.OUTDOOR, RecordLevel.BMR, "25:34.16", "Jozica ROGELJ", "SLO", 2018, "Celje, SLO BAMACS", "21.09.2018", "", false),
         BenchmarkRecord("5000 Metre", "W75", TrackType.OUTDOOR, RecordLevel.BMR, "26:47.63", "Jozica ROGELJ", "SLO", 2022, "Thessaloniki, GRE BAMACS", "23.09.2022", "", false),
@@ -1766,6 +1756,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("5000 Metre", "W85", TrackType.OUTDOOR, RecordLevel.BMR, "49:28.61", "Despina PETRE", "ROU", 2008, "Bucharest, ROU Romanian", "23.08.2008", "", false),
         BenchmarkRecord("10.000 Metre", "W35", TrackType.OUTDOOR, RecordLevel.BMR, "31:06.63", "Helena JAVORNIK", "SLO", 2004, "Athens, GRE Olympic", "27.08.2004", "", false),
         BenchmarkRecord("10.000 Metre", "W40", TrackType.OUTDOOR, RecordLevel.BMR, "33:07.49", "Helena JAVORNIK", "SLO", 2008, "Istanbul, TUR European", "12.04.2008", "", false),
+    )
+
+    private fun getPart33(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("10.000 Metre", "W45", TrackType.OUTDOOR, RecordLevel.BMR, "37:52.7", "Svetlana SEPELEVA", "MDA", 2014, "Chisinau, MDA", "01.06.2014", "", false),
         BenchmarkRecord("10.000 Metre", "W50", TrackType.OUTDOOR, RecordLevel.BMR, "40:23.54", "Stefanidaki ELENI", "GRE", 2024, "Athens, GRE Liofilia", "14.12.2024", "", false),
         BenchmarkRecord("10.000 Metre", "W55", TrackType.OUTDOOR, RecordLevel.BMR, "43:03.98", "Mina RAPTI", "GRE", 2023, "Athens, GRE International", "16.12.2023", "", false),
@@ -1809,9 +1802,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("200m Engelli", "W70", TrackType.OUTDOOR, RecordLevel.BMR, "56.00", "Ana JERMAN", "SLO", 2025, "Varaždin, CRO BAMACS", "29.08.2025", "", false),
         BenchmarkRecord("2000m Engelli", "W35", TrackType.OUTDOOR, RecordLevel.BMR, "7:07.86", "Tea FABER", "CRO", 2024, "Zagreb, CRO Meeting", "07.07.2024", "", false),
         BenchmarkRecord("2000m Engelli", "W40", TrackType.OUTDOOR, RecordLevel.BMR, "7:46.66", "Slavica POZNIC", "SLO", 2001, "Brisbane, AUS World", "14.07.2001", "", false),
-    )
-
-    private fun getPart34(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("2000m Engelli", "W45", TrackType.OUTDOOR, RecordLevel.BMR, "8:03.40", "Krasimira CHAHOVA", "BUL", 2013, "Porto Alegre, BRA World", "22.10.2013", "", false),
         BenchmarkRecord("2000m Engelli", "W50", TrackType.OUTDOOR, RecordLevel.BMR, "8:32.82", "Mariana PARJU", "ROU", 2022, "Thessaloniki, GRE BAMACS", "25.09.2022", "", false),
         BenchmarkRecord("2000m Engelli", "W55", TrackType.OUTDOOR, RecordLevel.BMR, "8:43.87", "Philippa POULIDOU", "GRE", 2024, "Gothenburg, SWE World", "13.08.2024", "", false),
@@ -1819,6 +1809,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("5000m Pist Yürüyüşü", "W35", TrackType.OUTDOOR, RecordLevel.BMR, "21:06.4", "Antigoni DRISBIOTI", "GRE", 2022, "Karpenisi, GRE Greek", "24.06.2022", "", false),
         BenchmarkRecord("5000m Pist Yürüyüşü", "W40", TrackType.OUTDOOR, RecordLevel.BMR, "25:36.10", "Kalliopi GAVALAKI", "GRE", 2009, "Izmir, TUR Balkan", "27.09.2009", "", false),
         BenchmarkRecord("5000m Pist Yürüyüşü", "W45", TrackType.OUTDOOR, RecordLevel.BMR, "27:39.24", "Aggeliki MAKRI", "GRE", 2024, "Thiva, GRE Greek", "06.07.2024", "", false),
+    )
+
+    private fun getPart34(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("5000m Pist Yürüyüşü", "W50", TrackType.OUTDOOR, RecordLevel.BMR, "27:33.62", "Kalliopi GAVALAKI", "GRE", 2019, "Venezia, ITA European", "06.09.2019", "", false),
         BenchmarkRecord("5000m Pist Yürüyüşü", "W55", TrackType.OUTDOOR, RecordLevel.BMR, "29:19.63", "Kalliopi GAVALAKI", "GRE", 2025, "Madeira,POR EMACS", "15.10.2025", "", false),
         BenchmarkRecord("5000m Pist Yürüyüşü", "W60", TrackType.OUTDOOR, RecordLevel.BMR, "32:50.4", "Paula CHIURLEA", "ROU", 2003, "Katerini, GRE Balkan", "20.09.2003", "", false),
@@ -1845,8 +1838,8 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Uzun Atlama", "W50", TrackType.OUTDOOR, RecordLevel.BMR, "5.16", "Ana DAFTSOU", "GRE", 2021, "Alexandropoulis, GRE Greek", "05.06.2021", "meeting w 1.2", false),
         BenchmarkRecord("Uzun Atlama", "W55", TrackType.OUTDOOR, RecordLevel.BMR, "5.46", "Renata NOVOSEL", "CRO", 2023, "Varaždin, CRO Croatian", "08.07.2023", "championship w -1.5", false),
         BenchmarkRecord("Uzun Atlama", "W60", TrackType.OUTDOOR, RecordLevel.BMR, "3.90", "Rozka STANCHEVA", "BUL", 1995, "Pleven, BUL Bulgarian", "18.07.1995", "", false),
-        BenchmarkRecord("Uzun Atlama", "W65", TrackType.OUTDOOR, RecordLevel.BMR, "3.49", "Rozka STANCHEVA", "BUL", 1999, "Sofia, BUL Bulgarian", "18.07.1999", "", false),
-        BenchmarkRecord("Uzun Atlama", "W65", TrackType.OUTDOOR, RecordLevel.BMR, "3.49", "Eleni GOUZIA", "GRE", 2010, "Nyiregyhaza, HUN European", "20.07.2010", "", false),
+        BenchmarkRecord("Uzun Atlama", "W65", TrackType.OUTDOOR, RecordLevel.BMR, "3.49", "Rozka STANCHEVA", "BUL", 1999, "Sofia, BUL Bulgarian", "18.07.1999", "", true),
+        BenchmarkRecord("Uzun Atlama", "W65", TrackType.OUTDOOR, RecordLevel.BMR, "3.49", "Eleni GOUZIA", "GRE", 2010, "Nyiregyhaza, HUN European", "20.07.2010", "", true),
         BenchmarkRecord("Uzun Atlama", "W70", TrackType.OUTDOOR, RecordLevel.BMR, "3.47", "Rozka STANCHEVA", "BUL", 2004, "Istanbul, TUR BAMACS", "11.09.2004", "", false),
         BenchmarkRecord("Uzun Atlama", "W75", TrackType.OUTDOOR, RecordLevel.BMR, "3.36", "Rozka STANCHEVA", "BUL", 2007, "Riccione, ITA World", "05.09.2007", "", false),
         BenchmarkRecord("Uzun Atlama", "W80", TrackType.OUTDOOR, RecordLevel.BMR, "2.75", "Rozka STANCHEVA", "BUL", 2013, "Torino, ITA World", "09.08.2013", "", false),
@@ -1862,9 +1855,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Üçadım Atlama", "W75", TrackType.OUTDOOR, RecordLevel.BMR, "4.94", "Mira PUHAR", "SLO", 2013, "Zagreb, CRO BAMACS", "07.09.2013", "", false),
         BenchmarkRecord("Üçadım Atlama", "W80", TrackType.OUTDOOR, RecordLevel.BMR, "5.96", "Rozka STANCHEVA", "BUL", 2013, "Torino, ITA World", "07.08.2013", "", false),
         BenchmarkRecord("Yüksek Atlama", "W35", TrackType.OUTDOOR, RecordLevel.BMR, "1.98", "Venelina VENEVA", "BUL", 2011, "Split, CRO International", "24.06.2011", "", false),
-    )
-
-    private fun getPart35(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Yüksek Atlama", "W40", TrackType.OUTDOOR, RecordLevel.BMR, "1.90", "Venelina VENEVA", "BUL", 2014, "Plovdiv, BUL Bulgarian", "12.07.2014", "", false),
         BenchmarkRecord("Yüksek Atlama", "W45", TrackType.OUTDOOR, RecordLevel.BMR, "1.53", "Aycan KURTCAN", "TUR", 2014, "Bucharest, ROU BAMACS", "19.09.2014", "", false),
         BenchmarkRecord("Yüksek Atlama", "W50", TrackType.OUTDOOR, RecordLevel.BMR, "1.50", "Aycan KURTCAN", "TUR", 2019, "Torino, ITA World", "31.07.2019", "", false),
@@ -1872,6 +1862,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Yüksek Atlama", "W60", TrackType.OUTDOOR, RecordLevel.BMR, "1.38", "Stanka PREZELJ", "SLO", 2012, "Zittau, GER EMACS", "19.08.2012", "", false),
         BenchmarkRecord("Yüksek Atlama", "W65", TrackType.OUTDOOR, RecordLevel.BMR, "1.31", "Stanka PREZELJ", "SLO", 2018, "Celje, SLO BAMACS", "21.09.2018", "", false),
         BenchmarkRecord("Yüksek Atlama", "W70", TrackType.OUTDOOR, RecordLevel.BMR, "1.25", "Stanka PREZELJ", "SLO", 2022, "Ljubljana, SLO VAD", "10.08.2022", "", false),
+    )
+
+    private fun getPart35(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Yüksek Atlama", "W75", TrackType.OUTDOOR, RecordLevel.BMR, "1.04", "Marjeta CAD", "SLO", 2023, "Kolin, Czech", "07.05.2023", "", false),
         BenchmarkRecord("Yüksek Atlama", "W80", TrackType.OUTDOOR, RecordLevel.BMR, "0.89", "Mira PUHAR", "SLO", 2018, "Celje, SLO Balkan", "21.09.2018", "", false),
         BenchmarkRecord("Sırıkla Atlama", "W35", TrackType.OUTDOOR, RecordLevel.BMR, "4.80", "Tina ŠUTEJ", "SLO", 2025, "Tokyo,JAP World", "17.09.2025", "", false),
@@ -1915,9 +1908,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Cirit Atma", "W80", TrackType.OUTDOOR, RecordLevel.BMR, "16.70", "Angela MINCULESCU", "ROU", 2015, "Thessaloniki, GRE Balkan", "19.09.2015", "", false),
         BenchmarkRecord("Çekiç Atma", "W35", TrackType.OUTDOOR, RecordLevel.BMR, "75.95", "Zalina MARGHIEVA", "MDA", 2024, "Balchik, BLR 12th", "11.05.2024", "", false),
         BenchmarkRecord("Çekiç Atma", "W40", TrackType.OUTDOOR, RecordLevel.BMR, "67.96", "Yipsi MORENO", "ALB", 2025, "Maribor, SLO EA", "25.06.2025", "", false),
-    )
-
-    private fun getPart36(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Çekiç Atma", "W45", TrackType.OUTDOOR, RecordLevel.BMR, "41.87", "Yianna PANAVOGLOU", "GRE", 2022, "Thessaloniki, GRE BAMACS", "23.09.2022", "", false),
         BenchmarkRecord("Çekiç Atma", "W50", TrackType.OUTDOOR, RecordLevel.BMR, "35.63", "Maria POLOMARKAKI", "GRE", 2018, "Heraklion, GRE Greek", "03.11.2018", "", false),
         BenchmarkRecord("Çekiç Atma", "W55", TrackType.OUTDOOR, RecordLevel.BMR, "34.35", "Teodora ALBRECHT", "ROU", 2003, "Weiblingen, GER German", "03.10.2003", "", false),
@@ -1925,6 +1915,9 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Çekiç Atma", "W65", TrackType.OUTDOOR, RecordLevel.BMR, "34.08", "Teodora ALBRECHT", "ROU", 2012, "Loffingen, GER German", "30.06.2012", "", false),
         BenchmarkRecord("Çekiç Atma", "W70", TrackType.OUTDOOR, RecordLevel.BMR, "29.31", "Magdalini ROULIDU TSITSOULA", "GRE", 2025, "Madeira,POR EMACS", "10.10.2025", "", false),
         BenchmarkRecord("Çekiç Atma", "W75", TrackType.OUTDOOR, RecordLevel.BMR, "24.89", "Zvezdana KRŽIČ", "SLO", 2023, "Celje, SLO Slovenian", "25.06.2023", "", false),
+    )
+
+    private fun getPart36(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Çekiç Atma", "W80", TrackType.OUTDOOR, RecordLevel.BMR, "19.88", "Angela MINCULESCU", "ROU", 2015, "Bucharest, ROU Romanian", "04.07.2015", "", false),
         BenchmarkRecord("Çekiç Atma", "W85", TrackType.OUTDOOR, RecordLevel.BMR, "8.00", "Rozka STANCHEVA", "BUL", 2019, "Sofia,BUL Bulgarian", "09.06.2019", "", false),
         BenchmarkRecord("Çekiç Atma", "W90", TrackType.OUTDOOR, RecordLevel.BMR, "6.75", "Rozka STANCHEVA", "BUL", 2024, "Sofia,BUL Bulgarian", "11.05.2024", "", false),
@@ -1968,9 +1961,6 @@ object BalkanRecordsArchive {
         BenchmarkRecord("4x400m Bayrak", "W45", TrackType.OUTDOOR, RecordLevel.BMR, "4:55.13", "Vasiloanca, Gioc, Pasare, Ionescu", "ROU", 2019, "Bucharest, ROU", "21.09.2019", "", false),
         BenchmarkRecord("4x400m Bayrak", "W50", TrackType.OUTDOOR, RecordLevel.BMR, "5:23.96", "M. Bazavan, M. Pacrita, M. Pop, M. Mois", "ROU", 2006, "Athens, GRE", "24.09.2006", "", false),
         BenchmarkRecord("4x400m Bayrak", "W55", TrackType.OUTDOOR, RecordLevel.BMR, "5:39.79", "Ciobanu, Bors, Beres, Aristita", "ROU", 2022, "Thessaloniki, GRE", "24.09.2022", "", false),
-    )
-
-    private fun getPart37(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("4x400m Bayrak", "W60", TrackType.OUTDOOR, RecordLevel.BMR, "6:59.18", "R. Arabaci, F. Musal, A. Yildiz, N. Cakmak", "TUR", 2023, "Izmir,TUR BAMACS", "02.09.2023", "", false),
         BenchmarkRecord("Balkan Bayrak (8-4-2-100m)", "W35", TrackType.OUTDOOR, RecordLevel.BMR, "4:15.03", "A. Thomaidou, F. Lykou, A. Daftsou, K. Trambidou", "GRE", 2015, "Thessaloniki, GRE", "19.09.2015", "", false),
         BenchmarkRecord("Balkan Bayrak (8-4-2-100m)", "W40", TrackType.OUTDOOR, RecordLevel.BMR, "4:15.19", "A. Thomaidu, V. Georgiadu, A. Daftsou, M. Mouratidou", "GRE", 2022, "Thessaloniki, GRE", "25.09.2022", "", false),
@@ -1978,19 +1968,14 @@ object BalkanRecordsArchive {
         BenchmarkRecord("Balkan Bayrak (8-4-2-100m)", "W50", TrackType.OUTDOOR, RecordLevel.BMR, "4:43.21", "S. Dokuzlar, B. Kilic, F. Anter, A. Benli", "TUR", 2017, "Stara Zagora,", "24.09.2017", "", false),
         BenchmarkRecord("Balkan Bayrak (8-4-2-100m)", "W55", TrackType.OUTDOOR, RecordLevel.BMR, "5:13.03", "P. Bors, I. Beres, A. Eremia, I. R. Szabo", "ROU", 2024, "Bar, MNE", "29.09.2024", "", false),
         BenchmarkRecord("Balkan Bayrak (8-4-2-100m)", "W60", TrackType.OUTDOOR, RecordLevel.BMR, "5:39.77", "E. Pall, M. Pacrita, M. Pop, R. Prodan", "ROU", 2015, "Thessaloniki, GRE", "19.09.2015", "", false),
+    )
+
+    private fun getPart37(): List<BenchmarkRecord> = listOf(
         BenchmarkRecord("Balkan Bayrak (8-4-2-100m)", "W65", TrackType.OUTDOOR, RecordLevel.BMR, "6:02.07", "E. Pall, M. Pop, M. Ene, R. Prodan", "ROU", 2016, "Novi Sad,", "25.09.2016", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X35", TrackType.OUTDOOR, RecordLevel.BMR, "48.31", "Bobos-Dragusin, Moraru, Bobos, Andonii", "ROU", 2025, "Varaždin,CRO BAMACS", "30.08.2025", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X40", TrackType.OUTDOOR, RecordLevel.BMR, "52.06", "Hristova, Angelova, Petrov, Bozukov", "BUL", 2025, "Varaždin,CRO BAMACS", "30.08.2025", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X45", TrackType.OUTDOOR, RecordLevel.BMR, "54.77", "Ciocan, Szekely, Gavanescu, Amuza", "ROU", 2025, "Varaždin,CRO BAMACS", "30.08.2025", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X50", TrackType.OUTDOOR, RecordLevel.BMR, "52.94", "Mouratidu, Daftsou, Tsiolis, Kokkos", "GRE", 2025, "Varaždin,CRO BAMACS", "30.08.2025", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X55", TrackType.OUTDOOR, RecordLevel.BMR, "55.59", "Lacković, Novosel, Samac, Zetić", "CRO", 2025, "Varaždin,CRO BAMACS", "30.08.2025", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X60", TrackType.OUTDOOR, RecordLevel.BMR, "66.09", "Nikolova, Ancheva, Hristov, Chilikov", "BUL", 2025, "Varaždin,CRO BAMACS", "30.08.2025", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X65", TrackType.OUTDOOR, RecordLevel.BMR, "96.70", "Ploumi, Vainia, Mpertsimas, Spitalas", "GRE", 2025, "Varaždin,CRO BAMACS", "30.08.2025", "", false),
-        BenchmarkRecord("4x100m Bayrak", "X70", TrackType.OUTDOOR, RecordLevel.BMR, "70.15", "Eremia, Grigorescu, Grigorescu, Neagu", "ROU", 2025, "Varaždin,CRO BAMACS", "30.08.2025", "", false),
     )
 
     val RECORDS: List<BenchmarkRecord> by lazy {
-        val list = ArrayList<BenchmarkRecord>(1866)
+        val list = ArrayList<BenchmarkRecord>(1851)
         list.addAll(getPart0())
         list.addAll(getPart1())
         list.addAll(getPart2())
