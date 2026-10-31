@@ -1,0 +1,469 @@
+WMA STADIA RECORDS - MEN
+100m Wind
+M 35 9.87 -0.1 Justin Gatlin USA 37 30/06/19 Stanford, USA
+M 40 9.93 1.9 Kim Collins SKN 40 29/05/16 Bottrop, GER
+M 45 10.72 1.0 Willie Gault USA 45 24/06/06 Indianapolis, USA
+M 45 10.72 +0.0 Lion Martinez SWE 45 19/08/23 Regensdorf, SUI
+M 50 10.88 1.8 Willie Gault USA 50 07/05/11 Los Angeles, USA
+M 55 11.30 +0.0 Willie Gault USA 55 07/05/16 Eagle Rock, USA
+M 60 11.66 0.1 Mario Longo ITA 60 05/07/25 Nocera Inferiore, ITA
+M 65 12.03 +0.6 B John Wright GBR 67 23/08/26 Daegu, KOR
+M 70 12.59 -0.2 Damien Leake USA 70 27/05/23 Los Angeles, USA
+M 75 13.25 0.8 Kenton Brown USA 76 03/10/20 Marble Falls, USA
+M 80 14.16 +0.4 Kenton Brown USA 81 23/08/26 Daegu, KOR
+M 85 15.08 1.9 Hiroo Tanaka JPN 86 25/06/17 Akita, JPN
+M 90 16.69 -0.6 Hiroo Tanaka JPN 90 29/08/21 Hirosaki, JPN
+M 95 20.41 0.1 Frederico Fischer BRA 95 30/06/12 Porto Alegre, BRA
+M100 26.74 2.0 Toshio Kamehama JPN 100 02/11/25 Okinawa, JPN
+M105 34.50 -0.1 Stanisław Kowalski POL 105 27/06/15 Toruń, POL
+
+200m
+M 35 20.11 1.9 Linford Christie GBR 35 25/06/95 Villeneuve, SWE
+M 40 20.64 1.9 Troy Douglas NED 40 27/08/03 Paris, FRA
+M 45 21.65 0.0 Alexander Kosenkow GER 45 23/07/22 Minden, GER
+M 50 22.44 1.2 Willie Gault USA 50 07/05/11 Los Angeles, USA
+M 55 23.04 +1.7 Darren Scott GBR 55 08/09/24 London, GBR
+M 60 24.00 -0.3 Ronald Taylor GBR 60 10/06/94 Athens, GRE
+M 65 24.47 +0.8 John Wright GBR 66 23/08/25 Sheffield, GBR
+M 70 25.75 +1.7 Charles Allie USA 70 21/06/18 Des Moines, USA
+M 75 27.60 +1.6 Michael Kish USA 75 19/07/26 Geneva, USA
+M 80 29.49 +0.3 Kenton Brown USA 81 07/10/25 St. George, USA
+M 85 31.69 -0.3 Hijiya Hisamitsu JPN 85 17/09/16 Nigata, JPN
+M 90 36.02 1.1 Hiroo Tanaka JPN 90 23/05/21 Rokkasho, JPN
+M 95 48.09 0.0 Toshio Kamehama JPN 96 16/10/22 Okinawa, JPN
+M100 1:17.59 +1.5 Philip Rabinowitz RSA 100 17/12/04 Cape Town, RSA
+
+400m
+M 35 44.54 Christopher Brown BAH 36 30/05/15 Eugene, USA
+M 40 47.81 Enrico Saraceni ITA 40 28/07/04 Århus, DEN
+M 45 48.55 Ricardo Menendez Gonzalez ESP 45 06/07/24 Madrid, ESP
+M 50 50.51 Juan Luis Lopez Anaya ESP 51 16/07/21 Granada, ESP
+M 55 51.18 Timothy Munnings BAH 58 15/02/25 Nassau, BAH
+M 60 53.88 Ralph Romain TTO 63 22/07/95 Buffalo, USA
+M 65 56.09 Charles Allie USA 65 18/05/13 Raleigh, USA
+M 70 57.26 Charles Allie USA 71 11/09/18 Málaga, ESP
+M 75 1:02.40 Guido Müeller GER 75 28/06/14 Elsenfeld, GER
+M 80 1:10.01 Hijiya Hisamitsu JPN 81 16/09/12 Miyazaki, JPN
+M 85 1:17.12 Earl Fee CAN 85 12/07/14 Toronto, CAN
+M 90 1:29.15 Earl Fee CAN 90 19/07/19 Toronto, CAN
+M 95 2:21.82 Orville Rogers USA 95 12/07/13 Olathe, USA
+M100 3:30.26 Yoshimitsu Miyauchi JPN 100 10/11/24 Kagoshima, JPN
+
+800m
+M 35 1:43.36 Johnny Gray USA 35 16/08/95 Zürich, SUI
+M 40 1:48.05 Anthony Whiteman GBR 42 12/07/14 Manchester, GBR
+M 45 1:49.86 Anthony Whiteman GBR 45 19/08/17 Manchester, GBR
+M 50 1:56.33 Zac Ashkanasy AUS 52 20/01/26 Melbourne, AUS
+M 55 2:02.53 Andrew Larasen NED 55 18/10/25 Madeira, POR
+M 60 2:06.67 Andrew Ridley GBR 61 20/05/26 Winchester, GBR
+M 65 2:13.74 Paul Forbes GBR 66 29/09/23 Pescara, ITA
+M 70 2:20.52 Earl Fee CAN 70 17/06/99 Boston, USA
+M 75 2:30.59 José Vicente Rioseco López ESP 75 18/06/16 Vilagarcia, ESP
+M 80 2:41.59 José Vicente Rioseco López ESP 80 30/04/21 La Coruña-Bas, ESP
+M 85 2:59.50 Jean Louis Esnault FRA 85 05/07/25 Issy Les Moulineaux
+M 90 3:34.93 Earl Fee CAN 90 23/06/19 Toronto, CAN
+M 95 4:51.44 Antonio Nacca ITA 95 09/06/19 Asti, ITA
+M 100 8:09.74 Yoshimitsu Miyauchi JPN 100 21/09/24 Kyoto, JPN
+
+1500m
+M 35 3:32.51 Bernard Lagat USA 35 22/07/10 Monaco, MON
+M 40 3:41.87 Bernard Lagat USA 40 07/06/15 Birmingham, GBR
+M 45 3:48.72 Anthony Whiteman GBR 45 08/07/17 Loughborough, GBR
+M 50 3:57.71 Zachariah Ashkanasy AUS 51 27/03/25 Melbourne, AUS
+M 55 4:11.95 Robert Godino AUS 56 30/10/25 Brisbane, AUS
+M 60 4:21.21 Andrew Ridley GBR 61 13/08/25 Guildford, GBR
+M 65 4:39.15 Paul Forbes GBR 66 28/07/23 Glasgow, GBR
+M 70 4:52.95 Ron Robertson NZL 70 15/07/11 Sacramento, USA
+M 75 5:11.05 Cees Stolwijk NED 75 25/03/25 Amersfoort, NED
+M 80 5:30.89 José Vicente Rioseco López ESP 80 19/06/21 Castellón, ESP
+M 85 6:08.61 Manuel Alonso Domingo ESP 85 01/05/21 Arganda, ESP
+M 90 7:12.71 Manuel Alonso Domingo ESP 90 11/07/26 Acoruña, ESP
+M 95 10:10.88 Yoshimitsu Miyauchi JPN 95 13/09/19 Maebashi, JPN
+M100 16:01.54 Yoshimitsu Miyauchi JPN 100 10/11/24 Kagoshima, JPN
+
+One Mile
+M 35 3:51.38 Bernard Lagat USA 36 06/08/11 London, GBR
+M 40 3:57.91 Bernard Lagat USA 40 25/07/15 London, GBR
+M 45 4:13.96 Davide Raineri ITA 46 06/06/19 Rome, ITA
+M 50 4:17.19 José Antonio Alcaraz Perez ESP 50 30/05/26 Toledo, ESP
+M 55 4:29.60 Robert Godino AUS 55 30/11/24 Brisbane, AUS
+M 60 4:41.81 Andrew Ridley GBR 60 31/07/24 Guildford, GBR
+M 65 4:56.4 Derek Turnbull NZL 65 29/02/92 Christchurch, NZL
+M 70 5:19.75 Joop Rüter NED 70 11/07/03 Rotterdam, NED
+M 75 5:36.09 Cees Stolwijk NED 75 21/05/25 Dronten, NED
+M 80 5:56.93 José Vicente Rioseco López ESP 80 18/07/21 Vigo, ESP
+M 85 6:40.25 Manuel Alonso Domingo ESP 85 22/05/21 Sabadell, ESP
+M 90 7:43.58 Manuel Alonso Domingo ESP 90 30/05/26 Toledo, ESP
+M 95 11:56.04 Antonio Nacca ITA 95 07/04/19 Novara, ITA
+
+3000m
+M 35 7:29.00 Bernard Lagat USA 35 29/08/10 Rieti, ITA
+M 40 7:42.75 Bernard Lagat USA 40 14/07/15 Luzern, SUI
+M 45 8:15.58 Vyacheslav Shavunin RUS 45 01/07/15 Moscow, RUS
+M 50 8:37.94 Antoni Bernado Planas AND 51 14/07/18 Granollers, ESP
+M 55 8:55.93 Peter van der Velden NED 55 27/07/24 Kessel, BEL
+M 60 9:21.38 Yoshitsugu Iwanaga JPN 60 26/09/20 Saga, JPN
+M 65 9:47.4 Derek Turnbull NZL 65 08/02/92 Christchurch, NZL
+M 70 10:36.54 Lucien Heyde BEL 70 07/08/26 Gent, BEL
+M 75 10:58.7h Cees Stolwijk NED 75 28/08/25 Breda, NED
+M 80 11:56.25 José Vicente Rioseco López ESP 80 04/09/21 Pontevedra, ESP
+M 85 14:09.66 Jean Louis Esnault FRA 85 09/07/25 Chartres, FRA
+M 90 16:20.96 David Carr AUS 90 23/06/22 Perth, AUS
+M 95 22:46.4 Antonio Nacca ITA 95 16/12/18 Novara, ITA
+
+5000m
+M 35 12:53.60 Bernard Lagat USA 36 22/07/11 Monaco, MON
+M 40 13:06.78 Bernard Lagat USA 41 20/08/16 Rio de Janeiro, BRA
+M 45 14:23.6 Lucien Rault FRA 46 19/06/82 Vannes, FRA
+M 50 14:51.38 Francis Kipkoech Bowen KEN 50 14/08/24 Gothenburg, SWE
+M 55 15:29.7 Keith Bateman AUS 55 05/01/11 Blacktown, AUS
+M 60 15:52.9h Stephen Moneghetti AUS 60 01/12/22 Melbourne, AUS
+M 65 16:36.59 Alastair Walker GBR 66 13/08/22 Tullamore, IRL
+M 70 18:15.53 Ron Robertson NZL 70 09/07/11 Sacramento, USA
+M 75 18:50.07 Cees Stolwijk NED 75 21/09/25 Breda, NED
+M 80 20:20.01 José Vicente Rioseco López ESP 80 04/09/21 Pontevedra, ESP
+M 85 23:51.51 Fokke Kramer GER 85 09/07/23 Liel, GER
+M 90 29:28.60 David Carr AUS 90 13/10/22 Perth, AUS
+M 95 39:42.52 Antonio Nacca ITA 95 04/05/19 Novara, ITA
+
+10000m
+M 35 26:51.20 Haile Gebrselassie ETH 35 24/05/08 Hengelo, NED
+M 40 27:49.35 Bernard Lagat USA 41 01/05/16 Stanford, USA
+M 45 29:39.43 Mustafa Mohamed SWE 45 27/07/24 Uddevalla, SWE
+M 50 30:48.87 Sean Wade USA 50 01/04/16 San Francisco, USA
+M 55 31:51.86 Keith Bateman AUS 55 26/03/11 Sydney, AUS
+M 60 33:32.09 John Meagher AUS 60 28/07/24 Melbourne, AUS
+M 65 34:42.2 Derek Turnbull NZL 65 13/03/92 Christchurch, NZL
+M 70 38:04.13 Edward Whitlock CAN 70 09/07/01 Brisbane, AUS
+M 75 39:08.28 Cees Stolwijk NED 75 25/09/25 Hengelo, NED
+M 80 42:39.95 Edward Whitlock CAN 80 11/07/11 Sacramento, USA
+M 85 51:07.53 Edward Whitlock CAN 85 12/08/16 Toronto, CAN
+M 90 1:02:48.93 David Carr AUS 90 11/08/22 Perth, AUS
+
+3000m Steeplechase
+M 35 8:04.95 Simon Vroemen NED 35 24/08/04 Brussels, BEL
+M 40 8:38.40 Angelo Carosi ITA 40 11/07/04 Firenze, ITA
+M 45 8:58.65 Max King USA 46 18/04/26 Eugene, USA
+M 50 9:38.8 Nils Undersåker NOR 50 10/06/89 Stjørdal, NOR
+M 55 9:55.05 Ron Robertson NZL 56 27/07/97 Durban, RSA
+
+2000m Steeplechase
+M 60 6:30.21 Ron Robertson NZL 60 14/07/01 Brisbane, AUS
+M 65 7:09.29 Richard Lee USA 65 22/08/26 Daegu, KOR
+M 70 7:10.03 Ron Robertson NZL 70 17/07/11 Sacramento, USA
+M 75 8:29.26 José Vicente Rioseco López ESP 78 29/06/19 Sagunto, ESP
+M 80 9:35.1 David Carr AUS 80 01/02/13 Perth, AUS
+M 85 10:53.3 David Carr AUS 85 21/12/17 Perth, AUS
+M 90 12:26.57 David Carr AUS 90 15/09/22 Perth, AUS
+
+110m Hurdles
+M 35 12.96 0.4 Allen Johnson USA 35 17/09/06 Athens, GRE
+M 40 13.73 -0.5 David Ashford USA 40 11/07/03 Carolina, PUR
+M 45 14.26 0.3 Jan Schindzielorz GER 45 13/08/23 Mönchengladbach, GER
+
+100m Hurdles
+M 50 13.49 1.3 Joe Appiah GBR 51 11/06/22 London, GBR
+M 55 13.75 1.2 Joe Appiah GBR 55 09/08/25 London, GBR
+M 60 14.37 0.4 Thaddeus Wilson USA 60 29/07/11 Berea, USA
+M 65 15.08 1.0 Peter Grimes USA 65 19/07/24 Sacramento, USA
+
+80m Hurdles
+M 70 12.58 -1.0 Ward Hazen CAN 71 10/08/25 Charlottesville, USA
+M 75 13.62 James Stookey USA 75 04/09/05 McLean, USA
+M 80 14.75 0.1 Melvin Larsen USA 81 31/08/05 San Sebastian, ESP
+M 85 17.33 -0.1 Anthony Bowman GBR 85 08/06/21 Manchester, GBR
+M 90 21.62 -1.5 Ralph Maxwell USA 91 07/07/11 Sacramento, USA
+
+400m Hurdles
+M 35 48.13 Danny McFarlane JAM 37 28/07/09 Monaco, MON
+M 40 49.69 Danny McFarlane JAM 40 29/06/12 Kingston, JAM
+M 45 53.57 Aramis Díaz ITA 45 05/09/20 Rome, ITA
+M 50 54.91 Ian Weakly USA 50 17/08/24 Gothenburg, SWE
+M 55 57.49 Toine van Beckhoven NED 56 25/05/26 Tilburg, NED
+
+300m Hurdles
+M 60 42.31 Guido Müeller GER 60 01/08/99 Gateshead, GBR
+M 65 43.88 Guido Müeller GER 65 25/07/04 Århus, DEN
+M 70 45.24 Guido Müeller GER 70 10/07/09 Vaterstetten, GER
+M 75 49.65 Guido Müeller GER 75 12/07/14 Erfurt, GER
+
+200m Hurdles
+M 80 36.06 +1.4 John MacDermott IRL 80 17/08/24 Gothenburg, SWE
+M 85 42.70 +0.4 Earl Fee CAN 85 23/08/14 San Jose, CRC
+M 90 51.31 Ralph Maxwell USA 90 29/08/10 Fort Collins, USA
+
+High Jump
+M 35 2.31 Dragutin Topić SRB 38 28/07/09 Kragujevac, SRB
+2.31 Jamie Nieto USA 35 09/06/12 New York, USA
+M 40 2.28 Dragutin Topić SRB 41 20/05/12 Beograd, SRB
+M 45 2.05 Charles Austin USA 46 21/06/14 San Marcos, USA
+M 50 1.98 Thomas Zacharias GER 50 17/05/97 Baunatal, GER
+M 55 1.91 Marco Segatel ITA 55 08/07/17 Orvieto, ITA
+M 60 1.82 Rüdiger Weber GER 60 15/06/24 Erding, GER
+M 65 1.68 Bruce McBarnette USA 65 06/08/23 Columbia, USA
+1.68 Manfred Ziegler GER 65 25/05/25 Vohenstrauß, GER
+M 70 1.60 Dušan Prezelj SLO 71 22/07/20 Ptuj, SLO
+M 75 1.49 Carl-Erik Särndal SWE 76 17/09/13 Lund, SWE
+M 80 1.38 Carl-Erik Särndal SWE 80 20/08/17 Karlskrona, SWE
+M 85 1.28 Carl-Erik Särndal SWE 85 24/07/22 Ystad, SWE
+M 90 1.12 Brian Greaves AUS 90 19/04/25 Adelaide, AUS
+M 95 1.00 Emmerich Zensch AUT 95 14/08/15 Lyon, FRA
+M 100 .90 Donald Pellmann USA 100 20/09/15 San Diego, USA
+
+Pole Vault
+M 35 5.90 Björn Otto GER 35 01/06/13 Eugene, USA
+M 40 5.70 Jeff Hartwig USA 40 29/06/08 Eugene, USA
+M 45 5.25 Oscar Janson SWE 45 13/08/22 Mölndal, SWE
+M 50 4.75 Gary Hunter USA 51 04/08/07 Orono, USA
+M 55 4.60 Wolfgang Ritte GER 55 08/06/08 V. Friedrichsf, GER
+M 60 4.32 Wolfgang Ritte GER 60 19/05/13 Wipperfürth, GER
+M 65 4.05 Wolfgang Ritte GER 65 19/05/18 Wipperfürth, GER
+M 70 3.53 Wolfgang Ritte GER 70 24/09/23 Pescara, ITA
+M 75 3.20 Donald Isett USA 75 31/05/14 Dallas, USA
+M 80 2.75 Bud Held USA 80 04/10/08 Santa Barbara, USA
+M 85 2.28 Frank Dickey USA 85 09/04/17 San Antonio, USA
+M 90 2.05 William Bell Sr USA 91 12/07/13 Olathe, USA
+M 95 1.35 William Bell Sr USA 95 15/07/17 Baton Rouge, USA
+
+Long Jump
+M 35 8.50 1.9 Larry Myricks USA 35 15/06/91 New York, USA
+8.50 -1.3 Carl Lewis USA 35 29/07/96 Atlanta, USA
+M 40 7.68 1.5 Aaron Sampson USA 40 21/06/02 Cedar City, USA
+M 45 7.27 +1.2 Tapani Taavitsainen FIN 46 21/08/90 Bern, SUI
+M 50 6.84 +1.7 Tapani Taavitsainen FIN 50 18/06/94 Geneve, SUI
+M 55 6.50 +0.0 Gianni Becatti ITA 55 09/09/18 Málaga, ESP
+M 60 6.18 +2.0 Gianni Becatti ITA 61 07/09/24 Pietrasanta, ITA
+M 65 5.54 +0.5 Stanislaw Chmielewski POL 66 05/07/25 Gorow Wielkopolski, POL
+M 70 5.19 -0.8 Melvin Larsen USA 70 12/08/94 Eugene, USA
+M 75 4.83 0.8 Saburo Ishigami JPN 75 25/08/05 Osaka, JPN
+M 80 4.45 0.3 Eberhard Linke GER 80 30/05/24 Kreuztal, GER
+M 85 3.83 +1.1 Mamoru Saito JPN 85 11/09/22 Maebashi, JPN
+M 90 3.26 Donald Pellmann USA 90 04/09/05 Fort Collins, USA
+M 95 2.31 +0.1 William Platts USA 95 09/10/23 St. George, USA
+M 100 1.78 +0.0 Donald Pellmann USA 100 20/09/15 San Diego, USA
+
+Triple Jump
+M 35 17.92 +0.7 Jonathan Edwards GBR 35 06/08/01 Edmonton, CAN
+M 40 16.93 -0.3 Fabrizio Donato ITA 40 06/09/16 Rovereto, ITA
+M 45 15.34 +1.2 Tosin Oke NGR 45 04/07/26 Bedford, GBR
+M 50 14.44 +0.0 Wolfgang Knabe GER 50 18/07/09 Lübeck, GER
+M 55 14.13 +0.7 Wolfgang Knabe GER 55 28/08/14 Izmir, TUR
+M 60 12.82 +0.2 Wolfgang Knabe GER 61 10/07/21 Garbsen, GER
+M 65 12.16 +1.1 Wolfgang Knabe GER 66 23/08/25 Gotha, GER
+M 70 10.77 +1.0 Arne Tefre NOR 70 19/10/25 Madeira, POR
+M 75 10.12 +1.6 Olle Borg SWE 76 12/09/24 Arvika, SWE
+M 80 9.29 -0.1 Eberhard Linke GER 80 15/06/24 Erding, GER
+M 85 8.17 +0.7 Aatos Sainio FIN 85 04/07/10 Tampere, FIN
+M 90 7.10 +0.6 Aatos Sainio FIN 90 22/07/15 Kangasala, FIN
+M 95 5.23 +1.1 Emmerich Zensch AUT 95 09/08/15 Lyon, FRA
+M100 3.52 +1.7 Giuseppe Ottaviani ITA 100 08/07/16 Arezzo, ITA
+
+Shot Put
+M 35 22.58 7.26k Joe Kovacs USA 36 31/05/26 Rabat, MAR
+M 40 21.41 7.26k Brian Oldfield USA 40 22/08/85 Innsbruck, AUT
+M 45 20.77 7.26k Ivan Ivancic YUG 45 31/08/83 Koblenz, GER
+M 50 18.90 6k Andy Dittmar GER 51 20/09/25 Ohrdruf, GER
+M 55 17.38 6k Klaus Liedtke GER 55 22/06/96 Gelsenkirchen, GER
+M 60 18.37 5k Klaus Liedtke GER 60 23/06/01 Köln, GER
+M 65 16.66 5k Quenton Torbert USA 65 30/04/17 Eugene, USA
+M 70 16.33 4k Quenton Torbert USA 70 07/05/22 Eugene, USA
+M 75 14.24 4k Karl-Heinz Marg GER 75 12/07/13 Mönchengladbach, GER
+M 80 13.98 3k Leo Saarinen FIN 80 15/08/09 Kangasala, FIN
+M 85 12.38 3k Roland Heiler GER 85 14/06/24 Erding, GER
+M 90 10.49 3k Östen Edlund SWE 90 13/06/25 Gotland, SWE
+M 95 8.21 3k Donald Pellmann USA 95 27/03/11 Palo Alto, USA
+M100 6.56 3k Donald Pellmann USA 100 20/09/15 San Diego, USA
+M105 3.25 3k Hidekichi Miyazaki JPN 105 23/09/15 Kyoto, JPN
+
+Discus
+M 35 71.56 2.0k Virgiljus Alekna LTU 35 25/07/07 Kaunas, LTU
+M 40 70.28 2.0k Virgiljus Alekna LTU 40 23/06/12 Klaipeda, LTU
+M 45 66.12 2.0k Al Oerter USA 45 28/03/82 Westfield, USA
+M 50 68.40 1.5k Klaus Weiffenbach GER 52 10/05/97 Medelby, GER
+M 55 64.58 1.5k Klaus Liedtke GER 59 08/10/00 Medelby, GER
+M 60 66.36 1.0k Klaus Liedtke GER 60 19/05/01 Schwerte-Erg., GER
+M 65 59.75 1.0k Klaus Liedtke GER 66 17/08/07 Oer-Erkenschwick, GER
+M 70 55.27 1.0k Carmelo Rado ITA 74 30/09/07 Chiuro, ITA
+M 75 49.21 1.0k Carmelo Rado ITA 75 05/10/08 Besana, ITA
+M 80 41.13 1.0k Östen Edlund SWE 81 21/06/16 Tingstäde, SWE
+M 85 35.92 1.0k Carmelo Rado ITA 86 13/09/19 Venice, ITA
+M 90 28.49 1.0k Ian Reed USA 90 17/09/17 San Diego, USA
+M 95 20.35 1.0k William Platts USA 95 10/06/23 Las Vegas, USA
+M100 14.86 1.0k Donald Pellmann USA 100 20/09/15 San Diego, USA
+M105 7.59 1.0k Sawang Janpram THA 106 27/08/26 Daegu, KOR
+
+Hammer
+M 35 83.62 7.26k Igor Astapkovich BLR 35 20/06/98 Staiki, BLR
+M 40 82.23 7.26k Igor Astapkovich BLR 41 10/07/04 Minsk, POL
+M 45 79.42 7.26k Oleksåndr Drygol UKR 45 29/01/12 Jablonec, CZE
+M 50 73.70 6k Oleksåndr Drygol ISR 52 08/07/18 Dnipro, UKR
+M 55 67.27 6k Jud Logan USA 55 21/09/14 Ashland, USA
+M 60 63.32 5k Arild Busterud NOR 60 28/07/08 Ljūbljana, SLO
+M 65 60.65 5k Arild Busterud NOR 65 23/07/13 Tönsberg, NOR
+M 70 59.04 4k Edward Burke USA 70 07/08/10 Lisle, USA
+M 75 51.88 4k Jerzy Jabłoński POL 77 28/03/23 Toruń, POL
+M 80 50.96 3k Heimo Viertbauer AUT 80 29/09/24 Moosach, GER
+M 85 43.17 3k Walter Krifka AUT 85 18/06/22 Linz, AUT
+M 90 28.97 3k Lothar Huchthausen GER 90 18/10/25 Madeira, POR
+M 95 22.01 3k Antonio Antunes da Fonseca BRA 96 13/07/11 Sacramento, USA
+M100 11.32 3k Trent Lane USA 101 21/06/11 Humble, USA
+
+Javelin
+M 35 92.80 800 Jan Zelezny CZE 35 12/08/01 Edmonton, CAN
+M 40 85.92 800 Jan Zelezny CZE 40 09/08/06 Gothenburg, SWE
+M 45 77.15 800 Peter Blank GER 45 28/05/07 Rehlingen, GER
+M 50 62.13 700 Stellan Back SWE 51 31/05/26 Huddinge, SWE
+M 55 50.39 700 Mark Jeffery AUS 56 02/09/26 Daegu, KOR
+M 60 62.47 600 Esa Kiuru FIN 60 21/07/07 Koria, FIN
+M 65 58.58 600 Esa Kiuru FIN 65 27/05/12 Helsinki, FIN
+M 70 54.47 500 Esa Kiuru FIN 74 10/07/21 Orivesi, FIN
+M 75 52.15 500 Esa Kiuru FIN 75 20/08/22 Vilppula, FIN
+M 80 45.85 400 Jouni Tenhu FIN 80 09/09/19 Venice, ITA
+M 85 40.09 400 Jouni Tenhu FIN 85 19/08/24 Gothenburg, SWE
+M 90 31.46 400 William Platts USA 90 27/07/18 Spokane, USA
+M 95 25.26 400 William Platts USA 95 07/05/23 Eugene, USA
+M100 12.42 400 Takashi Shimokawara JPN 101 26/10/07 Iwate, JPN
+M105 10.04 400 Sawang Janpram THA 106 29/08/26 Daegu, KOR
+
+Weight Throw
+M 35 25.17 15.88k Juriy Tamm EST 35 11/07/92 Mäntyharju, FIN
+M 40 21.66 15.88k Christian Harmse RSA 43 01/04/17 Pretoria, RSA
+M 45 20.79 15.88k Oleksåndr Drygol UKR 45 12/09/11 Lignano, ITA
+M 50 24.24 11.34k Jud Logan USA 50 17/10/09 Bowling Green, USA
+M 55 23.03 11.34k Mariusz Walczak POL 55 27/03/26 Toruń, POL
+M 60 24.20 9.08k Arild Busterud NOR 60 25/07/08 Ljūbljana, SLO
+M 65 22.10 9.08k Arild Busterud NOR 67 05/08/15 Lyon, FRA
+M 70 23.15 7.26k Arild Busterud NOR 70 11/09/18 Málaga, ESP
+M 75 20.69 7.26k Arild Busterud NOR 75 29/09/23 Pescara, ITA
+M 80 20.01 5.45k Jerzy Jabłoński POL 80 24/08/25 Warsaw, POL
+M 85 16.65 5.45k Carmelo Rado ITA 85 15/09/18 Ancona, ITA
+M 90 12.13 5.45k Östen Edlund SWE 90 13/06/25 Gotland, SWE
+M 95 8.25 5.45k William Platts USA 95 07/10/23 Las Vegas, USA
+M100 5.27 5.45k Lauri Helle FIN 100 08/06/25 Perniö, FIN
+
+Pentathlon
+M 35 3647 Franz Mayr GER 35 25/08/91 Aichach, GER
+M 40 3921 Mattias Sunneborn SWE 40 15/06/11 Sätra, SWE
+M 45 3762 Thomas Stewens GER 46 29/09/12 Nieder-Olm, GER
+M 50 4033 Paul Jeffery AUS 51 02/03/25 Perth, AUS
+M 55 3628 Mattias Sunneborn SWE 55 20/09/26 Saltsjö-Boo, SWE
+M 60 4144 Dieter Bartzsch GER 60 18/06/00 Lage, GER
+M 65 3853 Wim Threels NED 68 27/09/20 Stendal, GER
+M 70 3827 Wim Threels NED 70 29/05/22 Stendal, GER
+M 75 3620 Sherwood Sagedahl USA 75 17/07/14 Winston-Salem, USA
+M 80 3180 Sherwood Sagedahl USA 80 11/07/19 Ames, USA
+M 85 2872 Ted Rowan CAN 85 03/08/18 Surrey, CAN
+M 90 2369 Ralph Maxwell USA 91 11/06/11 Raleigh, USA
+M 95 3311 William Platts USA 96 18/07/24 Sacramento, USA
+
+Decathlon
+M 35 8500 Lev Lobodin RUS 35 30/05/04 Götzis, AUT
+M 40 8451 Kip Janvrin USA 40 24/08/05 San Sebastian, ESP
+M 45 7719 Paul Jeffery AUS 45 24/07/19 Perth, AUS
+M 50 7124 Eric Roso FRA 50 25/08/26 Daegu, KOR
+M 55 6921 Mark Jeffery AUS 56 09/02/26 Daegu, KOR
+M 60 7735 Wolfgang Ritte GER 61 01/06/14 Stendal, GER
+M 65 7780 Vytautas Zaniauskas LTU 65 11/10/25 Madeira, POR
+M 70 7501 Valdis Cela LAT 70 27/05/18 Stendal, GER
+M 75 7752 Rolf Geese GER 75 02/06/19 Stendal, GER
+M 80 7052 Robert Hewitt USA 80 23/06/13 Charlotte, USA
+M 85 6401 Willi Klaus AUS 85 22/09/24 Herzogenaurach, GER
+M 90 5320 Ralph Maxwell USA 91 07/07/11 Sacramento, USA
+
+Throws Pentathlon
+M 35 4396 Alfred Kruger III USA 35 21/09/14 Ashland, USA
+M 40 4699 Chris Harmse RSA 41 16/05/15 Port Elizabeth, RSA
+M 45 4421 Iver Hytten NOR 46 28/04/12 Tönsberg, NOR
+M 50 3801 Ralf Mordhorst GER 53 02/09/26 Daegu, KOR
+M 55 4414 Eric Cole USA 56 01/08/26 Rock Island, USA
+M 60 4726 Norbert Demmel GER 60 20/05/23 Linz, AUT
+M 65 4912 Arild Busterud NOR 65 26/10/13 Porto Alegre, BRA
+M 70 4657 Arild Busterud NOR 70 15/09/18 Málaga, ESP
+M 75 4805 Carmelo Rado ITA 75 26/10/08 Biella, ITA
+M 80 4412 Hermann Albrecht GER 80 18/07/20 Osnabrück, GER
+M 85 4617 Östen Edlund SWE 85 19/09/20 Sollentuna, SWE
+M 90 4238 Östen Edlund SWE 90 06/07/25 Tumba, SWE
+M 95 4470 William Platts USA 95 07/10/23 Las Vegas, USA
+M100 2453 Lauri Helle FIN 100 08/06/25 Perniö, FIN
+
+4x100m
+M35 40.92 Arakaki,Yano,Yamakawa,Toma JPN 10/09/23 Okinawa, JPN
+M40 41.89 Barnes,Gates,Major,Echols USA 27/08/26 Daegu, KOR
+M45 43.27 Fukuzato,Minakuchi,Koga,Asahara JPN 06/12/19 Kuching, MAS
+M50 44.08 Sato,Minakuchi,Akabori,Fukazato JPN 17/08/24 Gothenburg, SWE
+M55 45.07 Pendland,Husain,Hightower,Gibbon USA 17/08/24 Gothenburg, SWE
+M60 47.93 Peterson,Wilson,Allie,Sanders USA 17/07/11 Sacramento, USA
+M65 49.22 Logan,Wright,Huskisson,Hunter GBR 18/10/25 Madeira, POR
+M70 51.12 Jones,Kish,Snow,Stevens USA 17/08/24 Gothenburg, SWE
+M75 55.44 Beckering,Lange,Schmid,Müller GER 31/08/14 Izmir, TUR
+M80 1:01.83 Albrecht,Herbst,Schumacher,Breder GER 01/08/04 Århus, DEN
+M85 1:07.03 Ishida,Tanaka,Masuda,Ishikawa JPN 28/10/18 Nara City, JPN
+M90 1:27.36 Maiocchi,Paderno,Vanda,Marchioni ITA 25/10/25 Novara, ITA
+
+4x400m
+M35 3:16.53 Benjamin,Cox,Robson,Willis GBR 25/08/24 Gothenburg, SWE
+M40 3:20.83 Allah,Morning,Gonera,Blackwell USA 28/04/01 Philadelphia, USA
+M45 3:22.79 Vickers,Gomes,Bridges,Woodard USA 29/04/17 Philadelphia, USA
+M50 3:31.76 Sullivan,Moody,Gatling,Blackwell USA 17/07/11 Sacramento, USA
+M55 3:40.62 Allie,Haywood,Collins,Grant USA 23/04/10 Philadelphia, USA
+M60 3:51.19 Spitzer,Oberliessen,Strehle,Gröger GER 25/08/24 Gothenburg, SWE
+M65 4:01.03 Ortman,Allie,Jones,Haywood USA 01/09/19 Alexandria, USA
+M70 4:17.47 Scheidt,Nehren,Klaus,Müller GER 08/08/09 Lahti, FIN
+M75 4:47.85 Jakob,Klaus,Knorr,Müller GER 16/08/15 Lyon, FRA
+M80 5:32.29 Carr,Harrod,Coffey,Hughes AUS 05/11/12 Gold Coast, AUS
+M85 6:53.22 Vecchi,Marchioni,Bertaggia,Paderno ITA 08/10/22 Pistoia, ITA
+M90 8:17.56 Corvetti,Vanda,Marchioni,Paderno ITA 25/10/25 Novara, ITA
+
+4x800m
+M35 7:34.86 Wakefield,Scott,Revier,Proctor GBR 24/08/25 Bury, GBR
+M40 7:54.17 Hinton,Pope,Paulk,Young USA 27/06/04 Eugene, USA
+M45 8:10.98 Davis,Locker,Thie,Thurstan GBR 25/08/23 Redditch, GBR
+M50 8:25.79 Duren,Johansson,Olsson,Björkman SWE 20/08/16 Upplands Väsby, SWE
+M55 8:46.03 Allen,Ridley,Haines,Atkinson GBR 25/08/23 Redditch, GBR
+M60 9:04.92 McHarg,Andrew,Ridley,Clarke GBR 14/09/24 Birmingham, GBR
+M65 10:16.67 Owen,Whitaker,Lebold,Westenberg USA 18/07/24 Sacramento, USA
+M70 10:35.59 Webster,Thorp,Jackson,Oxland GBR 09/07/22 Birmingham, GBR
+M75 11:34.42 Jones,Weir,Oxland,Jackson GBR 15/08/26 Redditch, GBR
+M80 14:01.14 Ebermann,Müller,Girault,Beecker GER 27/09/13 Essen, GER
+M85 23:28.41 Cordero,Masterson,Satyaprasad,Randall USA 18/07/24 Sacramento, USA
+M90 22:30.60 Corvetti,Vanda,Marchioni,Paderno ITA 20/06/26 Hovara, ITA
+
+4x400m Mixed
+X35 3:36.07 Robson,Balogun,Cox,Sutton GBR 18/10/25 Madeira, POR
+X40 3:39.33 Olgren,Johansson,Eklof,Tigner SWE 18/10/25 Madeira, POR
+X45 3:49.52 DeStefano,Quinonez,Nadaluti,Caravelli ITA 18/10/25 Madeira, POR
+X50 3:44.59 Wallen,Akervall,Sunneborn,Hermundstad SWE 18/10/25 Madeira, POR
+X55 3:56.45 Ramirez,Franco,Lopéz,Colas ESP 18/10/25 Madeira, POR
+X60 4:04.77 Elie,Mitchell,Odele,Thomas GBR 18/10/25 Madeira, POR
+X65 4:35.66 Cocke,Tolfes,Baars,Wählstedt SWE 18/10/25 Madeira, POR
+X70 4:57.21 Kreemke,Goettnauer,Michelchen,Rett GER 18/10/25 Madeira, POR
+X75 7:19.89 Delmastro,Monasterolo,Poire,Fattori ITA 20/06/26 Novara, ITA
+X80 7:57.70 Juopperi,Holmberg,Yla-Liedenpohja,Pihlaja FIN 18/10/25 Madeira, POR
+
+3000m Race Walk
+M 35 11:16.38 David Smith AUS 37 28/11/92 Brisbane, AUS
+M 40 11:28.21 Willi Sawall AUS 40 21/02/82 Melbourne, AUS
+M 45 12:06.0 Gary Little NZL 49 23/11/91 Auckland, NZL
+M 50 12:18.0 Gary Little NZL 51 23/01/93 Auckland, NZL
+M 55 12:44.0 Willi Sawall AUS 55 14/12/96 Geelong, AUS
+M 60 13:15.11 Morotti Graziano ITA 60 25/05/11 Milano, ITA
+M 65 14:17.84 Ian Richards GBR 66 09/08/14 Birmingham, GBR
+M 70 15:07.43 Ian Richards GBR 70 25/08/18 Birmingham, GBR
+M 75 16:19.5 James Grimwade GBR 75 12/07/87 Corby, GBR
+M 80 18:52.85 James Grimwade GBR 84 08/10/96 Exeter, GBR
+M 85 19:31.0 Albert Augustus Theobald AUS 85 10/04/82 Perth, AUS
+M 90 21:21.3 Albert Augustus Theobald AUS 90 15/04/87 Murrumbeena, AUS
+
+5000m Race Walk
+M 35 18:30.43 Maurizio Damilano ITA 35 11/06/92 Caserta, ITA
+M 40 19:45.65 Willi Sawall AUS 42 31/03/84 Melbourne, AUS
+M 45 20:28.28 Alex Florez Studer ESP 46 03/06/17 Palma, ESP
+M 50 20:57.13 Takahiro Sato JPN 51 02/09/26 Daegu, KOR
+M 55 22:11.5 Willi Sawall AUS 55 26/01/97 Ballarat, AUS
+M 60 22:38.7 Andrew Jamieson AUS 60 01/03/07 Melbourne, AUS
+M 65 24:13.10 Ian Richards GBR 65 18/10/13 Porto Alegre, BRA
+M 70 25:48.50 Ian Richards GBR 70 28/08/18 Birmingham, GBR
+M 75 27:40.0 James Grimwade GBR 75 28/06/87 Solihull, GBR
+M 80 29:24.1 James Grimwade GBR 80 07/06/92 Solihull, GBR
+M 85 33:15.0 Albert Augustus Theobald AUS 85 10/04/82 Perth, AUS
+M 90 35:10.0 Albert Augustus Theobald AUS 90 18/04/87 Melbourne, AUS

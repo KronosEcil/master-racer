@@ -1,0 +1,56 @@
+WMA RECORDS NON STADIA - MEN
+Marathon
+M 35 2:01:09 Eliud Kipchoge KEN 35 25/09/22 Berlin, GER
+M 40 2:04:19 Kenenisa Bekele ETH 41 03/12/23 Valencia, ESP
+M 45 2:14:23 Bernard Lagat USA 45 29/02/20 Atlanta, USA
+M 50 2:19:29 Titus Mamabolo RSA 50 20/07/91 Durban, RSA
+M 55 2:25:56 Piet van Alphen NED 55 19/04/86 Rotterdam, NED
+M 60 2:30.02 Tommy Huges IRL 60 25/10/20 Lisburn, IRL
+M 65 2:41:57 Derek Turnbull NZL 65 12/04/92 London, GBR
+M 70 2:54:18 Shin Heingchul KOR 70 15/03/26 Seoul, KOR
+M 75 3:04:54 Edward Whitlock CAN 76 15/04/07 Rotterdam, NED
+M 80 3:15:54 Edward Whitlock CAN 80 16/10/11 Toronto, CAN
+M 85 3:56:38 Edward Whitlock CAN 85 16/10/16 Toronto, CAN
+M 90 4:35:14 Giuseppe Damato ITA 90 12/04/26 Milan, ITA
+
+10k Race Walk
+M 35 38:39 Robert Korzeniowski POL 35 12/06/04 Krakow, POL
+M 40 40:08 Willi Sawall AUS 40 28/08/82 Richmond, AUS
+M 45 42:18 Willi Sawall AUS 46 02/04/88 Melbourne, AUS
+M 50 42:20 Gary Little NZL 50 16/02/92 Christchurch, NZL
+M 55 46:32 Graziano Morotti ITA 59 24/10/10 Grottammare, ITA
+M 60 46:23 Andrew Jamieson AUS 61 21/07/07 Melbourne, AUS
+M 65 48:39 Andrew Jamieson AUS 65 19/05/12 Melbourne, AUS
+M 70 53:17 Andrew Jamieson AUS 70 23/07/16 Melbourne, AUS
+M 75 55:01 James Grimwade GBR 75 27/09/87 Wolverhampton, GBR
+M 80 1:01:26 James Grimwade GBR 81 15/08/93 Solihull, GBR
+M 85 1:12:12 Romolo Pelliccia ITA 85 26/09/23 Pescara, ITA
+M 90 1:17:52 Albert Augustus Theobald AUS 92 22/01/90 Melbourne, AUS
+
+20k Race Walk
+M 35 1:17:02 Yohann Diniz FRA 37 08/03/15 Arles, FRA
+M 40 1:21:36 WillI Sawall AUS 40 04/07/82 Melbourne, AUS
+M 45 1:25:03 WillI Sawall AUS 46 27/08/88 Canberra, AUS
+M 50 1:26:32 Gary Little NZL 50 16/02/92 Christchurch, NZL
+M 55 1:33:38 Graziano Morotti ITA 55 02/04/06 Lugano, ITA
+M 60 1:35:39 Andrew Jamieson AUS 62 24/08/08 Melbourne, AUS
+M 65 1:40:14 Andrew Jamieson AUS 66 29/07/12 Middle Park, AUS
+M 70 1:52:36 Andrew Jamieson AUS 70 26/06/16 Melbourne, AUS
+M 75 1:55:19 James Grimwade GBR 75 29/11/87 Melbourne, AUS
+M 80 2:04:49 James Grimwade GBR 80 20/06/92 Sutton Coldfield, GBR
+M 85 2:24:00 James Grimwade GBR 87 01/08/99 Gateshead, GBR
+M 90 2:34:01 Albert Augustus Theobald AUS 90 03/04/87 Sydney, AUS
+M 95 2:48:19 Philip Rabinowitz RSA 95 29/05/99 Port Elizabeth, RSA
+
+50k Race Walk
+M 35 3:32:33 Yohann Diniz FRA 36 15/08/14 Zürich, SUI
+M 40 3:49:06 José Marin ESP 42 29/03/92 Badalona, ESP
+M 45 3:46:43 Jesús Ángel García Bragado ESP 45 15/08/15 Beijing, CHN
+M 50 4:01:14 Jesús Ángel García Bragado ESP 51 16/05/21 Poděbrady, CZE
+M 55 4:23:34 Graziano Morotti ITA 56 11/02/07 Rosignano Solvay, ITA
+M 60 4:23:16 Andrew Jamieson AUS 62 14/12/08 Melbourne, AUS
+M 65 5:11:22 Leon Jasionowski USA 65 07/02/10 Surprise, USA
+M 70 5:15:40 Arthur Thomson GBR 71 17/06/07 Dublin, IRL
+M 75 5:19:34 James Grimwade GBR 75 01/08/87 Brighton, GBR
+M 80 6:41:31 Bauke te Nijenhuis NED 80 14/05/16 Schiedam, NED
+M 85 8:12:30 Koos Van Rijn NED 86 07/06/14 Schiedam, NED

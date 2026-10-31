@@ -891,7 +891,7 @@ object MasterRecordsArchive {
     )
 
     val RECORDS: List<BenchmarkRecord> by lazy {
-        TURKISH_RECORDS + BalkanRecordsArchive.RECORDS + EuropeanRecordsArchive.RECORDS
+        TURKISH_RECORDS + BalkanRecordsArchive.RECORDS + EuropeanRecordsArchive.RECORDS + WorldRecordsArchive.RECORDS
     }
 
     fun getRecords(eventName: String? = null, category: String? = null, trackType: TrackType? = null, recordLevel: RecordLevel? = null): List<BenchmarkRecord> {
