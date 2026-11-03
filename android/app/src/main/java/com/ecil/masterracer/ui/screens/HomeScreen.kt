@@ -94,6 +94,7 @@ fun HomeScreen(
     val athleteGender by viewModel.athleteGender.collectAsState()
     val athleteBirthYear by viewModel.athleteBirthYear.collectAsState()
     val athleteRecords by viewModel.athleteRecords.collectAsState()
+    val athleteDepartureCity by viewModel.athleteDepartureCity.collectAsState()
     val athleteCategory = remember(athleteGender, athleteBirthYear) {
         viewModel.calculateCategory(athleteGender, athleteBirthYear)
     }
@@ -420,6 +421,8 @@ fun HomeScreen(
             onToggleTarget = { viewModel.toggleTargetRace(selectedComp.id) },
             isCompleted = completedRaceIds.contains(selectedComp.id),
             onToggleCompleted = { viewModel.toggleCompletedRace(selectedComp.id) },
+            departureCity = athleteDepartureCity,
+            onUpdateDepartureCity = { viewModel.setAthleteDepartureCity(it) },
             onDismiss = { viewModel.selectCompetitionForDetail(null) }
         )
     }

@@ -47,7 +47,11 @@ Uygulamada şu ana kadar tamamlanarak aktif kullanıma sunulan tüm modüller ve
     - `Profilim` ekranında 3. sekme olarak yer alan (`Takibimdekiler | Derecelerim | 📈 Gelişimim`) ve `Derecelerim` içindeki her branş kartının sağ üstündeki **`📈 Gelişim`** butonuyla da doğrudan açılabilen analiz paneli.
     - **Kariyer & Madalya Özeti:** Kazanılan altın (`🥇`), gümüş (`🥈`), bronz (`🥉`) madalya dağılımı, resmi rekor sayısı, en iyi ve ortalama `WMA %` skoru.
     - **Çift Modlu İnteraktif Çizgi & Alan Grafiği:** Branş bazlı **`⏱️ Derece Gelişimi (sn/m)`** ve **`📊 WMA Yaş Yüzdesi (%)`** eğrisi (`PB` noktası özel rozetli) ve yarışlar arası fark (`▲ Gelişim / Δ`) kronolojisi.
-11. **Koyu / Açık Tema & Çevrimdışı (Offline-First) Mimari:**
+11. **Yarışma Seyahat & Stadyum Konaklama Asistanı (`DetailBottomSheet`):**
+    - Yalnızca gelecek yarışmalarda görünen, yarışma başlangıç tarihinden **1 gün önce gidiş (`Check-in`) – bitiş tarihinden 1 gün sonra dönüş (`Check-out`)** tarihlerini otomatik hesaplayan lojistik asistanı.
+    - **Hafızalı `🛫 Kalkış Şehri` Seçici:** Sporcunun kalkış şehrini (`İstanbul`, `Ankara`, `İzmir`, `Antalya` vb. veya özel şehir) bir kez seçip hafızaya kaydetmesi; yarışma kendi şehrindeyse otomatik algılayarak doğrudan stadyum yol tarifine geçmesi, farklı şehir/ülkedeyse **Google Flights** üzerinden tarihli uçuş araması başlatması.
+    - **Stadyum Yakını Konaklama & Çevre Noktaları:** Stadyum çevresindeki otelleri Google Haritalar üzerinde açma, **Booking.com** üzerinde giriş-çıkış tarihleriyle otel arama ve yarış günü için **Stadyuma Yol Tarifi**, **Sporcu Restoran & Market**, **Yakın Eczane** kısayol çipleri.
+12. **Koyu / Açık Tema & Çevrimdışı (Offline-First) Mimari:**
     - İnternet bağlantısı olmasa bile tüm yarışma takvimine, 3.000+ rekor arşivine, WMA standartlarına, çağrı odası sayacına ve kişisel derecelere anında erişim.
     - Sistem varsayılanı, Açık Tema ve Koyu Tema seçenekleri.
 
@@ -74,6 +78,7 @@ flowchart TD
 - [x] **6. 5 Sekmeli Alt Gezinme Çubuğu (Bottom Navigation Bar) & Yenilenen Profil Deneyimi** *(Tamamlandı)*
 - [x] **7. Dijital Sporcu Yarışma & Kariyer Paylaşım Kartları (Transparan Pist/Stadyum Arka Planlı 1080p PNG)** *(Tamamlandı)*
 - [x] **8. Performans İlerleme Grafiği & Kariyer Analitiği (`📈 Gelişimim` Sekmesi & Branş Bazlı Hızlı Geçiş)** *(Tamamlandı)*
+- [x] **9. Yarışma Seyahat & Stadyum Konaklama Asistanı (Hafızalı Kalkış Şehri, Google Flights, Booking & Stadyum Çevresi Kısayolları)** *(Tamamlandı)*
 
 ---
 
@@ -92,13 +97,14 @@ flowchart TD
 
 ---
 
-## ✈️ FAZ 3: Seyahat, Lojistik & Hava Durumu Asistanı
+## ✈️ FAZ 3: Seyahat, Lojistik & Hava Durumu Asistanı *(DEVAM EDEN FAZ)*
 
-### 3. 🧭 Yarışma Seyahat & Konaklama Asistanı
+### 3. ✅ 🧭 Yarışma Seyahat & Konaklama Asistanı *(Tamamlandı)*
 - **Amaç:** Yurt içi ve yurt dışı şampiyonalara katılacak atletlerin bilet, transfer ve otel planlamasını yarışma detay ekranından tek tıkla çözmek.
-- **Özellikler:**
-  - **Uçuş Kısayolu:** Yarışma başlangıç tarihinden 1 gün önce, bitiş tarihinden 1 gün sonra olacak şekilde Google Flights / Skyscanner derin bağlantısı (Deep-link).
-  - **Stadyum Çevresi Konaklama:** Yarışmanın yapıldığı stadyumun koordinatlarına göre yakın otelleri Google Maps / Booking üzerinde tek tıkla aratma.
+- **Tamamlanan Özellikler:**
+  - **Hafızalı `🛫 Kalkış Şehri` Seçici & Akıllı Şehir Algılama:** Tek seferlik kalkış şehri seçimi (`İstanbul`, `Ankara`, `İzmir`, `Antalya` vb. + serbest giriş); yarışma kendi şehrindeyse otomatik algılayıp stadyum toplu taşıma/yol tarifine yönlendirme.
+  - **Tarihli Uçuş Kısayolu (`-1 Gün Gidiş / +1 Gün Dönüş`):** Yarışma başlangıç tarihinden 1 gün önce, bitiş tarihinden 1 gün sonra olacak şekilde Google Flights derin bağlantısı.
+  - **Stadyum Çevresi Konaklama & Lojistik:** Stadyum yakınındaki otelleri Google Haritalar üzerinde açma, Booking.com üzerinde otomatik giriş/çıkış tarihleriyle arama ve stadyum çevresi restoran/market/eczane kısayolları.
 
 ### 4. 🌤️ Canlı Hava Durumu & Rüzgar Tahmini (Wind Forecast)
 - Atletizmde rüzgar hızı (`+2.0 m/s` üzeri rüzgarlarda sprint ve uzun/üçadım atlama rekorları resmi sayılmaz) ve hava sıcaklığı performansı doğrudan etkiler.
