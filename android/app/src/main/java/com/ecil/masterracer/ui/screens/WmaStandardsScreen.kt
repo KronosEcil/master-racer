@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -407,6 +408,7 @@ fun WmaStandardsScreen(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 navigationIcon = {
@@ -773,7 +775,7 @@ private fun HurdleStandardCard(
                 )
                 SpecMetricBox(
                     label = "Arası / Finiş",
-                    value = "${spec.longBetween} / ${spec.longToFinish}",
+                    value = "${spec.longBetween.replace(".00 ", "")} / ${spec.longToFinish.replace(".00 ", "")}",
                     modifier = Modifier.weight(1.1f)
                 )
             }

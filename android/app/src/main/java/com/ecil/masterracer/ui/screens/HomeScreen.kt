@@ -223,7 +223,10 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(
+                    top = if (currentTab == MainBottomTab.CALENDAR) innerPadding.calculateTopPadding() else 0.dp,
+                    bottom = innerPadding.calculateBottomPadding()
+                )
         ) {
             when (currentTab) {
                 MainBottomTab.CALENDAR -> {

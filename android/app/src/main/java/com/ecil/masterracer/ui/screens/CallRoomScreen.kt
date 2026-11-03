@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -259,6 +260,7 @@ fun CallRoomScreen(
     val checkedStates = remember { mutableStateListOf(false, false, false, false, false) }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 navigationIcon = {
@@ -304,8 +306,7 @@ fun CallRoomScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .navigationBarsPadding(),
+                .padding(innerPadding),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
@@ -609,28 +610,33 @@ fun CallRoomScreen(
 
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        // Çağrı Odası Kapanış Süresi Seçenekleri (15, 20, 25, 30, 40 dk önce)
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
+                        // Çağrı Odası Kapanış Süresi Seçenekleri (15, 20, 30, 40 dk önce)
+                        Column(modifier = Modifier.fillMaxWidth()) {
                             Text(
-                                text = "Çağrı Odası Kapanışı:",
+                                text = "Çağrı Odası Kapanışı (Yarıştan Önce):",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
                             )
-                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
                                 listOf(15, 20, 30, 40).forEach { mins ->
                                     FilterChip(
                                         selected = callRoomLeadMinutes == mins,
                                         onClick = { callRoomLeadMinutes = mins },
+                                        modifier = Modifier.weight(1f),
                                         label = {
                                             Text(
                                                 text = "-$mins dk",
-                                                fontSize = 11.sp,
-                                                fontWeight = if (callRoomLeadMinutes == mins) FontWeight.Bold else FontWeight.Medium
+                                                fontSize = 12.sp,
+                                                fontWeight = if (callRoomLeadMinutes == mins) FontWeight.Bold else FontWeight.Medium,
+                                                maxLines = 1,
+                                                softWrap = false,
+                                                textAlign = TextAlign.Center,
+                                                modifier = Modifier.fillMaxWidth()
                                             )
                                         },
                                         colors = FilterChipDefaults.filterChipColors(
