@@ -36,7 +36,11 @@ Uygulamada şu ana kadar tamamlanarak aktif kullanıma sunulan tüm modüller ve
    - Kategori bazlı **PB (Kişisel En İyi)**, **SB (Sezonun En İyisi)**, **Podyum Madalyaları (`🥇 1.lik`, `🥈 2.lik`, `🥉 3.lük`)**, **Rekor Rozetleri (`NMR`, `BMR`, `EMR`, `WMR`)** ve otomatik **WMA Performans Yüzdesi (`% WMA`)** rozetleri.
    - Branş tipine göre akıllı derece girişi (Sprint için `Saniye.Salise`, Orta/Uzun mesafe için `Dakika:Saniye.Salise`, Maraton için `Saat:Dakika:Saniye`, Saha atlama/atma branşları için `Metre.Santimetre`).
    - Takip edilen yarışların tarihi geçtiğinde tek tıkla o yarışmaya ait derece ekleme akışı.
-7. **Koyu / Açık Tema & Çevrimdışı (Offline-First) Mimari:**
+7. **Yarış Günü & Çağrı Odası (Call Room) Isınma Zamanlayıcısı (`⏱️ Çağrı Odası`):**
+   - Ana sayfa üst barında `🏆 Rekorlar` butonunun hemen yanında yer alan yarış günü asistanı.
+   - Branş grubuna göre (**Sprint & Engelli**, **Orta & Uzun Mesafe**, **Atlama & Atma**) özelleştirilmiş adım adım ısınma, dril, çivili giyme ve **Çağrı Odası (Call Room)** zaman çizelgesi.
+   - Saniye bazlı canlı **Çağrı Odasına Kalan Süre** ve **Starta Kalan Süre** geri sayımı, özelleştirilebilir çağrı odası kapanış süresi (`-15 dk`, `-20 dk`, `-30 dk`, `-40 dk`) ve interaktif yarış günü ekipman kontrol listesi (Checklist).
+8. **Koyu / Açık Tema & Çevrimdışı (Offline-First) Mimari:**
    - İnternet bağlantısı olmasa bile tüm yarışma takvimine, 3.000+ rekor arşivine ve kişisel derecelere anında erişim.
    - Sistem varsayılanı, Açık Tema ve Koyu Tema seçenekleri.
 

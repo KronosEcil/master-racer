@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -74,6 +75,7 @@ fun HomeScreen(
     var showSettingsSheet by remember { mutableStateOf(false) }
     var showProfileScreen by remember { mutableStateOf(false) }
     var showRecordsScreen by remember { mutableStateOf(false) }
+    var showCallRoomScreen by remember { mutableStateOf(false) }
 
     val athleteGender by viewModel.athleteGender.collectAsState()
     val athleteBirthYear by viewModel.athleteBirthYear.collectAsState()
@@ -102,6 +104,11 @@ fun HomeScreen(
             athleteRecords = athleteRecords,
             onBack = { showRecordsScreen = false }
         )
+    } else if (showCallRoomScreen) {
+        BackHandler { showCallRoomScreen = false }
+        CallRoomScreen(
+            onBack = { showCallRoomScreen = false }
+        )
     } else if (showProfileScreen) {
         BackHandler { showProfileScreen = false }
         ProfileScreen(
@@ -127,7 +134,7 @@ fun HomeScreen(
                                 contentDescription = "Master Athlete Logo",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
-                                    .size(42.dp)
+                                    .size(40.dp)
                                     .clip(RoundedCornerShape(10.dp))
                                     .border(
                                         width = 1.dp,
@@ -136,7 +143,7 @@ fun HomeScreen(
                                     )
                             )
 
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
 
                             // Rekorlar Butonu
                             Surface(
@@ -146,21 +153,54 @@ fun HomeScreen(
                                 border = BorderStroke(1.dp, Color(0xFFFBBF24).copy(alpha = 0.65f))
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.EmojiEvents,
                                         contentDescription = null,
                                         tint = Color(0xFFFBBF24),
-                                        modifier = Modifier.size(16.dp)
+                                        modifier = Modifier.size(15.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Spacer(modifier = Modifier.width(5.dp))
                                     Text(
                                         text = "Rekorlar",
-                                        fontSize = 13.sp,
+                                        fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color.White
+                                        color = Color.White,
+                                        maxLines = 1,
+                                        softWrap = false
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.width(6.dp))
+
+                            // Çağrı Odası (Yarış Günü Isınma & Call Room Sayacı) Butonu
+                            Surface(
+                                onClick = { showCallRoomScreen = true },
+                                shape = RoundedCornerShape(10.dp),
+                                color = Color.White.copy(alpha = 0.14f),
+                                border = BorderStroke(1.dp, Color(0xFF38BDF8).copy(alpha = 0.7f))
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Timer,
+                                        contentDescription = null,
+                                        tint = Color(0xFF38BDF8),
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(5.dp))
+                                    Text(
+                                        text = "Çağrı Odası",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White,
+                                        maxLines = 1,
+                                        softWrap = false
                                     )
                                 }
                             }
