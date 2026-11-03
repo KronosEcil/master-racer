@@ -34,7 +34,6 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Female
 import androidx.compose.material.icons.filled.Male
 import androidx.compose.material.icons.filled.Person
@@ -54,7 +53,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -106,7 +104,7 @@ fun ProfileScreen(
     viewModel: CompetitionViewModel,
     allCompetitions: List<Competition> = emptyList(),
     targetCompetitions: List<Competition>,
-    completedCompetitions: List<Competition>,
+    completedCompetitions: List<Competition> = emptyList(),
     onSelectCompetition: (Competition) -> Unit,
     onBack: () -> Unit
 ) {
@@ -124,7 +122,7 @@ fun ProfileScreen(
     val recordSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Takibimdekiler", "Derecelerim", "Geçmişim")
+    val tabs = listOf("Takibimdekiler", "Derecelerim")
 
     val category = viewModel.calculateCategory(athleteGender, athleteBirthYear)
     val isFemale = athleteGender.equals("F", ignoreCase = true)
@@ -267,7 +265,7 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // WMA Yaş Faktörü & Performans Hesaplayıcı Kartı (Üst Bölüme Taşındı)
+            // WMA Yaş Faktörü & Performans Hesaplayıcı Kartı
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -330,7 +328,7 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Sekmeler
+            // Sekmeler (Takibimdekiler | Derecelerim)
             TabRow(
                 selectedTabIndex = selectedTab,
                 containerColor = Color.Transparent,
@@ -361,10 +359,16 @@ fun ProfileScreen(
                         // 1. TAKİBİMDEKİ YARIŞLAR
                         ProfileTrackedRacesSection(
                             trackedCompetitions = targetCompetitions,
-                            completedIds = completedCompetitions.map { it.id }.toSet(),
                             onSelectCompetition = onSelectCompetition,
                             onToggleTrack = { viewModel.toggleTargetRace(it.id) },
-                            onToggleCompleted = { viewModel.toggleCompletedRace(it.id) }
+                            onAddRecordForCompetition = { comp ->
+                                editingRecord = null
+                                recordPresetCompTitle = comp.getDisplayTitle()
+                                val year = comp.start_date.take(4).toIntOrNull() ?: Calendar.getInstance().get(Calendar.YEAR)
+                                recordPresetYear = year
+                                isFixedCompetition = true
+                                showAddRecordDialog = true
+                            }
                         )
                     }
                     1 -> {
@@ -387,23 +391,6 @@ fun ProfileScreen(
                                 showAddRecordDialog = true
                             },
                             onDeleteRecord = { viewModel.deleteAthleteRecord(it) }
-                        )
-                    }
-                    2 -> {
-                        // 3. GEÇMİŞİM (Katıldığım Yarışlar)
-                        ProfileCompletedHistorySection(
-                            completedCompetitions = completedCompetitions,
-                            records = athleteRecords,
-                            onSelectCompetition = onSelectCompetition,
-                            onRemoveFromCompleted = { viewModel.toggleCompletedRace(it.id) },
-                            onAddRecordForCompetition = { comp ->
-                                editingRecord = null
-                                recordPresetCompTitle = comp.getDisplayTitle()
-                                val year = comp.start_date.take(4).toIntOrNull() ?: Calendar.getInstance().get(Calendar.YEAR)
-                                recordPresetYear = year
-                                isFixedCompetition = true
-                                showAddRecordDialog = true
-                            }
                         )
                     }
                 }
@@ -448,6 +435,7 @@ fun ProfileScreen(
                 viewModel.saveAthleteRecord(record)
                 showAddRecordDialog = false
                 editingRecord = null
+                selectedTab = 1
             }
         )
     }
@@ -469,6 +457,7 @@ fun ProfileScreen(
                     numericValue = numVal
                 )
                 viewModel.saveAthleteRecord(newRec)
+                selectedTab = 1
             }
         )
     }
@@ -480,10 +469,9 @@ fun ProfileScreen(
 @Composable
 private fun ProfileTrackedRacesSection(
     trackedCompetitions: List<Competition>,
-    completedIds: Set<String>,
     onSelectCompetition: (Competition) -> Unit,
     onToggleTrack: (Competition) -> Unit,
-    onToggleCompleted: (Competition) -> Unit
+    onAddRecordForCompetition: (Competition) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -538,7 +526,6 @@ private fun ProfileTrackedRacesSection(
         } else {
             trackedCompetitions.forEach { comp ->
                 val daysRemaining = comp.getDaysRemaining()
-                val isCompleted = completedIds.contains(comp.id)
 
                 Card(
                     modifier = Modifier
@@ -599,23 +586,20 @@ private fun ProfileTrackedRacesSection(
                             }
 
                             if (daysRemaining < 0) {
-                                OutlinedButton(
-                                    onClick = { onToggleCompleted(comp) },
+                                Button(
+                                    onClick = { onAddRecordForCompetition(comp) },
                                     shape = RoundedCornerShape(8.dp),
-                                    colors = if (isCompleted) {
-                                        ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF16A34A))
-                                    } else {
-                                        ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary)
-                                    }
+                                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.CheckCircle,
+                                        imageVector = Icons.Default.Add,
                                         contentDescription = null,
                                         modifier = Modifier.size(15.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(5.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        text = if (isCompleted) "Katıldım ✓" else "Katıldım Olarak İşaretle",
+                                        text = "Derece Ekle",
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -722,7 +706,7 @@ private fun ProfileRecordsSection(
 
             groupedByEvent.forEach { (eventName, eventRecords) ->
                 val isField = MasterAthleticsHelper.isFieldEvent(eventName)
-                val lowerEvent = eventName.lowercase(Locale("tr", "TR"))
+                val lowerEvent = eventName.lowercase(Locale.forLanguageTag("tr-TR"))
                 val isJump = lowerEvent.contains("atlama")
                 val isThrow = lowerEvent.contains("atma")
 
@@ -779,7 +763,6 @@ private fun ProfileRecordsSection(
                         // Kategori bazında grupla
                         val groupedByCategory = eventRecords.groupBy { it.category }
                         var recordIndex = 0
-                        val totalRecordsInCard = eventRecords.size
 
                         groupedByCategory.forEach { (categoryName, catRecords) ->
                             // En iyi dereceyi (PB) bul
@@ -991,7 +974,7 @@ private fun ProfileRecordsSection(
                                         }
                                     }
 
-                                    // 3. Satır: Yarışma Yılı ve Adı (Açık Yaş derecesi kaldırıldı)
+                                    // 3. Satır: Yarışma Yılı ve Adı
                                     Spacer(modifier = Modifier.height(6.dp))
                                     val subtitleText = if (rec.competitionTitle.isNotBlank()) {
                                         "${rec.year} • ${rec.competitionTitle}"
@@ -1004,184 +987,6 @@ private fun ProfileRecordsSection(
                                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
                                     )
                                 }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-// -------------------------------------------------------------
-// 3. GEÇMİŞİM BÖLÜMÜ
-// -------------------------------------------------------------
-@Composable
-private fun ProfileCompletedHistorySection(
-    completedCompetitions: List<Competition>,
-    records: List<AthleteRecord>,
-    onSelectCompetition: (Competition) -> Unit,
-    onRemoveFromCompleted: (Competition) -> Unit,
-    onAddRecordForCompetition: (Competition) -> Unit
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = "YARIŞ GEÇMİŞİM & KATILIMLARIM (${completedCompetitions.size})",
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.sp,
-            color = BluePrimary
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-
-        if (completedCompetitions.isEmpty()) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.EmojiEvents,
-                        contentDescription = null,
-                        tint = Color(0xFFEAB308),
-                        modifier = Modifier.size(36.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Henüz Katıldığın Bir Yarış Yok",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Takibindeki yarışların tarihi geçtiğinde 'Katıldım' olarak işaretlendiğinde buraya aktarılır ve koştuğun dereceleri kaydedebilirsin.",
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-        } else {
-            completedCompetitions.forEach { comp ->
-                val compRecords = records.filter {
-                    it.competitionTitle.equals(comp.title, ignoreCase = true) ||
-                        it.competitionTitle.equals(comp.getDisplayTitle(), ignoreCase = true)
-                }
-
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 5.dp)
-                        .clickable { onSelectCompetition(comp) },
-                    shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-                    )
-                ) {
-                    Column(modifier = Modifier.padding(14.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(text = comp.getCountryFlag(), fontSize = 22.sp)
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = comp.getDisplayTitle(),
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Text(
-                                    text = "${comp.getFormattedDate()} • ${comp.getDisplayLocation()}",
-                                    fontSize = 11.sp,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Surface(
-                                color = Color(0xFF16A34A).copy(alpha = 0.15f),
-                                shape = RoundedCornerShape(6.dp)
-                            ) {
-                                Text(
-                                    text = "Katıldım ✓",
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF16A34A),
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
-                                )
-                            }
-                        }
-
-                        if (compRecords.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            compRecords.forEach { rec ->
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(start = 4.dp, top = 2.dp)
-                                ) {
-                                    Text(
-                                        text = "• ${rec.eventName}:",
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = BluePrimary
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = rec.result,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    if (rec.podium.isNotBlank()) {
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        val medal = when(rec.podium) { "1" -> "🥇 1.lik"; "2" -> "🥈 2.lik"; "3" -> "🥉 3.lük"; else -> "" }
-                                        Text(text = medal, fontSize = 11.sp)
-                                    }
-                                    if (rec.recordType.isNotBlank()) {
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Surface(color = Color(0xFF7C3AED), shape = RoundedCornerShape(3.dp)) {
-                                            Text(text = rec.recordType, color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp))
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f))
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            TextButton(
-                                onClick = { onRemoveFromCompleted(comp) },
-                                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
-                            ) {
-                                Text(text = "İptal Et", fontSize = 11.sp)
-                            }
-
-                            Button(
-                                onClick = { onAddRecordForCompetition(comp) },
-                                shape = RoundedCornerShape(8.dp),
-                                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
-                            ) {
-                                Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(14.dp))
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(text = "Derece Ekle", fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -1233,7 +1038,6 @@ private fun PermanentLabeledInput(
                 .padding(top = 8.dp)
         )
 
-        // Üst kenar çizgisi üzerine tam oturan kalıcı başlık (tam çizgiye ortalı, derece rakamını kapatmaz)
         Surface(
             color = containerBgColor,
             modifier = Modifier
@@ -1274,10 +1078,9 @@ private fun RecordEntryBottomSheet(
         mutableStateOf(editingRecord?.competitionTitle?.isNotBlank() == true && allCompetitions.none { it.title == editingRecord.competitionTitle })
     }
     var yearInput by remember(editingRecord) { mutableStateOf((editingRecord?.year ?: initialYear).toString()) }
-    var selectedPodium by remember(editingRecord) { mutableStateOf(editingRecord?.podium ?: "") } // "", "1", "2", "3"
-    var selectedRecordType by remember(editingRecord) { mutableStateOf(editingRecord?.recordType ?: "") } // "", "NMR", "BMR", "EMR", "WMR"
+    var selectedPodium by remember(editingRecord) { mutableStateOf(editingRecord?.podium ?: "") }
+    var selectedRecordType by remember(editingRecord) { mutableStateOf(editingRecord?.recordType ?: "") }
 
-    // Format Değerleri (Düzenleme yapılıyorsa mevcut dereceden ayrıştırılır)
     val initialParsed = remember(editingRecord) {
         val rec = editingRecord
         if (rec != null) {
@@ -1364,7 +1167,6 @@ private fun RecordEntryBottomSheet(
                 .navigationBarsPadding(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Başlık & Kategori Rozeti
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -1470,7 +1272,6 @@ private fun RecordEntryBottomSheet(
                     )
                 }
 
-                // Yıl Alanı
                 OutlinedTextField(
                     value = yearInput,
                     onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 4) yearInput = it },

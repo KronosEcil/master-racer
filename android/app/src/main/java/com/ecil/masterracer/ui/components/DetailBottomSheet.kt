@@ -1,5 +1,6 @@
 package com.ecil.masterracer.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BookmarkAdd
+import androidx.compose.material.icons.filled.BookmarkAdded
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.Language
@@ -29,10 +32,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -40,16 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ecil.masterracer.data.model.Competition
 import com.ecil.masterracer.ui.theme.BluePrimary
-import com.ecil.masterracer.util.CalendarHelper
-
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.clickable
-import androidx.compose.material3.Surface
-import androidx.compose.material.icons.filled.BookmarkAdd
-import androidx.compose.material.icons.filled.BookmarkAdded
-import androidx.compose.material.icons.filled.CheckCircle
 import com.ecil.masterracer.ui.theme.CrimsonAccent
+import com.ecil.masterracer.util.CalendarHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -219,7 +216,7 @@ fun DetailBottomSheet(
             Spacer(modifier = Modifier.height(20.dp))
 
             // Aksiyon Butonları
-            // 1. Hedeflerime Ekle / Hedeflerimden Çıkar Butonu
+            // 1. Takibime Ekle / Takipten Çıkar Butonu
             Button(
                 onClick = onToggleTarget,
                 modifier = Modifier
@@ -246,33 +243,7 @@ fun DetailBottomSheet(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // 2. Yarış Tamamlandıysa: Katıldım Olarak İşaretle Butonu
-            if (daysRemaining < 0) {
-                OutlinedButton(
-                    onClick = onToggleCompleted,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(14.dp),
-                    border = BorderStroke(1.5.dp, if (isCompleted) Color(0xFF16A34A) else MaterialTheme.colorScheme.outline)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.CheckCircle,
-                        contentDescription = null,
-                        tint = if (isCompleted) Color(0xFF16A34A) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = if (isCompleted) "Bu Yarışa Katıldım ✓" else "Bu Yarışa Katıldım Olarak İşaretle",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (isCompleted) Color(0xFF16A34A) else MaterialTheme.colorScheme.onSurface
-                    )
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-            }
-
-            // 3. Cihaz Takvimine Ekle
+            // 2. Cihaz Takvimine Ekle
             OutlinedButton(
                 onClick = { CalendarHelper.addEventToCalendar(context, competition) },
                 modifier = Modifier
@@ -296,7 +267,7 @@ fun DetailBottomSheet(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // 4. Resmi Web Sitesi Bağlantısı
+            // 3. Resmi Web Sitesi Bağlantısı
             if (!competition.website_url.isNullOrBlank()) {
                 OutlinedButton(
                     onClick = { CalendarHelper.openUrl(context, competition.website_url) },
@@ -324,4 +295,3 @@ fun DetailBottomSheet(
         }
     }
 }
-
