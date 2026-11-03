@@ -5,8 +5,11 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.DashPathEffect
 import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.RadialGradient
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Shader
@@ -57,8 +60,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -216,6 +222,16 @@ fun SingleRecordShareBottomSheet(
                                 )
                             )
                         )
+                        .drawBehind {
+                            drawIntoCanvas { composeCanvas ->
+                                drawThemeAthleticWatermark(
+                                    canvas = composeCanvas.nativeCanvas,
+                                    width = size.width,
+                                    height = size.height,
+                                    theme = selectedTheme
+                                )
+                            }
+                        }
                         .padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -531,6 +547,16 @@ fun CareerSummaryShareBottomSheet(
                                 )
                             )
                         )
+                        .drawBehind {
+                            drawIntoCanvas { composeCanvas ->
+                                drawThemeAthleticWatermark(
+                                    canvas = composeCanvas.nativeCanvas,
+                                    width = size.width,
+                                    height = size.height,
+                                    theme = selectedTheme
+                                )
+                            }
+                        }
                         .padding(20.dp)
                 ) {
                     // Üst Bar
@@ -806,6 +832,9 @@ private fun shareSingleRecordBitmap(
     }
     canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), bgPaint)
 
+    // 1.B Temaya Özel Transparan Pist / Stadyum Arka Plan Motifi
+    drawThemeAthleticWatermark(canvas, width.toFloat(), height.toFloat(), theme)
+
     // Dekoratif Çerçeve
     val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
@@ -978,6 +1007,9 @@ private fun shareCareerSummaryBitmap(
     }
     canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), bgPaint)
 
+    // Temaya Özel Transparan Pist / Stadyum Arka Plan Motifi
+    drawThemeAthleticWatermark(canvas, width.toFloat(), height.toFloat(), theme)
+
     val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 4f
@@ -1113,4 +1145,366 @@ private fun shareBitmapViaIntent(
     } catch (e: Exception) {
         e.printStackTrace()
     }
+}
+
+// -------------------------------------------------------------
+// TEMAYA ÖZEL TRANSPARAN PİST / STADYUM / PODYUM ARKA PLAN ÇİZİMİ
+// -------------------------------------------------------------
+private fun drawThemeAthleticWatermark(
+    canvas: Canvas,
+    width: Float,
+    height: Float,
+    theme: ShareCardTheme
+) {
+    if (width <= 0f || height <= 0f) return
+    val saveCount = canvas.save()
+    canvas.clipRect(0f, 0f, width, height)
+
+    when (theme) {
+        ShareCardTheme.NAVY_ELITE -> drawNavyStadiumCurveTrack(canvas, width, height, theme)
+        ShareCardTheme.TRACK_CRIMSON -> drawCrimsonPerspectiveStraightTrack(canvas, width, height, theme)
+        ShareCardTheme.CHAMPION_GOLD -> drawGoldChampionshipPodiumAndLaurel(canvas, width, height, theme)
+    }
+
+    canvas.restoreToCount(saveCount)
+}
+
+/**
+ * 1. ELİT LACİVERT (NAVY_ELITE):
+ * Olimpik 8 kulvarlı virajlı stadyum pisti, kademeli çıkış çizgileri, kulvar numaraları (1..8)
+ * ve sol üstten vuran stadyum projektör ışığı hüzmeleri.
+ */
+private fun drawNavyStadiumCurveTrack(
+    canvas: Canvas,
+    width: Float,
+    height: Float,
+    theme: ShareCardTheme
+) {
+    val scale = width / 1080f
+
+    // 1. Stadyum Projektör Işık Hüzmesi (Sol Üst Köşe)
+    val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        shader = RadialGradient(
+            width * 0.12f,
+            height * 0.08f,
+            width * 0.75f,
+            intArrayOf(theme.accentHex.toInt() and 0x00FFFFFF or (42 shl 24), 0x00000000),
+            floatArrayOf(0f, 1f),
+            Shader.TileMode.CLAMP
+        )
+    }
+    canvas.drawRect(0f, 0f, width, height, glowPaint)
+
+    // 2. 8 Kulvarlı Virajlı Olimpik Pist Yayları (Sağ alt merkezli dev eşmerkezli yaylar)
+    val centerX = width * 1.18f
+    val centerY = height * 1.06f
+    val baseRadius = width * 0.42f
+    val laneWidth = width * 0.088f
+
+    val laneLinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 3.2f * scale
+        color = android.graphics.Color.WHITE
+        alpha = 34
+    }
+
+    val laneAccentPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 2.2f * scale
+        color = theme.accentHex.toInt()
+        alpha = 38
+        pathEffect = DashPathEffect(floatArrayOf(18f * scale, 14f * scale), 0f)
+    }
+
+    val laneNumberPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = android.graphics.Color.WHITE
+        alpha = 32
+        textSize = 46f * scale
+        textAlign = Paint.Align.CENTER
+        typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD_ITALIC)
+    }
+
+    val staggerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 6f * scale
+        color = theme.accentHex.toInt()
+        alpha = 46
+    }
+
+    for (i in 0..8) {
+        val r = baseRadius + i * laneWidth
+        val oval = RectF(centerX - r, centerY - r, centerX + r, centerY + r)
+        canvas.drawArc(oval, 175f, 105f, false, laneLinePaint)
+
+        if (i < 8) {
+            val midR = r + laneWidth * 0.5f
+            val midOval = RectF(centerX - midR, centerY - midR, centerX + midR, centerY + midR)
+            canvas.drawArc(midOval, 182f, 92f, false, laneAccentPaint)
+
+            // Kulvar Numarası (1..8) ve Kademeli Çıkış Çizgisi (Staggered Start)
+            val staggerAngleDeg = 202f + i * 5.2f
+            val rad = Math.toRadians(staggerAngleDeg.toDouble())
+            val numX = (centerX + midR * kotlin.math.cos(rad)).toFloat()
+            val numY = (centerY + midR * kotlin.math.sin(rad)).toFloat()
+
+            canvas.save()
+            canvas.rotate(staggerAngleDeg - 90f, numX, numY)
+            canvas.drawText("${i + 1}", numX, numY, laneNumberPaint)
+            canvas.restore()
+
+            // Kademeli çıkış takozu çizgisi
+            val innerX = (centerX + (r + 8f * scale) * kotlin.math.cos(rad)).toFloat()
+            val innerY = (centerY + (r + 8f * scale) * kotlin.math.sin(rad)).toFloat()
+            val outerX = (centerX + (r + laneWidth - 8f * scale) * kotlin.math.cos(rad)).toFloat()
+            val outerY = (centerY + (r + laneWidth - 8f * scale) * kotlin.math.sin(rad)).toFloat()
+            canvas.drawLine(innerX, innerY, outerX, outerY, staggerPaint)
+        }
+    }
+
+    // 3. Sol Üst Perspektif Stadyum Işık Çizgileri
+    val rayPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 2f * scale
+        color = android.graphics.Color.WHITE
+        alpha = 18
+    }
+    for (k in 0..5) {
+        canvas.drawLine(
+            0f,
+            height * (0.05f + k * 0.04f),
+            width * (0.55f + k * 0.08f),
+            0f,
+            rayPaint
+        )
+    }
+}
+
+/**
+ * 2. KIRMIZI PİST (TRACK_CRIMSON):
+ * 3D Perspektif 100m Tartan Sprint Düzlüğü, Damalı Foto-Finiş Çizgisi,
+ * Kulvar Numaraları ve Salise (0.01s) Foto-Finiş Cetveli.
+ */
+private fun drawCrimsonPerspectiveStraightTrack(
+    canvas: Canvas,
+    width: Float,
+    height: Float,
+    theme: ShareCardTheme
+) {
+    val scale = width / 1080f
+    val vanishX = width * 0.5f
+    val vanishY = height * 0.14f
+    val trackBottomY = height * 1.02f
+
+    val lanePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 3.2f * scale
+        color = android.graphics.Color.WHITE
+        alpha = 36
+    }
+
+    val dashedLanePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 2f * scale
+        color = theme.accentHex.toInt()
+        alpha = 35
+        pathEffect = DashPathEffect(floatArrayOf(22f * scale, 16f * scale), 0f)
+    }
+
+    // 1. 8 Kulvarlı 3D Perspektif Sprint Çizgileri
+    val laneCount = 8
+    val bottomSpan = width * 1.65f
+    val bottomStartX = (width - bottomSpan) / 2f
+    val bottomStep = bottomSpan / laneCount
+
+    for (i in 0..laneCount) {
+        val bx = bottomStartX + i * bottomStep
+        val topOffset = (i - laneCount / 2f) * (width * 0.022f)
+        canvas.drawLine(vanishX + topOffset, vanishY + height * 0.08f, bx, trackBottomY, lanePaint)
+
+        if (i < laneCount) {
+            val midBx = bx + bottomStep * 0.5f
+            val midTopOffset = (i + 0.5f - laneCount / 2f) * (width * 0.022f)
+            canvas.drawLine(
+                vanishX + midTopOffset,
+                vanishY + height * 0.12f,
+                midBx,
+                trackBottomY,
+                dashedLanePaint
+            )
+        }
+    }
+
+    // 2. Yatay Mesafe & Hız Perspektif Çizgileri
+    val horizPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 2f * scale
+        color = android.graphics.Color.WHITE
+        alpha = 22
+    }
+    val distanceFractions = listOf(0.32f, 0.44f, 0.58f, 0.74f, 0.91f)
+    distanceFractions.forEach { frac ->
+        val y = vanishY + (trackBottomY - vanishY) * frac
+        canvas.drawLine(width * 0.04f, y, width * 0.96f, y, horizPaint)
+    }
+
+    // 3. Damalı Foto-Finiş (FINISH) Şeridi (Y = %78 hizasında)
+    val finishY = height * 0.78f
+    val checkerSize = 24f * scale
+    val checkerWhite = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = android.graphics.Color.WHITE
+        alpha = 34
+    }
+    val checkerGold = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = theme.accentHex.toInt()
+        alpha = 32
+    }
+    val cols = (width / checkerSize).toInt()
+    for (c in 2 until (cols - 2)) {
+        val x = c * checkerSize
+        canvas.drawRect(x, finishY, x + checkerSize, finishY + checkerSize, if (c % 2 == 0) checkerWhite else checkerGold)
+        canvas.drawRect(x, finishY + checkerSize, x + checkerSize, finishY + checkerSize * 2f, if (c % 2 == 1) checkerWhite else checkerGold)
+    }
+
+    // 4. Sağ ve Sol Kenarda Foto-Finiş Salise (0.01s) Kamera Cetveli
+    val tickPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 2.2f * scale
+        color = theme.accentHex.toInt()
+        alpha = 45
+    }
+    var tickIndex = 0
+    var ty = height * 0.18f
+    while (ty < height * 0.88f) {
+        val tickLen = if (tickIndex % 5 == 0) 26f * scale else 13f * scale
+        canvas.drawLine(42f * scale, ty, 42f * scale + tickLen, ty, tickPaint)
+        canvas.drawLine(width - 42f * scale - tickLen, ty, width - 42f * scale, ty, tickPaint)
+        ty += 18f * scale
+        tickIndex++
+    }
+}
+
+/**
+ * 3. ALTIN PODYUM (CHAMPION_GOLD):
+ * Şampiyonluk Defne Çelengi (Laurel Wreath), 2 - 1 - 3 Kürsü Silüeti,
+ * Zafer Halkaları ve Merkezden Yayılan Altın Işık Hüzmeleri.
+ */
+private fun drawGoldChampionshipPodiumAndLaurel(
+    canvas: Canvas,
+    width: Float,
+    height: Float,
+    theme: ShareCardTheme
+) {
+    val scale = width / 1080f
+    val cx = width * 0.5f
+    val cy = height * 0.48f
+
+    // 1. Merkezden Yayılan Zafer Işınları (Sunburst Rays)
+    val rayPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 2.2f * scale
+        color = theme.accentHex.toInt()
+        alpha = 24
+    }
+    for (deg in 0 until 360 step 15) {
+        val rad = Math.toRadians(deg.toDouble())
+        val innerR = width * 0.16f
+        val outerR = width * 0.62f
+        canvas.drawLine(
+            cx + (innerR * kotlin.math.cos(rad)).toFloat(),
+            cy + (innerR * kotlin.math.sin(rad)).toFloat(),
+            cx + (outerR * kotlin.math.cos(rad)).toFloat(),
+            cy + (outerR * kotlin.math.sin(rad)).toFloat(),
+            rayPaint
+        )
+    }
+
+    // 2. Eşmerkezli Şampiyonluk Madalyon Halkaları
+    val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 3f * scale
+        color = theme.accentHex.toInt()
+        alpha = 38
+    }
+    val dashedRingPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 2.5f * scale
+        color = android.graphics.Color.WHITE
+        alpha = 28
+        pathEffect = DashPathEffect(floatArrayOf(14f * scale, 12f * scale), 0f)
+    }
+    canvas.drawCircle(cx, cy, width * 0.34f, ringPaint)
+    canvas.drawCircle(cx, cy, width * 0.38f, dashedRingPaint)
+    canvas.drawCircle(cx, cy, width * 0.43f, ringPaint)
+
+    // 3. Sol ve Sağ Simetrik Defne Çelengi Yaprakları (Victory Laurel Wreath)
+    val leafPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        color = theme.accentHex.toInt()
+        alpha = 36
+    }
+    val wreathRadius = width * 0.405f
+    for (step in -5..5) {
+        // Sağ dal
+        val rightDeg = step * 11f
+        val rightRad = Math.toRadians(rightDeg.toDouble())
+        val rx = (cx + wreathRadius * kotlin.math.cos(rightRad)).toFloat()
+        val ry = (cy + wreathRadius * kotlin.math.sin(rightRad)).toFloat()
+        canvas.save()
+        canvas.translate(rx, ry)
+        canvas.rotate(rightDeg + 90f)
+        canvas.drawOval(RectF(-12f * scale, -28f * scale, 12f * scale, 28f * scale), leafPaint)
+        canvas.restore()
+
+        // Sol dal
+        val leftDeg = 180f - step * 11f
+        val leftRad = Math.toRadians(leftDeg.toDouble())
+        val lx = (cx + wreathRadius * kotlin.math.cos(leftRad)).toFloat()
+        val ly = (cy + wreathRadius * kotlin.math.sin(leftRad)).toFloat()
+        canvas.save()
+        canvas.translate(lx, ly)
+        canvas.rotate(leftDeg - 90f)
+        canvas.drawOval(RectF(-12f * scale, -28f * scale, 12f * scale, 28f * scale), leafPaint)
+        canvas.restore()
+    }
+
+    // 4. Alt Kısımda 2 - 1 - 3 Şampiyonluk Kürsüsü (Podium) Silüeti
+    val podiumFillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        color = theme.accentHex.toInt()
+        alpha = 24
+    }
+    val podiumStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 3f * scale
+        color = theme.accentHex.toInt()
+        alpha = 46
+    }
+    val podiumNumPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = android.graphics.Color.WHITE
+        alpha = 38
+        textSize = 68f * scale
+        textAlign = Paint.Align.CENTER
+        typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+    }
+
+    val baseLineY = height * 0.94f
+    val stepW = width * 0.22f
+
+    // 2.lik Basamağı (Sol)
+    val rect2 = RectF(cx - stepW * 1.5f, baseLineY - 120f * scale, cx - stepW * 0.5f, baseLineY)
+    canvas.drawRoundRect(rect2, 12f * scale, 12f * scale, podiumFillPaint)
+    canvas.drawRoundRect(rect2, 12f * scale, 12f * scale, podiumStrokePaint)
+    canvas.drawText("2", rect2.centerX(), rect2.centerY() + 24f * scale, podiumNumPaint)
+
+    // 1.lik Basamağı (Orta - En Yüksek)
+    val rect1 = RectF(cx - stepW * 0.5f, baseLineY - 175f * scale, cx + stepW * 0.5f, baseLineY)
+    canvas.drawRoundRect(rect1, 14f * scale, 14f * scale, podiumFillPaint)
+    canvas.drawRoundRect(rect1, 14f * scale, 14f * scale, podiumStrokePaint)
+    canvas.drawText("1", rect1.centerX(), rect1.centerY() + 24f * scale, podiumNumPaint)
+
+    // 3.lük Basamağı (Sağ)
+    val rect3 = RectF(cx + stepW * 0.5f, baseLineY - 95f * scale, cx + stepW * 1.5f, baseLineY)
+    canvas.drawRoundRect(rect3, 12f * scale, 12f * scale, podiumFillPaint)
+    canvas.drawRoundRect(rect3, 12f * scale, 12f * scale, podiumStrokePaint)
+    canvas.drawText("3", rect3.centerX(), rect3.centerY() + 24f * scale, podiumNumPaint)
 }
