@@ -6,6 +6,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,7 +29,6 @@ import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkRemove
-import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ChevronRight
@@ -35,8 +36,6 @@ import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Female
-import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Male
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
@@ -48,20 +47,18 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -69,6 +66,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -80,18 +78,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.activity.compose.BackHandler
+import com.ecil.masterracer.R
 import com.ecil.masterracer.data.model.Competition
-import com.ecil.masterracer.ui.components.CategoryTargetBottomSheet
 import com.ecil.masterracer.ui.components.CountdownBadge
 import com.ecil.masterracer.ui.components.WmaCalculatorBottomSheet
-import com.ecil.masterracer.ui.screens.MasterRecordsScreen
 import com.ecil.masterracer.ui.theme.BluePrimary
 import com.ecil.masterracer.ui.theme.CrimsonAccent
 import com.ecil.masterracer.ui.viewmodel.CompetitionViewModel
@@ -99,8 +97,8 @@ import com.ecil.masterracer.util.AthleteRecord
 import com.ecil.masterracer.util.EventFormatType
 import com.ecil.masterracer.util.MasterAthleticsHelper
 import com.ecil.masterracer.util.WmaAgeGradingHelper
-import com.ecil.masterracer.util.WmaEvaluationResult
 import java.util.Calendar
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -129,25 +127,11 @@ fun ProfileScreen(
     val tabs = listOf("Takibimdekiler", "Derecelerim", "Geçmişim")
 
     val category = viewModel.calculateCategory(athleteGender, athleteBirthYear)
-    val (nextCategory, yearsUntilNext) = MasterAthleticsHelper.calculateNextCategory(athleteGender, athleteBirthYear)
     val isFemale = athleteGender.equals("F", ignoreCase = true)
     val categoryBadgeColor = if (isFemale) Color(0xFFEC4899) else Color(0xFF2563EB)
 
     var showWmaCalculatorSheet by remember { mutableStateOf(false) }
-    var showRecordsScreen by remember { mutableStateOf(false) }
     val wmaSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    if (showRecordsScreen) {
-        BackHandler { showRecordsScreen = false }
-        MasterRecordsScreen(
-            athleteGender = athleteGender,
-            athleteCategory = category,
-            athleteBirthYear = athleteBirthYear,
-            athleteRecords = athleteRecords,
-            onBack = { showRecordsScreen = false }
-        )
-        return
-    }
 
     Scaffold(
         topBar = {
@@ -283,17 +267,17 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Kategori Değişimi & Yaş Günü Projeksiyonu Kartı
+            // WMA Yaş Faktörü & Performans Hesaplayıcı Kartı (Üst Bölüme Taşındı)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .clickable { showRecordsScreen = true },
+                    .clickable { showWmaCalculatorSheet = true },
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF8B5CF6).copy(alpha = 0.10f)
+                    containerColor = BluePrimary.copy(alpha = 0.08f)
                 ),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF8B5CF6).copy(alpha = 0.35f))
+                border = androidx.compose.foundation.BorderStroke(1.dp, BluePrimary.copy(alpha = 0.25f))
             ) {
                 Row(
                     modifier = Modifier
@@ -306,55 +290,39 @@ fun ProfileScreen(
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
-                                .background(Color(0xFF8B5CF6).copy(alpha = 0.2f), CircleShape),
+                                .background(BluePrimary.copy(alpha = 0.15f), RoundedCornerShape(10.dp)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Cake,
+                                imageVector = Icons.Default.Calculate,
                                 contentDescription = null,
-                                tint = Color(0xFF8B5CF6),
-                                modifier = Modifier.size(20.dp)
+                                tint = BluePrimary,
+                                modifier = Modifier.size(22.dp)
                             )
                         }
 
                         Spacer(modifier = Modifier.width(12.dp))
 
                         Column {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = "Sonraki Kategori: $nextCategory",
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Surface(
-                                    color = Color(0xFF8B5CF6),
-                                    shape = RoundedCornerShape(4.dp)
-                                ) {
-                                    Text(
-                                        text = "$yearsUntilNext Yıl",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.ExtraBold,
-                                        color = Color.White,
-                                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
-                                    )
-                                }
-                            }
+                            Text(
+                                text = "WMA Yaş Faktörü & Performans Hesaplayıcı",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = BluePrimary
+                            )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "Resmi Rekorlar Arşivi (Tüm Kategoriler) ➔",
+                                text = "Açık Yaş Elit dengi ve dünya klasman yüzdesi hesapla",
                                 fontSize = 11.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF8B5CF6)
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
                             )
                         }
                     }
 
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
-                        contentDescription = "Detay",
-                        tint = Color(0xFF8B5CF6),
+                        contentDescription = "Hesaplayıcıyı Aç",
+                        tint = BluePrimary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -404,8 +372,6 @@ fun ProfileScreen(
                         ProfileRecordsSection(
                             records = athleteRecords,
                             athleteGender = athleteGender,
-                            athleteBirthYear = athleteBirthYear,
-                            onOpenWmaCalculator = { showWmaCalculatorSheet = true },
                             onAddNewRecord = {
                                 editingRecord = null
                                 recordPresetCompTitle = ""
@@ -506,8 +472,6 @@ fun ProfileScreen(
             }
         )
     }
-
-
 }
 
 // -------------------------------------------------------------
@@ -681,12 +645,11 @@ private fun ProfileTrackedRacesSection(
 // -------------------------------------------------------------
 // 2. DERECELERİM BÖLÜMÜ (CANLI PB/SB & MADALYA/REKOR ROZETLERİ)
 // -------------------------------------------------------------
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ProfileRecordsSection(
     records: List<AthleteRecord>,
     athleteGender: String,
-    athleteBirthYear: Int,
-    onOpenWmaCalculator: () -> Unit,
     onAddNewRecord: () -> Unit,
     onEditRecord: (AthleteRecord) -> Unit,
     onDeleteRecord: (String) -> Unit
@@ -694,64 +657,6 @@ private fun ProfileRecordsSection(
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        // WMA Yaş Faktörü Hesaplayıcı Butonu
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onOpenWmaCalculator() },
-            shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = BluePrimary.copy(alpha = 0.08f)
-            ),
-            border = androidx.compose.foundation.BorderStroke(1.dp, BluePrimary.copy(alpha = 0.25f))
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                    Box(
-                        modifier = Modifier
-                            .size(38.dp)
-                            .background(BluePrimary.copy(alpha = 0.15f), RoundedCornerShape(10.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Calculate,
-                            contentDescription = null,
-                            tint = BluePrimary,
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Column {
-                        Text(
-                            text = "WMA Yaş Faktörü & Performans Hesaplayıcı",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = BluePrimary
-                        )
-                        Text(
-                            text = "Açık Yaş Elit dengi ve dünya klasman yüzdesi hesapla",
-                            fontSize = 10.sp,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
-                        )
-                    }
-                }
-                Icon(
-                    imageVector = Icons.Default.ChevronRight,
-                    contentDescription = null,
-                    tint = BluePrimary,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(14.dp))
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -817,37 +722,64 @@ private fun ProfileRecordsSection(
 
             groupedByEvent.forEach { (eventName, eventRecords) ->
                 val isField = MasterAthleticsHelper.isFieldEvent(eventName)
+                val lowerEvent = eventName.lowercase(Locale("tr", "TR"))
+                val isJump = lowerEvent.contains("atlama")
+                val isThrow = lowerEvent.contains("atma")
 
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 5.dp),
-                    shape = RoundedCornerShape(14.dp),
+                        .padding(vertical = 6.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
                     )
                 ) {
-                    Column(modifier = Modifier.padding(14.dp)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        // Branş Başlığı & Branşa Özel İkon (Atlama / Atma / Koşu)
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.DirectionsRun,
-                                contentDescription = null,
-                                tint = BluePrimary,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .background(BluePrimary.copy(alpha = 0.12f), RoundedCornerShape(8.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                when {
+                                    isJump -> Icon(
+                                        painter = painterResource(id = R.drawable.ic_event_jump),
+                                        contentDescription = "Atlama Branşı",
+                                        tint = BluePrimary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    isThrow -> Icon(
+                                        painter = painterResource(id = R.drawable.ic_event_throw),
+                                        contentDescription = "Atma Branşı",
+                                        tint = BluePrimary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    else -> Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.DirectionsRun,
+                                        contentDescription = "Koşu Branşı",
+                                        tint = BluePrimary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
                             Text(
                                 text = eventName,
-                                fontSize = 14.sp,
+                                fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
 
-                        // Kategori bazında grupla (Kullanıcı talebi: o kategoride tek derece varsa o PB'dir, yanına yaz)
+                        // Kategori bazında grupla
                         val groupedByCategory = eventRecords.groupBy { it.category }
+                        var recordIndex = 0
+                        val totalRecordsInCard = eventRecords.size
 
                         groupedByCategory.forEach { (categoryName, catRecords) ->
                             // En iyi dereceyi (PB) bul
@@ -864,6 +796,13 @@ private fun ProfileRecordsSection(
                             }
 
                             catRecords.sortedWith(compareByDescending<AthleteRecord> { it.year }).forEach { rec ->
+                                if (recordIndex > 0) {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f))
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                                recordIndex++
+
                                 val isPersonalBest = (rec.id == bestRecord?.id)
                                 val isSeasonBest = (rec.id == currentYearBest?.id && rec.year == currentYear)
 
@@ -884,175 +823,186 @@ private fun ProfileRecordsSection(
                                     } else null
                                 }
 
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 4.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                                        Surface(
-                                            color = if (categoryName.startsWith("F", ignoreCase = true)) Color(0xFFEC4899) else Color(0xFF2563EB),
-                                            shape = RoundedCornerShape(4.dp)
+                                Column(modifier = Modifier.fillMaxWidth()) {
+                                    // 1. Satır: Kategori + Derece + Düzenle/Sil Butonları
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.weight(1f)
                                         ) {
-                                            Text(
-                                                text = categoryName.ifBlank { "MASTER" },
-                                                fontSize = 10.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Color.White,
-                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                            )
-                                        }
-
-                                        Spacer(modifier = Modifier.width(8.dp))
-
-                                        Column {
-                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Surface(
+                                                color = if (categoryName.startsWith("F", ignoreCase = true) || categoryName.startsWith("W", ignoreCase = true))
+                                                    Color(0xFFEC4899)
+                                                else
+                                                    Color(0xFF2563EB),
+                                                shape = RoundedCornerShape(6.dp)
+                                            ) {
                                                 Text(
-                                                    text = rec.result,
-                                                    fontSize = 13.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = MaterialTheme.colorScheme.onSurface
+                                                    text = categoryName.ifBlank { "MASTER" },
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.ExtraBold,
+                                                    color = Color.White,
+                                                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
                                                 )
-
-                                                // PB Rozeti (Kategori için tek derece varsa veya en iyisiyse)
-                                                if (isPersonalBest) {
-                                                    Spacer(modifier = Modifier.width(5.dp))
-                                                    Surface(
-                                                        color = CrimsonAccent,
-                                                        shape = RoundedCornerShape(4.dp)
-                                                    ) {
-                                                        Text(
-                                                            text = "PB",
-                                                            fontSize = 9.sp,
-                                                            fontWeight = FontWeight.ExtraBold,
-                                                            color = Color.White,
-                                                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
-                                                        )
-                                                    }
-                                                }
-
-                                                // SB Rozeti (Güncel yıl derecesi)
-                                                if (isSeasonBest) {
-                                                    Spacer(modifier = Modifier.width(4.dp))
-                                                    Surface(
-                                                        color = Color(0xFF16A34A),
-                                                        shape = RoundedCornerShape(4.dp)
-                                                    ) {
-                                                        Text(
-                                                            text = "SB ($currentYear)",
-                                                            fontSize = 9.sp,
-                                                            fontWeight = FontWeight.Bold,
-                                                            color = Color.White,
-                                                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
-                                                        )
-                                                    }
-                                                }
-
-                                                // Podyum Madalyası
-                                                if (rec.podium.isNotBlank()) {
-                                                    Spacer(modifier = Modifier.width(4.dp))
-                                                    val medalText = when (rec.podium) {
-                                                        "1" -> "🥇 1.lik"
-                                                        "2" -> "🥈 2.lik"
-                                                        "3" -> "🥉 3.lük"
-                                                        else -> ""
-                                                    }
-                                                    if (medalText.isNotBlank()) {
-                                                        Surface(
-                                                            color = Color(0xFFFEF3C7),
-                                                            shape = RoundedCornerShape(4.dp)
-                                                        ) {
-                                                            Text(
-                                                                text = medalText,
-                                                                fontSize = 9.sp,
-                                                                fontWeight = FontWeight.Bold,
-                                                                color = Color(0xFF92400E),
-                                                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
-                                                            )
-                                                        }
-                                                    }
-                                                }
-
-                                                // Rekor Rozeti (NMR / BMR / EMR / WMR)
-                                                if (rec.recordType.isNotBlank()) {
-                                                    Spacer(modifier = Modifier.width(4.dp))
-                                                    Surface(
-                                                        color = Color(0xFF7C3AED),
-                                                        shape = RoundedCornerShape(4.dp)
-                                                    ) {
-                                                        Text(
-                                                            text = rec.recordType,
-                                                            fontSize = 9.sp,
-                                                            fontWeight = FontWeight.ExtraBold,
-                                                            color = Color.White,
-                                                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
-                                                        )
-                                                    }
-                                                }
-
-                                                // WMA Yaş Yüzdesi Rozeti
-                                                wmaResult?.let { wma ->
-                                                    Spacer(modifier = Modifier.width(4.dp))
-                                                    Surface(
-                                                        color = Color(wma.badgeColorHex).copy(alpha = 0.15f),
-                                                        shape = RoundedCornerShape(4.dp)
-                                                    ) {
-                                                        Text(
-                                                            text = String.format(java.util.Locale.US, "%%%05.1f WMA", wma.scorePercentage),
-                                                            fontSize = 9.sp,
-                                                            fontWeight = FontWeight.Bold,
-                                                            color = Color(wma.badgeColorHex),
-                                                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
-                                                        )
-                                                    }
-                                                }
                                             }
 
-                                            val subtitleText = buildString {
-                                                if (rec.competitionTitle.isNotBlank()) {
-                                                    append("${rec.year} • ${rec.competitionTitle}")
-                                                } else {
-                                                    append("${rec.year}")
-                                                }
-                                                if (wmaResult != null) {
-                                                    append(" • Açık Yaş: ${wmaResult.formattedEquivalent}")
-                                                }
-                                            }
+                                            Spacer(modifier = Modifier.width(10.dp))
+
                                             Text(
-                                                text = subtitleText,
-                                                fontSize = 11.sp,
-                                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                            )
-                                        }
-                                    }
-
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        IconButton(
-                                            onClick = { onEditRecord(rec) },
-                                            modifier = Modifier.size(28.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Edit,
-                                                contentDescription = "Düzenle",
-                                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                                modifier = Modifier.size(16.dp)
+                                                text = rec.result,
+                                                fontSize = 16.sp,
+                                                fontWeight = FontWeight.ExtraBold,
+                                                color = MaterialTheme.colorScheme.onSurface
                                             )
                                         }
 
-                                        IconButton(
-                                            onClick = { onDeleteRecord(rec.id) },
-                                            modifier = Modifier.size(28.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.DeleteOutline,
-                                                contentDescription = "Sil",
-                                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                                                modifier = Modifier.size(16.dp)
-                                            )
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            IconButton(
+                                                onClick = { onEditRecord(rec) },
+                                                modifier = Modifier.size(30.dp)
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Edit,
+                                                    contentDescription = "Düzenle",
+                                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
+                                                    modifier = Modifier.size(17.dp)
+                                                )
+                                            }
+
+                                            IconButton(
+                                                onClick = { onDeleteRecord(rec.id) },
+                                                modifier = Modifier.size(30.dp)
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.DeleteOutline,
+                                                    contentDescription = "Sil",
+                                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f),
+                                                    modifier = Modifier.size(17.dp)
+                                                )
+                                            }
                                         }
                                     }
+
+                                    // 2. Satır: Rozetler (PB, SB, Madalya, Rekor, WMA Yüzdesi) - Ferah FlowRow
+                                    val hasAnyBadge = isPersonalBest || isSeasonBest || rec.podium.isNotBlank() || rec.recordType.isNotBlank() || wmaResult != null
+                                    if (hasAnyBadge) {
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        FlowRow(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                                        ) {
+                                            if (isPersonalBest) {
+                                                Surface(
+                                                    color = CrimsonAccent,
+                                                    shape = RoundedCornerShape(5.dp)
+                                                ) {
+                                                    Text(
+                                                        text = "PB",
+                                                        fontSize = 10.sp,
+                                                        fontWeight = FontWeight.ExtraBold,
+                                                        color = Color.White,
+                                                        maxLines = 1,
+                                                        softWrap = false,
+                                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                                    )
+                                                }
+                                            }
+
+                                            if (isSeasonBest) {
+                                                Surface(
+                                                    color = Color(0xFF16A34A),
+                                                    shape = RoundedCornerShape(5.dp)
+                                                ) {
+                                                    Text(
+                                                        text = "SB ($currentYear)",
+                                                        fontSize = 10.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = Color.White,
+                                                        maxLines = 1,
+                                                        softWrap = false,
+                                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                                    )
+                                                }
+                                            }
+
+                                            if (rec.podium.isNotBlank()) {
+                                                val medalText = when (rec.podium) {
+                                                    "1" -> "🥇 1.lik"
+                                                    "2" -> "🥈 2.lik"
+                                                    "3" -> "🥉 3.lük"
+                                                    else -> ""
+                                                }
+                                                if (medalText.isNotBlank()) {
+                                                    Surface(
+                                                        color = Color(0xFFFEF3C7),
+                                                        shape = RoundedCornerShape(5.dp)
+                                                    ) {
+                                                        Text(
+                                                            text = medalText,
+                                                            fontSize = 10.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            color = Color(0xFF92400E),
+                                                            maxLines = 1,
+                                                            softWrap = false,
+                                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                                        )
+                                                    }
+                                                }
+                                            }
+
+                                            if (rec.recordType.isNotBlank()) {
+                                                Surface(
+                                                    color = Color(0xFF7C3AED),
+                                                    shape = RoundedCornerShape(5.dp)
+                                                ) {
+                                                    Text(
+                                                        text = rec.recordType,
+                                                        fontSize = 10.sp,
+                                                        fontWeight = FontWeight.ExtraBold,
+                                                        color = Color.White,
+                                                        maxLines = 1,
+                                                        softWrap = false,
+                                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                                    )
+                                                }
+                                            }
+
+                                            wmaResult?.let { wma ->
+                                                Surface(
+                                                    color = Color(wma.badgeColorHex).copy(alpha = 0.15f),
+                                                    shape = RoundedCornerShape(5.dp)
+                                                ) {
+                                                    Text(
+                                                        text = String.format(Locale.US, "%%%.1f WMA", wma.scorePercentage),
+                                                        fontSize = 10.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = Color(wma.badgeColorHex),
+                                                        maxLines = 1,
+                                                        softWrap = false,
+                                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    // 3. Satır: Yarışma Yılı ve Adı (Açık Yaş derecesi kaldırıldı)
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    val subtitleText = if (rec.competitionTitle.isNotBlank()) {
+                                        "${rec.year} • ${rec.competitionTitle}"
+                                    } else {
+                                        "${rec.year}"
+                                    }
+                                    Text(
+                                        text = subtitleText,
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
+                                    )
                                 }
                             }
                         }
@@ -1442,7 +1392,6 @@ private fun RecordEntryBottomSheet(
 
             // 1. Yarışma Bilgisi
             if (isFixedCompetition) {
-                // Kullanıcı talebi: "yarışma sabit yazmasına gerek yok yarışma ismi yazsa yeter"
                 Card(
                     shape = RoundedCornerShape(14.dp),
                     colors = CardDefaults.cardColors(
@@ -1465,7 +1414,6 @@ private fun RecordEntryBottomSheet(
                     }
                 }
             } else {
-                // Derecelerim sekmesinden gelindiğinde: Listeden seç veya elle yaz
                 if (!isManualCompInput) {
                     ExposedDropdownMenuBox(
                         expanded = isCompDropdownExpanded,
@@ -1817,7 +1765,7 @@ private fun RecordEntryBottomSheet(
                 }
             }
 
-            // 5. Rekor Seçeneği (WMR, EMR, BMR, NMR) - Harfler asla alta kaymaz!
+            // 5. Rekor Seçeneği (WMR, EMR, BMR, NMR)
             Column {
                 Text(text = "Kategori / Şampiyona Rekoru", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = BluePrimary)
                 Spacer(modifier = Modifier.height(6.dp))
@@ -1842,7 +1790,7 @@ private fun RecordEntryBottomSheet(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // Kaydet Butonu (DetailBottomSheet tarzında geniş ve modern)
+            // Kaydet Butonu
             Button(
                 onClick = {
                     val finalEvent = if (selectedEvent == "Diğer") customEventName.ifBlank { "Özel Branş" } else selectedEvent
