@@ -41,9 +41,13 @@ Uygulamada şu ana kadar tamamlanarak aktif kullanıma sunulan tüm modüller ve
    - **Koşu**, **Atlama** ve **Atma** branşlarına özel tasarlanmış ikonlarla gruplanan ferah derece kartları (`PB`, `SB`, `🥇/🥈/🥉 Madalya`, `NMR/BMR/EMR/WMR Rekor` ve `% WMA` rozetleri).
    - Branş tipine göre akıllı derece girişi (Sprint `Saniye.Salise`, Orta/Uzun mesafe `Dakika:Saniye.Salise`, Maraton `Saat:Dakika:Saniye`, Saha branşları `Metre.Santimetre`).
 9. **Dijital Sporcu Yarışma & Kariyer Paylaşım Kartları (`Social Share Badge`):**
-   - **Tekil Derece / Yarış Sonucu Kartı:** `Derecelerim` sekmesindeki her derecenin yanındaki Paylaş (`Share`) ikonuyla açılan, 3 farklı renk teması (**`🌌 Gece Mavisi`**, **`🔥 Kırmızı Pist`**, **`🏆 Altın Podyum`**) sunan canlı önizlemeli ve **1080p yüksek çözünürlüklü PNG** yarışma sonuç kartı.
+   - **Tekil Derece / Yarış Sonucu Kartı:** `Derecelerim` sekmesindeki her derecenin yanındaki Paylaş (`Share`) ikonuyla açılan, her temaya özel transparan stadyum/pist/podyum arka planlarına sahip (**`🌌 Elit Lacivert`**, **`🔥 Kırmızı Pist`**, **`🏆 Altın Podyum`**) canlı önizlemeli ve **1080p yüksek çözünürlüklü PNG** yarışma sonuç kartı.
    - **Kariyer & PB Özeti Kartı:** Profilin en üstündeki sporcu kimlik kartında yer alan Paylaş (`Share`) ikonuyla açılan; sporcunun tüm branşlardaki kişisel en iyi derecelerini (`PB`), toplam madalya sayısını ve en yüksek `WMA %` skorunu tek bir görsel kartta birleştiren paylaşım modülü.
-10. **Koyu / Açık Tema & Çevrimdışı (Offline-First) Mimari:**
+10. **Performans İlerleme Grafiği & Kariyer Analitiği (`📈 Gelişimim` Sekmesi):**
+    - `Profilim` ekranında 3. sekme olarak yer alan (`Takibimdekiler | Derecelerim | 📈 Gelişimim`) ve `Derecelerim` içindeki her branş kartının sağ üstündeki **`📈 Gelişim`** butonuyla da doğrudan açılabilen analiz paneli.
+    - **Kariyer & Madalya Özeti:** Kazanılan altın (`🥇`), gümüş (`🥈`), bronz (`🥉`) madalya dağılımı, resmi rekor sayısı, en iyi ve ortalama `WMA %` skoru.
+    - **Çift Modlu İnteraktif Çizgi & Alan Grafiği:** Branş bazlı **`⏱️ Derece Gelişimi (sn/m)`** ve **`📊 WMA Yaş Yüzdesi (%)`** eğrisi (`PB` noktası özel rozetli) ve yarışlar arası fark (`▲ Gelişim / Δ`) kronolojisi.
+11. **Koyu / Açık Tema & Çevrimdışı (Offline-First) Mimari:**
     - İnternet bağlantısı olmasa bile tüm yarışma takvimine, 3.000+ rekor arşivine, WMA standartlarına, çağrı odası sayacına ve kişisel derecelere anında erişim.
     - Sistem varsayılanı, Açık Tema ve Koyu Tema seçenekleri.
 
@@ -53,14 +57,14 @@ Uygulamada şu ana kadar tamamlanarak aktif kullanıma sunulan tüm modüller ve
 
 ```mermaid
 flowchart TD
-    A["✅ Faz 1: Rekorlar Arşivi, WMA Hesaplayıcı, Standartlar & Çağrı Odası (Tamamlandı)"] --> B["🎯 Faz 2: Dijital Sporcu Paylaşım Kartı & İlerleme Grafikleri"]
-    B --> C["✈️ Faz 3: Seyahat, Konaklama & Hava/Rüzgar Asistanı"]
+    A["✅ Faz 1: Rekorlar Arşivi, WMA Hesaplayıcı, Standartlar & Çağrı Odası (Tamamlandı)"] --> B["✅ Faz 2: Dijital Sporcu Paylaşım Kartı & İlerleme Grafikleri (Tamamlandı)"]
+    B --> C["🎯 Faz 3: Seyahat, Konaklama & Hava/Rüzgar Asistanı"]
     C --> D["🤝 Faz 4: Bayrak Takımı Hesaplayıcı & ÇokluBranş (Pentatlon/Dekatlon) Puanlama"]
 ```
 
 ---
 
-## ✅ TAMAMLANAN FAZLAR (FAZ 1 & FAZ 2.1)
+## ✅ TAMAMLANAN FAZLAR (FAZ 1 & FAZ 2)
 
 - [x] **1. WMA Yaş Faktörü (Age Grading) & Performans Hesaplayıcısı** *(Tamamlandı)*
 - [x] **2. Resmi Master Rekorları Arşivi (NMR, BŞR, BMR, EMR, WMR - Açık Saha & Salon)** *(Tamamlandı)*
@@ -68,22 +72,23 @@ flowchart TD
 - [x] **4. WMA Branş Standartları Rehberi (Engel Yükseklikleri & Atma Ağırlıkları Tablosu)** *(Tamamlandı)*
 - [x] **5. Yarış Günü & Çağrı Odası (Call Room) Isınma Zamanlayıcısı ve Kontrol Listesi** *(Tamamlandı)*
 - [x] **6. 5 Sekmeli Alt Gezinme Çubuğu (Bottom Navigation Bar) & Yenilenen Profil Deneyimi** *(Tamamlandı)*
-- [x] **7. Dijital Sporcu Yarışma & Kariyer Paylaşım Kartları (Tekil Derece Kartı + Kariyer PB Kartı)** *(Tamamlandı)*
+- [x] **7. Dijital Sporcu Yarışma & Kariyer Paylaşım Kartları (Transparan Pist/Stadyum Arka Planlı 1080p PNG)** *(Tamamlandı)*
+- [x] **8. Performans İlerleme Grafiği & Kariyer Analitiği (`📈 Gelişimim` Sekmesi & Branş Bazlı Hızlı Geçiş)** *(Tamamlandı)*
 
 ---
 
-## 🎯 FAZ 2: Sosyal Paylaşım & Performans Analitiği *(DEVAM EDEN FAZ)*
+## ✅ FAZ 2: Sosyal Paylaşım & Performans Analitiği *(TAMAMLANDI)*
 
 ### 1. ✅ 🎽 Dijital Sporcu Yarışma & Kariyer Kartı (Social Share Badge) *(Tamamlandı)*
 - **Amaç:** Atletlerin yarışma sonuçlarını, PB (Kişisel En İyi) derecelerini ve madalyalarını sosyal medyada (Instagram Story, WhatsApp vb.) profesyonel bir şablonla paylaşabilmesi.
 - **Uygulanan 2 Farklı Kart Modülü:**
   1. **Tekil Derece / Yarış Sonucu Kartı:** `Derecelerim` sekmesindeki her derecenin yanında yer alan Paylaş (`Share`) butonuyla açılır; branş, derece, `PB/SB`, madalya, rekor (`NMR/BMR/EMR/WMR`), `WMA %` ve şampiyona adını içerir.
   2. **Kariyer & PB Özeti Kartı:** Profilin en üstündeki sporcu kimlik kartında yer alan Paylaş (`Share`) butonuyla açılır; sporcunun tüm branşlardaki kişisel rekorlarını (`PB`), aktif branş sayısını, toplam madalyalarını ve en yüksek `WMA %` skorunu içerir.
-- **Teknik Uygulama:** 3 farklı tema seçeneği (`Gece Mavisi`, `Kırmızı Pist`, `Altın Podyum`), canlı önizleme alt penceresi ve `Canvas` + `FileProvider` ile **1080p PNG** görsel paylaşımı.
+- **Teknik Uygulama:** Her renk temasına özel transparan pist/stadyum/kürsü arka plan çizimleri (`Elit Lacivert`, `Kırmızı Pist`, `Altın Podyum`), canlı önizleme alt penceresi ve `Canvas` + `FileProvider` ile **1080p PNG** görsel paylaşımı.
 
-### 2. 📈 Performans İlerleme Grafiği (PB/SB & WMA % Analytics)
-- Sporcunun yıllara göre branş bazlı derece gelişimini ve WMA yaş yüzdesi eğrisini gösteren görsel çizgi grafikleri.
-- Sezon bazlı kazanılan madalya ve kırılan kişisel rekor özeti.
+### 2. ✅ 📈 Performans İlerleme Grafiği (PB/SB & WMA % Analytics) *(Tamamlandı)*
+- Sporcunun yıllara göre branş bazlı derece gelişimini (`sn`/`m`) ve `WMA Yaş Yüzdesi (%)` eğrisini gösteren çift modlu çizgi ve alan grafikleri.
+- `Derecelerim` sekmesindeki her branş kartından tek dokunuşla (`📈 Gelişim`) o branşın grafiğine geçiş, madalya dağılımı özeti ve kronolojik gelişim fark (`Δ`) tablosu.
 
 ---
 

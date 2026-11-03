@@ -27,6 +27,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.DirectionsRun
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkRemove
@@ -90,6 +91,7 @@ import com.ecil.masterracer.R
 import com.ecil.masterracer.data.model.Competition
 import com.ecil.masterracer.ui.components.CareerSummaryShareBottomSheet
 import com.ecil.masterracer.ui.components.CountdownBadge
+import com.ecil.masterracer.ui.components.PerformanceAnalyticsSection
 import com.ecil.masterracer.ui.components.SingleRecordShareBottomSheet
 import com.ecil.masterracer.ui.components.SingleRecordShareData
 import com.ecil.masterracer.ui.components.WmaCalculatorBottomSheet
@@ -127,7 +129,8 @@ fun ProfileScreen(
     val recordSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Takibimdekiler", "Derecelerim")
+    val tabs = listOf("Takibimdekiler", "Derecelerim", "📈 Gelişimim")
+    var selectedAnalyticsEvent by remember { mutableStateOf<String?>(null) }
 
     val category = viewModel.calculateCategory(athleteGender, athleteBirthYear)
     val isFemale = athleteGender.equals("F", ignoreCase = true)
@@ -417,6 +420,25 @@ fun ProfileScreen(
                             onDeleteRecord = { viewModel.deleteAthleteRecord(it) },
                             onShareRecord = { shareData ->
                                 sharingRecordData = shareData
+                            },
+                            onOpenEventAnalytics = { evName ->
+                                selectedAnalyticsEvent = evName
+                                selectedTab = 2
+                            }
+                        )
+                    }
+                    2 -> {
+                        // 3. PERFORMANS İLERLEME GRAFİĞİ & KARİYER ANALİTİĞİ
+                        PerformanceAnalyticsSection(
+                            records = athleteRecords,
+                            athleteGender = athleteGender,
+                            initialSelectedEvent = selectedAnalyticsEvent,
+                            onAddNewRecord = {
+                                editingRecord = null
+                                recordPresetCompTitle = ""
+                                recordPresetYear = Calendar.getInstance().get(Calendar.YEAR)
+                                isFixedCompetition = false
+                                showAddRecordDialog = true
                             }
                         )
                     }
@@ -686,7 +708,8 @@ private fun ProfileRecordsSection(
     onAddNewRecord: () -> Unit,
     onEditRecord: (AthleteRecord) -> Unit,
     onDeleteRecord: (String) -> Unit,
-    onShareRecord: (SingleRecordShareData) -> Unit
+    onShareRecord: (SingleRecordShareData) -> Unit,
+    onOpenEventAnalytics: (String) -> Unit
 ) {
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
@@ -770,42 +793,76 @@ private fun ProfileRecordsSection(
                     )
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        // Branş Başlığı & Branşa Özel İkon (Atlama / Atma / Koşu)
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .background(BluePrimary.copy(alpha = 0.12f), RoundedCornerShape(8.dp)),
-                                contentAlignment = Alignment.Center
+                        // Branş Başlığı & Branşa Özel İkon (Atlama / Atma / Koşu) + Hızlı Gelişim Grafiği Butonu
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
                             ) {
-                                when {
-                                    isJump -> Icon(
-                                        painter = painterResource(id = R.drawable.ic_event_jump),
-                                        contentDescription = "Atlama Branşı",
+                                Box(
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .background(BluePrimary.copy(alpha = 0.12f), RoundedCornerShape(8.dp)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    when {
+                                        isJump -> Icon(
+                                            painter = painterResource(id = R.drawable.ic_event_jump),
+                                            contentDescription = "Atlama Branşı",
+                                            tint = BluePrimary,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        isThrow -> Icon(
+                                            painter = painterResource(id = R.drawable.ic_event_throw),
+                                            contentDescription = "Atma Branşı",
+                                            tint = BluePrimary,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        else -> Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.DirectionsRun,
+                                            contentDescription = "Koşu Branşı",
+                                            tint = BluePrimary,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = eventName,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+
+                            Surface(
+                                modifier = Modifier.clickable { onOpenEventAnalytics(eventName) },
+                                color = BluePrimary.copy(alpha = 0.10f),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.TrendingUp,
+                                        contentDescription = "Gelişim Grafiği",
                                         tint = BluePrimary,
-                                        modifier = Modifier.size(20.dp)
+                                        modifier = Modifier.size(15.dp)
                                     )
-                                    isThrow -> Icon(
-                                        painter = painterResource(id = R.drawable.ic_event_throw),
-                                        contentDescription = "Atma Branşı",
-                                        tint = BluePrimary,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                    else -> Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.DirectionsRun,
-                                        contentDescription = "Koşu Branşı",
-                                        tint = BluePrimary,
-                                        modifier = Modifier.size(20.dp)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = "Gelişim",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = BluePrimary
                                     )
                                 }
                             }
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text(
-                                text = eventName,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
                         }
 
                         Spacer(modifier = Modifier.height(10.dp))
