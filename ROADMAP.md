@@ -36,13 +36,15 @@ Uygulamada şu ana kadar tamamlanarak aktif kullanıma sunulan tüm modüller ve
    - Kategori bazlı **PB (Kişisel En İyi)**, **SB (Sezonun En İyisi)**, **Podyum Madalyaları (`🥇 1.lik`, `🥈 2.lik`, `🥉 3.lük`)**, **Rekor Rozetleri (`NMR`, `BMR`, `EMR`, `WMR`)** ve otomatik **WMA Performans Yüzdesi (`% WMA`)** rozetleri.
    - Branş tipine göre akıllı derece girişi (Sprint için `Saniye.Salise`, Orta/Uzun mesafe için `Dakika:Saniye.Salise`, Maraton için `Saat:Dakika:Saniye`, Saha atlama/atma branşları için `Metre.Santimetre`).
    - Takip edilen yarışların tarihi geçtiğinde tek tıkla o yarışmaya ait derece ekleme akışı.
-7. **Yarış Günü & Çağrı Odası (Call Room) Isınma Zamanlayıcısı (`⏱️ Çağrı Odası`):**
-   - Ana sayfa üst barında `🏆 Rekorlar` butonunun hemen yanında yer alan yarış günü asistanı.
+7. **WMA Branş Standartları Rehberi (`📏 Standartlar`):**
+   - Yaş ve cinsiyet gruplarına (`M35–M100`, `W35–W100`) göre resmi **Kısa Engelli (`110m / 100m / 80m` & Salon `60m`)**, **Uzun Engelli (`400m / 300m / 200m`)** ve **Su Engelli (`3000m / 2000m`)** engel yükseklikleri, engel sayıları, 1. engele mesafe, engeller arası mesafe ve son engelden varışa mesafe ölçüleri.
+   - Yaş ve cinsiyete göre resmi **Gülle**, **Disk**, **Cirit**, **Çekiç** ve **Ağırlık Atma (Weight Throw)** ekipman ağırlıkları tablosu ve sporcunun kendi kategorisini otomatik vurgulama özelliği.
+8. **Yarış Günü & Çağrı Odası (Call Room) Isınma Zamanlayıcısı (`⏱️ Çağrı Odası`):**
    - Branş grubuna göre (**Sprint & Engelli**, **Orta & Uzun Mesafe**, **Atlama & Atma**) özelleştirilmiş adım adım ısınma, dril, çivili giyme ve **Çağrı Odası (Call Room)** zaman çizelgesi.
    - Saniye bazlı canlı **Çağrı Odasına Kalan Süre** ve **Starta Kalan Süre** geri sayımı, özelleştirilebilir çağrı odası kapanış süresi (`-15 dk`, `-20 dk`, `-30 dk`, `-40 dk`) ve interaktif yarış günü ekipman kontrol listesi (Checklist).
-8. **Koyu / Açık Tema & Çevrimdışı (Offline-First) Mimari:**
-   - İnternet bağlantısı olmasa bile tüm yarışma takvimine, 3.000+ rekor arşivine ve kişisel derecelere anında erişim.
-   - Sistem varsayılanı, Açık Tema ve Koyu Tema seçenekleri.
+9. **5 Sekmeli Modern Alt Gezinme Çubuğu (`Bottom Navigation Bar`) & Koyu/Açık Tema:**
+   - Ekranın altında yer alan **`📅 Takvim` | `🏆 Rekorlar` | `📏 Standartlar` | `⏱️ Çağrı Odası` | `👤 Profil`** alt menüsü ile tüm ana modüllere tek dokunuşla erişim ve tertemiz üst bar.
+   - İnternet bağlantısı olmasa bile tüm yarışma takvimine, 3.000+ rekor arşivine, WMA standartlarına ve kişisel derecelere anında erişim (Offline-First).
 
 ---
 
