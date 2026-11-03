@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Female
 import androidx.compose.material.icons.filled.Male
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -87,7 +88,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ecil.masterracer.R
 import com.ecil.masterracer.data.model.Competition
+import com.ecil.masterracer.ui.components.CareerSummaryShareBottomSheet
 import com.ecil.masterracer.ui.components.CountdownBadge
+import com.ecil.masterracer.ui.components.SingleRecordShareBottomSheet
+import com.ecil.masterracer.ui.components.SingleRecordShareData
 import com.ecil.masterracer.ui.components.WmaCalculatorBottomSheet
 import com.ecil.masterracer.ui.theme.BluePrimary
 import com.ecil.masterracer.ui.theme.CrimsonAccent
@@ -131,6 +135,10 @@ fun ProfileScreen(
 
     var showWmaCalculatorSheet by remember { mutableStateOf(false) }
     val wmaSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    var showCareerShareSheet by remember { mutableStateOf(false) }
+    var sharingRecordData by remember { mutableStateOf<SingleRecordShareData?>(null) }
+    val shareSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -250,16 +258,30 @@ fun ProfileScreen(
                         )
                     }
 
-                    IconButton(
-                        onClick = { showEditProfileDialog = true },
-                        modifier = Modifier.size(36.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Düzenle",
-                            tint = categoryBadgeColor,
-                            modifier = Modifier.size(20.dp)
-                        )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(
+                            onClick = { showCareerShareSheet = true },
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Kariyer Kartı Paylaş",
+                                tint = categoryBadgeColor,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+
+                        IconButton(
+                            onClick = { showEditProfileDialog = true },
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Düzenle",
+                                tint = categoryBadgeColor,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -376,6 +398,7 @@ fun ProfileScreen(
                         // 2. DERECELERİM (Canlı PB / SB Listesi)
                         ProfileRecordsSection(
                             records = athleteRecords,
+                            athleteName = athleteName,
                             athleteGender = athleteGender,
                             onAddNewRecord = {
                                 editingRecord = null
@@ -391,7 +414,10 @@ fun ProfileScreen(
                                 isFixedCompetition = record.competitionTitle.isNotBlank()
                                 showAddRecordDialog = true
                             },
-                            onDeleteRecord = { viewModel.deleteAthleteRecord(it) }
+                            onDeleteRecord = { viewModel.deleteAthleteRecord(it) },
+                            onShareRecord = { shareData ->
+                                sharingRecordData = shareData
+                            }
                         )
                     }
                 }
@@ -460,6 +486,27 @@ fun ProfileScreen(
                 viewModel.saveAthleteRecord(newRec)
                 selectedTab = 1
             }
+        )
+    }
+
+    // Kariyer & PB Özeti Paylaşım Kartı Penceresi
+    if (showCareerShareSheet) {
+        CareerSummaryShareBottomSheet(
+            sheetState = shareSheetState,
+            athleteName = athleteName,
+            athleteCategory = category,
+            athleteGender = athleteGender,
+            records = athleteRecords,
+            onDismiss = { showCareerShareSheet = false }
+        )
+    }
+
+    // Tekil Derece / Yarış Sonucu Paylaşım Kartı Penceresi
+    sharingRecordData?.let { shareData ->
+        SingleRecordShareBottomSheet(
+            sheetState = shareSheetState,
+            data = shareData,
+            onDismiss = { sharingRecordData = null }
         )
     }
 }
@@ -634,10 +681,12 @@ private fun ProfileTrackedRacesSection(
 @Composable
 private fun ProfileRecordsSection(
     records: List<AthleteRecord>,
+    athleteName: String,
     athleteGender: String,
     onAddNewRecord: () -> Unit,
     onEditRecord: (AthleteRecord) -> Unit,
-    onDeleteRecord: (String) -> Unit
+    onDeleteRecord: (String) -> Unit,
+    onShareRecord: (SingleRecordShareData) -> Unit
 ) {
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
@@ -845,6 +894,34 @@ private fun ProfileRecordsSection(
                                         }
 
                                         Row(verticalAlignment = Alignment.CenterVertically) {
+                                            IconButton(
+                                                onClick = {
+                                                    onShareRecord(
+                                                        SingleRecordShareData(
+                                                            athleteName = athleteName,
+                                                            category = categoryName.ifBlank { "MASTER" },
+                                                            eventName = eventName,
+                                                            result = rec.result,
+                                                            year = rec.year,
+                                                            competitionTitle = rec.competitionTitle,
+                                                            isPb = isPersonalBest,
+                                                            isSb = isSeasonBest,
+                                                            podium = rec.podium,
+                                                            recordType = rec.recordType,
+                                                            wmaPercent = wmaResult?.scorePercentage
+                                                        )
+                                                    )
+                                                },
+                                                modifier = Modifier.size(30.dp)
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Share,
+                                                    contentDescription = "Dereceyi Paylaş",
+                                                    tint = BluePrimary,
+                                                    modifier = Modifier.size(17.dp)
+                                                )
+                                            }
+
                                             IconButton(
                                                 onClick = { onEditRecord(rec) },
                                                 modifier = Modifier.size(30.dp)
