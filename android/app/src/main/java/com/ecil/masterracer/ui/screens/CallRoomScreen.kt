@@ -67,6 +67,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ecil.masterracer.R
+import com.ecil.masterracer.ui.components.TrackWeatherWindCard
 import com.ecil.masterracer.ui.theme.BluePrimary
 import com.ecil.masterracer.ui.theme.CrimsonAccent
 import kotlinx.coroutines.delay
@@ -94,6 +95,7 @@ data class WarmupStage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CallRoomScreen(
+    initialCity: String = "İzmir",
     onBack: () -> Unit
 ) {
     // Varsayılan yarış saatini şu andan ~90 dakika sonrasına yuvarlayarak başlat
@@ -448,6 +450,15 @@ fun CallRoomScreen(
                         }
                     }
                 }
+            }
+
+            // 1.B CANLI STADYUM HAVA & RÜZGAR (m/s) + ISINMA TAVSİYESİ KARTI
+            item {
+                TrackWeatherWindCard(
+                    city = initialCity,
+                    allowCitySelection = true,
+                    showWarmupAdvice = true
+                )
             }
 
             // 2. YARIŞ SAATİ & BRANŞ GRUBU AYARLARI KARTI

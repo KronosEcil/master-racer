@@ -1,9 +1,9 @@
 # 🏃 Master Athlete - Uygulamadaki Son Durum ve Geliştirme Yol Haritası (Roadmap)
 
 > **Proje:** Master Athlete (Android / Jetpack Compose)  
-> **Mevcut Sürüm:** `1.0.0` (`versionCode = 10`)  
+> **Mevcut Sürüm:** `1.0.0` (`versionCode = 11`)  
 > **Odak Kitle:** Master / Veteran Atletler (35+ Yaş Grupları), Antrenörler ve Atletizm Kulüpleri  
-> **Son Güncelleme:** 4 Kasım 2026  
+> **Son Güncelleme:** 5 Kasım 2026  
 
 ---
 
@@ -47,10 +47,10 @@ Uygulamada şu ana kadar tamamlanarak aktif kullanıma sunulan tüm modüller ve
     - `Profilim` ekranında 3. sekme olarak yer alan (`Takibimdekiler | Derecelerim | 📈 Gelişimim`) ve `Derecelerim` içindeki her branş kartının sağ üstündeki **`📈 Gelişim`** butonuyla da doğrudan açılabilen analiz paneli.
     - **Kariyer & Madalya Özeti:** Kazanılan altın (`🥇`), gümüş (`🥈`), bronz (`🥉`) madalya dağılımı, resmi rekor sayısı, en iyi ve ortalama `WMA %` skoru.
     - **Çift Modlu İnteraktif Çizgi & Alan Grafiği:** Branş bazlı **`⏱️ Derece Gelişimi (sn/m)`** ve **`📊 WMA Yaş Yüzdesi (%)`** eğrisi (`PB` noktası özel rozetli) ve yarışlar arası fark (`▲ Gelişim / Δ`) kronolojisi.
-11. **Yarışma Seyahat & Stadyum Konaklama Asistanı (`DetailBottomSheet`):**
-    - Yalnızca gelecek yarışmalarda görünen, yarışma başlangıç tarihinden **1 gün önce gidiş (`Check-in`) – bitiş tarihinden 1 gün sonra dönüş (`Check-out`)** tarihlerini otomatik hesaplayan lojistik asistanı.
-    - **Hafızalı `🛫 Kalkış Şehri` Seçici:** Sporcunun kalkış şehrini (`İstanbul`, `Ankara`, `İzmir`, `Antalya` vb. veya özel şehir) bir kez seçip hafızaya kaydetmesi; yarışma kendi şehrindeyse otomatik algılayarak doğrudan stadyum yol tarifine geçmesi, farklı şehir/ülkedeyse **Google Flights** üzerinden tarihli uçuş araması başlatması.
-    - **Stadyum Yakını Konaklama & Çevre Noktaları:** Stadyum çevresindeki otelleri Google Haritalar üzerinde açma, **Booking.com** üzerinde giriş-çıkış tarihleriyle otel arama ve yarış günü için **Stadyuma Yol Tarifi**, **Sporcu Restoran & Market**, **Yakın Eczane** kısayol çipleri.
+11. **Canlı Stadyum Hava Durumu & Atletizm Rüzgar Tahmini (`m/s`):**
+    - Hem **Yarışma Detay Penceresinde (`DetailBottomSheet`)** (gelecek yarışmalar için) hem de **`⏱️ Çağrı Odası` (`CallRoomScreen`)** sekmesinde (hızlı şehir seçicisiyle) yer alan canlı stadyum hava ve rüzgar modülü.
+    - Rüzgar hızını doğrudan atletizm standardı olan **`m/s`** biriminde gösterir ve sprint/atlama rekorları için kritik olan **`+2.0 m/s` WMA Rekor Geçerlilik Sınırı** kontrolünü (`🟢 ≤ +2.0 m/s Rekor Geçerli` / `⚠️ > +2.0 m/s Sınır Üstü`) yapar.
+    - `Çağrı Odası` ekranında pist sıcaklığına göre otomatik **ısınma süresi ve sıvı/eşofman tavsiyesi** üretir.
 12. **Koyu / Açık Tema & Çevrimdışı (Offline-First) Mimari:**
     - İnternet bağlantısı olmasa bile tüm yarışma takvimine, 3.000+ rekor arşivine, WMA standartlarına, çağrı odası sayacına ve kişisel derecelere anında erişim.
     - Sistem varsayılanı, Açık Tema ve Koyu Tema seçenekleri.
@@ -62,13 +62,14 @@ Uygulamada şu ana kadar tamamlanarak aktif kullanıma sunulan tüm modüller ve
 ```mermaid
 flowchart TD
     A["✅ Faz 1: Rekorlar Arşivi, WMA Hesaplayıcı, Standartlar & Çağrı Odası (Tamamlandı)"] --> B["✅ Faz 2: Dijital Sporcu Paylaşım Kartı & İlerleme Grafikleri (Tamamlandı)"]
-    B --> C["🎯 Faz 3: Seyahat, Konaklama & Hava/Rüzgar Asistanı"]
-    C --> D["🤝 Faz 4: Bayrak Takımı Hesaplayıcı & ÇokluBranş (Pentatlon/Dekatlon) Puanlama"]
+    B --> C["✅ Faz 3: Canlı Hava Durumu & Rüzgar Tahmini (Tamamlandı)"]
+    C --> D["🎯 Faz 4: Bayrak Takımı Hesaplayıcı & Çoklu Branş (Pentatlon/Dekatlon) Puanlama"]
+    D --> E["⏳ Faz 5 (Beklemede): Yarışma Seyahat & Konaklama Asistanı"]
 ```
 
 ---
 
-## ✅ TAMAMLANAN FAZLAR (FAZ 1 & FAZ 2)
+## ✅ TAMAMLANAN FAZLAR (FAZ 1, FAZ 2 & FAZ 3)
 
 - [x] **1. WMA Yaş Faktörü (Age Grading) & Performans Hesaplayıcısı** *(Tamamlandı)*
 - [x] **2. Resmi Master Rekorları Arşivi (NMR, BŞR, BMR, EMR, WMR - Açık Saha & Salon)** *(Tamamlandı)*
@@ -78,7 +79,7 @@ flowchart TD
 - [x] **6. 5 Sekmeli Alt Gezinme Çubuğu (Bottom Navigation Bar) & Yenilenen Profil Deneyimi** *(Tamamlandı)*
 - [x] **7. Dijital Sporcu Yarışma & Kariyer Paylaşım Kartları (Transparan Pist/Stadyum Arka Planlı 1080p PNG)** *(Tamamlandı)*
 - [x] **8. Performans İlerleme Grafiği & Kariyer Analitiği (`📈 Gelişimim` Sekmesi & Branş Bazlı Hızlı Geçiş)** *(Tamamlandı)*
-- [x] **9. Yarışma Seyahat & Stadyum Konaklama Asistanı (Hafızalı Kalkış Şehri, Google Flights, Booking & Stadyum Çevresi Kısayolları)** *(Tamamlandı)*
+- [x] **9. Canlı Stadyum Hava Durumu & Atletizm Rüzgar Tahmini (`m/s` - Yarışma Detayları & Çağrı Odası)** *(Tamamlandı)*
 
 ---
 
@@ -97,29 +98,34 @@ flowchart TD
 
 ---
 
-## ✈️ FAZ 3: Seyahat, Lojistik & Hava Durumu Asistanı *(DEVAM EDEN FAZ)*
+## ✅ FAZ 3: Canlı Hava Durumu & Rüzgar Tahmini *(TAMAMLANDI)*
 
-### 3. ✅ 🧭 Yarışma Seyahat & Konaklama Asistanı *(Tamamlandı)*
-- **Amaç:** Yurt içi ve yurt dışı şampiyonalara katılacak atletlerin bilet, transfer ve otel planlamasını yarışma detay ekranından tek tıkla çözmek.
-- **Tamamlanan Özellikler:**
-  - **Hafızalı `🛫 Kalkış Şehri` Seçici & Akıllı Şehir Algılama:** Tek seferlik kalkış şehri seçimi (`İstanbul`, `Ankara`, `İzmir`, `Antalya` vb. + serbest giriş); yarışma kendi şehrindeyse otomatik algılayıp stadyum toplu taşıma/yol tarifine yönlendirme.
-  - **Tarihli Uçuş Kısayolu (`-1 Gün Gidiş / +1 Gün Dönüş`):** Yarışma başlangıç tarihinden 1 gün önce, bitiş tarihinden 1 gün sonra olacak şekilde Google Flights derin bağlantısı.
-  - **Stadyum Çevresi Konaklama & Lojistik:** Stadyum yakınındaki otelleri Google Haritalar üzerinde açma, Booking.com üzerinde otomatik giriş/çıkış tarihleriyle arama ve stadyum çevresi restoran/market/eczane kısayolları.
-
-### 4. 🌤️ Canlı Hava Durumu & Rüzgar Tahmini (Wind Forecast)
+### 3. ✅ 🌬️ Canlı Hava Durumu & Rüzgar Tahmini (Wind Forecast) *(Tamamlandı)*
 - Atletizmde rüzgar hızı (`+2.0 m/s` üzeri rüzgarlarda sprint ve uzun/üçadım atlama rekorları resmi sayılmaz) ve hava sıcaklığı performansı doğrudan etkiler.
-- **Özellikler:**
-  - Yalnızca gelecek yarışmalarda gösterilir; stadyum koordinatlarına göre Open-Meteo API üzerinden sıcaklık, nem ve rüzgar hızı/yönü tahmini sunar.
+- **Uygulanan Özellikler:**
+  - **Yarışma Detay Penceresi (`DetailBottomSheet`):** Gelecek yarışmalarda yarışma şehrinin sıcaklığını (`°C`), nemini ve `m/s` cinsinden rüzgar hızını/yönünü (`≤ +2.0 m/s Rekor Geçerli` kontrolüyle) gösterir.
+  - **`⏱️ Çağrı Odası` (`CallRoomScreen`):** Hızlı stadyum şehri seçicisiyle canlı pist havasını, rüzgar hızını (`m/s`) ve sıcaklığa göre **otomatik ısınma tavsiyesini** sunar.
 
 ---
 
-## 🤝 FAZ 4: İleri Master Atletizm Hesaplayıcıları *(Yeni Fikirler)*
+## 🎯 FAZ 4: İleri Master Atletizm Hesaplayıcıları *(SIRADAKİ FAZ)*
 
-### 5. 🏃‍♂️🏃‍♀️ Bayrak Takımı (4x100m / 4x400m / MIX) Yaş Kategorisi Hesaplayıcı
+### 4. 🏃‍♂️🏃‍♀️ Bayrak Takımı (4x100m / 4x400m / MIX) Yaş Kategorisi Hesaplayıcı
 - **Amaç:** Master şampiyonalarda 4 sporcunun doğum yıllarına/yaşlarına göre takımın hangi yaş grubunda (`M35`, `M45`, `MIX 40` vb. - en genç sporcunun yaş grubu kuralı veya BAMA/WMA kuralları) yarışacağını ve o kategorinin rekorunu tek ekranda göstermek.
 
-### 6. 🏅 Çoklu Branş (Pentatlon / Atma Pentatlonu / Dekatlon) Puan Hesaplayıcı
+### 5. 🏅 Çoklu Branş (Pentatlon / Atma Pentatlonu / Dekatlon) Puan Hesaplayıcı
 - **Amaç:** Master atletizmde yaş faktörlü IAAF/WMA kombine branş puan tablolarını kullanarak her branştaki dereceden toplam Pentatlon / Atma Pentatlonu puanını otomatik hesaplamak.
+
+---
+
+## ⏳ FAZ 5: Seyahat & Konaklama Lojistiği *(BEKLEMEDE - İLERİ FAZ)*
+
+### 6. 🧭 Yarışma Seyahat & Konaklama Asistanı *(Sonraki Fazlara Ertelendi)*
+- **Amaç:** Yurt içi ve yurt dışı şampiyonalara katılacak atletlerin bilet, transfer ve otel planlamasını yarışma detay ekranından tek tıkla çözmek.
+- **Planlanan Özellikler:**
+  - **Hafızalı Kalkış Şehri Seçicisi (`🛫 Kalkış Şehrim`):** Sporcunun kendi şehrini/havalimanını bir kez seçip kaydetmesi; yarışma kendi şehrindeyse doğrudan stadyum yol tarifine geçmesi.
+  - **Uçuş Kısayolu:** Yarışma başlangıç tarihinden 1 gün önce, bitiş tarihinden 1 gün sonra olacak şekilde Google Flights / Skyscanner derin bağlantısı (Deep-link).
+  - **Stadyum Çevresi Konaklama:** Yarışmanın yapıldığı stadyumun konumuna göre yakın otelleri Google Maps / Booking üzerinde tek tıkla aratma.
 
 ---
 

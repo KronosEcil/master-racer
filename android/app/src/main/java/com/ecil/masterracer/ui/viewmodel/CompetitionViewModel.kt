@@ -41,16 +41,6 @@ class CompetitionViewModel(
     private val _athleteBirthYear = MutableStateFlow(prefs.getInt("athlete_birth_year", 1990))
     val athleteBirthYear: StateFlow<Int> = _athleteBirthYear.asStateFlow()
 
-    // Seyahat Asistanı İçin Varsayılan Kalkış Şehri (Hafızalı)
-    private val _athleteDepartureCity = MutableStateFlow(prefs.getString("athlete_departure_city", "İstanbul") ?: "İstanbul")
-    val athleteDepartureCity: StateFlow<String> = _athleteDepartureCity.asStateFlow()
-
-    fun setAthleteDepartureCity(city: String) {
-        val cleaned = city.trim().ifBlank { "İstanbul" }
-        _athleteDepartureCity.value = cleaned
-        prefs.edit().putString("athlete_departure_city", cleaned).apply()
-    }
-
     fun updateAthleteProfile(name: String, gender: String, birthYear: Int) {
         _athleteName.value = name.trim()
         _athleteGender.value = gender

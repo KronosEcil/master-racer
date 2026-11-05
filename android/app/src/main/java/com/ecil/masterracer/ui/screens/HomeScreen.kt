@@ -94,7 +94,6 @@ fun HomeScreen(
     val athleteGender by viewModel.athleteGender.collectAsState()
     val athleteBirthYear by viewModel.athleteBirthYear.collectAsState()
     val athleteRecords by viewModel.athleteRecords.collectAsState()
-    val athleteDepartureCity by viewModel.athleteDepartureCity.collectAsState()
     val athleteCategory = remember(athleteGender, athleteBirthYear) {
         viewModel.calculateCategory(athleteGender, athleteBirthYear)
     }
@@ -373,7 +372,14 @@ fun HomeScreen(
                 }
 
                 MainBottomTab.CALL_ROOM -> {
+                    val nearestTrackedCity = remember(targetCompetitions) {
+                        targetCompetitions
+                            .filter { !it.isCompleted() && it.city.isNotBlank() }
+                            .minByOrNull { it.getDaysRemaining() }
+                            ?.city ?: "İzmir"
+                    }
                     CallRoomScreen(
+                        initialCity = nearestTrackedCity,
                         onBack = { currentTab = MainBottomTab.CALENDAR }
                     )
                 }
@@ -421,8 +427,6 @@ fun HomeScreen(
             onToggleTarget = { viewModel.toggleTargetRace(selectedComp.id) },
             isCompleted = completedRaceIds.contains(selectedComp.id),
             onToggleCompleted = { viewModel.toggleCompletedRace(selectedComp.id) },
-            departureCity = athleteDepartureCity,
-            onUpdateDepartureCity = { viewModel.setAthleteDepartureCity(it) },
             onDismiss = { viewModel.selectCompetitionForDetail(null) }
         )
     }
