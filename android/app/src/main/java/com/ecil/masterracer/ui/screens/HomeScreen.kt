@@ -1,7 +1,10 @@
 package com.ecil.masterracer.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -76,7 +79,7 @@ private enum class MainBottomTab(
     PROFILE("Profil", Icons.Default.Person)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     viewModel: CompetitionViewModel,
@@ -330,21 +333,36 @@ fun HomeScreen(
                                 }
 
                                 else -> {
+                                    val groupedByYearMonth = remember(uiState.filteredCompetitions) {
+                                        uiState.filteredCompetitions.groupBy { comp ->
+                                            comp.start_date.take(7).ifBlank { "Diğer" }
+                                        }
+                                    }
+
                                     LazyColumn(
                                         modifier = Modifier.fillMaxSize(),
-                                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
-                                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp),
+                                        verticalArrangement = Arrangement.spacedBy(12.dp)
                                     ) {
-                                        items(
-                                            items = uiState.filteredCompetitions,
-                                            key = { it.id }
-                                        ) { competition ->
-                                            CompetitionCard(
-                                                competition = competition,
-                                                onClick = { viewModel.selectCompetitionForDetail(it) },
-                                                isTracked = targetRaceIds.contains(competition.id),
-                                                onToggleTrack = { viewModel.toggleTargetRace(competition.id) }
-                                            )
+                                        groupedByYearMonth.forEach { (yearMonth, monthCompetitions) ->
+                                            stickyHeader(key = "header_$yearMonth") {
+                                                MonthYearStickyHeader(
+                                                    yearMonth = yearMonth,
+                                                    competitionCount = monthCompetitions.size
+                                                )
+                                            }
+
+                                            items(
+                                                items = monthCompetitions,
+                                                key = { it.id }
+                                            ) { competition ->
+                                                CompetitionCard(
+                                                    competition = competition,
+                                                    onClick = { viewModel.selectCompetitionForDetail(it) },
+                                                    isTracked = targetRaceIds.contains(competition.id),
+                                                    onToggleTrack = { viewModel.toggleTargetRace(competition.id) }
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -441,5 +459,92 @@ fun HomeScreen(
             },
             onDismiss = { showSettingsSheet = false }
         )
+    }
+}
+
+@Composable
+private fun MonthYearStickyHeader(
+    yearMonth: String,
+    competitionCount: Int
+) {
+    val parts = yearMonth.split("-")
+    val yearStr = parts.getOrNull(0).orEmpty()
+    val monthNum = parts.getOrNull(1)?.toIntOrNull() ?: 0
+
+    val monthNameTr = when (monthNum) {
+        1 -> "OCAK"
+        2 -> "ŞUBAT"
+        3 -> "MART"
+        4 -> "NİSAN"
+        5 -> "MAYIS"
+        6 -> "HAZİRAN"
+        7 -> "TEMMUZ"
+        8 -> "AĞUSTOS"
+        9 -> "EYLÜL"
+        10 -> "EKİM"
+        11 -> "KASIM"
+        12 -> "ARALIK"
+        else -> yearMonth.uppercase()
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.96f))
+            .padding(top = 6.dp, bottom = 4.dp)
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(10.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.65f),
+            border = BorderStroke(1.dp, BluePrimary.copy(alpha = 0.22f))
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 7.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (yearStr.length == 4) {
+                        Surface(
+                            color = BluePrimary,
+                            shape = RoundedCornerShape(6.dp)
+                        ) {
+                            Text(
+                                text = yearStr,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color.White,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+
+                    Text(
+                        text = monthNameTr,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 0.8.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                Surface(
+                    color = BluePrimary.copy(alpha = 0.12f),
+                    shape = RoundedCornerShape(6.dp)
+                ) {
+                    Text(
+                        text = "$competitionCount Yarışma",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = BluePrimary,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                    )
+                }
+            }
+        }
     }
 }
