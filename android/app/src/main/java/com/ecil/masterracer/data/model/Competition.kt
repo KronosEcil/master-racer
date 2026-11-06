@@ -154,9 +154,15 @@ data class Competition(
         }
 
         // WMA Dünya Masterlar Atletizm Şampiyonaları
-        if (lower.contains("world masters athletics championships indoor") || lower.contains("wma indoor")) {
-            val rest = t.replace(Regex("(?i)(world\\s+masters\\s+athletics\\s+championships\\s+indoor|wma\\s+indoor)"), "").trim()
-            return "Dünya Masterlar Salon Atletizm Şampiyonası ${translateCityInTitle(rest)}".trim()
+        if ((lower.contains("world masters athletics") && lower.contains("indoor")) || lower.contains("wma indoor") || lower.contains("wmaci")) {
+            val yearMatch = Regex("\\b(19|20)\\d{2}\\b").find(t)?.value.orEmpty()
+            val suffix = if (yearMatch.isNotBlank()) " $yearMatch" else ""
+            return "Dünya Masterlar Salon Atletizm Şampiyonası$suffix"
+        }
+        if ((lower.contains("world masters") || lower.contains("wma") || lower.contains("wmra")) && (lower.contains("mountain") || lower.contains("trail"))) {
+            val yearMatch = Regex("\\b(19|20)\\d{2}\\b").find(t)?.value.orEmpty()
+            val suffix = if (yearMatch.isNotBlank()) " $yearMatch" else ""
+            return "Dünya Masterlar Dağ ve Patika Koşusu Şampiyonası$suffix"
         }
         if (lower.contains("world masters athletics championships")) {
             val rest = t.replace(Regex("(?i)world\\s+masters\\s+athletics\\s+championships(\\s+stadia)?"), "").trim()
@@ -164,13 +170,20 @@ data class Competition(
         }
 
         // EMA Avrupa Masterlar Atletizm Şampiyonaları
-        if (lower.contains("european masters athletics championships indoor") || lower.contains("emaci")) {
-            val rest = t.replace(Regex("(?i)(european\\s+masters\\s+athletics\\s+championships\\s+indoor|emaci)"), "").trim()
-            return "Avrupa Masterlar Salon Atletizm Şampiyonası ${translateCityInTitle(rest)}".trim()
+        if ((lower.contains("european masters athletics") && lower.contains("indoor")) || lower.contains("emaci")) {
+            val yearMatch = Regex("\\b(19|20)\\d{2}\\b").find(t)?.value.orEmpty()
+            val suffix = if (yearMatch.isNotBlank()) " $yearMatch" else ""
+            return "Avrupa Masterlar Salon Atletizm Şampiyonası$suffix"
         }
-        if (lower.contains("european masters athletics championships non-stadia") || lower.contains("emacns")) {
-            val rest = t.replace(Regex("(?i)(european\\s+masters\\s+athletics\\s+championships\\s+non-stadia|emacns)"), "").trim()
-            return "Avrupa Masterlar Yol ve Kros Şampiyonası (Non-Stadia) ${translateCityInTitle(rest)}".trim()
+        if ((lower.contains("european masters") && lower.contains("non-stadia")) || lower.contains("emacns")) {
+            val yearMatch = Regex("\\b(19|20)\\d{2}\\b").find(t)?.value.orEmpty()
+            val suffix = if (yearMatch.isNotBlank()) " $yearMatch" else ""
+            return "Avrupa Masterlar Yol ve Kros Şampiyonası (Non-Stadia)$suffix"
+        }
+        if ((lower.contains("european masters") && (lower.contains("mountain") || lower.contains("trail") || lower.contains("off-road"))) || lower.contains("emmtrc") || lower.contains("emorrc")) {
+            val yearMatch = Regex("\\b(19|20)\\d{2}\\b").find(t)?.value.orEmpty()
+            val suffix = if (yearMatch.isNotBlank()) " $yearMatch" else ""
+            return "Avrupa Masterlar Dağ ve Patika Koşusu Şampiyonası$suffix"
         }
         if (lower.contains("european masters marathon")) {
             val rest = t.replace(Regex("(?i)european\\s+masters\\s+marathon\\s+championships?"), "").trim()
@@ -292,9 +305,14 @@ data class Competition(
 
         // Genel şablon çevirileri (Kelime bazlı zenginleştirme)
         var result = t
+            .replace(Regex("(?i)\\bWorld Masters Athletics\\b"), "Dünya Masterlar Atletizm")
+            .replace(Regex("(?i)\\bEuropean Masters Athletics\\b"), "Avrupa Masterlar Atletizm")
+            .replace(Regex("(?i)\\bEuropean Masters\\b"), "Avrupa Masterlar")
             .replace(Regex("(?i)\\bBritish Masters\\b"), "Birleşik Krallık Masterlar")
             .replace(Regex("(?i)\\b5k Road Championships?\\b"), "5K Yol Şampiyonası")
             .replace(Regex("(?i)\\b10k Road Championships?\\b"), "10K Yol Şampiyonası")
+            .replace(Regex("(?i)\\bOff-Road Running Championships?\\b"), "Dağ ve Patika Koşusu Şampiyonası")
+            .replace(Regex("(?i)\\bOff-Road Running\\b"), "Dağ ve Patika Koşusu")
             .replace(Regex("(?i)\\bIndoor Track & Field Championships?\\b"), "Salon Atletizm Şampiyonası")
             .replace(Regex("(?i)\\bTrack & Field Championships?\\b"), "Açık Saha Atletizm Şampiyonası")
             .replace(Regex("(?i)\\bIndoor Championships?\\b"), "Salon Şampiyonası")

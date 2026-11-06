@@ -776,17 +776,38 @@ class AutonomousDiscoveryParser(BaseParser):
 
                 title_low = title.lower()
                 city_low = raw_city.lower()
+                # WMA Salon Şampiyonası (Gainesville / 2027-03 veya başlıkta Indoor geçenler) standartlaştırması:
+                # Bazı kaynaklar 2027 Gainesville Salon Şampiyonasını "Indoor" kelimesini atlayarak "World Masters Athletics Championships 2027"
+                # şeklinde yazdığı için yanlışlıkla Açık Saha (world-2027-acik-saha) kopyası oluşmasını önler.
+                if ("world masters athletics" in title_low or "wma " in title_low or "wmaci" in title_low) and (
+                    "indoor" in title_low
+                    or "wmaci" in title_low
+                    or "gainesville" in city_low
+                    or "gainesville" in title_low
+                    or start_date.startswith("2027-03")
+                ):
+                    title = f"World Masters Athletics Championships Indoor {start_date[:4]}"
+                    title_low = title.lower()
+                    if start_date.startswith("2027"):
+                        raw_city = "Gainesville"
+                        raw_country = "US"
+                        raw_cname = "ABD"
+                        city_low = "gainesville"
+                elif ("european masters athletics" in title_low or "emaci" in title_low) and ("indoor" in title_low or "emaci" in title_low):
+                    title = f"European Masters Athletics Championships Indoor {start_date[:4]}"
+                    title_low = title.lower()
+
                 # Başlığında "kansai" geçmeyen bir Masters Games için yanlışlıkla Kansai/JP atanmışsa temizle, gerçek ülkeyi başlıktan bul
                 if ("masters games" in title_low or "wmg" in title_low) and "kansai" not in title_low and ("kansai" in city_low or raw_country in ("JP", "JPN")):
                     raw_city = ""
                     raw_country = ""
                     raw_cname = ""
                     city_low = ""
-                if ("world" in title_low or "wma" in title_low or "wmra" in title_low) and "mountain" in title_low and start_date.startswith("2027"):
+                if ("world" in title_low or "wma" in title_low or "wmra" in title_low) and ("mountain" in title_low or "trail" in title_low) and start_date.startswith("2027"):
                     raw_city = "Klosters"
                     raw_country = "CH"
                     raw_cname = "İsviçre"
-                elif ("european" in title_low or "emmtrc" in title_low) and ("mountain" in title_low or "trail" in title_low) and start_date.startswith("2027"):
+                elif ("european" in title_low or "emmtrc" in title_low or "emorrc" in title_low) and ("mountain" in title_low or "trail" in title_low or "off-road" in title_low) and start_date.startswith("2027"):
                     raw_city = "Ojós, Murcia"
                     raw_country = "ES"
                     raw_cname = "İspanya"

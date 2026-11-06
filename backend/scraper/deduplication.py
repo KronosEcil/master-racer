@@ -177,6 +177,8 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
         return f"WORLD-{year}-{subtype}"
 
     if any(w in title_norm for w in ["world-masters", "wma-", "-wma", "wmg", "dunya-master"]):
+        if subtype == "ACIK-SAHA" and ("gainesville" in city_core or "gainesville" in title_norm or date_part.startswith("2027-03")):
+            subtype = "SALON"
         return f"WORLD-{year}-{subtype}"
 
     is_ema_league = any(w in title_norm for w in ["ema-league", "ema-ligi", "meeting-europeen", "speed-masters"])

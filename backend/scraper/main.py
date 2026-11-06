@@ -211,6 +211,46 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                         deleted_count += 1
                     except Exception as e:
                         logger.error(f"Firestore mükerrer silme hatası ({doc_id}): {e}")
+                    continue
+
+                # Mevcut veritabanı kayıtlarında başlık/ülke standartlaştırma düzeltmeleri
+                if doc_id == "world-2027-salon" and title != "World Masters Athletics Championships Indoor 2027":
+                    try:
+                        db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).update({
+                            "title": "World Masters Athletics Championships Indoor 2027",
+                            "is_new": False,
+                        })
+                        doc_data["title"] = "World Masters Athletics Championships Indoor 2027"
+                        doc_data["is_new"] = False
+                        logger.info("✨ [BAŞLIK DÜZELTİLDİ] world-2027-salon -> World Masters Athletics Championships Indoor 2027")
+                    except Exception as e:
+                        logger.error(f"Firestore güncelleme hatası ({doc_id}): {e}")
+                elif doc_id == "europe-2027-mountain-trail" and country == "CH":
+                    try:
+                        db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).update({
+                            "city": "Ojós, Murcia",
+                            "country": "ES",
+                            "country_name": "İspanya",
+                            "is_new": False,
+                            "location_changed": False,
+                        })
+                        doc_data["city"] = "Ojós, Murcia"
+                        doc_data["country"] = "ES"
+                        doc_data["country_name"] = "İspanya"
+                        logger.info("✨ [KONUM DÜZELTİLDİ] europe-2027-mountain-trail -> Ojós, Murcia (İspanya)")
+                    except Exception as e:
+                        logger.error(f"Firestore güncelleme hatası ({doc_id}): {e}")
+
+            # Taramadan gelen listede de mevcut veritabanındaki spesifik branşlarla aynı güne düşen "-acik-saha" kopyalarını filtrele
+            filtered_scraped: List[Competition] = []
+            for c in all_scraped:
+                if c.id.endswith("-acik-saha"):
+                    prefix = c.id[: -len("acik-saha")]
+                    if c.start_date[:10] in all_dates_by_prefix.get(prefix, set()):
+                        logger.info(f"⏭️ [AYNI GÜN AÇIK SAHA KOPYASI ATLANDI] {c.title} ({c.start_date}) - ID: {c.id}")
+                        continue
+                filtered_scraped.append(c)
+            all_scraped = filtered_scraped
 
     # Toplu veritabanı yenilemesinde veya ilk temel rozet sıfırlamasında bildirim gönderme
     new_candidates = sum(1 for c in all_scraped if c.id not in existing_comps and c.status != "completed")
