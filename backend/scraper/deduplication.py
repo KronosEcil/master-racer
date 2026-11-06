@@ -239,6 +239,74 @@ def generate_competition_id(title: str, start_date: str = "", country: str = "",
     return normalize_text(canonical)
 
 
+def get_competition_group_prefix(comp_id: str) -> str:
+    """
+    Bir yarışma ID'sinden veya kanonik anahtarından branş alt türünü çıkararak
+    (Kapsam/Ülke + Yıl) grup önekini döndürür.
+    Örn:
+      'world-2027-salon' -> 'world-2027'
+      'world-2027-acik-saha' -> 'world-2027'
+      'gb-2026-masterlar-5k-road' -> 'gb-2026-masterlar'
+      'gb-2026-masterlar-acik-saha' -> 'gb-2026-masterlar'
+    """
+    cid = (comp_id or "").strip().lower()
+    if not cid:
+        return ""
+    parts = cid.split("-")
+    if len(parts) >= 3 and parts[2] == "masterlar":
+        return f"{parts[0]}-{parts[1]}-masterlar"
+    if len(parts) >= 2 and parts[0] in ("world", "europe", "balkan", "nordic", "baltic"):
+        return f"{parts[0]}-{parts[1]}"
+    if cid.endswith("-acik-saha"):
+        return cid[: -len("-acik-saha")]
+    return ""
+
+
+def is_generic_outdoor_duplicate_of_specific(
+    generic_id: str,
+    generic_start: str,
+    generic_end: str,
+    generic_city: str,
+    specific_id: str,
+    specific_start: str,
+    specific_end: str,
+    specific_city: str,
+) -> bool:
+    """
+    Genel '-acik-saha' olarak sınıflandırılmış bir kaydın, aslında aynı organizasyonun
+    spesifik bir şampiyonası (Salon, Kros, Yol, Dağ, Non-Stadia vb.) ile aynı yarışma
+    olup olmadığını (tarih çakışması veya aynı ay + aynı şehir) kontrol eder.
+    """
+    gid = (generic_id or "").strip().lower()
+    sid = (specific_id or "").strip().lower()
+    if not gid.endswith("-acik-saha") or sid.endswith("-acik-saha") or gid == sid:
+        return False
+
+    g_prefix = get_competition_group_prefix(gid)
+    s_prefix = get_competition_group_prefix(sid)
+    if not g_prefix or g_prefix != s_prefix:
+        return False
+
+    gs = (generic_start or "")[:10]
+    ge = (generic_end or gs)[:10] or gs
+    ss = (specific_start or "")[:10]
+    se = (specific_end or ss)[:10] or ss
+    if not gs or not ss:
+        return False
+
+    # 1. Başlangıç tarihi aynıysa veya tarih aralıkları kesişiyorsa
+    if gs == ss or (gs <= se and ss <= ge):
+        return True
+
+    # 2. Aynı yıl-ay içinde ve aynı şehirdeyse
+    g_city = extract_primary_city_slug(generic_city)
+    s_city = extract_primary_city_slug(specific_city)
+    if gs[:7] == ss[:7] and g_city and s_city and g_city == s_city:
+        return True
+
+    return False
+
+
 def deduplicate_competitions(competitions: List[Competition]) -> List[Competition]:
     """Taranan yarışmalar listesindeki kopyaları API kotası harcamadan deterministik olarak tekilleştirir."""
     unique_map: dict[str, Competition] = {}
@@ -306,13 +374,15 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
     all_keys = list(unique_map.keys())
     for k in all_keys:
         if k.endswith("-ACIK-SAHA"):
-            prefix = k[: -len("-ACIK-SAHA")]
             generic_comp = unique_map[k]
             for other_k in all_keys:
-                if other_k != k and other_k.startswith(prefix) and not other_k.endswith("-ACIK-SAHA"):
+                if other_k != k and not other_k.endswith("-ACIK-SAHA"):
                     specific_comp = unique_map[other_k]
-                    if specific_comp.start_date == generic_comp.start_date:
-                        if generic_comp.end_date > specific_comp.end_date:
+                    if is_generic_outdoor_duplicate_of_specific(
+                        k, generic_comp.start_date, generic_comp.end_date, generic_comp.city,
+                        other_k, specific_comp.start_date, specific_comp.end_date, specific_comp.city,
+                    ):
+                        if generic_comp.start_date == specific_comp.start_date and generic_comp.end_date > specific_comp.end_date:
                             specific_comp.end_date = generic_comp.end_date
                         if extract_primary_city_slug(generic_comp.city, generic_comp.country_name) and not extract_primary_city_slug(specific_comp.city, specific_comp.country_name):
                             specific_comp.city = generic_comp.city

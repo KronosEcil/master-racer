@@ -10,7 +10,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 from .config import Competition, ScraperConfig
-from .deduplication import evaluate_change, generate_competition_id
+from .deduplication import evaluate_change, generate_competition_id, is_generic_outdoor_duplicate_of_specific
 from .notification import NotificationManager
 from .parsers.autonomous_discovery import AutonomousDiscoveryParser
 
@@ -157,19 +157,25 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
             # Mevcut veritabanındaki tüm geçerli yarışmalar kalıcı olarak korunur;
             # Yalnızca kanonik ID kuralı güncellenmiş veya aynı gün başka bir spesifik branş kaydının
             # "-acik-saha" kopyası olan mükerrer ID'ler temizlenir.
-            all_dates_by_prefix = {}
+            # Spesifik branş kayıtları (Salon, Kros, Yol, Dağ, Non-Stadia vb.) — hem veritabanından hem taramadan
+            specific_records = []
             for doc_id, doc_data in existing_comps.items():
                 if not doc_id.endswith("-acik-saha"):
-                    parts = doc_id.split("-")
-                    if len(parts) >= 2:
-                        prefix = f"{parts[0]}-{parts[1]}-"
-                        all_dates_by_prefix.setdefault(prefix, set()).add(str(doc_data.get("start_date", ""))[:10])
+                    specific_records.append((
+                        doc_id,
+                        str(doc_data.get("start_date", ""))[:10],
+                        str(doc_data.get("end_date", ""))[:10],
+                        str(doc_data.get("city", "")),
+                    ))
             for c in all_scraped:
                 if not c.id.endswith("-acik-saha"):
-                    parts = c.id.split("-")
-                    if len(parts) >= 2:
-                        prefix = f"{parts[0]}-{parts[1]}-"
-                        all_dates_by_prefix.setdefault(prefix, set()).add(c.start_date[:10])
+                    specific_records.append((c.id, c.start_date[:10], c.end_date[:10], c.city))
+
+            def _find_specific_twin(gid: str, gs: str, ge: str, gcity: str) -> Optional[str]:
+                for sid, ss, se, scity in specific_records:
+                    if is_generic_outdoor_duplicate_of_specific(gid, gs, ge, gcity, sid, ss, se, scity):
+                        return sid
+                return None
 
             for doc_id, doc_data in list(existing_comps.items()):
                 title = str(doc_data.get("title", "")).strip()
@@ -180,9 +186,10 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
 
                 is_same_date_generic_dup = False
                 if doc_id.endswith("-acik-saha"):
-                    prefix = doc_id[: -len("acik-saha")]
-                    if s_date and s_date in all_dates_by_prefix.get(prefix, set()):
+                    twin = _find_specific_twin(doc_id, s_date, str(doc_data.get("end_date", ""))[:10], city)
+                    if twin:
                         is_same_date_generic_dup = True
+                        logger.info(f"🔗 [AÇIK SAHA KOPYASI TESPİT EDİLDİ] {doc_id} -> asıl kayıt: {twin}")
 
                 # 2026 öncesi (1975-2025) yarışmalar uygulama kodunda yerel arşiv olarak tutulacağı için Firestore'dan temizle
                 if s_date and len(s_date) >= 4 and s_date[:4].isdigit() and int(s_date[:4]) < 2026:
@@ -241,13 +248,13 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                     except Exception as e:
                         logger.error(f"Firestore güncelleme hatası ({doc_id}): {e}")
 
-            # Taramadan gelen listede de mevcut veritabanındaki spesifik branşlarla aynı güne düşen "-acik-saha" kopyalarını filtrele
+            # Taramadan gelen listede de veritabanındaki/taramadaki spesifik branşlarla çakışan "-acik-saha" kopyalarını filtrele
             filtered_scraped: List[Competition] = []
             for c in all_scraped:
                 if c.id.endswith("-acik-saha"):
-                    prefix = c.id[: -len("acik-saha")]
-                    if c.start_date[:10] in all_dates_by_prefix.get(prefix, set()):
-                        logger.info(f"⏭️ [AYNI GÜN AÇIK SAHA KOPYASI ATLANDI] {c.title} ({c.start_date}) - ID: {c.id}")
+                    twin = _find_specific_twin(c.id, c.start_date[:10], c.end_date[:10], c.city)
+                    if twin:
+                        logger.info(f"⏭️ [AÇIK SAHA KOPYASI ATLANDI] {c.title} ({c.start_date}) - ID: {c.id} -> asıl kayıt: {twin}")
                         continue
                 filtered_scraped.append(c)
             all_scraped = filtered_scraped
