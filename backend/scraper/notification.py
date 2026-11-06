@@ -26,6 +26,9 @@ class NotificationManager:
             elif change_type == "DATE_CHANGED":
                 title_text = "⚠️ Yarışma Tarihi Güncellendi!"
                 body_text = f"{comp.title} etkinliğinin tarihi {comp.start_date} olarak revize edildi."
+            elif change_type == "LOCATION_CHANGED":
+                title_text = "📍 Yarışma Konumu Güncellendi!"
+                body_text = f"{comp.title} etkinliğinin yeri {comp.city}, {comp.country_name} olarak güncellendi."
             else:
                 title_text = "📢 Yarışma Detayları Güncellendi"
                 body_text = f"{comp.title} için reglaman veya detay bilgileri güncellendi."
@@ -43,7 +46,8 @@ class NotificationManager:
                     "title": comp.title,
                     "start_date": comp.start_date,
                     "country": comp.country,
-                    "venue_type": comp.venue_type,
+                    "city": comp.city,
+                    "scope": comp.scope,
                     "change_type": change_type,
                     "click_action": "FLUTTER_NOTIFICATION_CLICK"
                 },
