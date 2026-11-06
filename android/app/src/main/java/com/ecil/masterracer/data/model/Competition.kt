@@ -193,60 +193,108 @@ data class Competition(
 
         // Birleşik Krallık (BMAF)
         if (lower.contains("bmaf") || lower.contains("british masters")) {
-            if (lower.contains("indoor")) {
-                val rest = t.replace(Regex("(?i)bmaf\\s+british\\s+masters\\s+indoor\\s+(track\\s+&\\s+field\\s+)?championships?"), "").trim()
-                return "Birleşik Krallık Masterlar Salon Atletizm Şampiyonası ${rest}".trim()
-            } else {
-                val rest = t.replace(Regex("(?i)bmaf\\s+british\\s+masters\\s+(track\\s+&\\s+field\\s+)?championships?"), "").trim()
-                return "Birleşik Krallık Masterlar Açık Saha Atletizm Şampiyonası ${rest}".trim()
+            val yearMatch = Regex("\\b(19|20)\\d{2}\\b").find(t)?.value.orEmpty()
+            val suffix = if (yearMatch.isNotBlank()) " $yearMatch" else ""
+            return when {
+                lower.contains("5k") && lower.contains("road") ->
+                    "Birleşik Krallık Masterlar 5K Yol Şampiyonası$suffix"
+                lower.contains("10k") && lower.contains("road") ->
+                    "Birleşik Krallık Masterlar 10K Yol Şampiyonası$suffix"
+                lower.contains("10 mile") ->
+                    "Birleşik Krallık Masterlar 10 Mil Yol Şampiyonası$suffix"
+                lower.contains("road relay") ->
+                    "Birleşik Krallık Masterlar Yol Bayrak Şampiyonası$suffix"
+                lower.contains("cross country") ->
+                    "Birleşik Krallık Masterlar Kros Şampiyonası$suffix"
+                lower.contains("half marathon") ->
+                    "Birleşik Krallık Masterlar Yarı Maraton Şampiyonası$suffix"
+                lower.contains("marathon") ->
+                    "Birleşik Krallık Masterlar Maraton Şampiyonası$suffix"
+                lower.contains("throws pentathlon") || lower.contains("throws") ->
+                    "Birleşik Krallık Masterlar Atmalar Şampiyonası$suffix"
+                lower.contains("combined events") || lower.contains("pentathlon") || lower.contains("decathlon") ->
+                    "Birleşik Krallık Masterlar Çoklu Branşlar Şampiyonası$suffix"
+                lower.contains("race walk") || lower.contains("walk") ->
+                    "Birleşik Krallık Masterlar Yürüyüş Şampiyonası$suffix"
+                lower.contains("indoor") ->
+                    "Birleşik Krallık Masterlar Salon Atletizm Şampiyonası$suffix"
+                else ->
+                    "Birleşik Krallık Masterlar Açık Saha Atletizm Şampiyonası$suffix"
             }
         }
 
         // Fransa (FFA)
         if (lower.contains("championnats de france masters") || lower.contains("championnat de france masters")) {
-            if (lower.contains("salle")) {
-                val rest = t.replace(Regex("(?i)championnats?\\s+de\\s+france\\s+masters\\s+en\\s+salle"), "").trim()
-                return "Fransa Masterlar Salon Atletizm Şampiyonası ${rest}".trim()
+            val yearMatch = Regex("\\b(19|20)\\d{2}\\b").find(t)?.value.orEmpty()
+            val suffix = if (yearMatch.isNotBlank()) " $yearMatch" else ""
+            return if (lower.contains("salle") || lower.contains("indoor")) {
+                "Fransa Masterlar Salon Atletizm Şampiyonası$suffix"
+            } else if (lower.contains("cross")) {
+                "Fransa Masterlar Kros Şampiyonası$suffix"
+            } else if (lower.contains("lancers")) {
+                "Fransa Masterlar Atmalar Şampiyonası$suffix"
             } else {
-                val rest = t.replace(Regex("(?i)championnats?\\s+de\\s+france\\s+masters(\\s+sur\\s+piste)?"), "").trim()
-                return "Fransa Masterlar Açık Saha Atletizm Şampiyonası ${rest}".trim()
+                "Fransa Masterlar Açık Saha Atletizm Şampiyonası$suffix"
             }
         }
 
         // Almanya (DLV)
         if (lower.contains("deutsche hallenmeisterschaften masters") || (lower.contains("deutsche") && lower.contains("halle") && lower.contains("master"))) {
-            val rest = t.replace(Regex("(?i)deutsche\\s+hallenmeisterschaften\\s+masters"), "").trim()
-            return "Almanya Masterlar Salon Atletizm Şampiyonası ${rest}".trim()
+            val yearMatch = Regex("\\b(19|20)\\d{2}\\b").find(t)?.value.orEmpty()
+            val suffix = if (yearMatch.isNotBlank()) " $yearMatch" else ""
+            return "Almanya Masterlar Salon Atletizm Şampiyonası$suffix"
         }
         if (lower.contains("deutsche masters-meisterschaften") || lower.contains("deutsche meisterschaften masters")) {
-            val rest = t.replace(Regex("(?i)deutsche\\s+(masters-)?meisterschaften(\\s+masters)?"), "").trim()
-            return "Almanya Masterlar Açık Saha Atletizm Şampiyonası ${rest}".trim()
+            val yearMatch = Regex("\\b(19|20)\\d{2}\\b").find(t)?.value.orEmpty()
+            val suffix = if (yearMatch.isNotBlank()) " $yearMatch" else ""
+            return if (lower.contains("wurf")) {
+                "Almanya Masterlar Atmalar Şampiyonası$suffix"
+            } else if (lower.contains("mehrkampf")) {
+                "Almanya Masterlar Çoklu Branşlar Şampiyonası$suffix"
+            } else {
+                "Almanya Masterlar Açık Saha Atletizm Şampiyonası$suffix"
+            }
         }
 
         // İtalya (FIDAL)
         if (lower.contains("campionati italiani") && lower.contains("master")) {
-            if (lower.contains("indoor")) {
-                val rest = t.replace(Regex("(?i)campionati\\s+italiani(\\s+individuali)?\\s+master\\s+indoor"), "").trim()
-                return "İtalya Masterlar Salon Atletizm Şampiyonası ${rest}".trim()
+            val yearMatch = Regex("\\b(19|20)\\d{2}\\b").find(t)?.value.orEmpty()
+            val suffix = if (yearMatch.isNotBlank()) " $yearMatch" else ""
+            return if (lower.contains("indoor")) {
+                "İtalya Masterlar Salon Atletizm Şampiyonası$suffix"
+            } else if (lower.contains("cross")) {
+                "İtalya Masterlar Kros Şampiyonası$suffix"
+            } else if (lower.contains("prove multiple")) {
+                "İtalya Masterlar Çoklu Branşlar Şampiyonası$suffix"
+            } else if (lower.contains("lanci")) {
+                "İtalya Masterlar Atmalar Şampiyonası$suffix"
             } else {
-                val rest = t.replace(Regex("(?i)campionati\\s+italiani(\\s+individuali)?(\\s+su\\s+pista)?\\s+master"), "").trim()
-                return "İtalya Masterlar Açık Saha Atletizm Şampiyonası ${rest}".trim()
+                "İtalya Masterlar Açık Saha Atletizm Şampiyonası$suffix"
             }
         }
 
         // İspanya (RFEA)
         if (lower.contains("campeonato de españa") && lower.contains("m\u00e1ster")) {
-            if (lower.contains("short track") || lower.contains("pista cubierta")) {
-                val rest = t.replace(Regex("(?i)campeonato\\s+de\\s+espa\u00f1a\\s+m\u00e1ster\\s+(short\\s+track|pista\\s+cubierta)"), "").trim()
-                return "İspanya Masterlar Salon Atletizm Şampiyonası ${rest}".trim()
+            val yearMatch = Regex("\\b(19|20)\\d{2}\\b").find(t)?.value.orEmpty()
+            val suffix = if (yearMatch.isNotBlank()) " $yearMatch" else ""
+            return if (lower.contains("short track") || lower.contains("pista cubierta") || lower.contains("indoor")) {
+                "İspanya Masterlar Salon Atletizm Şampiyonası$suffix"
+            } else if (lower.contains("campo a trav") || lower.contains("cross")) {
+                "İspanya Masterlar Kros Şampiyonası$suffix"
+            } else if (lower.contains("lanzamientos")) {
+                "İspanya Masterlar Atmalar Şampiyonası$suffix"
+            } else if (lower.contains("combinadas")) {
+                "İspanya Masterlar Çoklu Branşlar Şampiyonası$suffix"
             } else {
-                val rest = t.replace(Regex("(?i)campeonato\\s+de\\s+espa\u00f1a\\s+m\u00e1ster(\\s+aire\\s+libre)?"), "").trim()
-                return "İspanya Masterlar Açık Saha Atletizm Şampiyonası ${rest}".trim()
+                "İspanya Masterlar Açık Saha Atletizm Şampiyonası$suffix"
             }
         }
 
         // Genel şablon çevirileri (Kelime bazlı zenginleştirme)
         var result = t
+            .replace(Regex("(?i)\\bBritish Masters\\b"), "Birleşik Krallık Masterlar")
+            .replace(Regex("(?i)\\b5k Road Championships?\\b"), "5K Yol Şampiyonası")
+            .replace(Regex("(?i)\\b10k Road Championships?\\b"), "10K Yol Şampiyonası")
             .replace(Regex("(?i)\\bIndoor Track & Field Championships?\\b"), "Salon Atletizm Şampiyonası")
             .replace(Regex("(?i)\\bTrack & Field Championships?\\b"), "Açık Saha Atletizm Şampiyonası")
             .replace(Regex("(?i)\\bIndoor Championships?\\b"), "Salon Şampiyonası")
@@ -254,6 +302,7 @@ data class Competition(
             .replace(Regex("(?i)\\bNational Championships?\\b"), "Ulusal Şampiyonası")
             .replace(Regex("(?i)\\bMasters Championships?\\b"), "Masterlar Şampiyonası")
             .replace(Regex("(?i)\\bMasters Games\\b"), "Masterlar Oyunları")
+            .replace(Regex("(?i)\\bCross Country Championships?\\b"), "Kros Şampiyonası")
             .replace(Regex("(?i)\\bCross Country\\b"), "Kros")
             .replace(Regex("(?i)\\bRoad Running\\b"), "Yol Koşusu")
             .replace(Regex("(?i)\\bHalf Marathon\\b"), "Yarı Maraton")
