@@ -359,7 +359,7 @@ object HistoricalCompetitionsArchive {
     )
 
     // =========================================================================
-    // 11. AVRUPA MASTERLAR LİGİ (EMA LEAGUE) ARŞİVİ (2024 - 2025)
+    // 11. AVRUPA MASTERLAR LİGİ (EMA LEAGUE) ARŞİVİ (2024 - 2026)
     // =========================================================================
     private val emaLeagueArchive = listOf(
         // 2024 (Zero Edition - 4 Etap)
@@ -377,6 +377,20 @@ object HistoricalCompetitionsArchive {
         archiveItem("EMAL_2025_LIEPAJA", "EMA Ligi 6. Etap: Liepāja (Amber Spikes) 2025", "2025-08-16", "2025-08-17", "Liepāja", "LV", "Letonya", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2025-first-edition/", "Daugava Stadyumu"),
         archiveItem("EMAL_2025_KINGSTON", "EMA Ligi 7. Etap: Londra Kingston (Bob Lewis Memorial) 2025", "2025-08-31", "2025-08-31", "Londra", "GB", "Birleşik Krallık", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2025-first-edition/", "Weir Archer Athletics Centre"),
         archiveItem("EMAL_2025_KLAIPEDA", "EMA Ligi 8. Etap: Klaipėda (Open Baltic Masters) 2025", "2025-09-06", "2025-09-07", "Klaipėda", "LT", "Litvanya", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2025-first-edition/"),
-        archiveItem("EMAL_2025_BELLINZONA", "EMA Ligi 9. Etap: Bellinzona Final Etabı 2025", "2025-09-20", "2025-09-20", "Bellinzona", "CH", "İsviçre", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2025-first-edition/", "Stadio Comunale Bellinzona")
+        archiveItem("EMAL_2025_BELLINZONA", "EMA Ligi 9. Etap: Bellinzona Final Etabı 2025", "2025-09-20", "2025-09-20", "Bellinzona", "CH", "İsviçre", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2025-first-edition/", "Stadio Comunale Bellinzona"),
+
+        // 2026 (Second Edition - 12 Etap)
+        archiveItem("EMAL_2026_TARTU", "EMA Ligi 1. Etap: Tartu Salon (Kevek Open) 2026", "2026-01-17", "2026-01-17", "Tartu", "EE", "Estonya", "ema_league", "EMA", "https://european-masters-athletics.org/ema-league-2026/", "Tartu Üniversitesi Atletizm Salonu"),
+        archiveItem("EMAL_2026_NANTES", "EMA Ligi 2. Etap: Nantes Salon (Pays de la Loire) 2026", "2026-02-28", "2026-02-28", "Nantes", "FR", "Fransa", "ema_league", "EMA", "https://european-masters-athletics.org/ema-league-2026/", "Stadium Métropolitain Pierre-Quinon"),
+        archiveItem("EMAL_2026_LONDON_INDOOR", "EMA Ligi 3. Etap: Londra Salon (Lee Valley) 2026", "2026-03-07", "2026-03-07", "Londra", "GB", "Birleşik Krallık", "ema_league", "EMA", "https://european-masters-athletics.org/ema-league-2026/", "Lee Valley Athletics Centre"),
+        archiveItem("EMAL_2026_SHKODER", "EMA Ligi 4. Etap: İşkodra (Speed Masters Challenge) 2026", "2026-05-22", "2026-05-24", "İşkodra", "AL", "Arnavutluk", "ema_league", "EMA", "https://european-masters-athletics.org/ema-league-2026/", "Loro Boriçi Stadyumu"),
+        archiveItem("EMAL_2026_LONDON", "EMA Ligi 5. Etap: Londra (London Masters International) 2026", "2026-05-31", "2026-05-31", "Londra", "GB", "Birleşik Krallık", "ema_league", "EMA", "https://european-masters-athletics.org/ema-league-2026/", "Lee Valley Athletics Centre"),
+        archiveItem("EMAL_2026_CATANIA", "EMA Ligi 6. Etap: Katanya (Etna Masters Festival) 2026", "2026-06-27", "2026-06-28", "Katanya", "IT", "İtalya", "ema_league", "EMA", "https://european-masters-athletics.org/ema-league-2026/", "Campo Scuola Picanello"),
+        archiveItem("EMAL_2026_THESSALONIKI", "EMA Ligi 7. Etap: Selanik (Speed Masters Challenge) 2026", "2026-07-03", "2026-07-05", "Selanik", "GR", "Yunanistan", "ema_league", "EMA", "https://european-masters-athletics.org/ema-league-2026/", "Kaftanzoglio Stadyumu"),
+        archiveItem("EMAL_2026_PARNU", "EMA Ligi 8. Etap: Pärnu (Baltic Open Masters) 2026", "2026-08-08", "2026-08-09", "Pärnu", "EE", "Estonya", "ema_league", "EMA", "https://european-masters-athletics.org/ema-league-2026/", "Pärnu Rannastaadion"),
+        archiveItem("EMAL_2026_KINGSTON", "EMA Ligi 9. Etap: Londra (Weir Archer) 2026", "2026-08-30", "2026-08-30", "Londra", "GB", "Birleşik Krallık", "ema_league", "EMA", "https://european-masters-athletics.org/ema-league-2026/", "Weir Archer Athletics Centre"),
+        archiveItem("EMAL_2026_LIEPAJA", "EMA Ligi 10. Etap: Liepāja (Amber Spikes) 2026", "2026-09-05", "2026-09-05", "Liepāja", "LV", "Letonya", "ema_league", "EMA", "https://european-masters-athletics.org/ema-league-2026/", "Daugava Stadyumu"),
+        archiveItem("EMAL_2026_KLAIPEDA", "EMA Ligi 11. Etap: Klaipėda (Ąžuolas Cup) 2026", "2026-09-12", "2026-09-13", "Klaipėda", "LT", "Litvanya", "ema_league", "EMA", "https://european-masters-athletics.org/ema-league-2026/", "Klaipėda Merkez Stadyumu"),
+        archiveItem("EMAL_2026_BELLINZONA", "EMA Ligi 12. Etap: Bellinzona Final Etabı 2026", "2026-09-12", "2026-09-12", "Bellinzona", "CH", "İsviçre", "ema_league", "EMA", "https://european-masters-athletics.org/ema-league-2026/", "Stadio Comunale Bellinzona")
     )
 }
