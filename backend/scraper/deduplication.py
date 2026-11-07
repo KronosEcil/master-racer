@@ -435,6 +435,7 @@ def evaluate_change(existing: Optional[dict], incoming: Competition) -> Tuple[st
             incoming.country = existing.get("country", incoming.country)
             incoming.country_name = existing.get("country_name", incoming.country_name)
         incoming.trust_level = max(ex_trust, 3)
+        incoming.verified = True
         incoming.content_hash = compute_content_hash(incoming)
         return "UNCHANGED", False
 

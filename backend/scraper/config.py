@@ -18,6 +18,7 @@ class Competition(BaseModel):
     regulations_url: Optional[str] = Field(default=None, description="Reglaman / Şartname PDF bağlantısı")
     website_url: Optional[str] = Field(default=None, description="Resmi etkinlik web sitesi")
     trust_level: int = Field(default=2, description="Kaynak güven seviyesi: 3=Resmi API/PDF/OpenTrack, 2=Resmi Federasyon Sayfası, 1=Web Arama")
+    verified: bool = Field(default=False, description="Resmi kaynaktan doğrulanmış ve kilitlenmiş kayıt")
     content_hash: str = Field(default="", description="Veri değişiklik takibi için SHA-256 özeti")
     status: str = Field(default="scheduled", description="Durum: scheduled, postponed, cancelled, completed")
     is_new: bool = Field(default=False, description="Yarışmanın sisteme yeni eklendiğini belirtir")

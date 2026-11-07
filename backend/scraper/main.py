@@ -202,6 +202,24 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                         logger.error(f"Firestore silme hatası ({doc_id}): {e}")
                     continue
 
+                # Gelecek yıllara (2027+) ait olup trust_level değeri olmayan ve doğrulanmamış (verified != True) eski AI tahminlerini temizle
+                if (
+                    s_date
+                    and len(s_date) >= 4
+                    and s_date[:4].isdigit()
+                    and int(s_date[:4]) >= 2027
+                    and doc_data.get("verified") is not True
+                    and doc_data.get("trust_level") is None
+                ):
+                    try:
+                        db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()
+                        existing_comps.pop(doc_id, None)
+                        logger.info(f"🗑️ [DOĞRULANMAMIŞ 2027+ TAHMİNİ TEMİZLENDİ] {title} ({s_date}, ID: {doc_id})")
+                        deleted_count += 1
+                    except Exception as e:
+                        logger.error(f"Firestore tahmin silme hatası ({doc_id}): {e}")
+                    continue
+
                 if (canon_id != doc_id or is_same_date_generic_dup) and doc_data.get("verified") is not True:
                     try:
                         # Geçmiş/arşiv yarışmalarının kaybolmaması için: eğer yeni kanonik ID taramada veya

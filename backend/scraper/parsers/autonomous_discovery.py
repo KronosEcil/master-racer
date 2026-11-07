@@ -12,7 +12,7 @@ import time
 import json
 import base64
 import logging
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from urllib.parse import quote_plus, urljoin
 from typing import List, Dict, Any, Optional
 from bs4 import BeautifulSoup
@@ -216,7 +216,9 @@ class AutonomousDiscoveryParser(BaseParser):
             "6. `scope` alanı yalnızca şu 6 değerden biri olmalıdır: 'national', 'world', 'balkan', 'europe', 'ema_league', 'regional'.\n"
             "7. Metin içinde yarışmaya ait doğrudan detay/kayıt sayfası bağlantısı `[URL: https://...]` varsa `website_url` alanına bu doğrudan bağlantıyı yaz. "
             "Yarışmaya ait resmi şartname, reglaman, bülten veya kılavuz PDF bağlantısı `[PDF: https://...]` varsa `regulations_url` alanına tam URL olarak yaz (yoksa null bırak).\n"
-            "8. Sadece geçerli bir JSON dizisi (array) döndür, markdown veya açıklama metni ekleme:\n"
+            "8. TAHMİN VE YIL KAYDIRMA YASAĞI (KRİTİK): Eğer bir ülkenin 2027, 2028 veya 2029 resmi takvimi aşağıdaki indirilen resmi sayfa metinlerinde henüz yayınlanmamışsa, "
+            "bir önceki yılın (2026) tarihini 1-2 gün (52 hafta = 364 gün) kaydırarak ASLA tahmin üretme! Yalnızca indirilen resmi metinlerde veya mevcut doğrulanmış kayıtlarda açıkça tarihi yazan yarışmaları döndür.\n"
+            "9. Sadece geçerli bir JSON dizisi (array) döndür, markdown veya açıklama metni ekleme:\n"
             '[{"title": "Resmi Yarışma Adı", "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", '
             '"city": "Şehir", "country": "ISO-2 Ülke Kodu (TR, DE, FR, GB, IT, ES, PL, RO, FI, AU, JP, NZ vb.)", '
             '"country_name": "Türkçe Ülke Adı", "scope": "national|world|balkan|europe|ema_league|regional", '
@@ -246,10 +248,10 @@ class AutonomousDiscoveryParser(BaseParser):
                 f"(EMA https://european-masters-athletics.org/championships/, WMA https://world-masters-athletics.org/championships/, "
                 f"World Masters Sport https://www.worldmasterssport.com/about-the-masters-games/next-masters-games/, BAMA https://balkanmasters.com/), "
                 f"extracting each event's true host city, country, and dates directly from the official calendar text:\n"
-                f"1. European Masters Athletics Championships ({y1}, {y2}, {y3}, {y4}+): EMACI (Indoor), EMACS (Stadia), EMACNS (Non-Stadia), EMMTRC (Mountain & Trail), EMAMRC (Marathon).\n"
+                f"1. European Masters Athletics Championships ({y1}, {y2}, {y3}, {y4}+): EMACI (Indoor - even years only: 2026 Torun, 2028 Glasgow), EMACS (Stadia - odd years only: 2027 Jyvaskyla), EMACNS (Non-Stadia: 2026 Machico, 2028 Galway), EMMTRC (Mountain & Trail), EMAMRC (Marathon).\n"
                 f"2. World Masters Sport (https://www.worldmasterssport.com/) Masters Games ({y1}, {y2}, {y3}, {y4}+: e.g. Open Masters Games Abu Dhabi {y1}, World Masters Games Kansai {y2}, Open Masters Games Como Lake {y2}, Winter World Masters Games Lahti {y3}, World Masters Games Perth {y4}) — use the exact host city and country listed for each edition on worldmasterssport.com.\n"
-                f"3. World Masters Athletics (WMA) Championships ({y1}, {y2}, {y3}, {y4}+): Outdoor/Stadia, Indoor, Mountain Running, Marathon & Road.\n"
-                f"4. EMA League Meetings ({y1}, {y2}, {y3}) & Balkan Masters Championships (BAMACI Indoor, BAMACS Stadia, BAMAM Marathon in {y1}, {y2}, {y3}, {y4})."
+                f"3. World Masters Athletics (WMA) Championships ({y1}, {y2}, {y3}, {y4}+): Outdoor/Stadia (even years: 2026 Daegu), Indoor (odd years: 2027 Gainesville), Mountain Running, Marathon & Road.\n"
+                f"4. EMA League Meetings ({y1}, {y2}, {y3}) & Balkan Masters Championships (only if officially announced on balkanmasters.com)."
             ),
             (
                 f"2. Birleşik Krallık (BMAF) ve İrlanda (IMAA) ({y1}-{y4}) Ulusal Takvimleri",
@@ -301,7 +303,7 @@ class AutonomousDiscoveryParser(BaseParser):
                 {"IT", "ES", "PT"},
                 [
                     f"https://www.fidal.it/calendario.php?anno={y1}&categoria=M",
-                    f"https://www.fidal.it/calendario.php?anno={y2}&categoria=M",
+                    "https://www.fidal-lombardia.it/index.php?option=com_content&view=article&id=17812:campionati-italiani-2027-ufficiali-date-e-minimi&catid=19&Itemid=438&lang=it",
                     "https://www.fidal.it/calendario.php",
                     "https://atletismorfea.es/calendario",
                 ],
@@ -319,8 +321,9 @@ class AutonomousDiscoveryParser(BaseParser):
                 f"5. Balkanlar ve Orta Avrupa (Polonya, Çekya, Macaristan, Yunanistan, Romanya, Bulgaristan, Hırvatistan, Sırbistan, Slovenya) ({y1}-{y4}) Ulusal Takvimleri",
                 {"PL", "CZ", "SK", "HU", "GR", "RO", "BG", "RS", "HR", "SI", "AL"},
                 [
-                    "https://www.pma.org.pl/",
-                    "https://www.atletika.cz/kalendar-akci/",
+                    "https://www.atletika-veterani.cz/kalendar/",
+                    "https://www.masterstrack.sk/",
+                    "https://pzlam.pl/pl/",
                     "https://atletika.hu/",
                     "https://www.has.hr/",
                     "https://slovenska-atletika.si/",
@@ -335,16 +338,17 @@ class AutonomousDiscoveryParser(BaseParser):
                     f"Prvenstvo Hrvatske za veterane {y1} {y2} {y3} Prvenstvo Slovenije za veterane Bulgaria Serbia Masters Athletics",
                 ],
                 f"List all confirmed {y1}, {y2}, {y3}, and {y4}+ national 35+ Masters (Masters / Veteránů / Veteránov / Szenior / Veterane) championships from the official calendars of Central Europe and the Balkans:\n"
-                f"- Poland (PMA - country='PL'), Czechia (ČAS - country='CZ'), Slovakia (SAZ - country='SK'), Hungary (MASZ - country='HU'), Greece (SEGAS/OEBA - country='GR'), Romania (FRA - country='RO'), Bulgaria (BFLA - country='BG'), Serbia (SAS - country='RS'), Croatia (HAS/HAVU - country='HR'), Slovenia (AZS/ZAVS - country='SI'), Albania (FSHA - country='AL') Indoor & Outdoor Masters Championships ({y1}, {y2}, {y3}+)."
+                f"- Poland (PZLAM - country='PL'), Czechia (SV ČAS - https://www.atletika-veterani.cz/kalendar/ - country='CZ'), Slovakia (SAZ - country='SK'), Hungary (MASZ - country='HU'), Greece (SEGAS/OEBA - country='GR'), Romania (FRA - country='RO'), Bulgaria (BFLA - country='BG'), Serbia (SAS - country='RS'), Croatia (HAS/HAVU - country='HR'), Slovenia (AZS/ZAVS - country='SI'), Albania (FSHA - country='AL') Indoor & Outdoor Masters Championships ({y1}, {y2}, {y3}+)."
             ),
             (
                 f"6. İskandinavya (Finlandiya, İsveç, Norveç, Danimarka) ve Baltık (Estonya, Letonya, Litvanya) ({y1}-{y4}) Ulusal Takvimleri",
                 {"FI", "SE", "NO", "DK", "EE", "LV", "LT"},
                 [
-                    "https://www.saul.fi/kilpailut/kilpailukalenteri/",
-                    "https://www.friidrott.se/tavling-landslag/tavling/tavlingskalender/",
-                    "https://www.friidrett.no/aktivitet/terminliste/",
-                    "https://dansk-atletik.dk/",
+                    "https://www.saul.fi/kilpailu/saul-kilpailukalenteri/",
+                    "https://www.nmaci2027.se/",
+                    "https://www.friidrott.se/tavling-landslag/nyhetsarkiv-tavling-landslag/sm-tavlingar-2027-datum-och-arrangorer-klara/",
+                    "https://www.friidrett.no/terminlister/hovedterminliste-2027/",
+                    "https://dansk-atletik.dk/nyheder/2026/10/dm-kalender-2027/",
                     "https://ekjl.ee/voistlused/voistluskalender/",
                     "https://athletics.lv/lv/kalendars",
                 ],
@@ -355,7 +359,7 @@ class AutonomousDiscoveryParser(BaseParser):
                     f"Baltic Masters Athletics Championships {y1} {y2} {y3} Eesti meistrivõistlused veteranidele Latvijas čempionāts veterāniem",
                 ],
                 f"List all confirmed {y1}, {y2}, {y3}, and {y4}+ national and regional 35+ Masters (SAUL / Veteraner / Masters) championships from the official calendars of the Nordic and Baltic countries:\n"
-                f"- Nordic & Baltic Regional: Nordic Masters Championships Indoor & Outdoor, Baltic Open Masters Athletics Championships ({y1}, {y2}, {y3}+).\n"
+                f"- Nordic & Baltic Regional: Nordic Masters Championships Indoor (PM-hallit / NMACI) & Outdoor, Baltic Open Masters Athletics Championships ({y1}, {y2}, {y3}+).\n"
                 f"- Finland (SAUL - country='FI'), Sweden (SFIF - country='SE'), Norway (NFIF - country='NO'), Denmark (DAF - country='DK'), Estonia (EKJL - country='EE'), Latvia (LVS - country='LV'), Lithuania (LLAF - country='LT') Indoor & Outdoor Masters Championships ({y1}, {y2}, {y3}+)."
             ),
         ]
@@ -368,8 +372,7 @@ class AutonomousDiscoveryParser(BaseParser):
                 if existing_digest:
                     full_prompt += (
                         "\n\nMEVCUT DOĞRULANMIŞ VERİTABANI KAYITLARI "
-                        "(Resmi federasyon metninde açıkça farklı bir tarih, şehir veya ülke yazmadıkça, "
-                        "bu mevcut yarışmaların start_date ve end_date bilgilerini koru; resmi sitede açıkça ev sahibi şehir/ülke yazıyorsa resmi sitedeki konumu esas al):\n"
+                        "(Bu kayıtlar resmi kaynaklardan doğrulanmıştır; start_date, end_date ve city bilgilerini olduğu gibi koru):\n"
                         f"{existing_digest}\n"
                     )
                 if live_digest:
@@ -384,6 +387,7 @@ class AutonomousDiscoveryParser(BaseParser):
                     items,
                     default_url=site_urls[0] if site_urls else "https://european-masters-athletics.org",
                     default_trust_level=2,
+                    live_digest=live_digest,
                 )
                 logger.info(f"[Gemini-AI] {label} taramasından {len(converted)} yarışma çıkarıldı.")
                 results.extend(converted)
@@ -394,11 +398,15 @@ class AutonomousDiscoveryParser(BaseParser):
         return results
 
     def _build_existing_context(self, batch_countries: set) -> str:
-        """İlgili gruptaki mevcut veritabanı kayıtlarını özetleyerek AI'ın rastgele tarih kaydırmasını önler."""
+        """
+        Yalnızca resmi kaynaktan doğrulanmış (verified=True veya trust_level>=3) ya da mevcut yıl (2026)
+        kayıtlarını özetler; doğrulanmamış gelecek yıl tahminlerinin AI promptuna geri beslenmesini önler.
+        """
         if not self.existing_comps:
             return ""
         lines = []
         is_intl_batch = "WORLD" in batch_countries or "EUROPE" in batch_countries
+        curr_year_str = str(self.years[0])
         for doc_id, data in self.existing_comps.items():
             if not isinstance(data, dict):
                 continue
@@ -408,9 +416,12 @@ class AutonomousDiscoveryParser(BaseParser):
             s_date = str(data.get("start_date", "")).strip()[:10]
             e_date = str(data.get("end_date", s_date)).strip()[:10]
             city = str(data.get("city", "")).strip()
+            is_verified = data.get("verified") is True or int(data.get("trust_level", 0) or 0) >= 3
             if not title or not s_date:
                 continue
-            # Başlığında "kansai" geçmeyen bir Masters Games kaydında eski hatadan dolayı Kansai/JP kalmışsa AI'a bunu gönderme
+            # Gelecek yıllara (2027+) ait olup verified/trust_level>=3 olmayan hiçbir kaydı prompta dahil etme
+            if not s_date.startswith(curr_year_str) and not is_verified:
+                continue
             t_low = title.lower()
             if ("masters games" in t_low or "wmg" in t_low) and "kansai" not in t_low and ("kansai" in city.lower() or c_code == "JP"):
                 continue
@@ -418,48 +429,30 @@ class AutonomousDiscoveryParser(BaseParser):
                 lines.append(f"- {title} | {s_date}..{e_date} | {city} ({c_code}) | scope={scope}")
             elif not is_intl_batch and c_code in batch_countries and scope in {"national", "regional"}:
                 lines.append(f"- {title} | {s_date}..{e_date} | {city} ({c_code}) | scope={scope}")
-        return "\n".join(lines[:35])
+        return "\n".join(lines[:40])
 
     def _fetch_hybrid_context(
         self,
         urls: List[str],
         search_queries: List[str],
-        max_total_chars: int = 16000,
+        max_total_chars: int = 36000,
     ) -> str:
         """
-        1. Bing RSS, Google News/Web RSS üzerinden canlı arama sonuçlarını (snippet) toplar.
-        2. Doğrulanmış resmi federasyon URL'lerini doğrudan indirir (menü/sidebar gürültüsünü temizler,
-           ancak yarışma detay sayfalarını [URL: ...] ve şartname PDF bağlantılarını [PDF: ...] olarak korur).
+        1. Google News/Web RSS üzerinden canlı arama sonuçlarını (snippet) toplar.
+        2. Doğrulanmış resmi federasyon URL'lerini doğrudan indirir (sayfa sonundaki 2027-2029
+           bölümlerinin kesilmemesi için geniş pencere kullanır).
         """
         chunks: List[str] = []
         search_lines: List[str] = []
         seen_snippets = set()
 
         for sq in search_queries:
-            # A) Bing RSS Arama (GitHub Actions / Azure IP'lerinde %100 engelsiz çalışır)
-            try:
-                bing_url = f"https://www.bing.com/search?q={quote_plus(sq)}&format=rss"
-                resp = self.session.get(bing_url, timeout=8)
-                if resp.status_code == 200 and resp.text:
-                    soup = BeautifulSoup(resp.text, "xml")
-                    for item in soup.find_all("item")[:7]:
-                        t_txt = re.sub(r"\s+", " ", item.title.get_text(" ", strip=True)) if item.title else ""
-                        s_txt = re.sub(r"\s+", " ", item.description.get_text(" ", strip=True)) if item.description else ""
-                        u_txt = re.sub(r"\s+", " ", item.link.get_text(" ", strip=True)) if item.link else ""
-                        line = f"- {t_txt} | {s_txt} [URL: {u_txt}]"
-                        if (t_txt or s_txt) and line not in seen_snippets:
-                            seen_snippets.add(line)
-                            search_lines.append(line)
-            except Exception as e:
-                logger.debug(f"[Bing-RSS] Arama uyarısı ({sq}): {e}")
-
-            # B) Google News/Web RSS Arama
             try:
                 gn_url = f"https://news.google.com/rss/search?q={quote_plus(sq)}&hl=en-US&gl=US&ceid=US:en"
                 resp = self.session.get(gn_url, timeout=8)
                 if resp.status_code == 200 and resp.text:
                     soup = BeautifulSoup(resp.text, "xml")
-                    for item in soup.find_all("item")[:4]:
+                    for item in soup.find_all("item")[:5]:
                         t_txt = re.sub(r"\s+", " ", item.title.get_text(" ", strip=True)) if item.title else ""
                         line = f"- {t_txt}"
                         if t_txt and line not in seen_snippets:
@@ -472,7 +465,7 @@ class AutonomousDiscoveryParser(BaseParser):
             chunks.append("=== [CANLI WEB ARAMA İNDEKSİ SONUÇLARI] ===\n" + "\n".join(search_lines[:35]))
 
         # 2. Doğrudan Resmi Federasyon Takvim Sayfaları (Gerçek href ve PDF linklerini koruyarak)
-        per_url_limit = 2800
+        per_url_limit = 9000
         ignored_domains = ("facebook.com", "instagram.com", "twitter.com", "x.com", "youtube.com", "linkedin.com")
         deep_link_keywords = (
             ".pdf", "reglement", "regolamento", "regulamento", "regulations", "manual",
@@ -734,11 +727,13 @@ class AutonomousDiscoveryParser(BaseParser):
         default_url: str,
         default_trust_level: int = 2,
         default_regulations_url: Optional[str] = None,
+        live_digest: str = "",
     ) -> List[Competition]:
-        """Gemini JSON çıktılarını doğrular ve Competition nesnelerine dönüştürür."""
+        """Gemini JSON çıktılarını doğrular, kanıt kapılarından geçirir ve Competition nesnelerine dönüştürür."""
         converted: List[Competition] = []
         valid_scopes = {"national", "world", "balkan", "europe", "ema_league", "regional"}
         min_year = self.years[0]
+        digest_lower = (live_digest or "").lower()
 
         for item in items:
             try:
@@ -751,7 +746,8 @@ class AutonomousDiscoveryParser(BaseParser):
                     continue
                 if not re.match(r"^20\d{2}-\d{2}-\d{2}$", start_date):
                     continue
-                if int(start_date[:4]) < min_year:
+                yr = int(start_date[:4])
+                if yr < min_year:
                     continue
                 if not re.match(r"^20\d{2}-\d{2}-\d{2}$", end_date) or end_date < start_date:
                     end_date = start_date
@@ -856,10 +852,73 @@ class AutonomousDiscoveryParser(BaseParser):
                 if reg_url or any(d in web_url.lower() for d in ("opentrack.run", "ladv.de/ausschreibung", "masters.athle.fr/asp.net/espaces.html", "worldmasterssport.com")):
                     trust_level = 3
 
+                comp_id = generate_competition_id(title, start_date, country, city)
+                existing_doc = self.existing_comps.get(comp_id)
+                is_verified = False
+
+                # KAPI 0: Resmi olarak doğrulanmış (verified=True) mevcut veritabanı kaydı varsa tarih ve şehrini koru
+                if existing_doc and existing_doc.get("verified") is True:
+                    start_date = str(existing_doc.get("start_date") or start_date)[:10]
+                    end_date = str(existing_doc.get("end_date") or start_date)[:10]
+                    if existing_doc.get("city"):
+                        city = str(existing_doc.get("city"))
+                    if existing_doc.get("country"):
+                        country = str(existing_doc.get("country"))
+                    if existing_doc.get("country_name"):
+                        country_name = str(existing_doc.get("country_name"))
+                    trust_level = 3
+                    is_verified = True
+                elif yr > min_year:
+                    # KAPI 1: İki Yılda Bir (Biennial) Yapılan Dünya/Avrupa Şampiyonalarında İmkansız Yıl Engeli
+                    # EMACI (Avrupa Salon) sadece çift yıllarda (2026, 2028), EMACS (Avrupa Açık Saha) sadece tek yıllarda (2025, 2027)
+                    # WMACI (Dünya Salon) sadece tek yıllarda (2025, 2027), WMACS (Dünya Açık Saha) sadece çift yıllarda (2026, 2028)
+                    if (
+                        (comp_id == f"europe-{yr}-salon" and yr % 2 == 1)
+                        or (comp_id == f"europe-{yr}-acik-saha" and yr % 2 == 0)
+                        or (comp_id == f"world-{yr}-salon" and yr % 2 == 0)
+                        or (comp_id == f"world-{yr}-acik-saha" and yr % 2 == 1)
+                    ):
+                        logger.warning(f"🚫 [BİENAL KURAL ENGELİ] {title} ({start_date}) - {comp_id} bu yılda düzenlenmiyor, reddedildi.")
+                        continue
+
+                    # KAPI 2: 52 Hafta (363-366 Gün) AI Tarih Kaydırma / Tahmin Engeli
+                    prev_id = comp_id.replace(f"-{yr}-", f"-{yr - 1}-")
+                    prev_doc = self.existing_comps.get(prev_id)
+                    if prev_doc and prev_doc.get("start_date"):
+                        try:
+                            d_curr = date.fromisoformat(start_date)
+                            d_prev = date.fromisoformat(str(prev_doc.get("start_date"))[:10])
+                            day_diff = (d_curr - d_prev).days
+                            if day_diff in (363, 364, 365, 366) and start_date not in digest_lower and str(yr) not in web_url.lower():
+                                logger.warning(
+                                    f"🚫 [52-HAFTA TAHMİN ENGELİ] {title} ({start_date}) önceki yıl ({prev_doc.get('start_date')}) "
+                                    f"+ {day_diff} gün kaydırılarak tahmin edilmiş, reddedildi."
+                                )
+                                continue
+                        except Exception:
+                            pass
+
+                    # KAPI 3: Canlı Metin (live_digest) Kanıt Kontrolü
+                    # Gelecek yıl (2027+) için üretilen bir kaydın yılı ve gün/şehir bilgisinin indirilen resmi metinde geçmesi şarttır
+                    if digest_lower:
+                        yr_str = str(yr)
+                        day_num = str(int(start_date[8:10]))
+                        city_tok = city.lower().split(",")[0].split("/")[0].strip()[:4]
+                        has_year = yr_str in digest_lower
+                        has_iso_or_url = (start_date in digest_lower) or (yr_str in web_url.lower())
+                        has_day_and_city = (
+                            re.search(rf"\b0?{day_num}\b", digest_lower) is not None
+                            and (not city_tok or city_tok == country_name.lower()[:4] or city_tok in digest_lower)
+                        )
+                        if not (has_year and (has_iso_or_url or has_day_and_city)):
+                            logger.warning(
+                                f"🚫 [KANITSIZ GELECEK YIL ENGELİ] {title} ({start_date}, {city}) "
+                                "canlı federasyon sayfası metninde doğrulanamadı, reddedildi."
+                            )
+                            continue
+
                 today_iso = datetime.now(timezone.utc).strftime("%Y-%m-%d")
                 comp_status = "completed" if end_date < today_iso else "scheduled"
-
-                comp_id = generate_competition_id(title, start_date, country, city)
 
                 comp = Competition(
                     id=comp_id,
@@ -874,6 +933,7 @@ class AutonomousDiscoveryParser(BaseParser):
                     website_url=web_url,
                     regulations_url=reg_url,
                     trust_level=trust_level,
+                    verified=is_verified,
                     status=comp_status,
                     created_at=datetime.now(timezone.utc).isoformat(),
                 )
