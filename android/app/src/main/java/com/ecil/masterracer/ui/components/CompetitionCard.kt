@@ -104,7 +104,7 @@ fun CompetitionCard(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
                             maxLines = 1
-                         )
+                        )
                     }
 
                     if (competition.is_new) {
@@ -129,17 +129,19 @@ fun CompetitionCard(
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CountdownBadge(daysRemaining = daysRemaining)
-                    Spacer(modifier = Modifier.width(2.dp))
-                    IconButton(
-                        onClick = { CalendarHelper.addEventToCalendar(context, competition) },
-                        modifier = Modifier.size(30.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.EventAvailable,
-                            contentDescription = "Cihaz Takvimine Ekle",
-                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f),
-                            modifier = Modifier.size(19.dp)
-                        )
+                    if (!competition.isCompleted()) {
+                        Spacer(modifier = Modifier.width(2.dp))
+                        IconButton(
+                            onClick = { CalendarHelper.addEventToCalendar(context, competition) },
+                            modifier = Modifier.size(30.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.EventAvailable,
+                                contentDescription = "Cihaz Takvimine Ekle",
+                                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f),
+                                modifier = Modifier.size(19.dp)
+                            )
+                        }
                     }
                     if (onToggleTrack != null) {
                         IconButton(
@@ -267,4 +269,3 @@ fun CompetitionCard(
         }
     }
 }
-

@@ -269,29 +269,31 @@ fun DetailBottomSheet(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // 2. Cihaz Takvimine Ekle
-            OutlinedButton(
-                onClick = { CalendarHelper.addEventToCalendar(context, competition) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(14.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.EventAvailable,
-                    contentDescription = null,
-                    tint = BluePrimary
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Cihaz Takvimine Ekle",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
+            // 2. Cihaz Takvimine Ekle (Yalnızca Gelecek / Aktif Yarışmalarda)
+            if (!competition.isCompleted()) {
+                OutlinedButton(
+                    onClick = { CalendarHelper.addEventToCalendar(context, competition) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.EventAvailable,
+                        contentDescription = null,
+                        tint = BluePrimary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Cihaz Takvimine Ekle",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
+            }
 
             // 3. Resmi Web Sitesi Bağlantısı
             if (!competition.website_url.isNullOrBlank()) {
