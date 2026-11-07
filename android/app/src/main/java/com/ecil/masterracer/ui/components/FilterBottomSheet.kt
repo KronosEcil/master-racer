@@ -25,6 +25,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,6 +33,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ecil.masterracer.ui.theme.BluePrimary
+import java.text.Collator
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -57,6 +60,11 @@ fun FilterBottomSheet(
         "ema_league" to "EMA Ligi",
         "regional" to "Bölgesel"
     )
+
+    val sortedCountries = remember(availableCountries) {
+        val trCollator = Collator.getInstance(Locale("tr", "TR"))
+        availableCountries.sortedWith(compareBy(trCollator) { it.second })
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -148,7 +156,7 @@ fun FilterBottomSheet(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // 3. ÜLKE SEÇİMİ
+            // 3. ÜLKE SEÇİMİ (Türkçe Alfabetik Sıralı)
             SectionHeader(
                 title = "Ülke",
                 badgeText = if (selectedCountries.isNotEmpty()) "${selectedCountries.size} seçili" else null
@@ -166,7 +174,7 @@ fun FilterBottomSheet(
                     icon = "🌍"
                 )
 
-                availableCountries.forEach { (code, name) ->
+                sortedCountries.forEach { (code, name) ->
                     val isSelected = selectedCountries.contains(code)
                     val flag = getFilterCountryFlag(code)
                     CompactChip(
@@ -299,4 +307,3 @@ private fun CompactChip(
 private fun getFilterCountryFlag(countryCode: String): String {
     return com.ecil.masterracer.data.model.Competition.countryCodeToFlagEmoji(countryCode)
 }
-

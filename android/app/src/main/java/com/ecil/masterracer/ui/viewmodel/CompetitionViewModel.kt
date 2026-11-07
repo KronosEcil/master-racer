@@ -41,14 +41,28 @@ class CompetitionViewModel(
     private val _athleteBirthYear = MutableStateFlow(prefs.getInt("athlete_birth_year", 1990))
     val athleteBirthYear: StateFlow<Int> = _athleteBirthYear.asStateFlow()
 
-    fun updateAthleteProfile(name: String, gender: String, birthYear: Int) {
+    private val _athleteNationality = MutableStateFlow(prefs.getString("athlete_nationality", "TR") ?: "TR")
+    val athleteNationality: StateFlow<String> = _athleteNationality.asStateFlow()
+
+    private val trCollator: java.text.Collator
+        get() = java.text.Collator.getInstance(java.util.Locale("tr", "TR"))
+
+    fun updateAthleteProfile(
+        name: String,
+        gender: String,
+        birthYear: Int,
+        nationality: String = _athleteNationality.value
+    ) {
+        val cleanNat = nationality.trim().uppercase().ifBlank { "TR" }
         _athleteName.value = name.trim()
         _athleteGender.value = gender
         _athleteBirthYear.value = birthYear
+        _athleteNationality.value = cleanNat
         prefs.edit()
             .putString("athlete_name", name.trim())
             .putString("athlete_gender", gender)
             .putInt("athlete_birth_year", birthYear)
+            .putString("athlete_nationality", cleanNat)
             .apply()
     }
 
@@ -131,7 +145,7 @@ class CompetitionViewModel(
                     .map { Pair(it.getDisplayCountryCode(), it.getDisplayCountryName()) }
                     .filter { it.first.isNotBlank() && it.first != "INT" && it.first != "EU" && !it.second.contains("Uluslararası", ignoreCase = true) && !it.second.equals("Avrupa", ignoreCase = true) }
                     .distinctBy { it.second }
-                    .sortedBy { it.second }
+                    .sortedWith(compareBy(trCollator) { it.second })
 
                 _uiState.update { state ->
                     state.copy(
@@ -224,7 +238,7 @@ class CompetitionViewModel(
                 .map { Pair(it.getDisplayCountryCode(), it.getDisplayCountryName()) }
                 .filter { it.first.isNotBlank() && it.first != "INT" && it.first != "EU" && !it.second.contains("Uluslararası", ignoreCase = true) && !it.second.equals("Avrupa", ignoreCase = true) }
                 .distinctBy { it.second }
-                .sortedBy { it.second }
+                .sortedWith(compareBy(trCollator) { it.second })
 
             _uiState.update { state ->
                 state.copy(
@@ -289,7 +303,7 @@ class CompetitionViewModel(
             }
 
             matchesQuery && matchesScope && matchesCountry && matchesDatePreset
-        }.sortedWith(compareBy({ it.getDaysRemaining() < 0 }, { it.start_date }))
+        }.sortedBy { it.start_date }
 
         _uiState.update { it.copy(filteredCompetitions = filtered) }
     }

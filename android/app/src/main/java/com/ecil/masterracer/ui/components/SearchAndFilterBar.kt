@@ -1,9 +1,5 @@
 package com.ecil.masterracer.ui.components
 
-import androidx.compose.foundation.horizontalScroll
-import java.util.Calendar
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -21,8 +16,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -132,68 +125,5 @@ fun SearchAndFilterBar(
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        // Hızlı Tarih Seçici Çipleri (Yatay Kaydırmalı)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-            val nextYear = currentYear + 1
-
-            val presets = listOf(
-                "Tümü" to "all",
-                "Gelecek 3 Ay" to "next_90",
-                "Bu Yıl ($currentYear)" to "current_year",
-                "Gelecek Yıl ($nextYear)" to "next_year"
-            )
-
-            presets.forEach { (label, key) ->
-                val isSelected = activeDatePreset == key
-                FilterChip(
-                    selected = isSelected,
-                    onClick = { onDatePresetSelect(if (isSelected && key != "all") "all" else key) },
-                    label = {
-                        Text(
-                            text = label,
-                            fontSize = 12.sp,
-                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
-                        )
-                    },
-                    shape = RoundedCornerShape(20.dp),
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = BluePrimary,
-                        selectedLabelColor = Color.White,
-                        containerColor = Color(0xFFF1F5F9),
-                        labelColor = Color(0xFF334155)
-                    )
-                )
-            }
-
-            // Geçmiş Yarışmaları Göster / Gizle Hızlı Çipi
-            FilterChip(
-                selected = !hideCompleted,
-                onClick = onToggleHideCompleted,
-                label = {
-                    Text(
-                        text = if (!hideCompleted) "✓ Geçmişi Göster" else "Geçmiş Yarışmalar",
-                        fontSize = 12.sp,
-                        fontWeight = if (!hideCompleted) FontWeight.SemiBold else FontWeight.Normal
-                    )
-                },
-                shape = RoundedCornerShape(20.dp),
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Color(0xFF64748B),
-                    selectedLabelColor = Color.White,
-                    containerColor = Color(0xFFF1F5F9),
-                    labelColor = Color(0xFF334155)
-                )
-            )
-        }
     }
 }
-

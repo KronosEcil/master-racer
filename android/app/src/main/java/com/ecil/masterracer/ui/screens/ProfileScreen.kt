@@ -118,6 +118,7 @@ fun ProfileScreen(
     val athleteName by viewModel.athleteName.collectAsState()
     val athleteGender by viewModel.athleteGender.collectAsState()
     val athleteBirthYear by viewModel.athleteBirthYear.collectAsState()
+    val athleteNationality by viewModel.athleteNationality.collectAsState()
     val athleteRecords by viewModel.athleteRecords.collectAsState()
 
     var showEditProfileDialog by remember { mutableStateOf(false) }
@@ -247,11 +248,13 @@ fun ProfileScreen(
                         Spacer(modifier = Modifier.height(3.dp))
 
                         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+                        val natFlag = Competition.countryCodeToFlagEmoji(athleteNationality)
+                        val natName = getNationalityDisplayName(athleteNationality)
                         val ageText = if (athleteBirthYear in 1910..currentYear) {
                             val age = currentYear - athleteBirthYear
-                            "${if (isFemale) "Kadın" else "Erkek"} • $athleteBirthYear ($age Yaş)"
+                            "${if (isFemale) "Kadın" else "Erkek"} • $athleteBirthYear ($age Yaş) • $natFlag $natName"
                         } else {
-                            "Kariyer & Sezon Takip Paneli"
+                            "$natFlag $natName • Kariyer & Sezon Takip Paneli"
                         }
 
                         Text(
@@ -455,10 +458,11 @@ fun ProfileScreen(
             currentName = athleteName,
             currentGender = athleteGender,
             currentBirthYear = if (athleteBirthYear > 0) athleteBirthYear.toString() else "",
+            currentNationality = athleteNationality,
             onDismiss = { showEditProfileDialog = false },
-            onSave = { name, gender, birthYear ->
+            onSave = { name, gender, birthYear, nationality ->
                 val yearInt = birthYear.toIntOrNull() ?: 1990
-                viewModel.updateAthleteProfile(name, gender, yearInt)
+                viewModel.updateAthleteProfile(name, gender, yearInt, nationality)
                 showEditProfileDialog = false
             },
             viewModel = viewModel
@@ -1811,20 +1815,91 @@ private fun RecordEntryBottomSheet(
 }
 
 // -------------------------------------------------------------
+// VATANDAŞLIK (ÜLKE) LİSTESİ & YARDIMCI FONKSİYONLAR
+// -------------------------------------------------------------
+private val NATIONALITY_COUNTRIES: List<Pair<String, String>> by lazy {
+    val raw = listOf(
+        "TR" to "Türkiye",
+        "US" to "ABD",
+        "DE" to "Almanya",
+        "AL" to "Arnavutluk",
+        "AU" to "Avustralya",
+        "AT" to "Avusturya",
+        "AZ" to "Azerbaycan",
+        "BE" to "Belçika",
+        "GB" to "Birleşik Krallık",
+        "BA" to "Bosna-Hersek",
+        "BR" to "Brezilya",
+        "BG" to "Bulgaristan",
+        "CZ" to "Çekya",
+        "DK" to "Danimarka",
+        "EE" to "Estonya",
+        "FI" to "Finlandiya",
+        "FR" to "Fransa",
+        "ZA" to "Güney Afrika",
+        "KR" to "Güney Kore",
+        "GE" to "Gürcistan",
+        "HR" to "Hırvatistan",
+        "NL" to "Hollanda",
+        "IE" to "İrlanda",
+        "ES" to "İspanya",
+        "SE" to "İsveç",
+        "CH" to "İsviçre",
+        "IT" to "İtalya",
+        "IS" to "İzlanda",
+        "JP" to "Japonya",
+        "CA" to "Kanada",
+        "ME" to "Karadağ",
+        "XK" to "Kosova",
+        "CY" to "Kuzey Kıbrıs / Kıbrıs",
+        "MK" to "Kuzey Makedonya",
+        "LV" to "Letonya",
+        "LT" to "Litvanya",
+        "LU" to "Lüksemburg",
+        "HU" to "Macaristan",
+        "MT" to "Malta",
+        "MD" to "Moldova",
+        "NO" to "Norveç",
+        "PL" to "Polonya",
+        "PT" to "Portekiz",
+        "RO" to "Romanya",
+        "RS" to "Sırbistan",
+        "SK" to "Slovakya",
+        "SI" to "Slovenya",
+        "UA" to "Ukrayna",
+        "NZ" to "Yeni Zelanda",
+        "GR" to "Yunanistan"
+    )
+    val trCollator = java.text.Collator.getInstance(Locale("tr", "TR"))
+    val trItem = raw.first { it.first == "TR" }
+    val othersSorted = raw.filter { it.first != "TR" }.sortedWith(compareBy(trCollator) { it.second })
+    listOf(trItem) + othersSorted
+}
+
+private fun getNationalityDisplayName(code: String): String {
+    val clean = code.trim().uppercase()
+    return NATIONALITY_COUNTRIES.firstOrNull { it.first == clean }?.second ?: "Türkiye"
+}
+
+// -------------------------------------------------------------
 // PROFİL DÜZENLEME DİYALOĞU
 // -------------------------------------------------------------
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditProfileDialog(
     currentName: String,
     currentGender: String,
     currentBirthYear: String,
+    currentNationality: String = "TR",
     onDismiss: () -> Unit,
-    onSave: (name: String, gender: String, birthYear: String) -> Unit,
+    onSave: (name: String, gender: String, birthYear: String, nationality: String) -> Unit,
     viewModel: CompetitionViewModel
 ) {
     var nameInput by remember { mutableStateOf(currentName) }
     var genderInput by remember { mutableStateOf(if (currentGender.isNotBlank()) currentGender else "M") }
     var birthYearInput by remember { mutableStateOf(currentBirthYear) }
+    var nationalityInput by remember { mutableStateOf(currentNationality.ifBlank { "TR" }) }
+    var isNationalityExpanded by remember { mutableStateOf(false) }
 
     val tempYear = birthYearInput.toIntOrNull() ?: 1990
     val previewCategory = viewModel.calculateCategory(genderInput, tempYear)
@@ -1856,6 +1931,48 @@ private fun EditProfileDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                // Vatandaşlık Seçici (Varsayılan: Türkiye)
+                ExposedDropdownMenuBox(
+                    expanded = isNationalityExpanded,
+                    onExpandedChange = { isNationalityExpanded = it }
+                ) {
+                    val selectedNatName = getNationalityDisplayName(nationalityInput)
+                    val selectedNatFlag = Competition.countryCodeToFlagEmoji(nationalityInput)
+                    OutlinedTextField(
+                        value = "$selectedNatFlag $selectedNatName",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Vatandaşlık") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isNationalityExpanded) },
+                        singleLine = true,
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = isNationalityExpanded,
+                        onDismissRequest = { isNationalityExpanded = false }
+                    ) {
+                        NATIONALITY_COUNTRIES.forEach { (code, name) ->
+                            val flag = Competition.countryCodeToFlagEmoji(code)
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = "$flag $name",
+                                        fontSize = 14.sp,
+                                        fontWeight = if (code == nationalityInput) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                },
+                                onClick = {
+                                    nationalityInput = code
+                                    isNationalityExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
 
                 Column {
                     Text(
@@ -1977,7 +2094,7 @@ private fun EditProfileDialog(
         },
         confirmButton = {
             Button(
-                onClick = { onSave(nameInput, genderInput, birthYearInput) },
+                onClick = { onSave(nameInput, genderInput, birthYearInput, nationalityInput) },
                 colors = ButtonDefaults.buttonColors(containerColor = badgeColor)
             ) {
                 Text(text = "Kaydet", fontWeight = FontWeight.Bold, color = Color.White)

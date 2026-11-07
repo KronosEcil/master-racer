@@ -255,7 +255,7 @@ fun HomeScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Yaklaşan Şampiyonalar",
+                                text = if (uiState.hideCompleted) "Yaklaşan Şampiyonalar" else "Tüm Şampiyonalar",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
