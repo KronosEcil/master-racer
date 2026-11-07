@@ -10,7 +10,13 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 from .config import Competition, ScraperConfig
-from .deduplication import evaluate_change, generate_competition_id, is_generic_outdoor_duplicate_of_specific
+from .deduplication import (
+    evaluate_change,
+    generate_competition_id,
+    is_generic_outdoor_duplicate_of_specific,
+    normalize_text,
+    extract_primary_city_slug,
+)
 from .notification import NotificationManager
 from .parsers.autonomous_discovery import AutonomousDiscoveryParser
 
@@ -220,16 +226,19 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                         logger.error(f"Firestore tahmin silme hatası ({doc_id}): {e}")
                     continue
 
-                if (canon_id != doc_id or is_same_date_generic_dup) and doc_data.get("verified") is not True:
+                if canon_id != doc_id or is_same_date_generic_dup:
                     try:
-                        # Geçmiş/arşiv yarışmalarının kaybolmaması için: eğer yeni kanonik ID taramada veya
+                        # Geçmiş/arşiv veya doğrulanmış yarışmaların kaybolmaması için: eğer yeni kanonik ID taramada veya
                         # veritabanında yoksa, eski kaydı silmeden önce yeni kanonik ID'ye taşı.
                         if not is_same_date_generic_dup and canon_id not in scraped_ids and canon_id not in existing_comps:
                             migrated_data = dict(doc_data)
                             migrated_data["id"] = canon_id
                             db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(canon_id).set(migrated_data, merge=True)
                             existing_comps[canon_id] = migrated_data
-                            logger.info(f"📦 [ARŞİV KAYDI TAŞINDI] {title} ({doc_id} -> {canon_id})")
+                            logger.info(f"📦 [KAYIT YENİ KANONİK ID'YE TAŞINDI] {title} ({doc_id} -> {canon_id})")
+                        elif not is_same_date_generic_dup and canon_id in existing_comps and doc_data.get("verified") is True:
+                            db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(canon_id).set({"verified": True, "trust_level": 3}, merge=True)
+                            existing_comps[canon_id]["verified"] = True
                         db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()
                         existing_comps.pop(doc_id, None)
                         logger.info(f"🗑️ [MÜKERRER/ESKİ ID TEMİZLENDİ] {title} (Eski ID: {doc_id} -> Yeni: {canon_id})")
@@ -265,6 +274,47 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                         logger.info("✨ [KONUM DÜZELTİLDİ] europe-2027-mountain-trail -> Ojós, Murcia (İspanya)")
                     except Exception as e:
                         logger.error(f"Firestore güncelleme hatası ({doc_id}): {e}")
+
+            # Aynı ülke + aynı başlangıç tarihi + aynı başlık veya aynı şehirde olan mükerrer veritabanı kayıtlarını temizle
+            by_dc: Dict[tuple, List[str]] = {}
+            for doc_id, doc_data in existing_comps.items():
+                c_code = str(doc_data.get("country", "")).strip().upper()
+                s_dt = str(doc_data.get("start_date", "")).strip()[:10]
+                if c_code and s_dt:
+                    by_dc.setdefault((c_code, s_dt), []).append(doc_id)
+
+            for dc_key, id_list in by_dc.items():
+                if len(id_list) < 2:
+                    continue
+                id_list_sorted = sorted(
+                    id_list,
+                    key=lambda x: (
+                        0 if x.startswith(("world-", "europe-", "balkan-", "nordic-", "baltic-")) else (1 if "-masterlar-" in x else 2),
+                        0 if existing_comps[x].get("verified") is True else 1,
+                    ),
+                )
+                for i in range(len(id_list_sorted)):
+                    id_i = id_list_sorted[i]
+                    if id_i not in existing_comps:
+                        continue
+                    di = existing_comps[id_i]
+                    ti = normalize_text(str(di.get("title", "")))
+                    ci = extract_primary_city_slug(str(di.get("city", "")), str(di.get("country_name", "")))
+                    for j in range(i + 1, len(id_list_sorted)):
+                        id_j = id_list_sorted[j]
+                        if id_j not in existing_comps:
+                            continue
+                        dj = existing_comps[id_j]
+                        tj = normalize_text(str(dj.get("title", "")))
+                        cj = extract_primary_city_slug(str(dj.get("city", "")), str(dj.get("country_name", "")))
+                        if ti == tj or (ci and ci == cj):
+                            try:
+                                db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(id_j).delete()
+                                existing_comps.pop(id_j, None)
+                                logger.info(f"🗑️ [AYNI GÜN/ŞEHİR MÜKERRER KAYIT TEMİZLENDİ] {id_j} -> korunan: {id_i}")
+                                deleted_count += 1
+                            except Exception as e:
+                                logger.error(f"Firestore mükerrer silme hatası ({id_j}): {e}")
 
             # Taramadan gelen listede de veritabanındaki/taramadaki spesifik branşlarla çakışan "-acik-saha" kopyalarını filtrele
             filtered_scraped: List[Competition] = []

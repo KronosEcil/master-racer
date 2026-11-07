@@ -104,6 +104,9 @@ class CompetitionRepository(
             .distinctBy { comp ->
                 comp.id.ifBlank { "${comp.country}_${comp.start_date}_${normalizeText(comp.title).take(20)}" }
             }
+            .distinctBy { comp ->
+                "${comp.country}_${comp.start_date}_${normalizeText(comp.getDisplayTitle())}_${normalizeText(comp.city)}"
+            }
     }
 
     /**

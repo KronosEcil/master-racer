@@ -96,7 +96,7 @@ def _detect_discipline_subtype(title_norm: str) -> str:
         w in title_norm
         for w in [
             "indoor", "salon", "salle", "halle", "cubierta", "coberta", "curta",
-            "short-track", "al-coperto", "halowe", "inomhus", "innendors", "indendors",
+            "short-track", "al-coperto", "halowe", "halove", "inomhus", "innendors", "indendors",
             "halli", "v-hale", "fedett", "invernale", "winter", "emaci", "bamaci", "wmaci"
         ]
     )
@@ -213,8 +213,10 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
                 "campeonato", "campionat", "mistrzostwa", "kampioenschap", "mesterskap",
                 "masterskap", "mestaruuskilpailut", "prvenstvo", "bajnoksag", "ulusal",
                 "national", "turkiye-master", "british-masters", "bmaf", "nk-masters",
-                "nk-indoor", "sm-hallit", "sm-kilpailut", "ism-veteraner", "sm-veteraner",
-                "mcr-veteranu", "dm-masters", "nm-masters"
+                "nk-indoor", "sm-hallit", "sm-kilpailut", "sm-yleisurheilu", "sm-maasto",
+                "masters-outdoor", "masters-indoor", "ism-veteraner", "sm-veteraner",
+                "nm-veteraner", "nm-masters", "dm-masters", "mcr-veteranu", "mcr-a-msr",
+                "mistrovstvi", "majstrovstva", "bk-cb-masters"
             ]
         )
         and not any(
@@ -391,6 +393,45 @@ def deduplicate_competitions(competitions: List[Competition]) -> List[Competitio
                         break
 
     for rk in keys_to_remove:
+        unique_map.pop(rk, None)
+
+    # Üçüncü Aşama: Aynı ülke ve aynı başlangıç tarihine (start_date) sahip olup
+    # aynı başlığı veya aynı şehri paylaşan kayıtları (farklı kanonik anahtar üretilmiş olsa bile) tekilleştir.
+    by_date_country: dict[tuple[str, str], List[str]] = {}
+    for k, c in unique_map.items():
+        dc_key = ((c.country or "").upper(), (c.start_date or "")[:10])
+        by_date_country.setdefault(dc_key, []).append(k)
+
+    extra_remove = set()
+    for dc_key, k_list in by_date_country.items():
+        if len(k_list) < 2:
+            continue
+        # Kanonik ulusal/uluslararası anahtarları (-MASTERLAR-, WORLD-, EUROPE-, BALKAN-, NORDIC-, BALTIC-) öncele
+        k_list_sorted = sorted(
+            k_list,
+            key=lambda x: (
+                0 if any(p in x for p in ("-MASTERLAR-", "WORLD-", "EUROPE-", "BALKAN-", "NORDIC-", "BALTIC-")) else 1,
+                -(int(getattr(unique_map[x], "trust_level", 2) or 2)),
+            ),
+        )
+        for i in range(len(k_list_sorted)):
+            ki = k_list_sorted[i]
+            if ki in extra_remove:
+                continue
+            ci = unique_map[ki]
+            ti_norm = normalize_text(ci.title)
+            city_i = extract_primary_city_slug(ci.city, ci.country_name)
+            for j in range(i + 1, len(k_list_sorted)):
+                kj = k_list_sorted[j]
+                if kj in extra_remove:
+                    continue
+                cj = unique_map[kj]
+                tj_norm = normalize_text(cj.title)
+                city_j = extract_primary_city_slug(cj.city, cj.country_name)
+                if ti_norm == tj_norm or (city_i and city_i == city_j):
+                    extra_remove.add(kj)
+
+    for rk in extra_remove:
         unique_map.pop(rk, None)
 
     return list(unique_map.values())

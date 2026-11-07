@@ -246,6 +246,12 @@ data class Competition(
                 "Fransa Masterlar Kros Şampiyonası$suffix"
             } else if (lower.contains("lancers")) {
                 "Fransa Masterlar Atmalar Şampiyonası$suffix"
+            } else if (lower.contains("combin")) {
+                "Fransa Masterlar Çoklu Branşlar Şampiyonası$suffix"
+            } else if (lower.contains("marche")) {
+                "Fransa Masterlar Yürüyüş Şampiyonası$suffix"
+            } else if (lower.contains("montagne") || lower.contains("trail")) {
+                "Fransa Masterlar Dağ ve Patika Koşusu Şampiyonası$suffix"
             } else {
                 "Fransa Masterlar Açık Saha Atletizm Şampiyonası$suffix"
             }
@@ -270,17 +276,29 @@ data class Competition(
         }
 
         // İtalya (FIDAL)
-        if (lower.contains("campionati italiani") && lower.contains("master")) {
+        if ((lower.contains("campionati italiani") || lower.contains("campionato italiano")) && lower.contains("master")) {
             val yearMatch = Regex("\\b(19|20)\\d{2}\\b").find(t)?.value.orEmpty()
             val suffix = if (yearMatch.isNotBlank()) " $yearMatch" else ""
             return if (lower.contains("indoor")) {
                 "İtalya Masterlar Salon Atletizm Şampiyonası$suffix"
-            } else if (lower.contains("cross")) {
+            } else if (lower.contains("cross") || lower.contains("campestre")) {
                 "İtalya Masterlar Kros Şampiyonası$suffix"
             } else if (lower.contains("prove multiple")) {
                 "İtalya Masterlar Çoklu Branşlar Şampiyonası$suffix"
             } else if (lower.contains("lanci")) {
                 "İtalya Masterlar Atmalar Şampiyonası$suffix"
+            } else if (lower.contains("mezza maratona")) {
+                "İtalya Masterlar Yarı Maraton Şampiyonası$suffix"
+            } else if (lower.contains("maratona")) {
+                "İtalya Masterlar Maraton Şampiyonası$suffix"
+            } else if (lower.contains("10km") || lower.contains("10 km")) {
+                "İtalya Masterlar 10K Yol Şampiyonası$suffix"
+            } else if (lower.contains("5km") || lower.contains("5 km")) {
+                "İtalya Masterlar 5K Yol Şampiyonası$suffix"
+            } else if (lower.contains("montagna") || lower.contains("trail")) {
+                "İtalya Masterlar Dağ Koşusu Şampiyonası$suffix"
+            } else if (lower.contains("marcia")) {
+                "İtalya Masterlar Yürüyüş Şampiyonası$suffix"
             } else {
                 "İtalya Masterlar Açık Saha Atletizm Şampiyonası$suffix"
             }
