@@ -202,7 +202,7 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                         logger.error(f"Firestore silme hatası ({doc_id}): {e}")
                     continue
 
-                if canon_id != doc_id or is_same_date_generic_dup:
+                if (canon_id != doc_id or is_same_date_generic_dup) and doc_data.get("verified") is not True:
                     try:
                         # Geçmiş/arşiv yarışmalarının kaybolmaması için: eğer yeni kanonik ID taramada veya
                         # veritabanında yoksa, eski kaydı silmeden önce yeni kanonik ID'ye taşı.

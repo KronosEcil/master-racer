@@ -425,6 +425,19 @@ def evaluate_change(existing: Optional[dict], incoming: Competition) -> Tuple[st
     ex_city = "" if is_stale_kansai else extract_primary_city_slug(raw_ex_city, existing.get("country_name", ""))
     in_city = extract_primary_city_slug(incoming.city, incoming.country_name)
 
+    # Elle/resmi kaynaktan doğrulanmış kayıtlar (Firestore'da verified=True) kilitlidir:
+    # tarama motoru (AI tahmini dahil) tarih, şehir ve ülke bilgisini hiçbir koşulda değiştiremez.
+    if existing.get("verified") is True:
+        incoming.start_date = ex_start or incoming.start_date
+        incoming.end_date = ex_end or ex_start or incoming.end_date
+        if raw_ex_city:
+            incoming.city = raw_ex_city
+            incoming.country = existing.get("country", incoming.country)
+            incoming.country_name = existing.get("country_name", incoming.country_name)
+        incoming.trust_level = max(ex_trust, 3)
+        incoming.content_hash = compute_content_hash(incoming)
+        return "UNCHANGED", False
+
     # Eğer veritabanındaki kayıt daha yüksek güven seviyesine sahipse (örn. trust_level=3 Resmi PDF/API/OpenTrack),
     # daha düşük güvenli bir kaynak (trust_level=1 veya 2) tarih veya konumu ezemez.
     if ex_trust > in_trust and not is_stale_kansai:
