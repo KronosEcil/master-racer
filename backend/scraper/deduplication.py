@@ -195,14 +195,24 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
     if any(w in title_norm for w in ["balkan-master", "balkan-veteran", "bamaci", "bamacs", "bamam"]):
         return f"BALKAN-{year}-{subtype}"
 
+    if is_ema_league:
+        city_map = {
+            "iskodra": "SHKODER",
+            "katanya": "CATANIA",
+            "selanik": "THESSALONIKI",
+            "londra": "LONDON",
+        }
+        loc_part = city_map.get(city_core, city_core.upper()) if city_core else date_part
+        if "kingston" in title_norm or "weir-archer" in title_norm or "bob-lewis" in title_norm:
+            loc_part = "KINGSTON"
+        elif loc_part == "LONDON" and ("indoor" in title_norm or "salon" in title_norm or "lee-valley" in title_norm):
+            loc_part = "LONDON-INDOOR"
+        return f"{country_part}-{year}-EMA-LEAGUE-{loc_part}"
+
     if "nordic-masters" in title_norm:
         return f"NORDIC-{year}-{subtype}"
     if "baltic" in title_norm and "masters" in title_norm:
         return f"BALTIC-{year}-{subtype}"
-
-    if is_ema_league:
-        loc_part = city_core.upper() if city_core else date_part
-        return f"{country_part}-{year}-EMA-LEAGUE-{loc_part}"
 
     is_nat_champ = (
         country_part not in ["INT", "EU"]

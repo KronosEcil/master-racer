@@ -124,9 +124,9 @@ data class Competition(
         var t = title.trim()
         if (t.isBlank()) return ""
 
-        // Zaten Türkçe olan başlıklar (Türkiye, Balkan vb.)
+        // Zaten Türkçe olan başlıklar (Türkiye, Balkan, EMA Ligi vb.)
         val lower = t.lowercase()
-        if (lower.contains("türkiye master") || lower.contains("balkan master") || lower.contains("şampiyona") || lower.contains("kupa")) {
+        if (lower.contains("türkiye master") || lower.contains("balkan master") || lower.contains("şampiyona") || lower.contains("kupa") || lower.contains("ema ligi")) {
             // Şehir isimleri veya ufak düzeltmeler
             return t
         }

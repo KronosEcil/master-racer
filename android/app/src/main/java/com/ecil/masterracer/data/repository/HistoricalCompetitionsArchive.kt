@@ -50,6 +50,7 @@ object HistoricalCompetitionsArchive {
             emaEuropeanNonStadiaArchive +
             balkanMastersStadiaArchive +
             balkanMastersIndoorArchive +
+            emaLeagueArchive +
             tafTurkishMastersArchive +
             europeanNationalMastersArchive
     }
@@ -355,5 +356,27 @@ object HistoricalCompetitionsArchive {
         archiveItem("RFEA_2024_OUTDOOR", "İspanya Masterlar Açık Saha Atletizm Şampiyonası 2024", "2024-06-28", "2024-06-30", "Alcobendas", "ES", "İspanya", "national", "RFEA", "https://www.rfea.es/"),
         archiveItem("RFEA_2025_INDOOR", "İspanya Masterlar Salon Atletizm Şampiyonası 2025", "2025-02-28", "2025-03-02", "Antequera", "ES", "İspanya", "national", "RFEA", "https://www.rfea.es/"),
         archiveItem("RFEA_2025_OUTDOOR", "İspanya Masterlar Açık Saha Atletizm Şampiyonası 2025", "2025-06-27", "2025-06-29", "La Nucía", "ES", "İspanya", "national", "RFEA", "https://www.rfea.es/")
+    )
+
+    // =========================================================================
+    // 11. AVRUPA MASTERLAR LİGİ (EMA LEAGUE) ARŞİVİ (2024 - 2025)
+    // =========================================================================
+    private val emaLeagueArchive = listOf(
+        // 2024 (Zero Edition - 4 Etap)
+        archiveItem("EMAL_2024_SHKODER", "EMA Ligi 1. Etap: İşkodra 2024", "2024-05-23", "2024-05-26", "İşkodra", "AL", "Arnavutluk", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2024-zero-edition/", "Loro Boriçi Stadyumu"),
+        archiveItem("EMAL_2024_CATANIA", "EMA Ligi 2. Etap: Katanya 2024", "2024-06-02", "2024-06-02", "Katanya", "IT", "İtalya", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2024-zero-edition/"),
+        archiveItem("EMAL_2024_SHEFFIELD", "EMA Ligi 3. Etap: Sheffield 2024", "2024-07-13", "2024-07-13", "Sheffield", "GB", "Birleşik Krallık", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2024-zero-edition/"),
+        archiveItem("EMAL_2024_BELLINZONA", "EMA Ligi 4. Etap: Bellinzona Final Etabı 2024", "2024-09-21", "2024-09-21", "Bellinzona", "CH", "İsviçre", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2024-zero-edition/", "Stadio Comunale Bellinzona"),
+
+        // 2025 (First Edition - 9 Etap)
+        archiveItem("EMAL_2025_TARTU", "EMA Ligi 1. Etap: Tartu Salon (Kevek Open) 2025", "2025-01-18", "2025-01-18", "Tartu", "EE", "Estonya", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2025-first-edition/", "Tartu Üniversitesi Atletizm Salonu"),
+        archiveItem("EMAL_2025_NANTES", "EMA Ligi 2. Etap: Nantes Salon (Pays de la Loire) 2025", "2025-02-15", "2025-02-15", "Nantes", "FR", "Fransa", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2025-first-edition/", "Stadium Métropolitain Pierre-Quinon"),
+        archiveItem("EMAL_2025_CATANIA", "EMA Ligi 3. Etap: Katanya (Alle pendici dell'Etna) 2025", "2025-04-26", "2025-04-26", "Katanya", "IT", "İtalya", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2025-first-edition/"),
+        archiveItem("EMAL_2025_SHKODER", "EMA Ligi 4. Etap: İşkodra (Speed Masters Challenge) 2025", "2025-05-15", "2025-05-18", "İşkodra", "AL", "Arnavutluk", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2025-first-edition/", "Loro Boriçi Stadyumu"),
+        archiveItem("EMAL_2025_LONDON", "EMA Ligi 5. Etap: Londra (London Masters International) 2025", "2025-07-26", "2025-07-27", "Londra", "GB", "Birleşik Krallık", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2025-first-edition/", "Lee Valley Athletics Centre"),
+        archiveItem("EMAL_2025_LIEPAJA", "EMA Ligi 6. Etap: Liepāja (Amber Spikes) 2025", "2025-08-16", "2025-08-17", "Liepāja", "LV", "Letonya", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2025-first-edition/", "Daugava Stadyumu"),
+        archiveItem("EMAL_2025_KINGSTON", "EMA Ligi 7. Etap: Londra Kingston (Bob Lewis Memorial) 2025", "2025-08-31", "2025-08-31", "Londra", "GB", "Birleşik Krallık", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2025-first-edition/", "Weir Archer Athletics Centre"),
+        archiveItem("EMAL_2025_KLAIPEDA", "EMA Ligi 8. Etap: Klaipėda (Open Baltic Masters) 2025", "2025-09-06", "2025-09-07", "Klaipėda", "LT", "Litvanya", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2025-first-edition/"),
+        archiveItem("EMAL_2025_BELLINZONA", "EMA Ligi 9. Etap: Bellinzona Final Etabı 2025", "2025-09-20", "2025-09-20", "Bellinzona", "CH", "İsviçre", "ema_league", "EMA", "https://european-masters-athletics.org/ema-meetings-master-circuit-2025-first-edition/", "Stadio Comunale Bellinzona")
     )
 }

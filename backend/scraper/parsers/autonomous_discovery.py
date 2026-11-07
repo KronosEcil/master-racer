@@ -232,6 +232,7 @@ class AutonomousDiscoveryParser(BaseParser):
                 {"INT", "WORLD", "EUROPE", "BALKAN"},
                 [
                     "https://european-masters-athletics.org/championships/",
+                    "https://european-masters-athletics.org/ema-league-2026/",
                     "https://ema.opentrack.run/",
                     "https://balkanmasters.com/",
                     "https://world-masters-athletics.org/championships/",
