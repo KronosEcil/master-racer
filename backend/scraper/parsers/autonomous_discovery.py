@@ -929,6 +929,18 @@ class AutonomousDiscoveryParser(BaseParser):
                 existing_doc = self.existing_comps.get(comp_id)
                 is_verified = False
 
+                # KAPI 1: İki Yılda Bir (Biennial) Yapılan Dünya/Avrupa Şampiyonalarında İmkansız Yıl Engeli (Tüm Yıllar İçin)
+                # EMACI (Avrupa Salon) sadece çift yıllarda (2026, 2028), EMACS (Avrupa Açık Saha) sadece tek yıllarda (2025, 2027)
+                # WMACI (Dünya Salon) sadece tek yıllarda (2025, 2027), WMACS (Dünya Açık Saha) sadece çift yıllarda (2026, 2028)
+                if (
+                    (comp_id == f"europe-{yr}-salon" and yr % 2 == 1)
+                    or (comp_id == f"europe-{yr}-acik-saha" and yr % 2 == 0)
+                    or (comp_id == f"world-{yr}-salon" and yr % 2 == 0)
+                    or (comp_id == f"world-{yr}-acik-saha" and yr % 2 == 1)
+                ):
+                    logger.warning(f"🚫 [BİENAL KURAL ENGELİ] {title} ({start_date}) - {comp_id} bu yılda düzenlenmiyor, reddedildi.")
+                    continue
+
                 # KAPI 0: Resmi olarak doğrulanmış (verified=True) mevcut veritabanı kaydı varsa tarih ve şehrini koru
                 if existing_doc and existing_doc.get("verified") is True:
                     start_date = str(existing_doc.get("start_date") or start_date)[:10]
@@ -942,18 +954,6 @@ class AutonomousDiscoveryParser(BaseParser):
                     trust_level = 3
                     is_verified = True
                 elif yr > min_year:
-                    # KAPI 1: İki Yılda Bir (Biennial) Yapılan Dünya/Avrupa Şampiyonalarında İmkansız Yıl Engeli
-                    # EMACI (Avrupa Salon) sadece çift yıllarda (2026, 2028), EMACS (Avrupa Açık Saha) sadece tek yıllarda (2025, 2027)
-                    # WMACI (Dünya Salon) sadece tek yıllarda (2025, 2027), WMACS (Dünya Açık Saha) sadece çift yıllarda (2026, 2028)
-                    if (
-                        (comp_id == f"europe-{yr}-salon" and yr % 2 == 1)
-                        or (comp_id == f"europe-{yr}-acik-saha" and yr % 2 == 0)
-                        or (comp_id == f"world-{yr}-salon" and yr % 2 == 0)
-                        or (comp_id == f"world-{yr}-acik-saha" and yr % 2 == 1)
-                    ):
-                        logger.warning(f"🚫 [BİENAL KURAL ENGELİ] {title} ({start_date}) - {comp_id} bu yılda düzenlenmiyor, reddedildi.")
-                        continue
-
                     # KAPI 2: 52 Hafta (363-366 Gün) AI Tarih Kaydırma / Tahmin Engeli
                     prev_id = comp_id.replace(f"-{yr}-", f"-{yr - 1}-")
                     prev_doc = self.existing_comps.get(prev_id)
