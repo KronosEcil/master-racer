@@ -205,7 +205,8 @@ class AutonomousDiscoveryParser(BaseParser):
             "\n\nKESİN ÇIKTI VE DOĞRULUK KURALLARI:\n"
             f"1. Hem aşağıda indirilen canlı resmi sayfa/arama verilerini HEM DE ilgili ulusal ve uluslararası federasyonların "
             f"(EMA, WMA, World Masters Sport/IMGA, BAMA, BMAF, IMAA, FFA, DLV, ÖLV, Swiss Masters, Atletiekunie, VAL/LBFA, FIDAL, RFEA, FPAtletismo/ANAV, "
-            f"PMA/PZLA, ČAS, SAZ, MASZ, SAUL, SFIF, NFIF, DAF, SEGAS, FRA, BFLA, SAS, HAS, AZS, EKJL, LVS, LLAF) "
+            f"PMA/PZLA, ČAS, SAZ, MASZ, SAUL, SFIF, NFIF, DAF, SEGAS, FRA, BFLA, SAS, HAS, AZS, EKJL, LVS, LLAF, "
+            f"USATF Masters, CMA, AMA, NZMA, OMA, NCCMA, JMA, KAAF, SMA, MMAA, CTMA, MFI, ASBiH, ASCG, AFM, FAK, FAM, UAF, KOEAS, MAAA, FRÍ, FLA, AAF, GAF, ABRAM, CAVRA, FEMACHI, SAMA, ASUDAMA, AFMA) "
             f"{years_all_tr} ve sonrası açıklanmış tüm gelecek yıllar için resmi şampiyona takvimlerini birleştirerek "
             "tarihi (YYYY-MM-DD) ve yapılacağı şehri/ülkesi kesinleşmiş olan TÜM 35+ yaş Masterlar (Masters / Veteran / Vétérans / Senioren / Veteranos / SAUL) şampiyonalarını eksiksiz çıkar.\n"
             f"2. ÖZELLİKLE {y1}, {y2}, {y3}, {y4} ve daha ileri yıllar için açıklanmış ulusal ve uluslararası Master şampiyonalarını mutlaka dahil et ({y1} öncesi eski yılları dahil etme)!\n"
@@ -361,6 +362,78 @@ class AutonomousDiscoveryParser(BaseParser):
                 f"List all confirmed {y1}, {y2}, {y3}, and {y4}+ national and regional 35+ Masters (SAUL / Veteraner / Masters) championships from the official calendars of the Nordic and Baltic countries:\n"
                 f"- Nordic & Baltic Regional: Nordic Masters Championships Indoor (PM-hallit / NMACI) & Outdoor, Baltic Open Masters Athletics Championships ({y1}, {y2}, {y3}+).\n"
                 f"- Finland (SAUL - country='FI'), Sweden (SFIF - country='SE'), Norway (NFIF - country='NO'), Denmark (DAF - country='DK'), Estonia (EKJL - country='EE'), Latvia (LVS - country='LV'), Lithuania (LLAF - country='LT') Indoor & Outdoor Masters Championships ({y1}, {y2}, {y3}+)."
+            ),
+            (
+                f"7. Kuzey Amerika (ABD, Kanada) ve Okyanusya (Avustralya, Yeni Zelanda) ({y1}-{y4}) Ulusal ve Kıtasal Takvimleri",
+                {"US", "CA", "AU", "NZ"},
+                [
+                    "https://www.usatf.org/programs/masters",
+                    "https://www.usatf.org/events",
+                    "https://canadianmasters.ca/events/",
+                    "https://www.australianmastersathletics.org.au/events/",
+                    "https://nzmastersathletics.org.nz/events/",
+                    "https://oceaniamastersathletics.org/",
+                ],
+                [
+                    f"USATF Masters Indoor Outdoor Championships {y1} {y2} {y3} Throws Cross Country Road Mile 5k 10k Half Marathon",
+                    f"Canadian Masters Athletics Championships CMA {y1} {y2} {y3} Indoor Outdoor Cross Country",
+                    f"Australian Masters Athletics National Championships AMA {y1} {y2} {y3} Track and Field Winter Throws",
+                    f"New Zealand Masters Athletics Championships NZMA {y1} {y2} {y3} Oceania Masters Athletics Championships OMA NCCMA",
+                ],
+                f"List all confirmed {y1}, {y2}, {y3}, and {y4}+ national and continental 35+ Masters championships from North America and Oceania:\n"
+                f"- USA (USATF Masters - https://www.usatf.org/programs/masters - country='US'): USATF Masters Indoor Championships, USATF Masters Outdoor Championships, USATF Masters Throws Championships, USATF Masters Cross Country & Road (1 Mile, 5 km, 10 km, Half Marathon, Marathon) Championships ({y1}, {y2}, {y3}+).\n"
+                f"- Canada (CMA - https://canadianmasters.ca/events/ - country='CA'): Canadian Masters Indoor & Outdoor Track & Field Championships, Throws & Cross Country ({y1}, {y2}, {y3}+).\n"
+                f"- Australia (AMA - https://www.australianmastersathletics.org.au/events/ - country='AU'): Australian Masters Athletics National Track & Field Championships, Winter Throws Championships ({y1}, {y2}, {y3}+).\n"
+                f"- New Zealand (NZMA - https://nzmastersathletics.org.nz/events/ - country='NZ'): NZMA National, North Island & South Island Track & Field Championships ({y1}, {y2}, {y3}+).\n"
+                f"- Continental Regional: NCCMA (North, Central American and Caribbean Masters Athletics) Championships & OMA (Oceania Masters Athletics) Championships ({y1}, {y2}, {y3}+)."
+            ),
+            (
+                f"8. Asya ve Orta Doğu (Japonya, Güney Kore, BAE, Singapur, Malezya, Tayvan, Tayland, Hindistan, Kazakistan, Özbekistan) ({y1}-{y4}) Ulusal ve Kıtasal Takvimleri",
+                {"JP", "KR", "AE", "SG", "MY", "TW", "TH", "IN", "KZ", "UZ"},
+                [
+                    "https://www.japan-masters.or.jp/",
+                    "https://www.singaporemastersathletics.com/",
+                    "https://www.mmaa.org.my/",
+                    "https://www.ctma.org.tw/",
+                    "https://www.asiamastersathletics.org/",
+                ],
+                [
+                    f"Asia Masters Athletics Championships AMA {y1} {y2} {y3} All Japan Masters Athletics Championships JMA",
+                    f"Malaysian International Open Masters Athletics Championships MMAA {y1} {y2} {y3} Singapore Masters Athletics Track and Field",
+                    f"Chinese Taipei Masters Athletics Championships {y1} {y2} {y3} Thailand Masters Athletics India Masters Athletics",
+                    f"Kazakhstan Uzbekistan Central Asia Masters Athletics Championships {y1} {y2} {y3} UAE Korea Masters Athletics",
+                ],
+                f"List all confirmed {y1}, {y2}, {y3}, and {y4}+ national and continental 35+ Masters championships from Asia and the Middle East:\n"
+                f"- Continental Regional: Asia Masters Athletics Championships (AMA) & Asia-Pacific Masters Games ({y1}, {y2}, {y3}+).\n"
+                f"- Japan (JMA - country='JP'), South Korea (KAAF - country='KR'), United Arab Emirates (UAE - country='AE'), Singapore (SMA - country='SG'), Malaysia (MMAA - country='MY'), Taiwan / Chinese Taipei (CTMA - country='TW'), Thailand (country='TH'), India (MFI - country='IN'), Kazakhstan (country='KZ'), Uzbekistan (country='UZ') National & Open Masters Athletics Championships ({y1}, {y2}, {y3}+)."
+            ),
+            (
+                f"9. Diğer Avrupa, Akdeniz, Kafkasya, Güney Amerika ve Afrika (Bosna-Hersek, Karadağ, K. Makedonya, Kosova, Moldova, Ukrayna, Kıbrıs, Malta, İzlanda, Lüksemburg, Azerbaycan, Gürcistan, Brezilya, Arjantin, Şili, Güney Afrika vb.) ({y1}-{y4}) Takvimleri",
+                {"BA", "ME", "MK", "XK", "MD", "UA", "CY", "MT", "IS", "LU", "AZ", "GE", "BR", "AR", "CL", "CO", "MX", "PE", "ZA", "MA", "TN", "EG"},
+                [
+                    "https://asbih.org/",
+                    "https://ascg.co.me/",
+                    "https://uaf.org.ua/",
+                    "https://www.koeas.org.cy/",
+                    "https://athleticsmalta.com/",
+                    "https://www.fri.is/",
+                    "https://www.fla.lu/",
+                    "https://athletics.az/",
+                    "https://www.abram.org.br/",
+                    "https://cavra.org.ar/",
+                    "https://www.femachi.cl/",
+                    "https://www.samastersathletics.org.za/",
+                ],
+                [
+                    f"Ukraine Cyprus Malta Iceland Luxembourg Bosnia Montenegro Macedonia Moldova Masters Athletics Championships {y1} {y2} {y3}",
+                    f"Azerbaijan Georgia Caucasus Masters Athletics Championships {y1} {y2} {y3}",
+                    f"Campeonato Sudamericano de Atletismo Master ASUDAMA {y1} {y2} {y3} Campeonato Brasileiro Master ABRAM Argentino CAVRA Chile FEMACHI",
+                    f"African Masters Athletics Championships AFMA {y1} {y2} {y3} South African Masters Athletics Championships SAMA",
+                ],
+                f"List all confirmed {y1}, {y2}, {y3}, and {y4}+ national and continental 35+ Masters (Masters / Veterans / Veteranos) championships from these countries:\n"
+                f"- Europe, Mediterranean & Caucasus: Bosnia and Herzegovina (ASBiH - country='BA'), Montenegro (ASCG - country='ME'), North Macedonia (AFM - country='MK'), Kosovo (FAK - country='XK'), Moldova (FAM - country='MD'), Ukraine (UAF - country='UA'), Cyprus (KOEAS - country='CY'), Malta (MAAA - country='MT'), Iceland (FRÍ - country='IS'), Luxembourg (FLA - country='LU'), Azerbaijan (AAF - country='AZ'), Georgia (GAF - country='GE') Indoor & Outdoor Masters Championships ({y1}, {y2}, {y3}+).\n"
+                f"- South America & Latin America: South American Masters Championships (ASUDAMA), Brazil (ABRAM - country='BR'), Argentina (CAVRA - country='AR'), Chile (FEMACHI - country='CL'), Colombia (country='CO'), Mexico (country='MX'), Peru (country='PE') National Masters Championships ({y1}, {y2}, {y3}+).\n"
+                f"- Africa: African Masters Athletics Championships (AFMA), South Africa (SAMA - country='ZA'), Morocco (country='MA'), Tunisia (country='TN'), Egypt (country='EG') National Masters Championships ({y1}, {y2}, {y3}+)."
             ),
         ]
 

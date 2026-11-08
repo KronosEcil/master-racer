@@ -82,7 +82,9 @@ def is_valid_competition_title(title: str) -> bool:
         "master", "veteran", "senioren", "szenior", "35+", "m35", "w35",
         "emacs", "emaci", "emacns", "emmtrc", "emamrc", "emorrc",
         "bamacs", "bamaci", "bamam", "wma", "wmg", "ema", "bmaf", "imaa",
-        "anav", "saul", "pma", "aikuis", "sm-hallit", "sm-yleisurheilu", "sm-maasto"
+        "anav", "saul", "pma", "aikuis", "sm-hallit", "sm-yleisurheilu", "sm-maasto",
+        "usatf", "cma", "nzma", "jma", "mmaa", "ctma", "abram", "cavra", "femachi",
+        "asudama", "afma", "nccma", "oma", "sama"
     ]
     if not any(m in t_lower or m in t_norm for m in master_indicators):
         return False
@@ -213,6 +215,16 @@ def get_canonical_key(title_or_comp: Any, start_date: str = "", country: str = "
         return f"NORDIC-{year}-{subtype}"
     if "baltic" in title_norm and "masters" in title_norm:
         return f"BALTIC-{year}-{subtype}"
+    if "oceania-masters" in title_norm or "oma-" in title_norm:
+        return f"OCEANIA-{year}-{subtype}"
+    if "asia-masters" in title_norm or "asian-masters" in title_norm:
+        return f"ASIA-{year}-{subtype}"
+    if "sudamericano" in title_norm or "south-american-masters" in title_norm or "asudama" in title_norm:
+        return f"SUDAMERICA-{year}-{subtype}"
+    if "african-masters" in title_norm or "afma" in title_norm:
+        return f"AFRICA-{year}-{subtype}"
+    if "nccma" in title_norm:
+        return f"NCCMA-{year}-{subtype}"
 
     is_nat_champ = (
         country_part not in ["INT", "EU"]
@@ -267,7 +279,7 @@ def get_competition_group_prefix(comp_id: str) -> str:
     parts = cid.split("-")
     if len(parts) >= 3 and parts[2] == "masterlar":
         return f"{parts[0]}-{parts[1]}-masterlar"
-    if len(parts) >= 2 and parts[0] in ("world", "europe", "balkan", "nordic", "baltic"):
+    if len(parts) >= 2 and parts[0] in ("world", "europe", "balkan", "nordic", "baltic", "oceania", "asia", "sudamerica", "africa", "nccma"):
         return f"{parts[0]}-{parts[1]}"
     if cid.endswith("-acik-saha"):
         return cid[: -len("-acik-saha")]

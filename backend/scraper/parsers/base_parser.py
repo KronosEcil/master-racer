@@ -202,6 +202,58 @@ class BaseParser(abc.ABC):
             return "HU", "Macaristan", "🇭🇺"
         if any(k in title_lower for k in ["slovakya", "slovakia", "slovak"]):
             return "SK", "Slovakya", "🇸🇰"
+        if any(k in title_lower for k in ["bosna", "bosnia", "sarajevo"]):
+            return "BA", "Bosna-Hersek", "🇧🇦"
+        if any(k in title_lower for k in ["karadağ", "montenegro", "podgorica"]):
+            return "ME", "Karadağ", "🇲🇪"
+        if any(k in title_lower for k in ["kuzey makedonya", "north macedonia", "macedonia", "skopje"]):
+            return "MK", "Kuzey Makedonya", "🇲🇰"
+        if any(k in title_lower for k in ["kosova", "kosovo", "pristina", "priştine"]):
+            return "XK", "Kosova", "🇽🇰"
+        if any(k in title_lower for k in ["moldova", "chisinau", "kişinev"]):
+            return "MD", "Moldova", "🇲🇩"
+        if any(k in title_lower for k in ["ukrayna", "ukraine", "ukrainian", "kyiv"]):
+            return "UA", "Ukrayna", "🇺🇦"
+        if any(k in title_lower for k in ["kıbrıs", "cyprus", "cypriot", "limassol", "nicosia"]):
+            return "CY", "Kıbrıs", "🇨🇾"
+        if any(k in title_lower for k in ["malta", "maltese", "marsa", "valletta"]):
+            return "MT", "Malta", "🇲🇹"
+        if any(k in title_lower for k in ["lüksemburg", "luxembourg"]):
+            return "LU", "Lüksemburg", "🇱🇺"
+        if any(k in title_lower for k in ["azerbaycan", "azerbaijan", "baku", "bakü"]):
+            return "AZ", "Azerbaycan", "🇦🇿"
+        if any(k in title_lower for k in ["gürcistan", "georgia", "tbilisi", "tiflis"]):
+            return "GE", "Gürcistan", "🇬🇪"
+        if any(k in title_lower for k in ["kazakistan", "kazakhstan", "almaty", "astana"]):
+            return "KZ", "Kazakistan", "🇰🇿"
+        if any(k in title_lower for k in ["özbekistan", "uzbekistan", "tashkent", "taşkent"]):
+            return "UZ", "Özbekistan", "🇺🇿"
+        if any(k in title_lower for k in ["singapur", "singapore"]):
+            return "SG", "Singapur", "🇸🇬"
+        if any(k in title_lower for k in ["tayland", "thailand", "bangkok"]):
+            return "TH", "Tayland", "🇹🇭"
+        if any(k in title_lower for k in ["hindistan", "india", "indian"]):
+            return "IN", "Hindistan", "🇮🇳"
+        if any(k in title_lower for k in ["brezilya", "brazil", "brazilian", "brasileiro", "abram"]):
+            return "BR", "Brezilya", "🇧🇷"
+        if any(k in title_lower for k in ["arjantin", "argentina", "argentino", "cavra", "buenos aires"]):
+            return "AR", "Arjantin", "🇦🇷"
+        if any(k in title_lower for k in ["şili", "chile", "chileno", "femachi", "santiago"]):
+            return "CL", "Şili", "🇨🇱"
+        if any(k in title_lower for k in ["kolombiya", "colombia", "colombiano", "bogota"]):
+            return "CO", "Kolombiya", "🇨🇴"
+        if any(k in title_lower for k in ["meksika", "mexico", "mexicano"]):
+            return "MX", "Meksika", "🇲🇽"
+        if any(k in title_lower for k in ["peru", "peruvian", "peruano", "lima"]):
+            return "PE", "Peru", "🇵🇪"
+        if any(k in title_lower for k in ["güney afrika", "south africa", "south african", "sama", "cape town", "pretoria", "johannesburg"]):
+            return "ZA", "Güney Afrika", "🇿🇦"
+        if any(k in title_lower for k in ["fas", "morocco", "moroccan", "casablanca", "rabat"]):
+            return "MA", "Fas", "🇲🇦"
+        if any(k in title_lower for k in ["tunus", "tunisia", "tunisian", "rades"]):
+            return "TN", "Tunus", "🇹🇳"
+        if any(k in title_lower for k in ["mısır", "egypt", "egyptian", "cairo"]):
+            return "EG", "Mısır", "🇪🇬"
 
         if any(k in title_lower for k in ["balkan"]):
             return "EU", "Avrupa", "🇪🇺"
@@ -226,7 +278,10 @@ class BaseParser(abc.ABC):
             "national", "ulusal", "türkiye", "british masters", "bmaf", "deutsche", "championnats de france",
             "campionati italiani", "campeonato de españa", "campeonatos nacionais", "mistrzostwa polski",
             "nk masters", "nk indoor", "irish masters", "imaa", "swiss masters", "österr", "mčr",
-            "sm-hallit", "sm-kilpailut", "ism veteraner", "sm veteraner", "nm masters", "dm masters"
+            "sm-hallit", "sm-kilpailut", "ism veteraner", "sm veteraner", "nm masters", "dm masters",
+            "usatf masters", "canadian masters", "australian masters", "nzma", "all japan masters",
+            "singapore masters", "malaysian international open masters", "south african masters",
+            "campeonato brasileiro master", "campeonato argentino master", "campeonato nacional master"
         ]):
             return "national"
         return "regional"
