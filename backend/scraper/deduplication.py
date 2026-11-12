@@ -118,9 +118,15 @@ def _detect_discipline_subtype(title_norm: str) -> str:
         return "WMG"
     if any(w in title_norm for w in ["cross", "kros", "veldloop", "terrang", "terreng", "maasto", "campo-a-traves", "corta-mato", "campestre", "przelaj", "krosu", "kross"]):
         return "CROSS-RELAY" if any(r in title_norm for r in ["relay", "relais", "staffel", "stafett", "relevos", "staffette"]) else "CROSS"
+    if any(w in title_norm for w in ["prove-multiple", "combin", "coklu", "decathlon", "heptathlon", "indoor-pentathlon", "pentathlon-indoor", "hallen-mehrkampf", "mehrkampf-halle"]):
+        return "INDOOR-COMBINEES" if is_indoor else "COMBINEES"
     if any(w in title_norm for w in ["throw", "atma", "winterwurf", "wurf", "lancer", "lanzamiento", "lanci", "hammer", "marteau", "martillo", "martello", "rzut", "lancamentos"]):
-        return "WINTER-THROWS" if is_indoor else "THROWS"
-    if any(w in title_norm for w in ["combin", "coklu", "mehrkampf", "pentathlon", "pentatlo", "decathlon", "heptathlon", "prove-multiple"]):
+        is_main_indoor_champ = is_indoor and any(
+            m in title_norm for m in ["indoor-master", "master-indoor", "halle-und-winterwurf", "hallen-und-winterwurf"]
+        ) and not any(p in title_norm for p in ["pentathlon", "pentatlo", "pentatlon", "wurf-mehrkampf"])
+        if not is_main_indoor_champ:
+            return "WINTER-THROWS" if is_indoor else "THROWS"
+    if any(w in title_norm for w in ["mehrkampf", "pentathlon", "pentatlo", "pentatlon"]):
         return "INDOOR-COMBINEES" if is_indoor else "COMBINEES"
     if any(w in title_norm for w in ["marche", "walk", "yuruyus", "gehen", "bahngehen", "strassengehen", "marcha", "marcia", "chod"]):
         return "INDOOR-MARCHE" if is_indoor else "MARCHE"

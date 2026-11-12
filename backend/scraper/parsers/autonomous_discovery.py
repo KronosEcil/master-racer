@@ -209,11 +209,13 @@ class AutonomousDiscoveryParser(BaseParser):
             f"PMA/PZLA, ČAS, SAZ, MASZ, SAUL, SFIF, NFIF, DAF, SEGAS, FRA, BFLA, SAS, HAS, AZS, EKJL, LVS, LLAF, "
             f"USATF Masters, CMA, AMA, NZMA, OMA, NCCMA, JMA, KAAF, SMA, MMAA, CTMA, MFI, ASBiH, ASCG, AFM, FAK, FAM, UAF, KOEAS, MAAA, FRÍ, FLA, AAF, GAF, ABRAM, CAVRA, FEMACHI, SAMA, ASUDAMA, AFMA) "
             f"{years_all_tr} ve sonrası açıklanmış tüm gelecek yıllar için resmi şampiyona takvimlerini birleştirerek "
-            "tarihi (YYYY-MM-DD) ve yapılacağı şehri/ülkesi kesinleşmiş olan TÜM 35+ yaş Masterlar (Masters / Veteran / Vétérans / Senioren / Veteranos / SAUL) şampiyonalarını eksiksiz çıkar.\n"
+            "tarihi (YYYY-MM-DD) ve ülkesi kesinleşmiş olan TÜM 35+ yaş Masterlar (Masters / Veteran / Vétérans / Senioren / Veteranos / SAUL) şampiyonalarını eksiksiz çıkar.\n"
             f"2. ÖZELLİKLE {y1}, {y2}, {y3}, {y4} ve daha ileri yıllar için açıklanmış ulusal ve uluslararası Master şampiyonalarını mutlaka dahil et ({y1} öncesi eski yılları dahil etme)!\n"
             "3. Elit/Büyükler (Senior Elite), Olimpik Deneme, U23, U20, U18 yarışmalarını ASLA dahil etme.\n"
             "4. Çok günlü yarışmalarda `start_date` ve `end_date` tarihlerini resmi takvimdeki tam aralık olarak (YYYY-MM-DD) yaz. "
-            "Tarihi, şehri veya ülkesi 'TBD', 'TBC', 'N/A', 'Not Specified' olan ya da 1 Ocak (YYYY-01-01) gibi yer tutucu tarihli yarışmaları DAHİL ETME!\n"
+            "Tarihi ('TBD', 'TBC', 'N/A', 'Not Specified') belirsiz olan ya da 1 Ocak (YYYY-01-01) gibi yer tutucu tarihli yarışmaları DAHİL ETME! "
+            "ANCAK resmi federasyon takviminde veya resmi planlama PDF tablosunda tarihi (gün ve ay olarak YYYY-MM-DD) ve ülkesi kesinleşmiş olan ulusal şampiyonalarda, "
+            "ev sahibi şehir (`Città` / `Sede` / `Lieu` / `Ort`) sütunu henüz boş bırakılmışsa yarışmayı KESİNLİKLE ELEME; `city` alanına Türkçe ülke adını (örneğin `'İtalya'`) yaz!\n"
             "5. Her yarışmanın `city`, `country` ve `country_name` alanlarına yalnızca O YARIŞMANIN kendi resmi ev sahibi şehrini ve ülkesini yaz (örneğin Perth -> AU/Avustralya, Lahti -> FI/Finlandiya, Como -> IT/İtalya, Abu Dhabi -> AE/Birleşik Arap Emirlikleri; farklı yıllardaki Masters Games ev sahiplerini birbirine karıştırma!).\n"
             "6. `scope` alanı yalnızca şu 6 değerden biri olmalıdır: 'national', 'world', 'balkan', 'europe', 'ema_league', 'regional'.\n"
             "7. Metin içinde yarışmaya ait doğrudan detay/kayıt sayfası bağlantısı `[URL: https://...]` varsa `website_url` alanına bu doğrudan bağlantıyı yaz. "
@@ -304,9 +306,8 @@ class AutonomousDiscoveryParser(BaseParser):
                 f"4. İtalya (FIDAL), İspanya (RFEA) ve Portekiz (FPAtletismo/ANAV) ({y1}-{y4}) Ulusal Takvimleri",
                 {"IT", "ES", "PT"},
                 [
-                    f"https://www.fidal.it/calendario.php?anno={y1}&mese=&tipo_attivita=&livello=N&categoria=MAS&regione=&submit=Invia",
-                    f"https://www.fidal.it/calendario.php?anno={y2}&mese=&tipo_attivita=&livello=N&categoria=MAS&regione=&submit=Invia",
                     "https://www.fidal.it/content/Master/174936",
+                    "https://www.fidal.it/content/Norme-e-Regolamenti/111218",
                     "https://www.fidal-lombardia.it/index.php?option=com_content&view=article&id=17812:campionati-italiani-2027-ufficiali-date-e-minimi&catid=19&Itemid=438&lang=it",
                     "https://atletismorfea.es/calendario",
                 ],
@@ -315,8 +316,17 @@ class AutonomousDiscoveryParser(BaseParser):
                     f"Campeonato de España Master {y1} {y2} {y3} Aire Libre Short Track Pista Cubierta Lanzamientos Combinadas Campo a Traves rfea",
                     f"Campeonatos Nacionais de Veteranos {y1} {y2} {y3} Pista Curta Ar Livre Corta-Mato Pentatlo Marcha fpatletismo anav",
                 ],
-                f"List all confirmed {y1}, {y2}, {y3}, and {y4}+ national 35+ Masters (Master / Veteranos) championships from the official national federation calendars of Italy, Spain, and Portugal:\n"
-                f"- Italy (FIDAL - country='IT'): Campionati Italiani Master Indoor e Lanci Invernali (Ancona), Pista Master (Outdoor), Pentathlon dei Lanci, Prove Multiple e Staffette, Corsa Campestre (Cross), Mezza Maratona, Maratona, Marcia, 10km, Montagna/Trail ({y1}, {y2}, {y3}+).\n"
+                f"List all confirmed {y1}, {y2}, {y3}, and {y4}+ national 35+ Masters (Master / Veteranos) championships from the official national federation calendars and official PDF planning tables of Italy, Spain, and Portugal:\n"
+                f"- Italy (FIDAL - country='IT'): Extract ALL {y1} and {y2}+ Master national championships from the FIDAL calendar and the official FIDAL Planning Campionati Federali PDF, including: "
+                f"Campionati Italiani di Prove Multiple Indoor Master e Campionati Italiani Invernali di Lanci Master (e.g. 6-7 Feb 2027), "
+                f"Campionati Italiani Master Indoor (Ancona, e.g. 5-8 Mar 2026 & 5-7 Mar 2027), "
+                f"Campionati Italiani Individuali su Pista Master (Outdoor), "
+                f"Campionati Italiani Pentathlon dei Lanci Master Invernale & Estivo, "
+                f"Campionati Italiani Master di Prove Multiple e Staffette, "
+                f"Campionati Italiani Individuali e di Società di Cross / Corsa Campestre Master & Staffetta Cross Master, "
+                f"Finale Nazionale C.D.S. / Societari Master su Pista, Trofeo delle Regioni Master, "
+                f"Mezza Maratona, Maratona, Marcia, 10.000m su Pista, 5km, 50km, 100km, 24h, Montagna/Trail ({y1}, {y2}, {y3}+). "
+                f"IMPORTANT: For {y2} FIDAL championships in the official Planning PDF where the exact dates are confirmed (e.g. 6/7-feb-27) but the Città column is blank, MUST include them and set city='İtalya'!\n"
                 f"- Spain (RFEA - country='ES'): Campeonato de España Máster Short Track / Pista Cubierta (Indoor), Aire Libre (Outdoor), Lanzamientos Largos, Pentatlón de Lanzamientos, Pruebas Combinadas, Campo a Través, Milla, 10.000m, Ruta, Trail/Montaña ({y1}, {y2}, {y3}+).\n"
                 f"- Portugal (FPAtletismo / ANAV - country='PT'): Campeonatos Nacionais de Veteranos de Pista Curta (Indoor), Ar Livre (Outdoor), Pentatlo de Lançamentos, Corta-Mato, Marcha, Estrada ({y1}, {y2}, {y3}+)."
             ),
@@ -510,14 +520,15 @@ class AutonomousDiscoveryParser(BaseParser):
         self,
         urls: List[str],
         search_queries: List[str],
-        max_total_chars: int = 36000,
+        max_total_chars: int = 48000,
     ) -> str:
         """
         1. Google News/Web RSS üzerinden canlı arama sonuçlarını (snippet) toplar.
-        2. Doğrulanmış resmi federasyon URL'lerini doğrudan indirir (sayfa sonundaki 2027-2029
-           bölümlerinin kesilmemesi için geniş pencere kullanır).
+        2. Doğrulanmış resmi federasyon URL'lerini ve sayfalardaki resmi takvim PDF'lerini indirir.
         """
-        chunks: List[str] = []
+        search_chunks: List[str] = []
+        pdf_chunks: List[str] = []
+        html_chunks: List[str] = []
         search_lines: List[str] = []
         seen_snippets = set()
 
@@ -537,10 +548,11 @@ class AutonomousDiscoveryParser(BaseParser):
                 logger.debug(f"[Google-RSS] Arama uyarısı ({sq}): {e}")
 
         if search_lines:
-            chunks.append("=== [CANLI WEB ARAMA İNDEKSİ SONUÇLARI] ===\n" + "\n".join(search_lines[:35]))
+            search_chunks.append("=== [CANLI WEB ARAMA İNDEKSİ SONUÇLARI] ===\n" + "\n".join(search_lines[:35]))
 
         # 2. Doğrudan Resmi Federasyon Takvim Sayfaları ve Takvim PDF'leri (Gerçek href ve PDF linklerini koruyarak)
         per_url_limit = 9000
+        pdf_char_limit = 12000
         ignored_domains = ("facebook.com", "instagram.com", "twitter.com", "x.com", "youtube.com", "linkedin.com")
         deep_link_keywords = (
             ".pdf", "reglement", "regolamento", "regulamento", "regulations", "manual",
@@ -549,8 +561,12 @@ class AutonomousDiscoveryParser(BaseParser):
             "masters-games", "next-masters-games", "all-masters-games"
         )
         calendar_pdf_keywords = (
-            "planning", "campionati", "calendario", "calendar", "kalender",
-            "takvim", "termin", "fixtures", "meisterschaft", "calendrier"
+            "planning", "calendario", "calendar", "kalender",
+            "takvim", "fixtures", "meisterschaft", "calendrier", "attivit"
+        )
+        excluded_pdf_keywords = (
+            "minimi", "quote", "modulo", "modulistica", "affiliazion", "tesserament",
+            "organigramma", "statuto", "antidoping", "primati", "record", "classific", "risultat"
         )
         discovered_pdf_urls: List[str] = []
         seen_urls = set(urls)
@@ -562,9 +578,9 @@ class AutonomousDiscoveryParser(BaseParser):
                     continue
                 content_type = (resp.headers.get("Content-Type") or "").lower()
                 if url.lower().endswith(".pdf") or "application/pdf" in content_type:
-                    pdf_text = self._extract_pdf_text(resp.content, max_chars=per_url_limit)
+                    pdf_text = self._extract_pdf_text(resp.content, max_chars=pdf_char_limit)
                     if pdf_text:
-                        chunks.append(f"=== [RESMİ TAKVİM PDF BELGESİ: {url}] ===\n{pdf_text}")
+                        pdf_chunks.append(f"=== [RESMİ TAKVİM PDF BELGESİ: {url}] ===\n{pdf_text}")
                     continue
                 if not resp.text:
                     continue
@@ -586,6 +602,7 @@ class AutonomousDiscoveryParser(BaseParser):
                     if not raw_href or raw_href.startswith(("#", "javascript:", "mailto:", "tel:")):
                         continue
                     full_href = urljoin(url, raw_href)
+                    full_href = re.sub(r"(https?://[^/]+)/(?:\.\./)+", r"\1/", full_href)
                     href_low = full_href.lower()
                     if any(d in href_low for d in ignored_domains):
                         continue
@@ -595,8 +612,9 @@ class AutonomousDiscoveryParser(BaseParser):
                         combined_hint = f"{href_low} {anchor_txt.lower()}"
                         if (
                             full_href not in seen_urls
-                            and len(discovered_pdf_urls) < 2
+                            and len(discovered_pdf_urls) < 3
                             and any(k in combined_hint for k in calendar_pdf_keywords)
+                            and not any(ex in combined_hint for ex in excluded_pdf_keywords)
                         ):
                             seen_urls.add(full_href)
                             discovered_pdf_urls.append(full_href)
@@ -614,22 +632,25 @@ class AutonomousDiscoveryParser(BaseParser):
                     text_block = text_block.split("Les Espaces Structures")[0].strip()
                 text_block = text_block[:per_url_limit]
                 if text_block:
-                    chunks.append(f"=== [RESMİ TAKVİM SAYFASI: {url}] ===\n{text_block}")
+                    html_chunks.append(f"=== [RESMİ TAKVİM SAYFASI: {url}] ===\n{text_block}")
             except Exception as e:
                 logger.debug(f"[Official-Fetch] {url} okuma uyarısı: {e}")
 
         # 3. Sayfalarda tespit edilen resmi takvim PDF bağlantılarının metin içeriğini oku (0 ek AI kotası)
-        for pdf_url in discovered_pdf_urls:
+        # "planning" veya "2027" içeren PDF'leri en başa al
+        discovered_pdf_urls.sort(key=lambda u: (0 if "planning" in u.lower() else 1, 0 if "2027" in u.lower() else 1))
+        for pdf_url in discovered_pdf_urls[:2]:
             try:
                 resp = self.session.get(pdf_url, timeout=12)
                 if resp.status_code == 200 and resp.content:
-                    pdf_text = self._extract_pdf_text(resp.content, max_chars=per_url_limit)
+                    pdf_text = self._extract_pdf_text(resp.content, max_chars=pdf_char_limit)
                     if pdf_text:
-                        chunks.append(f"=== [RESMİ TAKVİM PDF BELGESİ: {pdf_url}] ===\n{pdf_text}")
+                        pdf_chunks.append(f"=== [RESMİ TAKVİM PDF BELGESİ: {pdf_url}] ===\n{pdf_text}")
             except Exception as e:
                 logger.debug(f"[Official-PDF-Fetch] {pdf_url} okuma uyarısı: {e}")
 
-        combined = "\n\n".join(chunks)
+        # PDF takvim belgelerini HTML sayfalardan ÖNCE yerleştir ki karakter sınırında asla kesilmesin
+        combined = "\n\n".join(search_chunks + pdf_chunks + html_chunks)
         return combined[:max_total_chars]
 
     @staticmethod
@@ -732,6 +753,9 @@ class AutonomousDiscoveryParser(BaseParser):
 
         allowed_models = [
             "gemini-3.5-flash-lite",
+            "gemini-3.1-flash-lite-preview",
+            "gemini-2.5-flash-lite",
+            "gemini-2.5-flash",
             "gemini-3-flash-preview",
             "gemma-3-27b-it",
         ]
@@ -763,15 +787,20 @@ class AutonomousDiscoveryParser(BaseParser):
         use_search: bool = False,
     ) -> List[Dict[str, Any]]:
         """
-        Çalışan modelleri (`gemini-3.5-flash-lite` -> `gemini-3-flash-preview` -> `gemma-3-27b-it`)
-        50 sn zaman aşımı ile çağırır ve geçici yoğunlukta ana modelleri karalisteye almaz.
+        Çalışan modelleri sırasıyla çağırır ve geçici yoğunlukta ana modelleri karalisteye almaz.
         """
         all_models = self._get_available_gemini_models(api_key)
         headers = {
             "x-goog-api-key": api_key,
             "Content-Type": "application/json",
         }
-        core_models = {"gemini-3.5-flash-lite", "gemini-3-flash-preview"}
+        core_models = {
+            "gemini-3.5-flash-lite",
+            "gemini-3.1-flash-lite-preview",
+            "gemini-2.5-flash-lite",
+            "gemini-2.5-flash",
+            "gemini-3-flash-preview",
+        }
 
         for attempt in range(2):
             active_models = [m for m in all_models if m not in self._exhausted_models]
@@ -783,7 +812,8 @@ class AutonomousDiscoveryParser(BaseParser):
                     continue
 
                 endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-                gen_config: Dict[str, Any] = {"temperature": 0.0, "maxOutputTokens": 8192}
+                max_tokens = 8192 if model.startswith("gemma-") else 24576
+                gen_config: Dict[str, Any] = {"temperature": 0.0, "maxOutputTokens": max_tokens}
                 if not use_search and not model.startswith("gemma-"):
                     gen_config["responseMimeType"] = "application/json"
                 payload: Dict[str, Any] = {
@@ -1036,11 +1066,19 @@ class AutonomousDiscoveryParser(BaseParser):
                         yr_str = str(yr)
                         day_num = str(int(start_date[8:10]))
                         city_tok = city.lower().split(",")[0].split("/")[0].strip()[:4]
+                        is_country_city = (
+                            not raw_city
+                            or city.lower() == country_name.lower()
+                            or city.lower() in {
+                                "italya", "italia", "italy", "ispanya", "espana", "españa", "spain",
+                                "portekiz", "portugal", "fransa", "france", "almanya", "germany", "deutschland"
+                            }
+                        )
                         has_year = yr_str in digest_lower
                         has_iso_or_url = (start_date in digest_lower) or (yr_str in web_url.lower())
                         has_day_and_city = (
                             re.search(rf"\b0?{day_num}\b", digest_lower) is not None
-                            and (not city_tok or city_tok == country_name.lower()[:4] or city_tok in digest_lower)
+                            and (is_country_city or not city_tok or city_tok in digest_lower)
                         )
                         if not (has_year and (has_iso_or_url or has_day_and_city)):
                             logger.warning(
