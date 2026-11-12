@@ -7,6 +7,7 @@ Tek bir yönteme veya tek bir AI modeline bağımlı kalmadan 4 katmanlı hibrit
 4. Hızlı AI Çıkarım Motoru (Önce 3 saniyede yanıt veren Lite/Gemma modelleri, 503/Timeout devre kesicili)
 """
 
+import io
 import re
 import time
 import json
@@ -303,9 +304,10 @@ class AutonomousDiscoveryParser(BaseParser):
                 f"4. İtalya (FIDAL), İspanya (RFEA) ve Portekiz (FPAtletismo/ANAV) ({y1}-{y4}) Ulusal Takvimleri",
                 {"IT", "ES", "PT"},
                 [
-                    f"https://www.fidal.it/calendario.php?anno={y1}&categoria=M",
+                    f"https://www.fidal.it/calendario.php?anno={y1}&mese=&tipo_attivita=&livello=N&categoria=MAS&regione=&submit=Invia",
+                    f"https://www.fidal.it/calendario.php?anno={y2}&mese=&tipo_attivita=&livello=N&categoria=MAS&regione=&submit=Invia",
+                    "https://www.fidal.it/content/Master/174936",
                     "https://www.fidal-lombardia.it/index.php?option=com_content&view=article&id=17812:campionati-italiani-2027-ufficiali-date-e-minimi&catid=19&Itemid=438&lang=it",
-                    "https://www.fidal.it/calendario.php",
                     "https://atletismorfea.es/calendario",
                 ],
                 [
@@ -537,7 +539,7 @@ class AutonomousDiscoveryParser(BaseParser):
         if search_lines:
             chunks.append("=== [CANLI WEB ARAMA İNDEKSİ SONUÇLARI] ===\n" + "\n".join(search_lines[:35]))
 
-        # 2. Doğrudan Resmi Federasyon Takvim Sayfaları (Gerçek href ve PDF linklerini koruyarak)
+        # 2. Doğrudan Resmi Federasyon Takvim Sayfaları ve Takvim PDF'leri (Gerçek href ve PDF linklerini koruyarak)
         per_url_limit = 9000
         ignored_domains = ("facebook.com", "instagram.com", "twitter.com", "x.com", "youtube.com", "linkedin.com")
         deep_link_keywords = (
@@ -546,18 +548,34 @@ class AutonomousDiscoveryParser(BaseParser):
             "espaces.html", "championship", "calendario", "fixtures", "event", "meeting",
             "masters-games", "next-masters-games", "all-masters-games"
         )
+        calendar_pdf_keywords = (
+            "planning", "campionati", "calendario", "calendar", "kalender",
+            "takvim", "termin", "fixtures", "meisterschaft", "calendrier"
+        )
+        discovered_pdf_urls: List[str] = []
+        seen_urls = set(urls)
+
         for url in urls:
             try:
                 resp = self.session.get(url, timeout=10)
-                if resp.status_code != 200 or not resp.text:
+                if resp.status_code != 200 or not resp.content:
+                    continue
+                content_type = (resp.headers.get("Content-Type") or "").lower()
+                if url.lower().endswith(".pdf") or "application/pdf" in content_type:
+                    pdf_text = self._extract_pdf_text(resp.content, max_chars=per_url_limit)
+                    if pdf_text:
+                        chunks.append(f"=== [RESMİ TAKVİM PDF BELGESİ: {url}] ===\n{pdf_text}")
+                    continue
+                if not resp.text:
                     continue
                 soup = BeautifulSoup(resp.text, "html.parser")
                 for tag in soup(["script", "style", "noscript", "svg", "footer", "nav", "header", "aside"]):
                     tag.decompose()
-                # Sitelerdeki (masters.athle.fr, worldmasterssport.com vb.) üst/yan mega menüleri temizle
+                # Sitelerdeki (masters.athle.fr, worldmasterssport.com, fidal-lombardia phpdebugbar vb.) üst/yan menüleri ve debug barları temizle
                 for sel in [
                     "#ctnLeft", "#ctnLeftMenu", "#ctnTop", ".menuLeft", "#sidebar", ".sidebar",
-                    "#main-header", "#top-header", ".et-l--header", ".et_pb_menu", ".et-menu-nav", ".sub-menu", ".et_mobile_menu"
+                    "#main-header", "#top-header", ".et-l--header", ".et_pb_menu", ".et-menu-nav", ".sub-menu", ".et_mobile_menu",
+                    ".phpdebugbar", "#phpdebugbar"
                 ]:
                     for el in soup.select(sel):
                         el.decompose()
@@ -574,13 +592,21 @@ class AutonomousDiscoveryParser(BaseParser):
                     anchor_txt = a_tag.get_text(" ", strip=True)
                     if href_low.endswith(".pdf"):
                         a_tag.string = f"{anchor_txt} [PDF: {full_href}]"
+                        combined_hint = f"{href_low} {anchor_txt.lower()}"
+                        if (
+                            full_href not in seen_urls
+                            and len(discovered_pdf_urls) < 2
+                            and any(k in combined_hint for k in calendar_pdf_keywords)
+                        ):
+                            seen_urls.add(full_href)
+                            discovered_pdf_urls.append(full_href)
                     elif full_href != url and any(k in href_low for k in deep_link_keywords) and len(anchor_txt) >= 3:
                         a_tag.string = f"{anchor_txt} [URL: {full_href}]"
 
                 lines = []
                 for line in soup.get_text(separator="\n").splitlines():
                     cleaned = re.sub(r"\s+", " ", line).strip()
-                    if len(cleaned) >= 4:
+                    if len(cleaned) >= 4 and "quwfi_" not in cleaned.lower() and not cleaned.lower().startswith("select * from"):
                         lines.append(cleaned)
                 text_block = "\n".join(lines)
                 # masters.athle.fr sağ sütunundaki 100 komite listesini ("Les Espaces Structures") kes
@@ -592,8 +618,41 @@ class AutonomousDiscoveryParser(BaseParser):
             except Exception as e:
                 logger.debug(f"[Official-Fetch] {url} okuma uyarısı: {e}")
 
+        # 3. Sayfalarda tespit edilen resmi takvim PDF bağlantılarının metin içeriğini oku (0 ek AI kotası)
+        for pdf_url in discovered_pdf_urls:
+            try:
+                resp = self.session.get(pdf_url, timeout=12)
+                if resp.status_code == 200 and resp.content:
+                    pdf_text = self._extract_pdf_text(resp.content, max_chars=per_url_limit)
+                    if pdf_text:
+                        chunks.append(f"=== [RESMİ TAKVİM PDF BELGESİ: {pdf_url}] ===\n{pdf_text}")
+            except Exception as e:
+                logger.debug(f"[Official-PDF-Fetch] {pdf_url} okuma uyarısı: {e}")
+
         combined = "\n\n".join(chunks)
         return combined[:max_total_chars]
+
+    @staticmethod
+    def _extract_pdf_text(pdf_bytes: bytes, max_chars: int = 9000) -> str:
+        """PDF baytlarından pypdf ile temiz metin çıkarır (ek AI çağrısı harcamaz)."""
+        try:
+            from pypdf import PdfReader
+            reader = PdfReader(io.BytesIO(pdf_bytes))
+            page_texts: List[str] = []
+            total_len = 0
+            for page in reader.pages[:12]:
+                txt = page.extract_text() or ""
+                lines = [re.sub(r"\s+", " ", ln).strip() for ln in txt.splitlines() if len(ln.strip()) >= 3]
+                if lines:
+                    block = "\n".join(lines)
+                    page_texts.append(block)
+                    total_len += len(block)
+                    if total_len >= max_chars:
+                        break
+            return "\n".join(page_texts)[:max_chars]
+        except Exception as e:
+            logger.debug(f"[PDF-Extract] PDF metin çıkarma uyarısı: {e}")
+            return ""
 
     def _find_taf_calendar_pdf_urls(self) -> List[str]:
         """TAF faaliyet takvimi sayfasındaki güncel PDF bağlantılarını bulur."""
