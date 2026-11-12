@@ -954,6 +954,14 @@ class AutonomousDiscoveryParser(BaseParser):
                 elif ("european masters athletics" in title_low or "emaci" in title_low) and ("indoor" in title_low or "emaci" in title_low):
                     title = f"European Masters Athletics Championships Indoor {start_date[:4]}"
                     title_low = title.lower()
+                elif ("campionati italiani" in title_low or "campionato italiano" in title_low) and "prove multiple" in title_low and "indoor" in title_low:
+                    if "lanci" in title_low:
+                        title = "İtalya Masterlar Salon Çoklu Branşlar ve Kış Atmaları Şampiyonası"
+                    else:
+                        title = "İtalya Masterlar Salon Çoklu Branşlar Şampiyonası"
+                    title_low = title.lower()
+                    raw_country = raw_country or "IT"
+                    raw_cname = raw_cname or "İtalya"
 
                 # Başlığında "kansai" geçmeyen bir Masters Games için yanlışlıkla Kansai/JP atanmışsa temizle, gerçek ülkeyi başlıktan bul
                 if ("masters games" in title_low or "wmg" in title_low) and "kansai" not in title_low and ("kansai" in city_low or raw_country in ("JP", "JPN")):
