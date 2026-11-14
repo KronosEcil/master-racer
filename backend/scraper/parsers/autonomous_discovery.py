@@ -44,6 +44,7 @@ class AutonomousDiscoveryParser(BaseParser):
         self.existing_comps: Dict[str, dict] = existing_comps or {}
         self._exhausted_models = set()
         self._available_models: List[str] = []
+        self._model_503_counts: Dict[str, int] = {}
 
     def parse(self) -> List[Competition]:
         logger.info(f"Çok Yöntemli Resmi Federasyon Tarayıcısı başlatılıyor (Yıllar: {self.years})...")
@@ -806,6 +807,8 @@ class AutonomousDiscoveryParser(BaseParser):
             active_models = [m for m in all_models if m not in self._exhausted_models]
             if not active_models:
                 active_models = list(all_models)
+            # Çalışma sırasında 2+ kez geçici 503 veren modelleri kuyruğun sonuna kaydır (dinamik yük dengeleme)
+            active_models.sort(key=lambda m: (1 if self._model_503_counts.get(m, 0) >= 2 else 0, all_models.index(m)))
 
             for model in active_models:
                 if model.startswith("gemma-") and any("inline_data" in p for p in parts):
@@ -837,7 +840,7 @@ class AutonomousDiscoveryParser(BaseParser):
                             "Lütfen 'Free tier' projesine ait bir API anahtarı kullanın."
                         )
                         self._exhausted_models.update(all_models)
-                        return []
+                        break
 
                     if resp.status_code in (429, 503):
                         body_lower = resp.text.lower()
@@ -845,8 +848,9 @@ class AutonomousDiscoveryParser(BaseParser):
                             "perday" in body_lower or "per_day" in body_lower or "daily" in body_lower
                         )
                         if model in core_models and not is_daily_limit:
+                            self._model_503_counts[model] = self._model_503_counts.get(model, 0) + 1
                             logger.warning(f"[Gemini-AI] Model ({model}) geçici HTTP {resp.status_code}, sıradaki modele geçiliyor...")
-                            time.sleep(2)
+                            time.sleep(1)
                             continue
                         else:
                             self._exhausted_models.add(model)
@@ -873,6 +877,7 @@ class AutonomousDiscoveryParser(BaseParser):
                     if parsed:
                         return parsed
                 except requests.exceptions.Timeout:
+                    self._model_503_counts[model] = self._model_503_counts.get(model, 0) + 1
                     if model not in core_models:
                         self._exhausted_models.add(model)
                     logger.warning(f"[Gemini-AI] Model ({model}) 50 sn içinde yanıt vermedi, sıradaki model deneniyor...")
@@ -880,7 +885,76 @@ class AutonomousDiscoveryParser(BaseParser):
                     logger.warning(f"[Gemini-AI] Model ({model}) çağrı uyarısı: {e}")
 
             if attempt == 0:
-                time.sleep(5)
+                time.sleep(4)
+
+        # Harici Çoklu-Sağlayıcı Yedek Motoru (Groq LPU / OpenRouter Free) — tanımlıysa devreye girer
+        return self._call_external_llm_fallback(parts)
+
+    def _call_external_llm_fallback(self, parts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Tüm Google modelleri yanıt veremezse ve ortam değişkenlerinde GROQ_API_KEY veya
+        OPENROUTER_API_KEY tanımlıysa OpenAI uyumlu uç noktalar üzerinden JSON çıkarımı yapar.
+        """
+        if any("inline_data" in p for p in parts):
+            return []
+        prompt_text = "\n".join(str(p.get("text", "")) for p in parts if "text" in p).strip()
+        if not prompt_text:
+            return []
+
+        providers = []
+        groq_key = (ScraperConfig.GROQ_API_KEY or "").strip()
+        if groq_key:
+            providers.append((
+                "Groq",
+                "https://api.groq.com/openai/v1/chat/completions",
+                groq_key,
+                "llama-3.3-70b-versatile",
+                24000,
+            ))
+        openrouter_key = (ScraperConfig.OPENROUTER_API_KEY or "").strip()
+        if openrouter_key:
+            providers.append((
+                "OpenRouter",
+                "https://openrouter.ai/api/v1/chat/completions",
+                openrouter_key,
+                "meta-llama/llama-3.3-70b-instruct:free",
+                36000,
+            ))
+
+        for prov_name, url, key, model_name, max_chars in providers:
+            try:
+                trimmed_prompt = prompt_text[:max_chars] if len(prompt_text) > max_chars else prompt_text
+                headers = {
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json",
+                }
+                payload = {
+                    "model": model_name,
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": "You are an official athletics calendar extraction engine. Output ONLY a valid JSON array of competition objects.",
+                        },
+                        {"role": "user", "content": trimmed_prompt},
+                    ],
+                    "temperature": 0.0,
+                    "max_tokens": 8192,
+                }
+                resp = requests.post(url, headers=headers, json=payload, timeout=45)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    choices = data.get("choices", [])
+                    if choices:
+                        content = choices[0].get("message", {}).get("content", "")
+                        parsed = self._extract_json_from_text(content)
+                        if parsed:
+                            logger.info(f"[{prov_name}-Fallback] Yedek AI ({model_name}) ile {len(parsed)} yarışma çıkarıldı.")
+                            return parsed
+                else:
+                    logger.warning(f"[{prov_name}-Fallback] HTTP {resp.status_code}: {resp.text[:140]}")
+            except Exception as e:
+                logger.warning(f"[{prov_name}-Fallback] Çağrı hatası: {e}")
+
         return []
 
     def _convert_gemini_items(
