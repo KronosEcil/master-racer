@@ -1,0 +1,45 @@
+# Firebase Gizli Anahtarları (Kesinlikle repoya yüklenmemeli!)
+serviceAccountKey.json
+google-services.json
+*firebase-adminsdk*.json
+*.key
+*.pem
+
+# Uygulama Kaynak Kodları ve Dokümanlar (Sadece yerel bilgisayarda tutulur, GitHub'a gönderilmez)
+android/
+data/
+docs/
+scripts/
+ROADMAP.md
+README.md
+PRIVACY_POLICY.md
+backend/README.md
+backend/serviceAccountKey.json.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+*.json.cache
+
+# Gradle & Android
+.gradle/
+build/
+app/build/
+android/.gradle/
+android/build/
+android/app/build/
+*.iml
+*.apk
+*.aab
+.idea/
+local.properties
+.DS_Store
+
+# Android Studio
+captures/
+.externalNativeBuild/
+.cxx/
