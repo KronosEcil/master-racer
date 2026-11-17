@@ -14,6 +14,7 @@ from .deduplication import (
     evaluate_change,
     generate_competition_id,
     is_generic_outdoor_duplicate_of_specific,
+    is_valid_masters_competition,
     normalize_text,
     extract_primary_city_slug,
 )
@@ -190,8 +191,12 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                 country = str(doc_data.get("country", "")).strip()
                 city = str(doc_data.get("city", "")).strip()
 
-                # AI Denetçisi tarafından uygunsuz bulunan veya genel spor karnavalı olan kayıtları temizle
-                if doc_id in getattr(ai_parser, "dropped_ids", set()) or "karnival sukan" in title.lower():
+                # AI Denetçisi tarafından uygunsuz bulunan, Master ibaresi taşımayan (örn. USATF 24 Hour) veya genel spor karnavalı olan kayıtları temizle
+                if (
+                    doc_id in getattr(ai_parser, "dropped_ids", set())
+                    or "karnival sukan" in title.lower()
+                    or not is_valid_masters_competition(title)
+                ):
                     try:
                         db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()
                         existing_comps.pop(doc_id, None)

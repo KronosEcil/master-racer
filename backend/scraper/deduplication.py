@@ -73,7 +73,8 @@ def is_valid_competition_title(title: str) -> bool:
     strict_blocked_phrases = [
         "olimpik deneme", "salon olimpik", "tohm", "sem-thom", "sem deneme", "sem atletizm",
         "u12", "u14", "u16", "u18", "u20", "u23", "küçükler", "yıldızlar", "gençler",
-        "meb okullar", "okul-sgm", "anadolu yıldızlar", "gençlik kupası", "para-atlet", "paralimpik"
+        "meb okullar", "okul-sgm", "anadolu yıldızlar", "gençlik kupası", "para-atlet", "paralimpik",
+        "24 hour", "24-hour", "24h championship", "100 mile", "100-mile", "50 mile", "50-mile"
     ]
     if any(sbp in t_lower for sbp in strict_blocked_phrases):
         return False
@@ -84,7 +85,7 @@ def is_valid_competition_title(title: str) -> bool:
         "emacs", "emaci", "emacns", "emmtrc", "emamrc", "emorrc",
         "bamacs", "bamaci", "bamam", "wma", "wmacs", "wmaci", "wmg", "wwmg", "ema", "bmaf", "imaa",
         "anav", "saul", "pma", "pzlam", "aikuis", "sm-hallit", "sm-yleisurheilu", "sm-maasto", "nmaci",
-        "usatf", "cma", "nzma", "jma", "mmaa", "ctma", "abram", "cavra", "femachi",
+        "cma", "nzma", "jma", "mmaa", "ctma", "abram", "cavra", "femachi",
         "asudama", "afma", "nccma", "oma", "sama", "tvaa", "tmac", "slma", "smtfa", "ama",
         "สูงอายุ", "マスターズ", "마스터즈"
     ]
