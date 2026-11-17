@@ -14,7 +14,7 @@ from .deduplication import (
     evaluate_change,
     generate_competition_id,
     is_generic_outdoor_duplicate_of_specific,
-    is_valid_masters_competition,
+    is_valid_competition_title,
     normalize_text,
     extract_primary_city_slug,
 )
@@ -195,7 +195,7 @@ def run_scraper(dry_run: bool = False, export_path: Optional[str] = None):
                 if (
                     doc_id in getattr(ai_parser, "dropped_ids", set())
                     or "karnival sukan" in title.lower()
-                    or not is_valid_masters_competition(title)
+                    or not is_valid_competition_title(title)
                 ):
                     try:
                         db.collection(ScraperConfig.FIRESTORE_COLLECTION).document(doc_id).delete()

@@ -95,6 +95,9 @@ def is_valid_competition_title(title: str) -> bool:
     return True
 
 
+is_valid_masters_competition = is_valid_competition_title
+
+
 def _detect_discipline_subtype(title_norm: str) -> str:
     """Yarışma başlığından (kişi veya şehir adına bağımlı olmadan) branş/mesafe alt türünü belirler."""
     is_indoor = any(
