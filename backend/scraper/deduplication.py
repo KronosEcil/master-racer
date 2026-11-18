@@ -74,7 +74,9 @@ def is_valid_competition_title(title: str) -> bool:
         "olimpik deneme", "salon olimpik", "tohm", "sem-thom", "sem deneme", "sem atletizm",
         "u12", "u14", "u16", "u18", "u20", "u23", "küçükler", "yıldızlar", "gençler",
         "meb okullar", "okul-sgm", "anadolu yıldızlar", "gençlik kupası", "para-atlet", "paralimpik",
-        "24 hour", "24-hour", "24h championship", "100 mile", "100-mile", "50 mile", "50-mile"
+        "24 hour", "24-hour", "24h ", "24 ore", "km 100", "100 km", "100km",
+        "100 mile", "100-mile", "50 mile", "50-mile",
+        "1^ prova", "2^ prova", "3^ prova", "trofeo delle regioni"
     ]
     if any(sbp in t_lower for sbp in strict_blocked_phrases):
         return False
@@ -137,9 +139,9 @@ def _detect_discipline_subtype(title_norm: str) -> str:
         return "INDOOR-COMBINEES" if is_indoor else "COMBINEES"
     if any(w in title_norm for w in ["marche", "walk", "yuruyus", "gehen", "bahngehen", "strassengehen", "marcha", "marcia", "chod", "chuzi", "chuze"]):
         return "INDOOR-MARCHE" if is_indoor else "MARCHE"
-    if any(w in title_norm for w in ["5k", "5-km", "5km"]):
+    if any(w in title_norm for w in ["5k", "5-km", "5km", "km-5"]):
         return "5K-ROAD"
-    if any(w in title_norm for w in ["10k", "10-km", "10km"]):
+    if any(w in title_norm for w in ["10k", "10-km", "10km", "km-10"]):
         return "10K-ROAD"
     if any(w in title_norm for w in ["10-mile", "10m-road"]):
         return "10M-ROAD"
